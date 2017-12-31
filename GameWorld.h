@@ -1,5 +1,6 @@
 #pragma once
 #include "Model.h"
+#include "Player.h"
 
 class GameWorld
 {
@@ -10,8 +11,8 @@ class GameWorld
 	btDiscreteDynamicsWorld* dynamicsWorld;
 
 public:
-	btRigidBody * groundRigidBody;
 	std::vector<Model> models;
+	Player* player;
 
 	GameWorld();
 	~GameWorld();

@@ -17,7 +17,7 @@ void main()
     // also store the per-fragment normals into the gbuffer
     gNormal = normalize(Normal);
     // and the diffuse per-fragment color
-    gAlbedoSpec = vec4(1.0, 0.5, 0.31,1.0);
+    gAlbedoSpec.rgb = texture(texture_diffuse1, TexCoords).rgb;
     // store specular intensity in gAlbedoSpec's alpha component
     //gAlbedoSpec.a = texture(texture_specular1, TexCoords).r;
 }

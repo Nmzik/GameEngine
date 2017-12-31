@@ -24,7 +24,7 @@ Game::Game() {
 
 	rendering_system = std::make_unique<RenderingSystem>(window);
 	gameWorld = std::make_unique<GameWorld>();
-	input_system = std::make_unique<InputSystem>(rendering_system.get());
+	input_system = std::make_unique<InputSystem>(rendering_system.get(), gameWorld.get());
 }
 
 

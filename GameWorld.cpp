@@ -1,5 +1,8 @@
 #include "GameWorld.h"
 
+#define TINYOBJLOADER_IMPLEMENTATION
+#include "tiny_obj_loader.h"
+
 // world space positions of our cubes
 glm::vec3 cubePositions[] = {
 	glm::vec3(0.0f,  0.0f,  0.0f),
@@ -79,23 +82,37 @@ GameWorld::GameWorld()
 
 	dynamicsWorld->setGravity(btVector3(0, -10, 0));
 
+	btOverlappingPairCallback* _overlappingPairCallback = new btGhostPairCallback();
+	broadphase->getOverlappingPairCache()->setInternalGhostPairCallback(_overlappingPairCallback);
+
+	std::vector<tinyobj::shape_t> shapes;
+	std::vector<tinyobj::material_t> materials;
+	std::string err;
+
+	tinyobj::LoadObj(shapes, materials, err, "C:\\Users\\nmzik\\Desktop\\cube.obj", "C:\\Users\\nmzik\\Desktop\\rungholt\\", tinyobj::triangulation | tinyobj::calculate_normals);
+	//player = new Player(dynamicsWorld);
+
 	for (int i = 0; i < 500; i++) {
-		Model model(glm::vec3(0.f, 200.f, 0.f), vertices, true);
+		Model model(glm::vec3(0.f, 200.f, 0.f), glm::quat(0.f, 0.f, 0.f, 1.f), shapes[0].mesh.positions, shapes[0].mesh.indices, shapes[0].mesh.normals, shapes[0].mesh.texcoords, "container.jpg", true, true);
 		models.push_back(model);
 		dynamicsWorld->addRigidBody(models[i].getBody());
 	}
 
-	Model model(glm::vec3(0.f, 0.f, 0.f), planeVertices, false);
+	tinyobj::LoadObj(shapes, materials, err, "C:\\Users\\nmzik\\Desktop\\plane.obj", "C:\\Users\\nmzik\\Desktop\\rungholt\\", tinyobj::triangulation | tinyobj::calculate_normals);
+	Model model(glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 1.f), shapes[0].mesh.positions, shapes[0].mesh.indices, shapes[0].mesh.normals, shapes[0].mesh.texcoords, nullptr, false, true);
 	models.push_back(model);
 	dynamicsWorld->addRigidBody(model.getBody());
+
+	tinyobj::LoadObj(shapes, materials, err, "C:\\Users\\nmzik\\Desktop\\rungholt\\rungholt.obj", "C:\\Users\\nmzik\\Desktop\\rungholt\\", tinyobj::triangulation | tinyobj::calculate_normals);
+	for (int i = 0; i < shapes.size(); i++) {
+		Model model1(glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 1.f), shapes[i].mesh.positions, shapes[i].mesh.indices, shapes[i].mesh.normals, shapes[i].mesh.texcoords, nullptr, false, false);
+		models.push_back(model1);
+	}
+	//dynamicsWorld->addRigidBody(model1.getBody());
 }
 
 GameWorld::~GameWorld()
 {
-	dynamicsWorld->removeRigidBody(groundRigidBody);
-	delete groundRigidBody->getMotionState();
-	delete groundRigidBody;
-
 	delete dynamicsWorld;
 }
 

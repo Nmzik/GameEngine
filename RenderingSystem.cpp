@@ -36,6 +36,9 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }
 	CreateDepthFBO();
 	Create_GBuffer();
 
+	gbuffer->use();
+	gbuffer->setInt("texture1", 0);
+
 	gbufferLighting->use();
 	gbufferLighting->setInt("gPosition", 0);
 	gbufferLighting->setInt("gNormal", 1);
@@ -200,17 +203,24 @@ void RenderingSystem::update(GameWorld* world)
 	//glm::mat4 model = glm::translate(glm::mat4(1.0f), lightdirection);
 	//gbuffer->setMat4("model", model);
 	//world->models[0].Draw();
+	//skybox->Draw();
 
 	for (int i = 0; i < world->models.size(); i++)
 	{
 		auto model = world->models[i].GetMat4();
 		
-			//printf("%f\n", glm::distance(camera->Position, glm::vec3(world->models[i].getBody()->getWorldTransform().getOrigin().getX(), world->models[i].getBody()->getWorldTransform().getOrigin().getY(), world->models[i].getBody()->getWorldTransform().getOrigin().getZ())));
-			if (glm::distance(camera->Position, glm::vec3(world->models[i].getBody()->getWorldTransform().getOrigin().getX(), world->models[i].getBody()->getWorldTransform().getOrigin().getY(), world->models[i].getBody()->getWorldTransform().getOrigin().getZ())) < 80.0f) {
-				gbuffer->setMat4("model", model);
-				world->models[i].Draw();
-			}
+		//printf("%f\n", glm::distance(camera->Position, glm::vec3(world->models[i].getBody()->getWorldTransform().getOrigin().getX(), world->models[i].getBody()->getWorldTransform().getOrigin().getY(), world->models[i].getBody()->getWorldTransform().getOrigin().getZ())));
+		//if (glm::distance(camera->Position, glm::vec3(world->models[i].getBody()->getWorldTransform().getOrigin().getX(), world->models[i].getBody()->getWorldTransform().getOrigin().getY(), world->models[i].getBody()->getWorldTransform().getOrigin().getZ())) < 80.0f) {
+		//if (glm::distance(camera->Position, world->models[i].GetPosition()) < 80.0f) {
+			gbuffer->setMat4("model", model);
+			world->models[i].Draw();
+		//}
 	}
+
+	//auto model = world->player->getPosition();
+	//gbuffer->setMat4("model", model);
+	//world->player->Draw();
+
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 
@@ -235,15 +245,16 @@ void RenderingSystem::update(GameWorld* world)
 	// Render quad
 	renderQuad();
 
-	//glBindFramebuffer(GL_READ_FRAMEBUFFER, gBuffer);
-	//glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0); // write to default framebuffer
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, gBuffer);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0); // write to default framebuffer
 											   // blit to default framebuffer. Note that this may or may not work as the internal formats of both the FBO and default framebuffer have to match.
 											   // the internal formats are implementation defined. This works on all of my systems, but if it doesn't on yours you'll likely have to write to the 		
 											   // depth buffer in another shader stage (or somehow see to match the default framebuffer's internal format with the FBO's internal format).
-	//glBlitFramebuffer(0, 0, 1280, 720, 0, 0, 1280, 720, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glBlitFramebuffer(0, 0, 1280, 720, 0, 0, 1280, 720, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	//skybox->Draw();*/
+	//FORWARD RENDERING
+	//skybox->Draw();
 
 	SDL_GL_SwapWindow(window);
 }

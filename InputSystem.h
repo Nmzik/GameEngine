@@ -6,8 +6,9 @@
 class InputSystem
 {
 	RenderingSystem* _RenderingSystem;
+	GameWorld* _world;
 public:
-	InputSystem(RenderingSystem* parent);
+	InputSystem(RenderingSystem* parent, GameWorld* world);
 	~InputSystem();
 
 	void update(SDL_Event& event, float delta_time);

@@ -2,7 +2,10 @@
 #include "Mesh.h"
 #include <vector>
 #include <glm.hpp>
+#include "glm/gtc/quaternion.hpp"
 #include "glew.h"
+#include "BulletCollision/CollisionDispatch/btGhostObject.h"
+#include "BulletDynamics/Character/btKinematicCharacterController.h"
 #include <btBulletDynamicsCommon.h>
 
 typedef struct
@@ -17,22 +20,19 @@ class Model
 {
 	std::vector<Mesh> meshes;
 
-	unsigned int VBO, EBO, VAO;
-
-	unsigned int elementsCount;
-
 	btRigidBody* rigidBody;
 	glm::vec3 position;
-	glm::vec3 rotation;
+	glm::quat rotation;
 	glm::vec3 scale;
+
 public:
-	Model(glm::vec3 position, std::vector<float> vertices, bool dynamic);
+	Model(glm::vec3 position, glm::quat rot, std::vector<float> vertices, std::vector<unsigned int> indices, std::vector<float> normals, std::vector<float> texcoords, char const * pathTexture, bool dynamic, bool GenerateCollision);
 	~Model();
 
 	btRigidBody* getBody();
 	glm::mat4 GetMat4();
 	glm::vec3 GetPosition();
-
+	unsigned int loadTexture(char const * path);
 	void Draw();
 };
 

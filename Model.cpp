@@ -1,63 +1,65 @@
 #include "Model.h"
 
-#define TINYOBJLOADER_IMPLEMENTATION
-#include "tiny_obj_loader.h"
-
-Model::Model(glm::vec3 position, std::vector<float> vertices, bool dynamic = false)
+Model::Model(glm::vec3 position, glm::quat rot, std::vector<float> vertices, std::vector<unsigned int> indices, std::vector<float> normals, std::vector<float> texcoords, char const * pathTexture, bool dynamic = false, bool GenerateCollision = true)
 {
 	this->position = position;
-
-	std::vector<tinyobj::shape_t> shapes;
-	std::vector<tinyobj::material_t> materials;
-	std::string err;
-
-	//tinyobj::LoadObj(shapes, materials, err, "C:\\Users\\nmzik\\Desktop\\rungholt\\rungholt.obj", "C:\\Users\\nmzik\\Desktop\\rungholt\\", tinyobj::triangulation | tinyobj::calculate_normals);
 
 	//printf("KOLVO VERTICES %d", (shapes[0].mesh.num_vertices));
 	//printf("KOLVO INDICES %d", shapes[0].mesh.indices.size());
 
-	btConvexHullShape *shape = new btConvexHullShape();
-	for (int i = 0; i < vertices.size()/8; i++)
-	{
-		btVector3 newVector(vertices[i * 8], vertices[i * 8 + 1], vertices[i * 8 + 2]);
-		shape->addPoint(newVector);
-	}
-	//btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0, 1, 0), 1);
-	//btCollisionShape* boxShape = new btBoxShape(btVector3(1.f, 1.f, 1.f));
+	if (GenerateCollision) {
 
-	btDefaultMotionState* MotionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(position.x, position.y, position.z)));
-	if (dynamic) {
+		btConvexHullShape *shape = new btConvexHullShape();
+
+		for (size_t i = 0; i < indices.size() / 3; ++i) {
+			// index 1
+			auto idx1 = indices[i * 3];
+			btVector3 v0(
+				vertices[(idx1 * 3)],
+				vertices[(idx1 * 3) + 1],
+				vertices[(idx1 * 3) + 2]
+			);
+			// index 2
+			auto idx2 = indices[(i * 3) + 1];
+			btVector3 v1(
+				vertices[(idx2 * 3)],
+				vertices[(idx2 * 3) + 1],
+				vertices[(idx2 * 3) + 2]
+			);
+			// index 3
+			auto idx3 = indices[(i * 3) + 2];
+			btVector3 v2(
+				vertices[(idx3 * 3)],
+				vertices[(idx3 * 3) + 1],
+				vertices[(idx3 * 3) + 2]
+			);
+
+			shape->addPoint(v0);
+			shape->addPoint(v1);
+			shape->addPoint(v2);
+		}
+
+			/*for (int i = 0; i < vertices.size() / 8; i++)
+			{
+				btVector3 newVector(vertices[i * 8], vertices[i * 8 + 1], vertices[i * 8 + 2]);
+				shape->addPoint(newVector);
+			}*/
+
+			btDefaultMotionState* MotionState = new btDefaultMotionState(btTransform(btQuaternion(rot.w, rot.x, rot.y, rot.z), btVector3(position.x, position.y, position.z)));
+		if (dynamic) {
 			btScalar mass = 1;
 			btVector3 fallInertia(0, 0, 0);
 			shape->calculateLocalInertia(mass, fallInertia);
 			btRigidBody::btRigidBodyConstructionInfo fallRigidBodyCI(mass, MotionState, shape, fallInertia);
 			rigidBody = new btRigidBody(fallRigidBodyCI);
+		}
+		else {
+			btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(0, MotionState, shape, btVector3(0, 0, 0));
+			rigidBody = new btRigidBody(groundRigidBodyCI);
+		};
 	}
-	else {
-		btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(0, MotionState, shape, btVector3(0, 0, 0));
-		rigidBody = new btRigidBody(groundRigidBodyCI);
-	};
 
-	glGenVertexArrays(1, &VAO);
-
-	glBindVertexArray(VAO);
-
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW);
-
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-
-	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-
-	//glGenBuffers(1, &EBO);
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	//glBufferData(GL_ARRAY_BUFFER, sizeof(shapes[0].mesh.indices.size()), &shapes[0].mesh.in[0], GL_STATIC_DRAW);
+	meshes.push_back(Mesh(vertices, indices, normals, texcoords, pathTexture));
 }
 
 
@@ -69,9 +71,50 @@ btRigidBody* Model::getBody() {
 	return rigidBody;
 }
 
+unsigned int Model::loadTexture(char const * path)
+{
+	unsigned int textureID;
+	glGenTextures(1, &textureID);
+
+	int width, height, nrComponents;
+	unsigned char *data = stbi_load(path, &width, &height, &nrComponents, 0);
+	if (data)
+	{
+		GLenum format;
+		if (nrComponents == 1)
+			format = GL_RED;
+		else if (nrComponents == 3)
+			format = GL_RGB;
+		else if (nrComponents == 4)
+			format = GL_RGBA;
+
+		glBindTexture(GL_TEXTURE_2D, textureID);
+		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT); // for this tutorial: use GL_CLAMP_TO_EDGE to prevent semi-transparent borders. Due to interpolation it takes texels from next repeat 
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		stbi_image_free(data);
+	}
+	else
+	{
+		printf("Texture failed to load at path : %s", path);
+		stbi_image_free(data);
+	}
+
+	return textureID;
+}
+
 glm::mat4 Model::GetMat4()
 {
-	glm::mat4 model;
+	glm::mat4 model(1.0);
+	if (rigidBody == NULL)
+	{
+		return model;
+	}
 	rigidBody->getWorldTransform().getOpenGLMatrix(&model[0][0]);
 	return model;
 }
@@ -83,9 +126,7 @@ glm::vec3 Model::GetPosition()
 
 void Model::Draw()
 {
-	glBindVertexArray(VAO);
-
-	glDrawArrays(GL_TRIANGLES, 0, 36);
-	//for (int i = 0; i < meshes.size(); i++)
-		//meshes[i].Draw();
+	for (int i = 0; i < meshes.size(); i++) {
+		meshes[i].Draw();
+	}
 }
