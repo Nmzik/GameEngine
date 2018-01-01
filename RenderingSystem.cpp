@@ -155,34 +155,13 @@ void RenderingSystem::update(GameWorld* world)
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	/////*Deferred Rendering
+	///geometry to gbuffer->shadowmaps(directional light)->shadowmaps(point light)->ssao->lighting(Final)->skybox
+	////*/
 	//GeometryPass Deferred Rendering
 	// --------------------------------
-	/*glm::vec3 lightPos(0.0f, 50.0f, 5.0f);
-	glm::vec3 lightDirection_world = glm::vec3(0.603472, -0.794415, 0.068758);
-	glm::mat4 lightProjection, lightView;
-	glm::mat4 lightSpaceMatrix;
-	float near_plane = 1.0f, far_plane = 300.f;
-	lightProjection = glm::ortho(-100.0f, 100.0f, -100.0f, 100.0f, near_plane, far_plane);
-	lightView = glm::lookAt(lightPos, lightPos + camera->Front, glm::vec3(0.0, 1.0, 0.0));
-	lightSpaceMatrix = lightProjection * lightView;
-	// render scene from light's point of view
-	DepthTexture->use();
-	DepthTexture->setMat4("lightSpaceMatrix", lightSpaceMatrix);
-
-	glViewport(0, 0, 1024, 1024);
-	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-	glClear(GL_DEPTH_BUFFER_BIT);
-	for (int i = 0; i < world->models.size(); i++)
-	{
-		auto model = world->models[i].GetMat4();
-		DepthTexture->setMat4("model", model);
-
-		world->models[i].Draw();
-	}
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	glViewport(0, 0, 1280, 720);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glm::vec3 lightPos(0.0f, 50.0f, 0.0f);
+	static glm::vec3 lightdirection(0.1f, -0.1f, 0.0f);
 
 	/*debugDepthQuad->use();
 	debugDepthQuad->setFloat("near_plane", near_plane);
@@ -223,6 +202,32 @@ void RenderingSystem::update(GameWorld* world)
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+	/*glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+	glViewport(0, 0, 1024, 1024);
+	glClear(GL_DEPTH_BUFFER_BIT);
+	//lightdirection = glm::rotateZ(lightdirection, -0.01f);
+	//if (lightdirection.y >= 0.1f) lightdirection.y = 0.1f;
+	//lightdirection = glm::rotateY(lightdirection, -0.01f);
+	//printf("%f %f %f\n", lightdirection.x, lightdirection.y, lightdirection.z);
+	glm::mat4 lightProjection, lightView;
+	glm::mat4 lightSpaceMatrix;
+	float near_plane = 0.1f, far_plane = 300.f;
+	lightProjection = glm::ortho(-x, x, -x, x, near_plane, far_plane);
+	lightView = glm::lookAt(lightPos, lightPos + lightdirection, glm::vec3(0.0, 1.0, 0.0));
+	lightSpaceMatrix = lightProjection * lightView;
+	// render scene from light's point of view
+	DepthTexture->use();
+	DepthTexture->setMat4("lightSpaceMatrix", lightSpaceMatrix);
+
+	for (int i = 0; i < world->models.size(); i++)
+	{
+		auto model = world->models[i].GetMat4();
+		DepthTexture->setMat4("model", model);
+
+		world->models[i].Draw();
+	}
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glViewport(0, 0, 1280, 720);*/
 
 	//LightingPass Deferred Rendering
 	// --------------------------------
@@ -235,13 +240,9 @@ void RenderingSystem::update(GameWorld* world)
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
 
-	static glm::vec3 lightdirection(0.2f, 0.0f, -0.3f);
-	lightdirection.x = 1.0f + sin((SDL_GetTicks() / 1000)) * 2.0f;
-	lightdirection.y = sin((SDL_GetTicks() / 1000) / 2.0f) * 1.0f;
-
-	ourShader->setVec3("lightColor", 1.0f, 1.0f, 1.0f);
-	ourShader->setVec3("lightDirection", lightdirection);
-	ourShader->setVec3("viewPos", camera->Position);
+	gbufferLighting->setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+	gbufferLighting->setVec3("lightDirection", lightdirection);
+	gbufferLighting->setVec3("viewPos", camera->Position);
 	// Render quad
 	renderQuad();
 
@@ -252,6 +253,9 @@ void RenderingSystem::update(GameWorld* world)
 											   // depth buffer in another shader stage (or somehow see to match the default framebuffer's internal format with the FBO's internal format).
 	glBlitFramebuffer(0, 0, 1280, 720, 0, 0, 1280, 720, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	
+	//GLenum err = glGetError();
+	//if (err != 0) std::cout << err << std::endl;
 
 	//FORWARD RENDERING
 	//skybox->Draw();

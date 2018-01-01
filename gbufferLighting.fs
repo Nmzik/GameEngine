@@ -19,8 +19,7 @@ void main()
     vec3 Diffuse = texture(gAlbedoSpec, TexCoords).rgb;
     float Specular = texture(gAlbedoSpec, TexCoords).a;
     
-    // then calculate lighting as usual
-    vec3 lighting  = Diffuse * 0.3; // hard-coded ambient component
+    vec3 ambient  = Diffuse * 0.3; // hard-coded ambient component
     // diffuse
     vec3 lightDir = normalize(-lightDirection);
     vec3 diffuse = max(dot(Normal, lightDir), 0.0) * Diffuse;
@@ -30,5 +29,5 @@ void main()
     float spec = pow(max(dot(Normal, halfwayDir), 0.0), 16.0);
     vec3 specular = vec3(0.3) * spec * Specular;   
 	
-    FragColor = vec4( diffuse + lighting + specular, 1.0);
+    FragColor = vec4(ambient + diffuse + specular, 1.0);
 }

@@ -26,7 +26,7 @@ class Model
 	glm::vec3 scale;
 
 public:
-	Model(glm::vec3 position, glm::quat rot, std::vector<float> vertices, std::vector<unsigned int> indices, std::vector<float> normals, std::vector<float> texcoords, char const * pathTexture, bool dynamic, bool GenerateCollision);
+	Model(glm::vec3 position, glm::quat rot, char const * ModelPath, char const * pathTexture, bool dynamic, bool GenerateCollision);
 	~Model();
 
 	btRigidBody* getBody();
