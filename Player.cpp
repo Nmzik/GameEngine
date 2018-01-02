@@ -6,13 +6,13 @@ Player::Player(btDiscreteDynamicsWorld* world)
 {
 	btPairCachingGhostObject* physObject = new btPairCachingGhostObject();
 	btCapsuleShapeZ* physShape = new btCapsuleShapeZ(1.0f, 2.0f);
-	physObject->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 20, 0)));
+	physObject->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), btVector3(-50, 20, 0)));
 	physObject->setCollisionShape(physShape);
 	physObject->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
 	physCharacter = new btKinematicCharacterController(physObject, physShape, 0.30f, btVector3(0.f, 0.f, 1.f));
-	physCharacter->setFallSpeed(20.f);
+	physCharacter->setFallSpeed(50.f);
 	physCharacter->setUseGhostSweepTest(true);
-	//physCharacter->setVelocityForTimeInterval(btVector3(1.f, 1.f, 1.f), 1.f);
+	physCharacter->setVelocityForTimeInterval(btVector3(1.f, 1.f, 1.f), 1.f);
 	physCharacter->setGravity(world->getGravity());
 	world->addCollisionObject(physObject, btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter);
 	world->addAction(physCharacter);
@@ -94,6 +94,11 @@ glm::mat4 Player::getPosition()
 	physCharacter->getGhostObject()->getWorldTransform().getOpenGLMatrix(&model[0][0]);
 
 	return model;
+}
+
+void Player::Jump()
+{
+	if (physCharacter->onGround()) physCharacter->jump(btVector3(0.0f, 30.0f, 0.0f));
 }
 
 void Player::Draw()

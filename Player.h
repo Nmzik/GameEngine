@@ -11,6 +11,7 @@ public:
 	~Player();
 
 	glm::mat4 getPosition();
+	void Jump();
 	btKinematicCharacterController* getPhysCharacter();
 	void Draw();
 };

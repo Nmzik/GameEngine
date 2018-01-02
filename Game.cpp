@@ -72,7 +72,7 @@ void Game::run() {
 		delta_time = current_time - old_time;
 
 		gameWorld->update();
-		rendering_system->update(gameWorld.get());
+		rendering_system->render(gameWorld.get());
 
 		updateFPS(delta_time);
 

@@ -772,6 +772,10 @@
     <None Include="skybox.fs" />
     <None Include="forward.fs" />
     <None Include="forward.vs" />
+    <None Include="ssao.fs" />
+    <None Include="ssao.vs" />
+    <None Include="ssao_blur.fs" />
+    <None Include="ssao_blur.vs" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="skybox_textures\back.jpg" />

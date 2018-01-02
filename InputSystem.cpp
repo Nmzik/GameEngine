@@ -11,36 +11,56 @@ InputSystem::~InputSystem()
 
 void InputSystem::update(SDL_Event& event, float delta_time)
 {
-	static float lastX = 0;
-	static float lastY = 0;
+	static bool DebugPressed = false;
 
-	//std::cout << "EVENT " << event.type << std::endl;
+	//KEYBOARD
+	const Uint8 *state = SDL_GetKeyboardState(NULL);
 
-	switch (event.type)
+	if (state[SDL_SCANCODE_F]) {
+		DebugPressed = true;
+	}
+
+	if (state[SDL_SCANCODE_G]) {
+		DebugPressed = false;
+	}
+	if (DebugPressed) {
+		if (state[SDL_SCANCODE_W]) _RenderingSystem->getCamera().ProcessKeyboard(FORWARD, delta_time);
+		if (state[SDL_SCANCODE_S]) _RenderingSystem->getCamera().ProcessKeyboard(BACKWARD, delta_time);
+		if (state[SDL_SCANCODE_A]) _RenderingSystem->getCamera().ProcessKeyboard(LEFT, delta_time);
+		if (state[SDL_SCANCODE_D]) _RenderingSystem->getCamera().ProcessKeyboard(RIGHT, delta_time);
+	}
+	else {
+		glm::vec3 movement;
+		movement.x = state[SDL_SCANCODE_W] - state[SDL_SCANCODE_S];
+		movement.y = state[SDL_SCANCODE_A] - state[SDL_SCANCODE_D];
+
+		float length = glm::length(movement);
+		if (length > 0.1f) {
+			auto move = 1.f * glm::normalize(movement);
+			_world->player->getPhysCharacter()->setWalkDirection(btVector3(move.y, 0.f, move.x));
+		}
+		else {
+			_world->player->getPhysCharacter()->setWalkDirection(btVector3(0.f, 0.f, 0.f));
+		}
+
+		if (state[SDL_SCANCODE_SPACE]) _world->player->Jump();
+	}
+
+	//MOUSE
+	int x;
+	int y;
+	SDL_GetRelativeMouseState(&x, &y);
+	_RenderingSystem->getCamera().ProcessMouseMovement(x, -y);
+	/*switch (event.type)
 	{
 		case SDL_KEYDOWN: {
-			if (event.key.keysym.sym == SDLK_w) _RenderingSystem->getCamera().ProcessKeyboard(FORWARD, delta_time);
-				//_world->player->getPhysCharacter()->setWalkDirection(btVector3(0.f, 0.f, 1.f));
-			//else 
-				//_world->player->getPhysCharacter()->setWalkDirection(btVector3(0.f, 0.f, 0.f));
-			if (event.key.keysym.sym == SDLK_s) _RenderingSystem->getCamera().ProcessKeyboard(BACKWARD, delta_time);
-				//_world->player->getPhysCharacter()->setWalkDirection(btVector3(0.f, 0.f, -1.f));
-			//else
-				//_world->player->getPhysCharacter()->setWalkDirection(btVector3(0.f, 0.f, 0.f));
-			if (event.key.keysym.sym == SDLK_a) _RenderingSystem->getCamera().ProcessKeyboard(LEFT, delta_time);
-				//_world->player->getPhysCharacter()->setWalkDirection(btVector3(-1.f, 0.f, 0.f));
-			//else
-				//_world->player->getPhysCharacter()->setWalkDirection(btVector3(0.f, 0.f, 0.f));
-			if (event.key.keysym.sym == SDLK_d) _RenderingSystem->getCamera().ProcessKeyboard(RIGHT, delta_time);
-				//_world->player->getPhysCharacter()->setWalkDirection(btVector3(1.f, 0.f, 0.f));
-			//else
-				//_world->player->getPhysCharacter()->setWalkDirection(btVector3(0.f, 0.f, 0.f));*/
+			
 			break;
+			//_world->player->getPhysCharacter()->setWalkDirection(btVector3(0.f, 0.f, 0.f));
 		}
 		case SDL_MOUSEMOTION: {
 			_RenderingSystem->getCamera().ProcessMouseMovement(event.motion.xrel, -event.motion.yrel);
 			break;
 		}
-	}
-	//keyboard handling todo
+	}*/
 }

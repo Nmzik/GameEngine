@@ -1944,6 +1944,18 @@
     <None Include="debug_quad.fs">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="ssao.vs">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="ssao.fs">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="ssao_blur.vs">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="ssao_blur.fs">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="skybox_textures\back.jpg">

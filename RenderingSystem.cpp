@@ -1,6 +1,6 @@
 #include "RenderingSystem.h"
 
-RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }
+RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, lightPos(0.0f, 50.0f, 0.0f)
 {
 	glcontext = SDL_GL_CreateContext(window);
 
@@ -24,6 +24,8 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }
 
 	ourShader = new Shader("forward.vs", "forward.fs");
 	gbuffer = new Shader("gbuffer.vs", "gbuffer.fs");
+	shaderSSAO = new Shader("ssao.vs", "ssao.fs");
+	shaderSSAOBlur = new Shader("ssao_blur.vs", "ssao_blur.fs");
 	gbufferLighting = new Shader("gbufferLighting.vs", "gbufferLighting.fs");
 	DepthTexture = new Shader("DepthTexture.vs", "DepthTexture.fs");
 	debugDepthQuad = new Shader("debug_quad.vs", "debug_quad.fs");
@@ -35,14 +37,25 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }
 
 	CreateDepthFBO();
 	Create_GBuffer();
+	CreateSSAO();
 
 	gbuffer->use();
 	gbuffer->setInt("texture1", 0);
+
+	shaderSSAO->use();
+	shaderSSAO->setInt("gPosition", 0);
+	shaderSSAO->setInt("gNormal", 1);
+	shaderSSAO->setInt("texNoise", 2);
+
+	shaderSSAOBlur->use();
+	shaderSSAOBlur->setInt("ssaoInput", 0);
 
 	gbufferLighting->use();
 	gbufferLighting->setInt("gPosition", 0);
 	gbufferLighting->setInt("gNormal", 1);
 	gbufferLighting->setInt("gAlbedoSpec", 2);
+	gbufferLighting->setInt("shadowMap", 3);
+	gbufferLighting->setInt("ssao", 4);
 }
 
 
@@ -54,6 +67,12 @@ RenderingSystem::~RenderingSystem()
 Camera & RenderingSystem::getCamera()
 {
 	return *camera;
+}
+
+
+float lerp(float a, float b, float f)
+{
+	return a + f * (b - a);
 }
 
 void RenderingSystem::Create_GBuffer()
@@ -116,6 +135,66 @@ void RenderingSystem::CreateDepthFBO()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
+void RenderingSystem::CreateSSAO()
+{
+	glGenFramebuffers(1, &ssaoFBO);  glGenFramebuffers(1, &ssaoBlurFBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, ssaoFBO);
+
+	// SSAO color buffer
+	glGenTextures(1, &ssaoColorBuffer);
+	glBindTexture(GL_TEXTURE_2D, ssaoColorBuffer);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, 1280, 720, 0, GL_RGB, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ssaoColorBuffer, 0);
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		std::cout << "SSAO Framebuffer not complete!" << std::endl;
+	// and blur stage
+	glBindFramebuffer(GL_FRAMEBUFFER, ssaoBlurFBO);
+	glGenTextures(1, &ssaoColorBufferBlur);
+	glBindTexture(GL_TEXTURE_2D, ssaoColorBufferBlur);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, 1280, 720, 0, GL_RGB, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ssaoColorBufferBlur, 0);
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		std::cout << "SSAO Blur Framebuffer not complete!" << std::endl;
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	// generate sample kernel
+	// ----------------------
+	std::uniform_real_distribution<GLfloat> randomFloats(0.0, 1.0); // generates random floats between 0.0 and 1.0
+	std::default_random_engine generator;
+	for (unsigned int i = 0; i < 64; ++i)
+	{
+		glm::vec3 sample(randomFloats(generator) * 2.0 - 1.0, randomFloats(generator) * 2.0 - 1.0, randomFloats(generator));
+		sample = glm::normalize(sample);
+		sample *= randomFloats(generator);
+		float scale = float(i) / 64.0;
+
+		// scale samples s.t. they're more aligned to center of kernel
+		scale = lerp(0.1f, 1.0f, scale * scale);
+		sample *= scale;
+		ssaoKernel.push_back(sample);
+	}
+
+	// generate noise texture
+	// ----------------------
+	std::vector<glm::vec3> ssaoNoise;
+	for (unsigned int i = 0; i < 16; i++)
+	{
+		glm::vec3 noise(randomFloats(generator) * 2.0 - 1.0, randomFloats(generator) * 2.0 - 1.0, 0.0f); // rotate around z-axis (in tangent space)
+		ssaoNoise.push_back(noise);
+	}
+	glGenTextures(1, &noiseTexture);
+	glBindTexture(GL_TEXTURE_2D, noiseTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, 4, 4, 0, GL_RGB, GL_FLOAT, &ssaoNoise[0]);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+}
+
 void RenderingSystem::RenderShadowMap()
 {
 	
@@ -150,7 +229,7 @@ void renderQuad()
 	glBindVertexArray(0);
 }
 
-void RenderingSystem::update(GameWorld* world) 
+void RenderingSystem::render(GameWorld* world) 
 {
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -160,29 +239,26 @@ void RenderingSystem::update(GameWorld* world)
 	////*/
 	//GeometryPass Deferred Rendering
 	// --------------------------------
-	glm::vec3 lightPos(0.0f, 50.0f, 0.0f);
 	static glm::vec3 lightdirection(0.1f, -0.1f, 0.0f);
-
-	/*debugDepthQuad->use();
-	debugDepthQuad->setFloat("near_plane", near_plane);
-	debugDepthQuad->setFloat("far_plane", far_plane);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, depthMap);
-	renderQuad();*/
 	
 	glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)1280 / (float)720, 0.1f, 1000.0f);
+	//glEnable(GL_CULL_FACE);;
+	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)1280 / (float)720, 1.f, 5000.0f);
 	glm::mat4 view = camera->GetViewMatrix();
 	gbuffer->use();
 	gbuffer->setMat4("projection", projection);
 	gbuffer->setMat4("view", view);
 
 	//light position object
-	//glm::mat4 model = glm::translate(glm::mat4(1.0f), lightdirection);
-	//gbuffer->setMat4("model", model);
-	//world->models[0].Draw();
-	//skybox->Draw();
+	/*static glm::mat4 model(1.0f);
+	model = glm::translate(glm::vec3(0.0f,50.0f,0.0f));
+	//model = glm::rotateZ(lightdirection, -0.01f);
+	model = glm::rotate(model, -1.f, glm::vec3(0.f, 1.f, 1.f));
+	printf("TEST %s\n", glm::to_string(model));
+	//model = glm::rotate(-0.01f, lightdirection);
+	gbuffer->setMat4("model", model);
+	world->models[0].Draw();*/
 
 	for (int i = 0; i < world->models.size(); i++)
 	{
@@ -196,22 +272,26 @@ void RenderingSystem::update(GameWorld* world)
 		//}
 	}
 
-	//auto model = world->player->getPosition();
-	//gbuffer->setMat4("model", model);
-	//world->player->Draw();
+	auto model = world->player->getPosition();
+	gbuffer->setMat4("model", model);
+	world->player->Draw();
+	//glDisable(GL_CULL_FACE);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	/*glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 	glViewport(0, 0, 1024, 1024);
 	glClear(GL_DEPTH_BUFFER_BIT);
-	//lightdirection = glm::rotateZ(lightdirection, -0.01f);
+	//lightPos.x = camera->Position.x;
+	//lightPos.y = camera->Position.y + 50.f;
+	//lightPos.z = camera->Position.z;
+	lightdirection = glm::rotateZ(lightdirection, -0.01f);
 	//if (lightdirection.y >= 0.1f) lightdirection.y = 0.1f;
 	//lightdirection = glm::rotateY(lightdirection, -0.01f);
 	//printf("%f %f %f\n", lightdirection.x, lightdirection.y, lightdirection.z);
 	glm::mat4 lightProjection, lightView;
 	glm::mat4 lightSpaceMatrix;
-	float near_plane = 0.1f, far_plane = 300.f;
+	float near_plane = 1.f, far_plane = 5000.f;
 	lightProjection = glm::ortho(-x, x, -x, x, near_plane, far_plane);
 	lightView = glm::lookAt(lightPos, lightPos + lightdirection, glm::vec3(0.0, 1.0, 0.0));
 	lightSpaceMatrix = lightProjection * lightView;
@@ -222,12 +302,20 @@ void RenderingSystem::update(GameWorld* world)
 	for (int i = 0; i < world->models.size(); i++)
 	{
 		auto model = world->models[i].GetMat4();
-		DepthTexture->setMat4("model", model);
-
-		world->models[i].Draw();
+		//if (glm::distance(camera->Position, world->models[i].GetPosition()) < 80.0f) {
+			DepthTexture->setMat4("model", model);
+			world->models[i].Draw();
+		//}
 	}
+
+	/*debugDepthQuad->use();
+	debugDepthQuad->setFloat("near_plane", near_plane);
+	debugDepthQuad->setFloat("far_plane", far_plane);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+	renderQuad();*/
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glViewport(0, 0, 1280, 720);*/
+	glViewport(0, 0, 1280, 720);
 
 	//LightingPass Deferred Rendering
 	// --------------------------------
@@ -239,28 +327,68 @@ void RenderingSystem::update(GameWorld* world)
 	glBindTexture(GL_TEXTURE_2D, gNormal);
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
+	glActiveTexture(GL_TEXTURE3);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+	glActiveTexture(GL_TEXTURE4);
+	glBindTexture(GL_TEXTURE_2D, ssaoColorBufferBlur);
 
 	gbufferLighting->setVec3("lightColor", 1.0f, 1.0f, 1.0f);
 	gbufferLighting->setVec3("lightDirection", lightdirection);
 	gbufferLighting->setVec3("viewPos", camera->Position);
+	gbufferLighting->setMat4("lightSpaceMatrix", lightSpaceMatrix);
 	// Render quad
 	renderQuad();
 
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, gBuffer);
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0); // write to default framebuffer
-											   // blit to default framebuffer. Note that this may or may not work as the internal formats of both the FBO and default framebuffer have to match.
-											   // the internal formats are implementation defined. This works on all of my systems, but if it doesn't on yours you'll likely have to write to the 		
-											   // depth buffer in another shader stage (or somehow see to match the default framebuffer's internal format with the FBO's internal format).
-	glBlitFramebuffer(0, 0, 1280, 720, 0, 0, 1280, 720, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	
 	//GLenum err = glGetError();
 	//if (err != 0) std::cout << err << std::endl;
 
+	SDL_GL_SwapWindow(window);
+}
+
+void RenderingSystem::ssaoPass()
+{
+	// 2. generate SSAO texture
+	// ------------------------
+	glBindFramebuffer(GL_FRAMEBUFFER, ssaoFBO);
+	glClear(GL_COLOR_BUFFER_BIT);
+	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)1280 / (float)720, 0.1f, 1000.0f);
+	shaderSSAO->use();
+	// Send kernel + rotation 
+	for (unsigned int i = 0; i < 64; ++i)
+		shaderSSAO->setVec3("samples[" + std::to_string(i) + "]", ssaoKernel[i]);
+	shaderSSAO->setMat4("projection", projection);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, gPosition);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, gNormal);
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, noiseTexture);
+	renderQuad();
+	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	// 3. blur SSAO texture to remove noise
+	// ------------------------------------
+	glBindFramebuffer(GL_FRAMEBUFFER, ssaoBlurFBO);
+	glClear(GL_COLOR_BUFFER_BIT);
+	shaderSSAOBlur->use();
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, ssaoColorBuffer);
+	renderQuad();
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void RenderingSystem::skyboxPass()
+{
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, gBuffer);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0); // write to default framebuffer
+	// blit to default framebuffer. Note that this may or may not work as the internal formats of both the FBO and default framebuffer have to match.
+	// the internal formats are implementation defined. This works on all of my systems, but if it doesn't on yours you'll likely have to write to the
+	// depth buffer in another shader stage (or somehow see to match the default framebuffer's internal format with the FBO's internal format).
+	glBlitFramebuffer(0, 0, 1280, 720, 0, 0, 1280, 720, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 	//FORWARD RENDERING
 	//skybox->Draw();
-
-	SDL_GL_SwapWindow(window);
 }
 
 /*void ForwardRendering() {
