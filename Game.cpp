@@ -25,6 +25,8 @@ Game::Game() {
 	rendering_system = std::make_unique<RenderingSystem>(window);
 	gameWorld = std::make_unique<GameWorld>();
 	input_system = std::make_unique<InputSystem>(rendering_system.get(), gameWorld.get());
+
+	StateManager::get().enter<InGameState>(this);
 }
 
 
@@ -63,7 +65,8 @@ void Game::run() {
 	
 	while (running) {
 		while (SDL_PollEvent(&event)) {
-			input_system->update(event, delta_time);
+			StateManager::get().currentState()->handleEvent(event);
+			//input_system->update(event, delta_time);
 			if (event.type == SDL_QUIT) running = false;
 		}
 
@@ -71,11 +74,13 @@ void Game::run() {
 		current_time = SDL_GetTicks() / 1000.f;
 		delta_time = current_time - old_time;
 
-		gameWorld->update();
-		rendering_system->render(gameWorld.get());
+		StateManager::get().tick(delta_time);
+		if (!paused) {
+			gameWorld->update();
+			rendering_system->render(gameWorld.get());
+		}
 
 		updateFPS(delta_time);
-
 	}
 
 	//if (event.key.keysym.sym == SDLK_ESCAPE || event.type == SDL_QUIT) break;

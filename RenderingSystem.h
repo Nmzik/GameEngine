@@ -53,6 +53,8 @@ public:
 	~RenderingSystem();
 
 	glm::vec3 lightPos;
+	glm::vec3 sunDirection;
+
 	float x = 50.f;
 	Camera& getCamera();
 	void Create_GBuffer();

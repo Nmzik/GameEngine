@@ -53,6 +53,17 @@ Model::Model(glm::vec3 position, glm::quat rot, char const * ModelPath, char con
 				btVector3 newVector(vertices[i * 8], vertices[i * 8 + 1], vertices[i * 8 + 2]);
 				shape->addPoint(newVector);
 			}*/
+		/*btCompoundShape* shape = new btCompoundShape;
+
+			for (int i = 0; i < shapes.size(); i++) {
+				btTriangleIndexVertexArray * vert_array = new btTriangleIndexVertexArray(
+					shapes[i].mesh.indices.size() / 3, (int*)shapes[i].mesh.indices.data(), 3 * sizeof(unsigned int),
+					shapes[i].mesh.positions.size(), (float*)shapes[i].mesh.positions.data(), 3 * sizeof(float)
+				);
+				btBvhTriangleMeshShape * childShape = new btBvhTriangleMeshShape(vert_array, true);
+				shape->addChildShape(t, childShape);
+			}
+		*/
 
 			btDefaultMotionState* MotionState = new btDefaultMotionState(btTransform(btQuaternion(rot.w, rot.x, rot.y, rot.z), btVector3(position.x, position.y, position.z)));
 		if (dynamic) {

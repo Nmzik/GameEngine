@@ -1,6 +1,6 @@
 #include "RenderingSystem.h"
 
-RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, lightPos(0.0f, 50.0f, 0.0f)
+RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, lightPos(0.0f, 50.0f, 0.0f), sunDirection{ 0.1, 0.8, 0.1 }
 {
 	glcontext = SDL_GL_CreateContext(window);
 
@@ -239,7 +239,12 @@ void RenderingSystem::render(GameWorld* world)
 	////*/
 	//GeometryPass Deferred Rendering
 	// --------------------------------
-	static glm::vec3 lightdirection(0.1f, -0.1f, 0.0f);
+	float tod = world->gameHour + world->gameMinute / 60.f;
+	float theta = (tod / (60.f * 24.f) - 0.5f) * glm::pi<float>();
+	/*glm::vec3 sunDirection{
+		sin(theta), 0.0, cos(theta),
+	};*/
+	sunDirection = glm::normalize(sunDirection);
 	
 	glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -285,7 +290,7 @@ void RenderingSystem::render(GameWorld* world)
 	//lightPos.x = camera->Position.x;
 	//lightPos.y = camera->Position.y + 50.f;
 	//lightPos.z = camera->Position.z;
-	lightdirection = glm::rotateZ(lightdirection, -0.01f);
+	sunDirection = glm::rotateZ(sunDirection, -0.01f) / 10;
 	//if (lightdirection.y >= 0.1f) lightdirection.y = 0.1f;
 	//lightdirection = glm::rotateY(lightdirection, -0.01f);
 	//printf("%f %f %f\n", lightdirection.x, lightdirection.y, lightdirection.z);
@@ -293,7 +298,7 @@ void RenderingSystem::render(GameWorld* world)
 	glm::mat4 lightSpaceMatrix;
 	float near_plane = 1.f, far_plane = 5000.f;
 	lightProjection = glm::ortho(-x, x, -x, x, near_plane, far_plane);
-	lightView = glm::lookAt(lightPos, lightPos + lightdirection, glm::vec3(0.0, 1.0, 0.0));
+	lightView = glm::lookAt(camera->Position, camera->Position + sunDirection, glm::vec3(0.0, 1.0, 0.0));
 	lightSpaceMatrix = lightProjection * lightView;
 	// render scene from light's point of view
 	DepthTexture->use();
@@ -308,7 +313,12 @@ void RenderingSystem::render(GameWorld* world)
 		//}
 	}
 
-	/*debugDepthQuad->use();
+	printf("SUN %s\n",glm::to_string(sunDirection));
+
+	/*glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glViewport(0, 0, 1280, 720);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	debugDepthQuad->use();
 	debugDepthQuad->setFloat("near_plane", near_plane);
 	debugDepthQuad->setFloat("far_plane", far_plane);
 	glActiveTexture(GL_TEXTURE0);
@@ -333,7 +343,7 @@ void RenderingSystem::render(GameWorld* world)
 	glBindTexture(GL_TEXTURE_2D, ssaoColorBufferBlur);
 
 	gbufferLighting->setVec3("lightColor", 1.0f, 1.0f, 1.0f);
-	gbufferLighting->setVec3("lightDirection", lightdirection);
+	gbufferLighting->setVec3("lightDirection", sunDirection);
 	gbufferLighting->setVec3("viewPos", camera->Position);
 	gbufferLighting->setMat4("lightSpaceMatrix", lightSpaceMatrix);
 	// Render quad
