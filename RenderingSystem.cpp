@@ -297,8 +297,10 @@ void RenderingSystem::render(GameWorld* world)
 	glm::mat4 lightProjection, lightView;
 	glm::mat4 lightSpaceMatrix;
 	float near_plane = 1.f, far_plane = 5000.f;
-	lightProjection = glm::ortho(-x, x, -x, x, near_plane, far_plane);
-	lightView = glm::lookAt(camera->Position, camera->Position + sunDirection, glm::vec3(0.0, 1.0, 0.0));
+	lightProjection = glm::ortho(-x, x, -x, x, -100.f, 200.f);
+	glm::vec3 lightInvDir = glm::vec3(2.0f, 0.5f, 2.0f);
+	glm::vec3 lightPos = camera->Position + lightInvDir;
+	lightView = glm::lookAt(lightPos, camera->Position, glm::vec3(0.0, 1.0, 0.0));
 	lightSpaceMatrix = lightProjection * lightView;
 	// render scene from light's point of view
 	DepthTexture->use();
@@ -313,7 +315,7 @@ void RenderingSystem::render(GameWorld* world)
 		//}
 	}
 
-	printf("SUN %s\n",glm::to_string(sunDirection));
+	printf("SUN %s\n",glm::to_string(sunDirection).c_str());
 
 	/*glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, 1280, 720);

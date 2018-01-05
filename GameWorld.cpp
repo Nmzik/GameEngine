@@ -18,18 +18,18 @@ GameWorld::GameWorld()
 	gameHour = 10;
 	gameMinute = 0;
 
-	for (int i = 0; i < 500; i++) {
+	/*for (int i = 0; i < 500; i++) {
 		Model model(glm::vec3(0.f, 200.f, 0.f), glm::quat(0.f, 0.f, 0.f, 1.f), "C:\\Users\\nmzik\\Desktop\\cube.obj", "container.jpg", true, true);
 		models.push_back(model);
 		dynamicsWorld->addRigidBody(models[i].getBody());
-	}
+	}*/
 
 	Model model(glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 1.f), "C:\\Users\\nmzik\\Desktop\\plane.obj", nullptr, false, true);
 	models.push_back(model);
 	dynamicsWorld->addRigidBody(model.getBody());
 
-	//Model model1(glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 1.f), "C:\\Users\\nmzik\\Desktop\\rungholt\\rungholt.obj", nullptr, false, false);
-	//models.push_back(model1);
+	Model model1(glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 1.f), "C:\\Users\\nmzik\\Desktop\\rungholt\\rungholt.obj", nullptr, false, false);
+	models.push_back(model1);
 	//dynamicsWorld->addRigidBody(model1.getBody());
 }
 
