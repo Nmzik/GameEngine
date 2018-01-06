@@ -59,7 +59,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Program Files %28x86%29\OpenAL 1.1 SDK\include;C:\Users\nmzik\source\repos\MyGameEngine\MyGameEngine\glm;C:\Users\nmzik\source\repos\MyGameEngine\MyGameEngine\sdl2\include;C:\Users\nmzik\source\repos\MyGameEngine\MyGameEngine\glew\include\GL;C:\Users\nmzik\source\repos\MyGameEngine\MyGameEngine\bullet;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Program Files %28x86%29\OpenAL 1.1 SDK\include;C:\Users\nmzik\source\repos\MyGameEngine\MyGameEngine\glm;C:\Users\nmzik\source\repos\MyGameEngine\MyGameEngine\sdl2\include;C:\Users\nmzik\source\repos\MyGameEngine\MyGameEngine\glew\include\GL;$(ProjectDir)\bullet;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>B3_USE_CLEW;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
@@ -67,7 +67,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Console</SubSystem>
-      <AdditionalLibraryDirectories>C:\Users\nmzik\source\repos\MyGameEngine\MyGameEngine\bullet\lib;C:\Program Files %28x86%29\OpenAL 1.1 SDK\libs\Win64;C:\Users\nmzik\source\repos\MyGameEngine\MyGameEngine\sdl2\lib\x64;C:\Users\nmzik\source\repos\MyGameEngine\MyGameEngine\glew\lib\Release\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)\bullet\lib;C:\Program Files %28x86%29\OpenAL 1.1 SDK\libs\Win64;C:\Users\nmzik\source\repos\MyGameEngine\MyGameEngine\sdl2\lib\x64;C:\Users\nmzik\source\repos\MyGameEngine\MyGameEngine\glew\lib\Release\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;BulletDynamics.lib;BulletCollision.lib;LinearMath.lib;glew32.lib;OpenAL32.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
