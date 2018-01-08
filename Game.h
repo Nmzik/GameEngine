@@ -5,7 +5,6 @@
 #include "SDL.h"
 
 #include "RenderingSystem.h"
-#include "InputSystem.h"
 #include "StateManager.h"
 #include "MenuState.h"
 #include "InGameState.h"
@@ -16,7 +15,6 @@ class Game
 
 	std::unique_ptr<GameWorld> gameWorld;
 	std::unique_ptr<RenderingSystem> rendering_system;
-	std::unique_ptr<InputSystem> input_system;
 public:
 	Game();
 	~Game();

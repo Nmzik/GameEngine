@@ -6,7 +6,7 @@
 
 class Mesh
 {
-	unsigned int vertex_buffer, EBO, VAO, normal_buffer, tex_coord_buffer;
+	unsigned int vertex_buffer, EBO, VAO, normal_buffer, tex_coord_buffer, tangent_buffer, bitangent_buffer;
 
 	unsigned int Texture;
 	unsigned int num_indices;
