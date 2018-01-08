@@ -1,5 +1,29 @@
 #include "RenderingSystem.h"
 
+void myDebugCallback(
+	GLenum source,
+	GLenum type,
+	GLuint id,
+	GLenum severity,
+	GLsizei length,
+	const GLchar* message,
+	const void* userParam)
+{
+	printf(
+		"Source: %d\n"
+		"Type:   %d\n"
+		"ID:     %d\n"
+		"Severity: %d\n"
+		"Length:   %d\n"
+		"\n%s\n",
+		source,
+		type,
+		id,
+		severity,
+		length,
+		message);
+}
+
 RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, lightPos(0.0f, 50.0f, 0.0f), sunDirection{ 0.1, 0.8, 0.1 }
 {
 	glcontext = SDL_GL_CreateContext(window);
@@ -9,6 +33,17 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, light
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
 
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
+
+
+	//// Enable the debug callback
+	//glEnable(GL_DEBUG_OUTPUT);
+	//glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+	//glDebugMessageCallback(openglCallbackFunction, nullptr);
+	//glDebugMessageControl(
+		//GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, true
+	//);
+
 	// Turn on double buffering with a 24bit Z buffer.
 	// You may need to change this to 16 or 32 for your system
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
@@ -17,6 +52,9 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, light
 
 	glewExperimental = GL_TRUE;
 	glewInit();
+
+	glEnable(GL_DEBUG_OUTPUT);
+	glDebugMessageCallback(myDebugCallback, nullptr);
 
 	glEnable(GL_DEPTH_TEST);
 
@@ -57,7 +95,6 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, light
 	gbufferLighting->setInt("shadowMap", 3);
 	gbufferLighting->setInt("ssao", 4);
 }
-
 
 RenderingSystem::~RenderingSystem() 
 {
@@ -315,7 +352,7 @@ void RenderingSystem::render(GameWorld* world)
 		//}
 	}
 
-	printf("SUN %s\n",glm::to_string(sunDirection).c_str());
+	//printf("SUN %s\n",glm::to_string(sunDirection).c_str());
 
 	/*glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, 1280, 720);

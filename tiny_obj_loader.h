@@ -979,7 +979,7 @@ bool LoadObj(std::vector<shape_t> &shapes,       // [output]
   }
   MaterialFileReader matFileReader(basePath);
 
-  return LoadObj(shapes, materials, err, ifs, matFileReader, flags);
+	  return LoadObj(shapes, materials, err, ifs, matFileReader, flags);
 }
 
 bool LoadObj(std::vector<shape_t> &shapes,       // [output]

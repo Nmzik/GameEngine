@@ -24,11 +24,11 @@ GameWorld::GameWorld()
 		dynamicsWorld->addRigidBody(models[i].getBody());
 	}*/
 
-	Model model(glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 1.f), "C:\\Users\\nmzik\\Desktop\\plane.obj", nullptr, false, true);
-	models.push_back(model);
-	dynamicsWorld->addRigidBody(model.getBody());
+	//Model model(glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 1.f), "C:\\Users\\nmzik\\Desktop\\plane.obj", nullptr, false, true);
+	//models.push_back(model);
+	//dynamicsWorld->addRigidBody(model.getBody());
 
-	Model model1(glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 1.f), "C:\\Users\\nmzik\\Desktop\\rungholt\\rungholt.obj", nullptr, false, false);
+	Model model1(glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 1.f), "C:\\Users\\nmzik\\Desktop\\test.obj", nullptr, false, false);
 	models.push_back(model1);
 	//dynamicsWorld->addRigidBody(model1.getBody());
 }
