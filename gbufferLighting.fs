@@ -10,10 +10,16 @@ uniform sampler2D shadowMap;
 uniform sampler2D ssao;
 
 uniform mat4 lightSpaceMatrix;
-
-uniform vec3 lightDirection;
-uniform vec3 lightColor;
 uniform vec3 viewPos;
+
+struct Light {
+	vec3 direction;
+
+	vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+};
+uniform Light light;
 
 void main()
 {             
@@ -25,15 +31,16 @@ void main()
     //float AmbientOcclusion = texture(ssao, TexCoords).r;
 	vec4 FragPosLightSpace = lightSpaceMatrix * vec4(FragPos, 1.0);
 
-    vec3 ambient  = Diffuse * 0.3; // hard-coded ambient component
+    vec3 ambient  = light.ambient * Diffuse;
     // diffuse
-    vec3 lightDir = normalize(-lightDirection);
-    vec3 diffuse = max(dot(Normal, lightDir), 0.0) * Diffuse * lightColor;
+    vec3 lightDir = normalize(-light.direction);
+    float diff = max(dot(Normal, lightDir), 0.0);
+	vec3 diffuse = light.diffuse * diff * Diffuse;
     // specular
 	vec3 viewDir  = normalize(viewPos - FragPos);
     vec3 halfwayDir = normalize(lightDir + viewDir);  
     float spec = pow(max(dot(Normal, halfwayDir), 0.0), 16.0);
-    vec3 specular = vec3(0.3) * spec * Specular * lightColor;   
+    vec3 specular = light.specular * spec * Specular;   
 	
 	// perform perspective divide
     vec3 projCoords = FragPosLightSpace.xyz / FragPosLightSpace.w;

@@ -78,7 +78,8 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, light
 	CreateSSAO();
 
 	gbuffer->use();
-	gbuffer->setInt("texture1", 0);
+	gbuffer->setInt("material.diffuse", 0);
+	gbuffer->setInt("material.specular", 1);
 
 	shaderSSAO->use();
 	shaderSSAO->setInt("gPosition", 0);
@@ -94,6 +95,9 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, light
 	gbufferLighting->setInt("gAlbedoSpec", 2);
 	gbufferLighting->setInt("shadowMap", 3);
 	gbufferLighting->setInt("ssao", 4);
+	gbufferLighting->setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
+	gbufferLighting->setVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
+	gbufferLighting->setVec3("light.specular", 1.0f, 1.0f, 1.0f);
 }
 
 RenderingSystem::~RenderingSystem() 
@@ -286,7 +290,7 @@ void RenderingSystem::render(GameWorld* world)
 	glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//glEnable(GL_CULL_FACE);;
-	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)1280 / (float)720, 1.f, 5000.0f);
+	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)1280 / (float)720, 0.1f, 5000.0f);
 	glm::mat4 view = camera->GetViewMatrix();
 	gbuffer->use();
 	gbuffer->setMat4("projection", projection);
@@ -381,15 +385,11 @@ void RenderingSystem::render(GameWorld* world)
 	glActiveTexture(GL_TEXTURE4);
 	glBindTexture(GL_TEXTURE_2D, ssaoColorBufferBlur);
 
-	gbufferLighting->setVec3("lightColor", 1.0f, 1.0f, 1.0f);
-	gbufferLighting->setVec3("lightDirection", sunDirection);
+	gbufferLighting->setVec3("light.direction", sunDirection);
 	gbufferLighting->setVec3("viewPos", camera->Position);
 	gbufferLighting->setMat4("lightSpaceMatrix", lightSpaceMatrix);
 	// Render quad
 	renderQuad();
-
-	//GLenum err = glGetError();
-	//if (err != 0) std::cout << err << std::endl;
 
 	SDL_GL_SwapWindow(window);
 }

@@ -1,12 +1,12 @@
 #pragma once
 #include "State.h"
-#include "PauseState.h"
-class InGameState :
+
+class PauseState :
 	public State
 {
 public:
-	InGameState(Game* game);
-	~InGameState();
+	PauseState(Game* game);
+	~PauseState();
 
 	virtual void enter() override;
 	virtual void exit() override;

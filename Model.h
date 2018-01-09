@@ -26,13 +26,12 @@ class Model
 	glm::vec3 scale;
 
 public:
-	Model(glm::vec3 position, glm::quat rot, char const * ModelPath, char const * pathTexture, bool dynamic, bool GenerateCollision);
+	Model(glm::vec3 position, glm::quat rot, char const * ModelPath, char const * pathTexture, const char* specTexture, bool dynamic, bool GenerateCollision);
 	~Model();
 
 	btRigidBody* getBody();
 	glm::mat4 GetMat4();
 	glm::vec3 GetPosition();
-	unsigned int loadTexture(char const * path);
 	void Draw();
 };
 

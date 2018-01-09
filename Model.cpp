@@ -3,7 +3,7 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "tiny_obj_loader.h"
 
-Model::Model(glm::vec3 position, glm::quat rot, char const * ModelPath, char const * pathTexture, bool dynamic = false, bool GenerateCollision = true)
+Model::Model(glm::vec3 position, glm::quat rot, char const * ModelPath, char const * pathTexture, const char* specTexture, bool dynamic = false, bool GenerateCollision = true)
 {
 	this->position = position;
 
@@ -81,7 +81,7 @@ Model::Model(glm::vec3 position, glm::quat rot, char const * ModelPath, char con
 
 	for (int i = 0; i < shapes.size(); i++)
 	{
-		meshes.push_back(Mesh(shapes[i].mesh.positions, shapes[i].mesh.indices, shapes[i].mesh.normals, shapes[i].mesh.texcoords, pathTexture));
+		meshes.push_back(Mesh(shapes[i].mesh.positions, shapes[i].mesh.indices, shapes[i].mesh.normals, shapes[i].mesh.texcoords, pathTexture, specTexture));
 	}
 }
 

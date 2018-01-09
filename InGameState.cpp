@@ -73,6 +73,7 @@ void InGameState::tick(float delta_time)
 		if (state[SDL_SCANCODE_S]) game->getRenderer()->getCamera().ProcessKeyboard(BACKWARD, delta_time);
 		if (state[SDL_SCANCODE_A]) game->getRenderer()->getCamera().ProcessKeyboard(LEFT, delta_time);
 		if (state[SDL_SCANCODE_D]) game->getRenderer()->getCamera().ProcessKeyboard(RIGHT, delta_time);
+		game->getWorld()->player->getPhysCharacter()->setWalkDirection(btVector3(0.f, 0.f, 0.f));
 	}
 	else {
 
@@ -107,9 +108,10 @@ void InGameState::handleEvent(const SDL_Event & event)
 	switch (event.type) {
 	case SDL_KEYDOWN:
 		switch (event.key.keysym.sym) {
-		case SDLK_ESCAPE:
-			StateManager::get().enter<MenuState>(game);
+		case SDLK_ESCAPE: {
+			StateManager::get().enter<PauseState>(game);
 			break;
+		}
 		default:
 			break;
 		}

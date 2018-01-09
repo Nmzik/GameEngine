@@ -28,6 +28,10 @@ public:
 		return gameWorld.get();
 	}
 
+	SDL_Window* getWindow() {
+		return window;
+	}
+
 	RenderingSystem* getRenderer() {
 		return rendering_system.get();
 	}

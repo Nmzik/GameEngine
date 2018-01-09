@@ -1,16 +1,21 @@
 #pragma once
+
+#include "glew.h"
+#include "stb_image.h"
+
 class Material
 {
 public:
-	Material();
+	Material(const char* diffuseTexture, const char* specTexture);
 	~Material();
 
-	/*GLuint diffuseTextureID;
+	GLuint diffuseTextureID;
 	GLuint normalTextureID;
 	GLuint specularTextureID;
 	GLuint ambientTextureID;
-	GLuint opacityTextureID;*/
+	GLuint opacityTextureID;
 
+	unsigned int loadTexture(char const * path);
 	void bind();
 };
 
