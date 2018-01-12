@@ -45,6 +45,14 @@ void InGameState::tick(float delta_time)
 	//KEYBOARD
 	const Uint8 *state = SDL_GetKeyboardState(NULL);
 
+	if (state[SDL_SCANCODE_Q]) {
+		game->getRenderer()->setType(0);
+	}
+
+	if (state[SDL_SCANCODE_E]) {
+		game->getRenderer()->setType(1);
+	}
+
 	if (state[SDL_SCANCODE_Z]) {
 		game->getRenderer()->sunDirection.z += 0.1f;
 	}
@@ -54,11 +62,11 @@ void InGameState::tick(float delta_time)
 	}
 
 	if (state[SDL_SCANCODE_C]) {
-		game->getRenderer()->sunDirection.y += 0.01f;
+		game->getRenderer()->sunDirection.x += 0.01f;
 	}
 
 	if (state[SDL_SCANCODE_V]) {
-		game->getRenderer()->sunDirection.y -= 0.01f;
+		game->getRenderer()->sunDirection.x -= 0.01f;
 	}
 
 	if (state[SDL_SCANCODE_F]) {

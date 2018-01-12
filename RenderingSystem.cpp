@@ -35,15 +35,6 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, light
 
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
 
-
-	//// Enable the debug callback
-	//glEnable(GL_DEBUG_OUTPUT);
-	//glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-	//glDebugMessageCallback(openglCallbackFunction, nullptr);
-	//glDebugMessageControl(
-		//GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, true
-	//);
-
 	// Turn on double buffering with a 24bit Z buffer.
 	// You may need to change this to 16 or 32 for your system
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
@@ -98,6 +89,28 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, light
 	gbufferLighting->setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
 	gbufferLighting->setVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
 	gbufferLighting->setVec3("light.specular", 1.0f, 1.0f, 1.0f);
+
+
+	float quadVertices[] = {
+		// positions        // texture Coords
+		-1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+		-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+		1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+		1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+	};
+	// setup plane VAO
+	glGenVertexArrays(1, &quadVAO);
+	glGenBuffers(1, &quadVBO);
+	glBindVertexArray(quadVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+
+
+	projection = glm::perspective(glm::radians(45.0f), (float)1280 / (float)720, 0.1f, 5000.0f);
 }
 
 RenderingSystem::~RenderingSystem() 
@@ -126,6 +139,8 @@ void RenderingSystem::Create_GBuffer()
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, 1280, 720, 0, GL_RGB, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gPosition, 0);
 	// normal color buffer
 	glGenTextures(1, &gNormal);
@@ -241,30 +256,8 @@ void RenderingSystem::RenderShadowMap()
 	
 }
 
-unsigned int quadVAO = 0;
-unsigned int quadVBO;
-void renderQuad()
+void RenderingSystem::renderQuad()
 {
-	if (quadVAO == 0)
-	{
-		float quadVertices[] = {
-			// positions        // texture Coords
-			-1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
-			-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-			1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
-			1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
-		};
-		// setup plane VAO
-		glGenVertexArrays(1, &quadVAO);
-		glGenBuffers(1, &quadVBO);
-		glBindVertexArray(quadVAO);
-		glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-	}
 	glBindVertexArray(quadVAO);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	glBindVertexArray(0);
@@ -290,7 +283,6 @@ void RenderingSystem::render(GameWorld* world)
 	glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//glEnable(GL_CULL_FACE);;
-	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)1280 / (float)720, 0.1f, 5000.0f);
 	glm::mat4 view = camera->GetViewMatrix();
 	gbuffer->use();
 	gbuffer->setMat4("projection", projection);
@@ -324,24 +316,23 @@ void RenderingSystem::render(GameWorld* world)
 	//glDisable(GL_CULL_FACE);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+	sunDirection = glm::rotateZ(sunDirection, -0.005f);
+	/*glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 	glViewport(0, 0, 1024, 1024);
 	glClear(GL_DEPTH_BUFFER_BIT);
 	//lightPos.x = camera->Position.x;
 	//lightPos.y = camera->Position.y + 50.f;
 	//lightPos.z = camera->Position.z;
-	sunDirection = glm::rotateZ(sunDirection, -0.01f) / 10;
-	//if (lightdirection.y >= 0.1f) lightdirection.y = 0.1f;
+	sunDirection = glm::rotateZ(sunDirection, -0.005f);
 	//lightdirection = glm::rotateY(lightdirection, -0.01f);
-	//printf("%f %f %f\n", lightdirection.x, lightdirection.y, lightdirection.z);
+	//printf("%f %f %f\n", sunDirection.x, sunDirection.y, sunDirection.z);
 	glm::mat4 lightProjection, lightView;
 	glm::mat4 lightSpaceMatrix;
 	float near_plane = 1.f, far_plane = 5000.f;
 	lightProjection = glm::ortho(-x, x, -x, x, -100.f, 200.f);
 	glm::vec3 lightInvDir = glm::vec3(2.0f, 0.5f, 2.0f);
 	glm::vec3 lightPos = camera->Position + lightInvDir;
-	lightView = glm::lookAt(lightPos, camera->Position, glm::vec3(0.0, 1.0, 0.0));
+	lightView = glm::lookAt(camera->Position, camera->Position + sunDirection, glm::vec3(0.0, 1.0, 0.0));
 	lightSpaceMatrix = lightProjection * lightView;
 	// render scene from light's point of view
 	DepthTexture->use();
@@ -367,8 +358,10 @@ void RenderingSystem::render(GameWorld* world)
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, depthMap);
 	renderQuad();*/
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glViewport(0, 0, 1280, 720);
+	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	//glViewport(0, 0, 1280, 720);
+
+	ssaoPass();
 
 	//LightingPass Deferred Rendering
 	// --------------------------------
@@ -387,7 +380,8 @@ void RenderingSystem::render(GameWorld* world)
 
 	gbufferLighting->setVec3("light.direction", sunDirection);
 	gbufferLighting->setVec3("viewPos", camera->Position);
-	gbufferLighting->setMat4("lightSpaceMatrix", lightSpaceMatrix);
+	gbufferLighting->setInt("type",type);
+	//gbufferLighting->setMat4("lightSpaceMatrix", lightSpaceMatrix);
 	// Render quad
 	renderQuad();
 
@@ -400,7 +394,6 @@ void RenderingSystem::ssaoPass()
 	// ------------------------
 	glBindFramebuffer(GL_FRAMEBUFFER, ssaoFBO);
 	glClear(GL_COLOR_BUFFER_BIT);
-	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)1280 / (float)720, 0.1f, 1000.0f);
 	shaderSSAO->use();
 	// Send kernel + rotation 
 	for (unsigned int i = 0; i < 64; ++i)
@@ -413,7 +406,7 @@ void RenderingSystem::ssaoPass()
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, noiseTexture);
 	renderQuad();
-	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	// 3. blur SSAO texture to remove noise
 	// ------------------------------------

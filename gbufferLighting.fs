@@ -11,6 +11,7 @@ uniform sampler2D ssao;
 
 uniform mat4 lightSpaceMatrix;
 uniform vec3 viewPos;
+uniform int type;
 
 struct Light {
 	vec3 direction;
@@ -28,10 +29,11 @@ void main()
     vec3 Normal = texture(gNormal, TexCoords).rgb;
     vec3 Diffuse = texture(gAlbedoSpec, TexCoords).rgb;
     float Specular = texture(gAlbedoSpec, TexCoords).a;
-    //float AmbientOcclusion = texture(ssao, TexCoords).r;
+    float AmbientOcclusion = texture(ssao, TexCoords).r;
 	vec4 FragPosLightSpace = lightSpaceMatrix * vec4(FragPos, 1.0);
-
-    vec3 ambient  = light.ambient * Diffuse;
+	vec3 ambient;
+	if (type == 0) ambient  = light.ambient * Diffuse * AmbientOcclusion;
+	if (type == 1) ambient  = light.ambient * Diffuse;
     // diffuse
     vec3 lightDir = normalize(-light.direction);
     float diff = max(dot(Normal, lightDir), 0.0);

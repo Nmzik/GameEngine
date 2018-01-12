@@ -25,7 +25,7 @@ Game::Game() {
 	rendering_system = std::make_unique<RenderingSystem>(window);
 	gameWorld = std::make_unique<GameWorld>();
 
-	StateManager::get().enter<MenuState>(this);
+	StateManager::get().enter<InGameState>(this);
 }
 
 

@@ -30,8 +30,12 @@ private:
 	Shader* debugDepthQuad;
 	Camera* camera;
 	Skybox* skybox;
-	//Game& game;
 
+	unsigned int quadVAO;
+	unsigned int quadVBO;
+	int type = 0;
+	//Game& game;
+	glm::mat4 projection;
 	unsigned int depthMapFBO;
 	unsigned int depthMap;
 	unsigned int ssaoFBO, ssaoBlurFBO;
@@ -61,7 +65,11 @@ public:
 	void CreateDepthFBO();
 	void CreateSSAO();
 	void RenderShadowMap();
+	void renderQuad();
 	void render(GameWorld* world);
 
+	void setType(int type) {
+		this->type = type;
+	}
 };
 
