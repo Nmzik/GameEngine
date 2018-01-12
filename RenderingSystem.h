@@ -61,10 +61,9 @@ public:
 
 	float x = 50.f;
 	Camera& getCamera();
-	void Create_GBuffer();
-	void CreateDepthFBO();
-	void CreateSSAO();
-	void RenderShadowMap();
+	void createGBuffer();
+	void createDepthFBO();
+	void createSSAO();
 	void renderQuad();
 	void render(GameWorld* world);
 

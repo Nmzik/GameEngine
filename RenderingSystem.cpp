@@ -64,9 +64,9 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, light
 
 	camera = new Camera();
 
-	CreateDepthFBO();
-	Create_GBuffer();
-	CreateSSAO();
+	createDepthFBO();
+	createGBuffer();
+	createSSAO();
 
 	gbuffer->use();
 	gbuffer->setInt("material.diffuse", 0);
@@ -129,7 +129,7 @@ float lerp(float a, float b, float f)
 	return a + f * (b - a);
 }
 
-void RenderingSystem::Create_GBuffer()
+void RenderingSystem::createGBuffer()
 {
 	glGenFramebuffers(1, &gBuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
@@ -171,7 +171,7 @@ void RenderingSystem::Create_GBuffer()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void RenderingSystem::CreateDepthFBO()
+void RenderingSystem::createDepthFBO()
 {
 	const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
 	glGenFramebuffers(1, &depthMapFBO);
@@ -191,7 +191,7 @@ void RenderingSystem::CreateDepthFBO()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void RenderingSystem::CreateSSAO()
+void RenderingSystem::createSSAO()
 {
 	glGenFramebuffers(1, &ssaoFBO);  glGenFramebuffers(1, &ssaoBlurFBO);
 	glBindFramebuffer(GL_FRAMEBUFFER, ssaoFBO);
@@ -251,11 +251,6 @@ void RenderingSystem::CreateSSAO()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 }
 
-void RenderingSystem::RenderShadowMap()
-{
-	
-}
-
 void RenderingSystem::renderQuad()
 {
 	glBindVertexArray(quadVAO);
@@ -268,17 +263,8 @@ void RenderingSystem::render(GameWorld* world)
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	/////*Deferred Rendering
 	///geometry to gbuffer->shadowmaps(directional light)->shadowmaps(point light)->ssao->lighting(Final)->skybox
-	////*/
-	//GeometryPass Deferred Rendering
-	// --------------------------------
-	float tod = world->gameHour + world->gameMinute / 60.f;
-	float theta = (tod / (60.f * 24.f) - 0.5f) * glm::pi<float>();
-	/*glm::vec3 sunDirection{
-		sin(theta), 0.0, cos(theta),
-	};*/
-	sunDirection = glm::normalize(sunDirection);
+	// --------------------------------GeometryPass Deferred Rendering----------------------------------
 	
 	glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -317,6 +303,7 @@ void RenderingSystem::render(GameWorld* world)
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	sunDirection = glm::rotateZ(sunDirection, -0.005f);
+	// --------------------------------ShadowPass----------------------------------
 	/*glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 	glViewport(0, 0, 1024, 1024);
 	glClear(GL_DEPTH_BUFFER_BIT);
@@ -329,7 +316,7 @@ void RenderingSystem::render(GameWorld* world)
 	glm::mat4 lightProjection, lightView;
 	glm::mat4 lightSpaceMatrix;
 	float near_plane = 1.f, far_plane = 5000.f;
-	lightProjection = glm::ortho(-x, x, -x, x, -100.f, 200.f);
+	lightProjection = glm::ortho(-450.0f, 450.0f, -450.0f, 450.0f, -100.f, 200.f);
 	glm::vec3 lightInvDir = glm::vec3(2.0f, 0.5f, 2.0f);
 	glm::vec3 lightPos = camera->Position + lightInvDir;
 	lightView = glm::lookAt(camera->Position, camera->Position + sunDirection, glm::vec3(0.0, 1.0, 0.0));
@@ -363,8 +350,7 @@ void RenderingSystem::render(GameWorld* world)
 
 	ssaoPass();
 
-	//LightingPass Deferred Rendering
-	// --------------------------------
+	// --------------------------------LightingPass Deferred Rendering----------------------------------
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	gbufferLighting->use();
 	glActiveTexture(GL_TEXTURE0);
@@ -382,7 +368,6 @@ void RenderingSystem::render(GameWorld* world)
 	gbufferLighting->setVec3("viewPos", camera->Position);
 	gbufferLighting->setInt("type",type);
 	//gbufferLighting->setMat4("lightSpaceMatrix", lightSpaceMatrix);
-	// Render quad
 	renderQuad();
 
 	SDL_GL_SwapWindow(window);
@@ -477,7 +462,6 @@ void RenderingSystem::skyboxPass()
 	skybox->Draw();
 
 	//renderAllLights
-
 
 	SDL_GL_SwapWindow(window);
 }*/
