@@ -45,6 +45,14 @@ void InGameState::tick(float delta_time)
 	//KEYBOARD
 	const Uint8 *state = SDL_GetKeyboardState(NULL);
 
+	if (state[SDL_SCANCODE_N]) {
+		game->getRenderer()->hdrEnabled = 1;
+	}
+
+	if (state[SDL_SCANCODE_M]) {
+		game->getRenderer()->hdrEnabled = 0;
+	}
+
 	if (state[SDL_SCANCODE_Q]) {
 		game->getRenderer()->setType(0);
 	}

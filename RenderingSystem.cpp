@@ -57,6 +57,7 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, light
 	shaderSSAOBlur = new Shader("ssao_blur.vs", "ssao_blur.fs");
 	gbufferLighting = new Shader("gbufferLighting.vs", "gbufferLighting.fs");
 	DepthTexture = new Shader("DepthTexture.vs", "DepthTexture.fs");
+	hdrShader = new Shader("hdrShader.vs", "hdrShader.fs");
 	debugDepthQuad = new Shader("debug_quad.vs", "debug_quad.fs");
 
 	debugDepthQuad->use();
@@ -67,6 +68,7 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, light
 	createDepthFBO();
 	createGBuffer();
 	createSSAO();
+	createHDRFBO();
 
 	gbuffer->use();
 	gbuffer->setInt("material.diffuse", 0);
@@ -152,7 +154,7 @@ void RenderingSystem::createGBuffer()
 	// color + specular color buffer
 	glGenTextures(1, &gAlbedoSpec);
 	glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1280, 720, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, 1280, 720, 0, GL_RGBA, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gAlbedoSpec, 0);
@@ -249,6 +251,30 @@ void RenderingSystem::createSSAO()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+}
+
+void RenderingSystem::createHDRFBO()
+{
+	glGenFramebuffers(1, &hdrFBO);
+	// create floating point color buffer
+	glGenTextures(1, &colorBuffer);
+	glBindTexture(GL_TEXTURE_2D, colorBuffer);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, 1280, 720, 0, GL_RGBA, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	// create depth buffer (renderbuffer)
+	unsigned int rboDepth;
+	glGenRenderbuffers(1, &rboDepth);
+	glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, 1280, 720);
+	// attach buffers
+	glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorBuffer, 0);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		std::cout << "Framebuffer not complete!" << std::endl;
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 }
 
 void RenderingSystem::renderQuad()
@@ -351,6 +377,7 @@ void RenderingSystem::render(GameWorld* world)
 	ssaoPass();
 
 	// --------------------------------LightingPass Deferred Rendering----------------------------------
+	glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	gbufferLighting->use();
 	glActiveTexture(GL_TEXTURE0);
@@ -369,6 +396,18 @@ void RenderingSystem::render(GameWorld* world)
 	gbufferLighting->setInt("type",type);
 	//gbufferLighting->setMat4("lightSpaceMatrix", lightSpaceMatrix);
 	renderQuad();
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	// --------------------------------HDR----------------------------------
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	hdrShader->use();
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, colorBuffer);
+	float exposure = 2.0f;
+	hdrShader->setInt("hdr", hdrEnabled);
+	hdrShader->setFloat("exposure", exposure);
+	renderQuad();
+
 
 	SDL_GL_SwapWindow(window);
 }

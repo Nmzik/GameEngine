@@ -27,6 +27,7 @@ private:
 	Shader* shaderSSAOBlur;
 	Shader* gbufferLighting;
 	Shader* DepthTexture;
+	Shader* hdrShader;
 	Shader* debugDepthQuad;
 	Camera* camera;
 	Skybox* skybox;
@@ -42,6 +43,9 @@ private:
 	unsigned int ssaoColorBuffer, ssaoColorBufferBlur;
 	std::vector<glm::vec3> ssaoKernel;
 	unsigned int noiseTexture;
+	///
+	unsigned int hdrFBO;
+	unsigned int colorBuffer;
 	//G-BUFFER
 	unsigned int gBuffer;
 	unsigned int gPosition, gNormal, gAlbedoSpec;
@@ -58,12 +62,13 @@ public:
 
 	glm::vec3 lightPos;
 	glm::vec3 sunDirection;
-
+	int hdrEnabled = 1;
 	float x = 50.f;
 	Camera& getCamera();
 	void createGBuffer();
 	void createDepthFBO();
 	void createSSAO();
+	void createHDRFBO();
 	void renderQuad();
 	void render(GameWorld* world);
 

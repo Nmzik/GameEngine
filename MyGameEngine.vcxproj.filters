@@ -192,6 +192,12 @@
     <None Include="ssao_blur.fs">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="hdrShader.vs">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="hdrShader.fs">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="skybox_textures\back.jpg">

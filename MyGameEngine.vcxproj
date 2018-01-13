@@ -136,6 +136,8 @@
     <None Include="gbuffer.vs" />
     <None Include="gbufferLighting.fs" />
     <None Include="gbufferLighting.vs" />
+    <None Include="hdrShader.fs" />
+    <None Include="hdrShader.vs" />
     <None Include="skybox.fs" />
     <None Include="forward.fs" />
     <None Include="forward.vs" />
