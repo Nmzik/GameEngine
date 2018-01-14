@@ -102,8 +102,8 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, light
 	};
 	// setup plane VAO
 	glGenVertexArrays(1, &quadVAO);
-	glGenBuffers(1, &quadVBO);
 	glBindVertexArray(quadVAO);
+	glGenBuffers(1, &quadVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
@@ -309,11 +309,13 @@ void RenderingSystem::render(GameWorld* world)
 	//model = glm::rotate(-0.01f, lightdirection);
 	gbuffer->setMat4("model", model);
 	world->models[0].Draw();*/
-
 	for (int i = 0; i < world->models.size(); i++)
 	{
 		auto model = world->models[i].GetMat4();
-		
+		if (world->models[i].isLoaded == false) {
+			world->models[i].UploadToBuffers();
+			world->models[i].isLoaded = true;
+		}
 		//printf("%f\n", glm::distance(camera->Position, glm::vec3(world->models[i].getBody()->getWorldTransform().getOrigin().getX(), world->models[i].getBody()->getWorldTransform().getOrigin().getY(), world->models[i].getBody()->getWorldTransform().getOrigin().getZ())));
 		//if (glm::distance(camera->Position, glm::vec3(world->models[i].getBody()->getWorldTransform().getOrigin().getX(), world->models[i].getBody()->getWorldTransform().getOrigin().getY(), world->models[i].getBody()->getWorldTransform().getOrigin().getZ())) < 80.0f) {
 		//if (glm::distance(camera->Position, world->models[i].GetPosition()) < 80.0f) {

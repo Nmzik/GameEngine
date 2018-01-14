@@ -3,17 +3,43 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "tiny_obj_loader.h"
 
-Model::Model(glm::vec3 position, glm::quat rot, char const * ModelPath, char const * pathTexture, const char* specTexture, bool dynamic = false, bool GenerateCollision = true)
-{
-	this->position = position;
+std::vector<tinyobj::shape_t> shapes;
 
-	std::vector<tinyobj::shape_t> shapes;
+Model::Model(glm::vec3 position, glm::quat rot, char const * ModelPath, char const * pathTexture, char const * specTexture, bool dynamic = false, bool GenerateCollision = true) : position{ position }, rot{ rot }, ModelPath{ ModelPath }, pathTexture{ pathTexture }, specTexture{ specTexture }, dynamic{ dynamic }, GenerateCollision{ GenerateCollision }
+{
+}
+
+
+Model::~Model()
+{
+}
+
+btRigidBody* Model::getBody() {
+	return rigidBody;
+}
+
+glm::mat4 Model::GetMat4()
+{
+	glm::mat4 model(1.0);
+	if (rigidBody == NULL)
+	{
+		return model;
+	}
+	rigidBody->getWorldTransform().getOpenGLMatrix(&model[0][0]);
+	return model;
+}
+
+glm::vec3 Model::GetPosition()
+{
+	return position;
+}
+
+void Model::Load()
+{
 	std::vector<tinyobj::material_t> materials;
 	std::string err;
 
 	tinyobj::LoadObj(shapes, materials, err, ModelPath, "C:\\Users\\nmzik\\Desktop\\rungholt\\", tinyobj::triangulation | tinyobj::calculate_normals);
-	//printf("KOLVO VERTICES %d", (shapes[0].mesh.num_vertices));
-	//printf("KOLVO INDICES %d", shapes[0].mesh.indices.size());
 
 	if (GenerateCollision) {
 
@@ -48,24 +74,24 @@ Model::Model(glm::vec3 position, glm::quat rot, char const * ModelPath, char con
 				shape->addPoint(v2);
 			}
 		}
-			/*for (int i = 0; i < vertices.size() / 8; i++)
-			{
-				btVector3 newVector(vertices[i * 8], vertices[i * 8 + 1], vertices[i * 8 + 2]);
-				shape->addPoint(newVector);
-			}*/
+		/*for (int i = 0; i < vertices.size() / 8; i++)
+		{
+		btVector3 newVector(vertices[i * 8], vertices[i * 8 + 1], vertices[i * 8 + 2]);
+		shape->addPoint(newVector);
+		}*/
 		/*btCompoundShape* shape = new btCompoundShape;
 
-			for (int i = 0; i < shapes.size(); i++) {
-				btTriangleIndexVertexArray * vert_array = new btTriangleIndexVertexArray(
-					shapes[i].mesh.indices.size() / 3, (int*)shapes[i].mesh.indices.data(), 3 * sizeof(unsigned int),
-					shapes[i].mesh.positions.size(), (float*)shapes[i].mesh.positions.data(), 3 * sizeof(float)
-				);
-				btBvhTriangleMeshShape * childShape = new btBvhTriangleMeshShape(vert_array, true);
-				shape->addChildShape(t, childShape);
-			}
+		for (int i = 0; i < shapes.size(); i++) {
+		btTriangleIndexVertexArray * vert_array = new btTriangleIndexVertexArray(
+		shapes[i].mesh.indices.size() / 3, (int*)shapes[i].mesh.indices.data(), 3 * sizeof(unsigned int),
+		shapes[i].mesh.positions.size(), (float*)shapes[i].mesh.positions.data(), 3 * sizeof(float)
+		);
+		btBvhTriangleMeshShape * childShape = new btBvhTriangleMeshShape(vert_array, true);
+		shape->addChildShape(t, childShape);
+		}
 		*/
 
-			btDefaultMotionState* MotionState = new btDefaultMotionState(btTransform(btQuaternion(rot.w, rot.x, rot.y, rot.z), btVector3(position.x, position.y, position.z)));
+		btDefaultMotionState* MotionState = new btDefaultMotionState(btTransform(btQuaternion(rot.w, rot.x, rot.y, rot.z), btVector3(position.x, position.y, position.z)));
 		if (dynamic) {
 			btScalar mass = 1;
 			btVector3 fallInertia(0, 0, 0);
@@ -78,36 +104,14 @@ Model::Model(glm::vec3 position, glm::quat rot, char const * ModelPath, char con
 			rigidBody = new btRigidBody(groundRigidBodyCI);
 		};
 	}
+}
 
+void Model::UploadToBuffers()
+{
 	for (int i = 0; i < shapes.size(); i++)
 	{
 		meshes.push_back(Mesh(shapes[i].mesh.positions, shapes[i].mesh.indices, shapes[i].mesh.normals, shapes[i].mesh.texcoords, pathTexture, specTexture));
 	}
-}
-
-
-Model::~Model()
-{
-}
-
-btRigidBody* Model::getBody() {
-	return rigidBody;
-}
-
-glm::mat4 Model::GetMat4()
-{
-	glm::mat4 model(1.0);
-	if (rigidBody == NULL)
-	{
-		return model;
-	}
-	rigidBody->getWorldTransform().getOpenGLMatrix(&model[0][0]);
-	return model;
-}
-
-glm::vec3 Model::GetPosition()
-{
-	return position;
 }
 
 void Model::Draw()

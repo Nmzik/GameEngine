@@ -2,6 +2,9 @@
 #include "SoundManager.h"
 #include "Model.h"
 #include "Player.h"
+#include "ResourceManager.h"
+
+class ResourceManager;
 
 class GameWorld
 {
@@ -11,6 +14,7 @@ class GameWorld
 	btSequentialImpulseConstraintSolver* solver;
 	btDiscreteDynamicsWorld* dynamicsWorld;
 
+	ResourceManager* _ResourceManager;
 	SoundManager sound;
 
 public:

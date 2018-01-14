@@ -65,7 +65,6 @@ void Game::run() {
 	while (running) {
 		while (SDL_PollEvent(&event)) {
 			StateManager::get().currentState()->handleEvent(event);
-			//input_system->update(event, delta_time);
 			if (event.type == SDL_QUIT) running = false;
 		}
 

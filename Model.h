@@ -22,16 +22,25 @@ class Model
 
 	btRigidBody* rigidBody;
 	glm::vec3 position;
-	glm::quat rotation;
 	glm::vec3 scale;
+
+	glm::quat rot;
+	char const * ModelPath;
+	char const * pathTexture;
+	char const * specTexture;
+	bool dynamic = false;
+	bool GenerateCollision = true;
 
 public:
 	Model(glm::vec3 position, glm::quat rot, char const * ModelPath, char const * pathTexture, const char* specTexture, bool dynamic, bool GenerateCollision);
 	~Model();
 
+	bool isLoaded = false;
 	btRigidBody* getBody();
 	glm::mat4 GetMat4();
 	glm::vec3 GetPosition();
+	void Load();
+	void UploadToBuffers();
 	void Draw();
 };
 

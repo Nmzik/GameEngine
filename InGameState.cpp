@@ -89,7 +89,7 @@ void InGameState::tick(float delta_time)
 		if (state[SDL_SCANCODE_S]) game->getRenderer()->getCamera().ProcessKeyboard(BACKWARD, delta_time);
 		if (state[SDL_SCANCODE_A]) game->getRenderer()->getCamera().ProcessKeyboard(LEFT, delta_time);
 		if (state[SDL_SCANCODE_D]) game->getRenderer()->getCamera().ProcessKeyboard(RIGHT, delta_time);
-		game->getWorld()->player->getPhysCharacter()->setWalkDirection(btVector3(0.f, 0.f, 0.f));
+		if (game->getWorld()->player != nullptr) game->getWorld()->player->getPhysCharacter()->setWalkDirection(btVector3(0.f, 0.f, 0.f));
 	}
 	else {
 
@@ -99,9 +99,11 @@ void InGameState::tick(float delta_time)
 		movement.x = state[SDL_SCANCODE_W] - state[SDL_SCANCODE_S];
 		movement.y = state[SDL_SCANCODE_A] - state[SDL_SCANCODE_D];
 
+		float speed = state[SDL_SCANCODE_LSHIFT] ? 2.0f : 1.0f;
+
 		float length = glm::length(movement);
 		if (length > 0.1f) {
-			auto move = 1.f * glm::normalize(movement);
+			auto move = speed * glm::normalize(movement);
 			game->getWorld()->player->getPhysCharacter()->setWalkDirection(btVector3(move.y, 0.f, move.x));
 		}
 		else {
