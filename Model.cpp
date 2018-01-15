@@ -8,9 +8,9 @@ std::vector<tinyobj::shape_t> shapes;
 Model::Model(glm::vec3 position, glm::quat rot, glm::vec3 scale, char const * ModelPath, char const * pathTexture, char const * specTexture, bool dynamic = false, bool GenerateCollision = true) : position{ position }, rot{ rot }, ModelPath{ ModelPath }, pathTexture{ pathTexture }, specTexture{ specTexture }, dynamic{ dynamic }, GenerateCollision{ GenerateCollision }
 {
 	ModelMatrix = glm::mat4(1.0);
-	//ModelMatrix = glm::translate(ModelMatrix, position);
-	//ModelMatrix *= glm::toMat4(rot);
-	//ModelMatrix = glm::scale(ModelMatrix, scale);
+	ModelMatrix = glm::translate(ModelMatrix, position);
+	ModelMatrix *= glm::toMat4(rot);
+	ModelMatrix = glm::scale(ModelMatrix, scale);
 }
 
 
@@ -103,7 +103,7 @@ void Model::Load()
 		}
 		*/
 
-		btDefaultMotionState* MotionState = new btDefaultMotionState(btTransform(btQuaternion(rot.w, rot.x, rot.y, rot.z), btVector3(position.x, position.y, position.z)));
+		btDefaultMotionState* MotionState = new btDefaultMotionState(btTransform(btQuaternion(rot.x, rot.y, rot.z, rot.w), btVector3(position.x, position.y, position.z)));
 		if (dynamic) {
 			btScalar mass = 1;
 			btVector3 fallInertia(0, 0, 0);

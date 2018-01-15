@@ -34,8 +34,13 @@ GameWorld::GameWorld()
 	dynamicsWorld->addRigidBody(model.getBody());
 	//_ResourceManager->AddToWaitingList(model);*/
 
-	Model model(glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 1.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\plane.obj", nullptr, nullptr, false, true);
+	Model model(glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 0.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\plane.obj", nullptr, nullptr, false, true);
 	_ResourceManager->AddToWaitingList(model);
+	//model.Load();
+	//model.UploadToBuffers();
+	//models.push_back(model);
+	//dynamicsWorld->addRigidBody(model.getBody());
+	//_ResourceManager->AddToWaitingList(model);
 
 	Model model1(glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 0.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\rungholt\\rungholt.obj", nullptr, nullptr, false, false);
 	_ResourceManager->AddToWaitingList(model1);
