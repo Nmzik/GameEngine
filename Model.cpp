@@ -5,8 +5,12 @@
 
 std::vector<tinyobj::shape_t> shapes;
 
-Model::Model(glm::vec3 position, glm::quat rot, char const * ModelPath, char const * pathTexture, char const * specTexture, bool dynamic = false, bool GenerateCollision = true) : position{ position }, rot{ rot }, ModelPath{ ModelPath }, pathTexture{ pathTexture }, specTexture{ specTexture }, dynamic{ dynamic }, GenerateCollision{ GenerateCollision }
+Model::Model(glm::vec3 position, glm::quat rot, glm::vec3 scale, char const * ModelPath, char const * pathTexture, char const * specTexture, bool dynamic = false, bool GenerateCollision = true) : position{ position }, rot{ rot }, ModelPath{ ModelPath }, pathTexture{ pathTexture }, specTexture{ specTexture }, dynamic{ dynamic }, GenerateCollision{ GenerateCollision }
 {
+	ModelMatrix = glm::mat4(1.0);
+	ModelMatrix = glm::translate(ModelMatrix, position);
+	ModelMatrix *= glm::toMat4(rot);
+	ModelMatrix = glm::scale(ModelMatrix, scale);
 }
 
 
@@ -20,12 +24,13 @@ btRigidBody* Model::getBody() {
 
 glm::mat4 Model::GetMat4()
 {
-	glm::mat4 model(1.0);
 	if (rigidBody == NULL)
 	{
-		return model;
+		return ModelMatrix;
 	}
+	glm::mat4 model(1.0);
 	rigidBody->getWorldTransform().getOpenGLMatrix(&model[0][0]);
+	printf("%s\n", glm::to_string(model).c_str());
 	return model;
 }
 
@@ -39,7 +44,15 @@ void Model::Load()
 	std::vector<tinyobj::material_t> materials;
 	std::string err;
 
-	tinyobj::LoadObj(shapes, materials, err, ModelPath, "C:\\Users\\nmzik\\Desktop\\rungholt\\", tinyobj::triangulation | tinyobj::calculate_normals);
+	std::string mtlPath(ModelPath);
+
+	size_type pos = mtlPath.find_last_of("\\");
+	if (pos != std::string::npos)
+	{
+		mtlPath.erase(pos+1);
+	}
+
+	tinyobj::LoadObj(shapes, materials, err, ModelPath, mtlPath.c_str(), tinyobj::triangulation | tinyobj::calculate_normals);
 
 	if (GenerateCollision) {
 
@@ -112,6 +125,7 @@ void Model::UploadToBuffers()
 	{
 		meshes.push_back(Mesh(shapes[i].mesh.positions, shapes[i].mesh.indices, shapes[i].mesh.normals, shapes[i].mesh.texcoords, pathTexture, specTexture));
 	}
+	isLoaded = true;
 }
 
 void Model::Draw()

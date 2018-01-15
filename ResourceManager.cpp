@@ -22,6 +22,7 @@ void ResourceManager::update()
 		{
 			i->Load();
 			gameworld->models.push_back(*i);
+			//if (i->dynamic) gameworld->GetDynamicsWorld()->addRigidBody(gameworld->models.back().getBody());
 			i = waitingList.erase(i);
 		}
 		mylock.unlock();

@@ -90,6 +90,10 @@ btKinematicCharacterController* Player::getPhysCharacter()
 
 glm::mat4 Player::getPosition()
 {
+	if (physCharacter->getGhostObject()->getWorldTransform().getOrigin().getY() <= -300) {
+		physCharacter->getGhostObject()->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), btVector3(-50, 20, 0)));
+	}
+
 	glm::mat4 model;
 	physCharacter->getGhostObject()->getWorldTransform().getOpenGLMatrix(&model[0][0]);
 

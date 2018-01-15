@@ -311,14 +311,14 @@ void RenderingSystem::render(GameWorld* world)
 	world->models[0].Draw();*/
 	for (int i = 0; i < world->models.size(); i++)
 	{
-		auto model = world->models[i].GetMat4();
 		if (world->models[i].isLoaded == false) {
 			world->models[i].UploadToBuffers();
-			world->models[i].isLoaded = true;
+			//if (world->models[i].dynamic) world->GetDynamicsWorld()->addRigidBody(world->models[i].getBody());
 		}
 		//printf("%f\n", glm::distance(camera->Position, glm::vec3(world->models[i].getBody()->getWorldTransform().getOrigin().getX(), world->models[i].getBody()->getWorldTransform().getOrigin().getY(), world->models[i].getBody()->getWorldTransform().getOrigin().getZ())));
 		//if (glm::distance(camera->Position, glm::vec3(world->models[i].getBody()->getWorldTransform().getOrigin().getX(), world->models[i].getBody()->getWorldTransform().getOrigin().getY(), world->models[i].getBody()->getWorldTransform().getOrigin().getZ())) < 80.0f) {
 		//if (glm::distance(camera->Position, world->models[i].GetPosition()) < 80.0f) {
+			auto model = world->models[i].GetMat4();
 			gbuffer->setMat4("model", model);
 			world->models[i].Draw();
 		//}

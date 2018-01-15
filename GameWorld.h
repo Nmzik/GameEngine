@@ -26,6 +26,10 @@ public:
 	GameWorld();
 	~GameWorld();
 
+	btDiscreteDynamicsWorld* GetDynamicsWorld() {
+		return dynamicsWorld;
+	}
+
 	void update();
 };
 
