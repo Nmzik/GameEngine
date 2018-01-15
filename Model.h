@@ -30,18 +30,19 @@ class Model
 	glm::quat rot;
 	glm::vec3 scale;
 
+	bool dynamic = false;
+
 	glm::mat4 ModelMatrix;
 
 	char const * ModelPath;
 	char const * pathTexture;
 	char const * specTexture;
-	bool GenerateCollision = true;
 
 public:
 	Model(glm::vec3 position, glm::quat rot, glm::vec3 scale, char const * ModelPath, char const * pathTexture, const char* specTexture, bool dynamic, bool GenerateCollision);
 	~Model();
 
-	bool dynamic = false;
+	bool GenerateCollision = true;
 	bool isLoaded = false;
 	btRigidBody* getBody();
 	glm::mat4 GetMat4();

@@ -91,7 +91,7 @@ btKinematicCharacterController* Player::getPhysCharacter()
 glm::mat4 Player::getPosition()
 {
 	if (physCharacter->getGhostObject()->getWorldTransform().getOrigin().getY() <= -300) {
-		physCharacter->getGhostObject()->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), btVector3(-50, 20, 0)));
+		physCharacter->getGhostObject()->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), btVector3(-50, 100, 0)));
 	}
 
 	glm::mat4 model;

@@ -28,20 +28,22 @@ GameWorld::GameWorld()
 		dynamicsWorld->addRigidBody(models[i].getBody());
 	}*/
 
-	/*Model model = Model(glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 0.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\plane.obj", nullptr, nullptr, false, true);
-	model.Load();
+	/*model.Load();
 	model.UploadToBuffers();
 	models.push_back(model);
 	dynamicsWorld->addRigidBody(model.getBody());
 	//_ResourceManager->AddToWaitingList(model);*/
 
-	Model model1 = Model(glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 0.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\rungholt\\rungholt.obj", nullptr, nullptr, false, false);
+	Model model(glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 1.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\plane.obj", nullptr, nullptr, false, true);
+	_ResourceManager->AddToWaitingList(model);
+
+	Model model1(glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 0.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\rungholt\\rungholt.obj", nullptr, nullptr, false, false);
 	_ResourceManager->AddToWaitingList(model1);
 
-	//Model model2 = Model(glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 0.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\skydome.obj", nullptr, nullptr, false, false);
+	//Model model2(glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 0.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\skydome.obj", nullptr, nullptr, false, false);
 	//_ResourceManager->AddToWaitingList(model2);
 
-	//Model model2 = Model(glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 1.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\skydome\\building1.obj", nullptr, nullptr, false, false);
+	//Model model2(glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 1.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\skydome\\building1.obj", nullptr, nullptr, false, false);
 	//_ResourceManager->AddToWaitingList(model2);
 	//dynamicsWorld->addRigidBody(model1.getBody());
 }

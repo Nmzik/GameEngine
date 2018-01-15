@@ -8,9 +8,9 @@ std::vector<tinyobj::shape_t> shapes;
 Model::Model(glm::vec3 position, glm::quat rot, glm::vec3 scale, char const * ModelPath, char const * pathTexture, char const * specTexture, bool dynamic = false, bool GenerateCollision = true) : position{ position }, rot{ rot }, ModelPath{ ModelPath }, pathTexture{ pathTexture }, specTexture{ specTexture }, dynamic{ dynamic }, GenerateCollision{ GenerateCollision }
 {
 	ModelMatrix = glm::mat4(1.0);
-	ModelMatrix = glm::translate(ModelMatrix, position);
-	ModelMatrix *= glm::toMat4(rot);
-	ModelMatrix = glm::scale(ModelMatrix, scale);
+	//ModelMatrix = glm::translate(ModelMatrix, position);
+	//ModelMatrix *= glm::toMat4(rot);
+	//ModelMatrix = glm::scale(ModelMatrix, scale);
 }
 
 
@@ -30,7 +30,6 @@ glm::mat4 Model::GetMat4()
 	}
 	glm::mat4 model(1.0);
 	rigidBody->getWorldTransform().getOpenGLMatrix(&model[0][0]);
-	printf("%s\n", glm::to_string(model).c_str());
 	return model;
 }
 

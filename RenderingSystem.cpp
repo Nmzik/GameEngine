@@ -313,7 +313,7 @@ void RenderingSystem::render(GameWorld* world)
 	{
 		if (world->models[i].isLoaded == false) {
 			world->models[i].UploadToBuffers();
-			//if (world->models[i].dynamic) world->GetDynamicsWorld()->addRigidBody(world->models[i].getBody());
+			if (world->models[i].GenerateCollision) world->GetDynamicsWorld()->addRigidBody(world->models[i].getBody());
 		}
 		//printf("%f\n", glm::distance(camera->Position, glm::vec3(world->models[i].getBody()->getWorldTransform().getOrigin().getX(), world->models[i].getBody()->getWorldTransform().getOrigin().getY(), world->models[i].getBody()->getWorldTransform().getOrigin().getZ())));
 		//if (glm::distance(camera->Position, glm::vec3(world->models[i].getBody()->getWorldTransform().getOrigin().getX(), world->models[i].getBody()->getWorldTransform().getOrigin().getY(), world->models[i].getBody()->getWorldTransform().getOrigin().getZ())) < 80.0f) {
