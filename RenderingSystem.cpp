@@ -324,6 +324,16 @@ void RenderingSystem::render(GameWorld* world)
 		//}
 	}
 
+	for (int i = 0; i < world->pedestrians.size(); i++) {
+		auto model = world->pedestrians[i].getPosition();
+		gbuffer->setMat4("model", model);
+		world->pedestrians[i].Draw();
+	}
+
+	auto modelVehicle = world->vehicles[0].GetMat4();
+	gbuffer->setMat4("model", modelVehicle);
+	world->vehicles[0].Draw();
+
 	auto model = world->player->getPosition();
 	gbuffer->setMat4("model", model);
 	world->player->Draw();

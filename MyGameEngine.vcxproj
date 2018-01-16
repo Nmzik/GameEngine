@@ -99,6 +99,7 @@
     <ClCompile Include="Skybox.cpp" />
     <ClCompile Include="SoundManager.cpp" />
     <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="Vehicle.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
@@ -124,6 +125,7 @@
     <ClInclude Include="Skybox.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="tiny_obj_loader.h" />
+    <ClInclude Include="Vehicle.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="skybox.vs" />

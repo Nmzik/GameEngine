@@ -20,6 +20,12 @@ GameWorld::GameWorld()
 	gameHour = 10;
 	gameMinute = 0;
 
+	for (int i = 0; i < 20; i++) {
+		createPedestrian();
+	}
+
+	createVehicle();
+
 	/*for (int i = 0; i < 500; i++) {
 		Model model(glm::vec3(0.f, 200.f, 0.f), glm::quat(0.f, 0.f, 0.f, 1.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\cube.obj", "container.jpg", "container2_specular.png", true, true);
 		model.Load();
@@ -34,7 +40,7 @@ GameWorld::GameWorld()
 	dynamicsWorld->addRigidBody(model.getBody());
 	//_ResourceManager->AddToWaitingList(model);*/
 
-	Model model(glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 0.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\plane.obj", nullptr, nullptr, false, true);
+	Model model(glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 1.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\plane.obj", nullptr, nullptr, false, true);
 	_ResourceManager->AddToWaitingList(model);
 	//model.Load();
 	//model.UploadToBuffers();
@@ -42,8 +48,8 @@ GameWorld::GameWorld()
 	//dynamicsWorld->addRigidBody(model.getBody());
 	//_ResourceManager->AddToWaitingList(model);
 
-	Model model1(glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 0.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\rungholt\\rungholt.obj", nullptr, nullptr, false, false);
-	_ResourceManager->AddToWaitingList(model1);
+	//Model model1(glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 0.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\rungholt\\rungholt.obj", nullptr, nullptr, false, false);
+	//_ResourceManager->AddToWaitingList(model1);
 
 	//Model model2(glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 0.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\skydome.obj", nullptr, nullptr, false, false);
 	//_ResourceManager->AddToWaitingList(model2);
@@ -56,6 +62,18 @@ GameWorld::GameWorld()
 GameWorld::~GameWorld()
 {
 	delete dynamicsWorld;
+}
+
+void GameWorld::createPedestrian()
+{
+	Player newPlayer(dynamicsWorld);
+	pedestrians.push_back(newPlayer);
+}
+
+void GameWorld::createVehicle()
+{
+	Vehicle newVehicle(dynamicsWorld);
+	vehicles.push_back(newVehicle);
 }
 
 void GameWorld::update()

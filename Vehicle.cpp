@@ -1,22 +1,108 @@
-#include "Player.h"
+#include "Vehicle.h"
 
+int rightIndex = 0;
+int upIndex = 1;
+int forwardIndex = 2;
 
+btVector3 wheelDirectionCS0(0, -1, 0);
+btVector3 wheelAxleCS(-1, 0, 0);
 
-Player::Player(btDiscreteDynamicsWorld* world)
+float	gVehicleSteering = 0.f;
+float	steeringIncrement = 0.4f;
+float	steeringClamp = 0.3f;
+float	wheelRadius = 0.5f;
+float	wheelWidth = 1.0f;
+float	wheelFriction = 1000;//BT_LARGE_FLOAT;
+float	suspensionStiffness = 20.f;
+float	suspensionDamping = 2.3f;
+float	suspensionCompression = 4.4f;
+float	rollInfluence = 0.4f;//1.0f;
+
+btScalar suspensionRestLength(0.6);
+btScalar m_defaultContactProcessingThreshold(BT_LARGE_FLOAT);
+
+Vehicle::Vehicle(btDiscreteDynamicsWorld* world)
 {
-	btPairCachingGhostObject* physObject = new btPairCachingGhostObject();
-	btCapsuleShapeZ* physShape = new btCapsuleShapeZ(1.0f, 2.0f);
-	physObject->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), btVector3(-50, 20, 0)));
-	physObject->setCollisionShape(physShape);
-	physObject->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
-	physCharacter = new btKinematicCharacterController(physObject, physShape, 0.30f, btVector3(0.f, 0.f, 1.f));
-	physCharacter->setFallSpeed(50.f);
-	physCharacter->setUseGhostSweepTest(true);
-	physCharacter->setVelocityForTimeInterval(btVector3(1.f, 1.f, 1.f), 1.f);
-	physCharacter->setGravity(world->getGravity());
-	world->addCollisionObject(physObject, btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::AllFilter);
-	world->addAction(physCharacter);
+	btTransform tr;
+	tr.setIdentity();
 
+	btRaycastVehicle::btVehicleTuning	m_tuning;
+	btCollisionShape* chassisShape = new btBoxShape(btVector3(1, 0.5f, 1));
+	btCompoundShape* compound = new btCompoundShape();
+	btTransform localTrans;
+	localTrans.setIdentity();
+	localTrans.setOrigin(btVector3(0, 0, 0));
+
+	compound->addChildShape(localTrans, chassisShape);
+	compound->setMargin(0);
+
+	tr.setOrigin(btVector3(0, 4, 0));
+
+	btVector3 localInertia(0, 0, 0);
+	compound->calculateLocalInertia(800, localInertia);
+
+	//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
+
+	btDefaultMotionState* myMotionState = new btDefaultMotionState(tr);
+
+	btRigidBody::btRigidBodyConstructionInfo cInfo(800, myMotionState, compound, localInertia);
+
+	m_carChassis = new btRigidBody(cInfo);
+	m_carChassis->setContactProcessingThreshold(m_defaultContactProcessingThreshold);
+
+
+	m_carChassis->setWorldTransform(tr);
+	
+	world->addRigidBody(m_carChassis);
+
+	btCollisionShape* m_wheelShape = new btCylinderShapeX(btVector3(wheelWidth, wheelRadius, wheelRadius));
+
+	btVehicleRaycaster* m_vehicleRayCaster = new btDefaultVehicleRaycaster(world);
+	m_vehicle = new btRaycastVehicle(m_tuning, m_carChassis, m_vehicleRayCaster);
+
+	///never deactivate the vehicle
+	m_carChassis->setActivationState(DISABLE_DEACTIVATION);
+
+	world->addVehicle(m_vehicle);
+
+	float connectionHeight = 0.1f;
+
+
+	bool isFrontWheel = true;
+
+	//choose coordinate system
+	m_vehicle->setCoordinateSystem(rightIndex, upIndex, forwardIndex);
+
+
+	btVector3 connectionPointCS0(0, connectionHeight, 2);
+
+
+	m_vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, m_tuning, isFrontWheel);
+
+	connectionPointCS0 = btVector3(1, connectionHeight, 2);
+
+
+	m_vehicle->addWheel(connectionPointCS0,wheelDirectionCS0,wheelAxleCS,suspensionRestLength,wheelRadius,m_tuning,isFrontWheel);
+
+	connectionPointCS0 = btVector3(-1, connectionHeight, -2);
+	isFrontWheel = false;
+	m_vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, m_tuning, isFrontWheel);
+	connectionPointCS0 = btVector3(1, connectionHeight, -2);
+
+	m_vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, m_tuning, isFrontWheel);
+
+	for (int i = 0; i<m_vehicle->getNumWheels(); i++)
+	{
+		btWheelInfo& wheel = m_vehicle->getWheelInfo(i);
+		wheel.m_suspensionStiffness = suspensionStiffness;
+		wheel.m_wheelsDampingRelaxation = suspensionDamping;
+		wheel.m_wheelsDampingCompression = suspensionCompression;
+		wheel.m_frictionSlip = wheelFriction;
+		wheel.m_rollInfluence = rollInfluence;
+	}
+
+
+	//GPU PART
 	std::vector <float> vertices = {
 			-1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
              1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
@@ -79,35 +165,21 @@ Player::Player(btDiscreteDynamicsWorld* world)
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 }
 
-Player::~Player()
+Vehicle::~Vehicle()
 {
 }
 
-btKinematicCharacterController* Player::getPhysCharacter()
+glm::mat4 Vehicle::GetMat4()
 {
-	return physCharacter;
-}
-
-glm::mat4 Player::getPosition()
-{
-	if (physCharacter->getGhostObject()->getWorldTransform().getOrigin().getY() <= -300) {
-		physCharacter->getGhostObject()->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), btVector3(-50, 100, 0)));
-	}
-
 	glm::mat4 model;
-	physCharacter->getGhostObject()->getWorldTransform().getOpenGLMatrix(&model[0][0]);
+
+	m_carChassis->getWorldTransform().getOpenGLMatrix(&model[0][0]);
 
 	return model;
 }
 
-void Player::Jump()
-{
-	if (physCharacter->onGround()) physCharacter->jump(btVector3(0.0f, 30.0f, 0.0f));
-}
-
-void Player::Draw()
+void Vehicle::Draw() 
 {
 	glBindVertexArray(VAO);
-
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 }

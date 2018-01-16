@@ -41,16 +41,44 @@ void InGameState::tick(float delta_time)
 	//printf("Time %d %d\n", game->getWorld()->gameHour, game->getWorld()->gameMinute);
 
 	static bool DebugPressed = true;
-
+	static bool inVehicle = false;
 	//KEYBOARD
 	const Uint8 *state = SDL_GetKeyboardState(NULL);
 
+	game->getWorld()->vehicles[0].m_vehicle->applyEngineForce(0.f, 0);
+	game->getWorld()->vehicles[0].m_vehicle->applyEngineForce(0.f, 1);
+	game->getWorld()->vehicles[0].m_vehicle->setBrake(100.f, 0);
+	game->getWorld()->vehicles[0].m_vehicle->setBrake(100.f, 1);
+	game->getWorld()->vehicles[0].m_vehicle->setSteeringValue(0.f, 0);
+	game->getWorld()->vehicles[0].m_vehicle->setSteeringValue(0.f, 1);
+
+	if (inVehicle) {
+
+		if (state[SDL_SCANCODE_W]) {
+			game->getWorld()->vehicles[0].m_vehicle->applyEngineForce(500.0f, 0);
+			game->getWorld()->vehicles[0].m_vehicle->applyEngineForce(500.0f, 1);
+		}
+		if (state[SDL_SCANCODE_S]) {
+			game->getWorld()->vehicles[0].m_vehicle->applyEngineForce(-500.0f, 0);
+			game->getWorld()->vehicles[0].m_vehicle->applyEngineForce(-500.0f, 1);
+		}
+		if (state[SDL_SCANCODE_A]) {
+			game->getWorld()->vehicles[0].m_vehicle->setSteeringValue(1.f, 0);
+			game->getWorld()->vehicles[0].m_vehicle->setSteeringValue(1.f, 1);
+		}
+		if (state[SDL_SCANCODE_D]) {
+			game->getWorld()->vehicles[0].m_vehicle->setSteeringValue(-1.f, 0);
+			game->getWorld()->vehicles[0].m_vehicle->setSteeringValue(-1.f, 1);
+		}
+	}
+
 	if (state[SDL_SCANCODE_N]) {
-		game->getRenderer()->hdrEnabled = 1;
+		inVehicle = true;
 	}
 
 	if (state[SDL_SCANCODE_M]) {
-		game->getRenderer()->hdrEnabled = 0;
+		inVehicle = false;
+
 	}
 
 	if (state[SDL_SCANCODE_Q]) {
@@ -84,14 +112,17 @@ void InGameState::tick(float delta_time)
 	if (state[SDL_SCANCODE_G]) {
 		DebugPressed = false;
 	}
-	if (DebugPressed) {
+	if (DebugPressed && !inVehicle) {
 		if (state[SDL_SCANCODE_W]) game->getRenderer()->getCamera().ProcessKeyboard(FORWARD, delta_time);
 		if (state[SDL_SCANCODE_S]) game->getRenderer()->getCamera().ProcessKeyboard(BACKWARD, delta_time);
 		if (state[SDL_SCANCODE_A]) game->getRenderer()->getCamera().ProcessKeyboard(LEFT, delta_time);
 		if (state[SDL_SCANCODE_D]) game->getRenderer()->getCamera().ProcessKeyboard(RIGHT, delta_time);
 		if (game->getWorld()->player != nullptr) game->getWorld()->player->getPhysCharacter()->setWalkDirection(btVector3(0.f, 0.f, 0.f));
+		for (int i = 0; i < game->getWorld()->pedestrians.size(); i++) {
+			game->getWorld()->pedestrians[i].getPhysCharacter()->setWalkDirection(btVector3(0.f, 0.f, 0.f));
+		}
 	}
-	else {
+	else if (!inVehicle){
 
 		//NEED PROPER FIX
 		game->getRenderer()->getCamera().Position = glm::vec3(game->getWorld()->player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getX(), game->getWorld()->player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getY(), game->getWorld()->player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getZ()) + glm::vec3(0.0f,0.0f,-5.f);
