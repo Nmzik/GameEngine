@@ -1,12 +1,11 @@
 #include "Player.h"
 
-
-
-Player::Player(btDiscreteDynamicsWorld* world)
+Player::Player(glm::vec3 position, btDiscreteDynamicsWorld* world)
 {
 	btPairCachingGhostObject* physObject = new btPairCachingGhostObject();
-	btCapsuleShapeZ* physShape = new btCapsuleShapeZ(1.0f, 2.0f);
-	physObject->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), btVector3(-50, 20, 0)));
+	physShape = new btCapsuleShapeZ(1.0f, 2.0f);
+	physObject->setUserPointer(this);
+	physObject->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), btVector3(position.x, position.y, position.z)));
 	physObject->setCollisionShape(physShape);
 	physObject->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
 	physCharacter = new btKinematicCharacterController(physObject, physShape, 0.30f, btVector3(0.f, 0.f, 1.f));
@@ -88,6 +87,11 @@ btKinematicCharacterController* Player::getPhysCharacter()
 	return physCharacter;
 }
 
+void Player::TakeDamage(float dmg)
+{
+	health -= dmg;
+}
+
 glm::mat4 Player::getPosition()
 {
 	if (physCharacter->getGhostObject()->getWorldTransform().getOrigin().getY() <= -300) {
@@ -98,6 +102,24 @@ glm::mat4 Player::getPosition()
 	physCharacter->getGhostObject()->getWorldTransform().getOpenGLMatrix(&model[0][0]);
 
 	return model;
+}
+
+void Player::ExitVehicle()
+{
+	vehicle = NULL;
+}
+
+void Player::EnterVehicle(Vehicle* nearestVehicle)
+{
+	if (nearestVehicle != nullptr) {
+		printf("WE ARE IN VEHICLE");
+		vehicle = nearestVehicle;
+	}
+}
+
+Vehicle* Player::GetCurrentVehicle()
+{
+	return vehicle;
 }
 
 void Player::Jump()

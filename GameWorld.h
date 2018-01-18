@@ -4,6 +4,7 @@
 #include "Player.h"
 #include "Vehicle.h"
 #include "ResourceManager.h"
+#include "PhysicsDebugDrawer.h"
 
 class ResourceManager;
 
@@ -17,6 +18,7 @@ class GameWorld
 
 	ResourceManager* _ResourceManager;
 	SoundManager sound;
+	PhysicsDebugDrawer debug;
 
 public:
 	std::vector<Model> models;
@@ -33,9 +35,15 @@ public:
 		return dynamicsWorld;
 	}
 
+	PhysicsDebugDrawer* getDebugDrawer() {
+		return &debug;
+	}
+
 	void createPedestrian();
 	void createVehicle();
-
+	void UpdateTraffic(glm::vec3 cameraPosition);
+	Vehicle* FindNearestVehicle();
+	void DetectWeaponHit(glm::vec3 CameraPosition, glm::vec3 lookDirection);
 	void update();
 };
 

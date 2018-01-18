@@ -15,6 +15,7 @@ class Game
 
 	std::unique_ptr<GameWorld> gameWorld;
 	std::unique_ptr<RenderingSystem> rendering_system;
+
 public:
 	Game();
 	~Game();

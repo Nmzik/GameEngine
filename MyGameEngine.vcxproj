@@ -72,6 +72,7 @@
       <AdditionalIncludeDirectories>C:\Program Files %28x86%29\OpenAL 1.1 SDK\include;C:\Users\nmzik\source\repos\MyGameEngine\MyGameEngine\glm;C:\Users\nmzik\source\repos\MyGameEngine\MyGameEngine\sdl2\include;C:\Users\nmzik\source\repos\MyGameEngine\MyGameEngine\glew\include\GL;$(ProjectDir)\bullet;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>B3_USE_CLEW;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <LanguageStandard>stdcpp14</LanguageStandard>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -93,6 +94,7 @@
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="PauseState.cpp" />
+    <ClCompile Include="PhysicsDebugDrawer.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="RenderingSystem.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
@@ -111,6 +113,7 @@
     <ClInclude Include="Material.h" />
     <ClInclude Include="MenuState.h" />
     <ClInclude Include="PauseState.h" />
+    <ClInclude Include="PhysicsDebugDrawer.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="ResourceManager.h" />

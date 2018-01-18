@@ -91,17 +91,22 @@ void Model::Load()
 		btVector3 newVector(vertices[i * 8], vertices[i * 8 + 1], vertices[i * 8 + 2]);
 		shape->addPoint(newVector);
 		}*/
-		/*btCompoundShape* shape = new btCompoundShape;
+
+		/*btTransform t;
+		t.setIdentity();
+		t.setOrigin(btVector3(position.x, position.y, position.z));
+
+		btCompoundShape* shape = new btCompoundShape;
 
 		for (int i = 0; i < shapes.size(); i++) {
-		btTriangleIndexVertexArray * vert_array = new btTriangleIndexVertexArray(
-		shapes[i].mesh.indices.size() / 3, (int*)shapes[i].mesh.indices.data(), 3 * sizeof(unsigned int),
-		shapes[i].mesh.positions.size(), (float*)shapes[i].mesh.positions.data(), 3 * sizeof(float)
-		);
-		btBvhTriangleMeshShape * childShape = new btBvhTriangleMeshShape(vert_array, true);
+			btTriangleIndexVertexArray *btMesh = new btTriangleIndexVertexArray(
+				shapes[i].mesh.indices.size() / 3,
+				(int *)shapes[i].mesh.indices.data(), 3 * sizeof(GLuint),
+				shapes[i].mesh.positions.size(),
+				(btScalar *)shapes[i].mesh.positions.data(), 3 * sizeof(float));
+			btBvhTriangleMeshShape *childShape = new btBvhTriangleMeshShape(btMesh, true);
 		shape->addChildShape(t, childShape);
-		}
-		*/
+		}*/
 
 		btDefaultMotionState* MotionState = new btDefaultMotionState(btTransform(btQuaternion(rot.x, rot.y, rot.z, rot.w), btVector3(position.x, position.y, position.z)));
 		if (dynamic) {

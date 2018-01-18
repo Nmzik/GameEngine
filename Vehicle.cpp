@@ -21,12 +21,12 @@ float	rollInfluence = 0.4f;//1.0f;
 btScalar suspensionRestLength(0.6);
 btScalar m_defaultContactProcessingThreshold(BT_LARGE_FLOAT);
 
-Vehicle::Vehicle(btDiscreteDynamicsWorld* world)
+Vehicle::Vehicle(glm::vec3 position, btDiscreteDynamicsWorld* world)
 {
 	btTransform tr;
 	tr.setIdentity();
 
-	btRaycastVehicle::btVehicleTuning	m_tuning;
+	btRaycastVehicle::btVehicleTuning m_tuning;
 	btCollisionShape* chassisShape = new btBoxShape(btVector3(1, 0.5f, 1));
 	btCompoundShape* compound = new btCompoundShape();
 	btTransform localTrans;
@@ -36,7 +36,7 @@ Vehicle::Vehicle(btDiscreteDynamicsWorld* world)
 	compound->addChildShape(localTrans, chassisShape);
 	compound->setMargin(0);
 
-	tr.setOrigin(btVector3(0, 4, 0));
+	tr.setOrigin(btVector3(position.x, position.y, position.z));
 
 	btVector3 localInertia(0, 0, 0);
 	compound->calculateLocalInertia(800, localInertia);
@@ -57,7 +57,7 @@ Vehicle::Vehicle(btDiscreteDynamicsWorld* world)
 
 	btCollisionShape* m_wheelShape = new btCylinderShapeX(btVector3(wheelWidth, wheelRadius, wheelRadius));
 
-	btVehicleRaycaster* m_vehicleRayCaster = new btDefaultVehicleRaycaster(world);
+	m_vehicleRayCaster = new btDefaultVehicleRaycaster(world);
 	m_vehicle = new btRaycastVehicle(m_tuning, m_carChassis, m_vehicleRayCaster);
 
 	///never deactivate the vehicle
@@ -167,6 +167,10 @@ Vehicle::Vehicle(btDiscreteDynamicsWorld* world)
 
 Vehicle::~Vehicle()
 {
+	//delete m_vehicleRayCaster;
+	//m_vehicleRayCaster = NULL;
+	//delete m_vehicle;
+	//m_vehicle = NULL;
 }
 
 glm::mat4 Vehicle::GetMat4()

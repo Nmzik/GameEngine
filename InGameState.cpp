@@ -41,7 +41,6 @@ void InGameState::tick(float delta_time)
 	//printf("Time %d %d\n", game->getWorld()->gameHour, game->getWorld()->gameMinute);
 
 	static bool DebugPressed = true;
-	static bool inVehicle = false;
 	//KEYBOARD
 	const Uint8 *state = SDL_GetKeyboardState(NULL);
 
@@ -51,35 +50,6 @@ void InGameState::tick(float delta_time)
 	game->getWorld()->vehicles[0].m_vehicle->setBrake(100.f, 1);
 	game->getWorld()->vehicles[0].m_vehicle->setSteeringValue(0.f, 0);
 	game->getWorld()->vehicles[0].m_vehicle->setSteeringValue(0.f, 1);
-
-	if (inVehicle) {
-
-		if (state[SDL_SCANCODE_W]) {
-			game->getWorld()->vehicles[0].m_vehicle->applyEngineForce(500.0f, 0);
-			game->getWorld()->vehicles[0].m_vehicle->applyEngineForce(500.0f, 1);
-		}
-		if (state[SDL_SCANCODE_S]) {
-			game->getWorld()->vehicles[0].m_vehicle->applyEngineForce(-500.0f, 0);
-			game->getWorld()->vehicles[0].m_vehicle->applyEngineForce(-500.0f, 1);
-		}
-		if (state[SDL_SCANCODE_A]) {
-			game->getWorld()->vehicles[0].m_vehicle->setSteeringValue(1.f, 0);
-			game->getWorld()->vehicles[0].m_vehicle->setSteeringValue(1.f, 1);
-		}
-		if (state[SDL_SCANCODE_D]) {
-			game->getWorld()->vehicles[0].m_vehicle->setSteeringValue(-1.f, 0);
-			game->getWorld()->vehicles[0].m_vehicle->setSteeringValue(-1.f, 1);
-		}
-	}
-
-	if (state[SDL_SCANCODE_N]) {
-		inVehicle = true;
-	}
-
-	if (state[SDL_SCANCODE_M]) {
-		inVehicle = false;
-
-	}
 
 	if (state[SDL_SCANCODE_Q]) {
 		game->getRenderer()->setType(0);
@@ -112,7 +82,7 @@ void InGameState::tick(float delta_time)
 	if (state[SDL_SCANCODE_G]) {
 		DebugPressed = false;
 	}
-	if (DebugPressed && !inVehicle) {
+	if (DebugPressed) {
 		if (state[SDL_SCANCODE_W]) game->getRenderer()->getCamera().ProcessKeyboard(FORWARD, delta_time);
 		if (state[SDL_SCANCODE_S]) game->getRenderer()->getCamera().ProcessKeyboard(BACKWARD, delta_time);
 		if (state[SDL_SCANCODE_A]) game->getRenderer()->getCamera().ProcessKeyboard(LEFT, delta_time);
@@ -122,26 +92,65 @@ void InGameState::tick(float delta_time)
 			game->getWorld()->pedestrians[i].getPhysCharacter()->setWalkDirection(btVector3(0.f, 0.f, 0.f));
 		}
 	}
-	else if (!inVehicle){
+	else {
 
 		//NEED PROPER FIX
 		game->getRenderer()->getCamera().Position = glm::vec3(game->getWorld()->player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getX(), game->getWorld()->player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getY(), game->getWorld()->player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getZ()) + glm::vec3(0.0f,0.0f,-5.f);
+
+		if (state[SDL_SCANCODE_Y]) {
+			if (game->getWorld()->player->GetCurrentVehicle()) {
+				//in Vehicle
+				printf("EXITING");
+				game->getWorld()->player->getPhysCharacter()->warp(game->getWorld()->player->GetCurrentVehicle()->m_carChassis->getWorldTransform().getOrigin());
+				game->getWorld()->player->ExitVehicle();
+			}
+		}
+
+		if (state[SDL_SCANCODE_U]) {
+			if (!game->getWorld()->player->GetCurrentVehicle()) {
+				printf("ENTERING");
+				game->getWorld()->player->EnterVehicle(game->getWorld()->FindNearestVehicle());
+			}
+		}
+
 		glm::vec3 movement;
 		movement.x = state[SDL_SCANCODE_W] - state[SDL_SCANCODE_S];
-		movement.y = state[SDL_SCANCODE_A] - state[SDL_SCANCODE_D];
+		movement.z = state[SDL_SCANCODE_A] - state[SDL_SCANCODE_D];
 
-		float speed = state[SDL_SCANCODE_LSHIFT] ? 2.0f : 1.0f;
-
-		float length = glm::length(movement);
-		if (length > 0.1f) {
-			auto move = speed * glm::normalize(movement);
-			game->getWorld()->player->getPhysCharacter()->setWalkDirection(btVector3(move.y, 0.f, move.x));
+		if (game->getWorld()->player->GetCurrentVehicle()) {
+			if (state[SDL_SCANCODE_W]) {
+				game->getWorld()->player->GetCurrentVehicle()->m_vehicle->applyEngineForce(500.f, 0);
+				game->getWorld()->player->GetCurrentVehicle()->m_vehicle->applyEngineForce(500.f, 1);
+				//game->getWorld()->player->GetCurrentVehicle()->m_vehicle->applyEngineForce(500.f, 2);
+				//game->getWorld()->player->GetCurrentVehicle()->m_vehicle->applyEngineForce(500.f, 3);
+			}
+			if (state[SDL_SCANCODE_S]) {
+				game->getWorld()->player->GetCurrentVehicle()->m_vehicle->applyEngineForce(-500.0f, 0);
+				game->getWorld()->player->GetCurrentVehicle()->m_vehicle->applyEngineForce(-500.0f, 1);
+			}
+			if (state[SDL_SCANCODE_A]) {
+				game->getWorld()->player->GetCurrentVehicle()->m_vehicle->setSteeringValue(1.f, 0);
+				game->getWorld()->player->GetCurrentVehicle()->m_vehicle->setSteeringValue(1.f, 1);
+			}
+			if (state[SDL_SCANCODE_D]) {
+				game->getWorld()->player->GetCurrentVehicle()->m_vehicle->setSteeringValue(-1.f, 0);
+				game->getWorld()->player->GetCurrentVehicle()->m_vehicle->setSteeringValue(-1.f, 1);
+			}
 		}
 		else {
-			game->getWorld()->player->getPhysCharacter()->setWalkDirection(btVector3(0.f, 0.f, 0.f));
-		}
+			float speed = state[SDL_SCANCODE_LSHIFT] ? 2.0f : 1.0f;
 
-		if (state[SDL_SCANCODE_SPACE]) game->getWorld()->player->Jump();
+			float length = glm::length(movement);
+			if (length > 0.1f) {
+				auto move = speed * glm::normalize(movement);
+				game->getWorld()->player->getPhysCharacter()->setWalkDirection(btVector3(move.z, 0.f, move.x));
+			}
+			else {
+				game->getWorld()->player->getPhysCharacter()->setWalkDirection(btVector3(0.f, 0.f, 0.f));
+			}
+
+			if (state[SDL_SCANCODE_SPACE]) game->getWorld()->player->Jump();
+		}
 	}
 
 	//MOUSE
@@ -161,11 +170,12 @@ void InGameState::handleEvent(const SDL_Event & event)
 			StateManager::get().enter<PauseState>(game);
 			break;
 		}
-		default:
-			break;
+	}
+	case SDL_MOUSEBUTTONDOWN:
+		switch (event.button.button) {
+		case SDL_BUTTON_LEFT: {
+			game->getWorld()->DetectWeaponHit(game->getRenderer()->getCamera().Position, game->getRenderer()->getCamera().Front);
 		}
-		break;
-	default:
-		break;
+	}
 	}
 }
