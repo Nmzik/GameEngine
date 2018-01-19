@@ -15,6 +15,7 @@ class ResourceManager
 	std::vector <Model> waitingList;
 	GameWorld *gameworld;
 public:
+
 	ResourceManager(GameWorld *world);
 	~ResourceManager();
 

@@ -309,6 +309,7 @@ void RenderingSystem::render(GameWorld* world)
 	//model = glm::rotate(-0.01f, lightdirection);
 	gbuffer->setMat4("model", model);
 	world->models[0].Draw();*/
+
 	for (int i = 0; i < world->models.size(); i++)
 	{
 		if (world->models[i].isLoaded == false) {

@@ -1,10 +1,5 @@
 #include "Model.h"
 
-#define TINYOBJLOADER_IMPLEMENTATION
-#include "tiny_obj_loader.h"
-
-std::vector<tinyobj::shape_t> shapes;
-
 Model::Model(glm::vec3 position, glm::quat rot, glm::vec3 scale, char const * ModelPath, char const * pathTexture, char const * specTexture, bool dynamic = false, bool GenerateCollision = true) : position{ position }, rot{ rot }, ModelPath{ ModelPath }, pathTexture{ pathTexture }, specTexture{ specTexture }, dynamic{ dynamic }, GenerateCollision{ GenerateCollision }
 {
 	ModelMatrix = glm::mat4(1.0);
@@ -40,7 +35,6 @@ glm::vec3 Model::GetPosition()
 
 void Model::Load()
 {
-	std::vector<tinyobj::material_t> materials;
 	std::string err;
 
 	std::string mtlPath(ModelPath);

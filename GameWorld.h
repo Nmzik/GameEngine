@@ -31,6 +31,10 @@ public:
 	GameWorld();
 	~GameWorld();
 
+	ResourceManager* GetResourceManager() {
+		return _ResourceManager;
+	}
+
 	btDiscreteDynamicsWorld* GetDynamicsWorld() {
 		return dynamicsWorld;
 	}
