@@ -291,9 +291,9 @@ void RenderingSystem::render(GameWorld* world)
 
 	///geometry to gbuffer->shadowmaps(directional light)->shadowmaps(point light)->ssao->lighting(Final)->skybox
 	// --------------------------------GeometryPass Deferred Rendering----------------------------------
-	
 	glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 	//glEnable(GL_CULL_FACE);;
 	glm::mat4 view = camera->GetViewMatrix();
 	gbuffer->use();
@@ -326,9 +326,9 @@ void RenderingSystem::render(GameWorld* world)
 	}
 
 	for (int i = 0; i < world->pedestrians.size(); i++) {
-		auto model = world->pedestrians[i].getPosition();
+		auto model = world->pedestrians[i]->getPosition();
 		gbuffer->setMat4("model", model);
-		world->pedestrians[i].Draw();
+		world->pedestrians[i]->Draw();
 	}
 
 	for (int i = 0; i < world->vehicles.size(); i++) {

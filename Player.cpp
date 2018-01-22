@@ -76,10 +76,13 @@ Player::Player(glm::vec3 position, btDiscreteDynamicsWorld* world)
 
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+
+	playerDirection = glm::vec3(0.0f, 0.0f, 0.0f);
 }
 
 Player::~Player()
 {
+	printf("DESTRUCTOR \n");
 }
 
 btKinematicCharacterController* Player::getPhysCharacter()
@@ -104,8 +107,15 @@ glm::mat4 Player::getPosition()
 	return model;
 }
 
+void Player::PhysicsTick()
+{
+	physCharacter->setWalkDirection(btVector3(playerDirection.x, playerDirection.y, playerDirection.z));
+}
+
 void Player::ExitVehicle()
 {
+	vehicle->SetThrottle(0.0f);
+	vehicle->SetSteeringValue(0.0f);
 	vehicle = NULL;
 }
 

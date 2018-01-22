@@ -5,6 +5,7 @@
 #include "SDL.h"
 
 #include "RenderingSystem.h"
+#include "GameData.h"
 #include "StateManager.h"
 #include "MenuState.h"
 #include "InGameState.h"
@@ -13,6 +14,7 @@ class Game
 {
 	SDL_Window *window;
 
+	GameData data;
 	std::unique_ptr<GameWorld> gameWorld;
 	std::unique_ptr<RenderingSystem> rendering_system;
 

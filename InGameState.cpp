@@ -44,13 +44,6 @@ void InGameState::tick(float delta_time)
 	//KEYBOARD
 	const Uint8 *state = SDL_GetKeyboardState(NULL);
 
-	game->getWorld()->vehicles[0].m_vehicle->applyEngineForce(0.f, 0);
-	game->getWorld()->vehicles[0].m_vehicle->applyEngineForce(0.f, 1);
-	game->getWorld()->vehicles[0].m_vehicle->setBrake(100.f, 0);
-	game->getWorld()->vehicles[0].m_vehicle->setBrake(100.f, 1);
-	game->getWorld()->vehicles[0].m_vehicle->setSteeringValue(0.f, 0);
-	game->getWorld()->vehicles[0].m_vehicle->setSteeringValue(0.f, 1);
-
 	if (state[SDL_SCANCODE_Q]) {
 		game->getRenderer()->setType(0);
 	}
@@ -88,9 +81,6 @@ void InGameState::tick(float delta_time)
 		if (state[SDL_SCANCODE_A]) game->getRenderer()->getCamera().ProcessKeyboard(LEFT, delta_time);
 		if (state[SDL_SCANCODE_D]) game->getRenderer()->getCamera().ProcessKeyboard(RIGHT, delta_time);
 		if (game->getWorld()->player != nullptr) game->getWorld()->player->getPhysCharacter()->setWalkDirection(btVector3(0.f, 0.f, 0.f));
-		for (int i = 0; i < game->getWorld()->pedestrians.size(); i++) {
-			game->getWorld()->pedestrians[i].getPhysCharacter()->setWalkDirection(btVector3(0.f, 0.f, 0.f));
-		}
 	}
 	else {
 
@@ -119,22 +109,16 @@ void InGameState::tick(float delta_time)
 
 		if (game->getWorld()->player->GetCurrentVehicle()) {
 			if (state[SDL_SCANCODE_W]) {
-				game->getWorld()->player->GetCurrentVehicle()->m_vehicle->applyEngineForce(500.f, 0);
-				game->getWorld()->player->GetCurrentVehicle()->m_vehicle->applyEngineForce(500.f, 1);
-				//game->getWorld()->player->GetCurrentVehicle()->m_vehicle->applyEngineForce(500.f, 2);
-				//game->getWorld()->player->GetCurrentVehicle()->m_vehicle->applyEngineForce(500.f, 3);
+				game->getWorld()->player->GetCurrentVehicle()->SetThrottle(1.0);
 			}
 			if (state[SDL_SCANCODE_S]) {
-				game->getWorld()->player->GetCurrentVehicle()->m_vehicle->applyEngineForce(-500.0f, 0);
-				game->getWorld()->player->GetCurrentVehicle()->m_vehicle->applyEngineForce(-500.0f, 1);
+				game->getWorld()->player->GetCurrentVehicle()->SetThrottle(-1.0);
 			}
 			if (state[SDL_SCANCODE_A]) {
-				game->getWorld()->player->GetCurrentVehicle()->m_vehicle->setSteeringValue(1.f, 0);
-				game->getWorld()->player->GetCurrentVehicle()->m_vehicle->setSteeringValue(1.f, 1);
+				game->getWorld()->player->GetCurrentVehicle()->SetSteeringValue(1.0);
 			}
 			if (state[SDL_SCANCODE_D]) {
-				game->getWorld()->player->GetCurrentVehicle()->m_vehicle->setSteeringValue(-1.f, 0);
-				game->getWorld()->player->GetCurrentVehicle()->m_vehicle->setSteeringValue(-1.f, 1);
+				game->getWorld()->player->GetCurrentVehicle()->SetSteeringValue(-1.0);
 			}
 		}
 		else {

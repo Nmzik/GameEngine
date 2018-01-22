@@ -44,14 +44,14 @@ GameWorld::GameWorld()
 
 	Model model(glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 1.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\plane.obj", nullptr, nullptr, false, true);
 	_ResourceManager->AddToWaitingList(model);
-	Model model1(glm::vec3(0.f, 1.f, 0.f), glm::quat(0.f, 0.f, 0.f, 1.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\cube.obj", "container.jpg", "container2_specular.png", true, true);
+	Model model1(glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 1.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\cube.obj", "container.jpg", "container2_specular.png", true, true);
 	_ResourceManager->AddToWaitingList(model1);
 
-	Model model2(glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 0.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\rungholt\\rungholt.obj", nullptr, nullptr, false, false);
-	_ResourceManager->AddToWaitingList(model2);
-
-	//Model model2(glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 0.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\skydome.obj", nullptr, nullptr, false, false);
+	//Model model2(glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 0.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\rungholt\\rungholt.obj", nullptr, nullptr, false, false);
 	//_ResourceManager->AddToWaitingList(model2);
+
+	Model model2(glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 0.f), glm::vec3(10.0f), "C:\\Users\\nmzik\\Desktop\\skydome\\building1.obj", nullptr, nullptr, false, false);
+	_ResourceManager->AddToWaitingList(model2);
 
 	//dynamicsWorld->addRigidBody(model1.getBody());
 }
@@ -63,7 +63,7 @@ GameWorld::~GameWorld()
 
 void GameWorld::createPedestrian()
 {
-	Player newPlayer(glm::vec3(0,20,0), dynamicsWorld);
+	Player *newPlayer = new Player(glm::vec3(0,20,0), dynamicsWorld);
 	pedestrians.push_back(newPlayer);
 }
 
@@ -71,6 +71,19 @@ void GameWorld::createVehicle()
 {
 	Vehicle newVehicle(glm::vec3(-20,0,0), dynamicsWorld);
 	vehicles.push_back(newVehicle);
+}
+
+void GameWorld::Update()
+{
+	for (auto& pedestrian : pedestrians)
+	{
+		pedestrian->PhysicsTick();
+	}
+
+	for (auto& vehicle : vehicles)
+	{
+		vehicle.PhysicsTick();
+	}
 }
 
 float RandomFloat(float min, float max) {
@@ -82,10 +95,11 @@ void GameWorld::UpdateTraffic(glm::vec3 cameraPosition)
 	float radiusTraffic = 20.0f;
 	//PEDESTRIANS
 	for (int i = 0; i < pedestrians.size(); i++) {
-		glm::vec3 pedestrianPosition(pedestrians[i].getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getX(), pedestrians[i].getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getY(), pedestrians[i].getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getZ());
+		glm::vec3 pedestrianPosition(pedestrians[i]->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getX(), pedestrians[i]->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getY(), pedestrians[i]->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getZ());
 		if (glm::distance(cameraPosition, pedestrianPosition) >= 100.0f) {
-			dynamicsWorld->removeCharacter(pedestrians[i].getPhysCharacter());
-			dynamicsWorld->removeCollisionObject(pedestrians[i].getPhysCharacter()->getGhostObject());
+			dynamicsWorld->removeCharacter(pedestrians[i]->getPhysCharacter());
+			dynamicsWorld->removeCollisionObject(pedestrians[i]->getPhysCharacter()->getGhostObject());
+			//delete pedestrians[i];
 			pedestrians.erase(pedestrians.begin() + i);
 		}
 	}
@@ -95,7 +109,7 @@ void GameWorld::UpdateTraffic(glm::vec3 cameraPosition)
 		for (int i = 0; i < MaximumAvailablePeds; i++) {
 			float xRandom = RandomFloat(cameraPosition.x - radiusTraffic, cameraPosition.x + radiusTraffic);
 			float zRandom = RandomFloat(cameraPosition.z - radiusTraffic, cameraPosition.z + radiusTraffic);
-			Player newPlayer(glm::vec3(xRandom, 0, zRandom), dynamicsWorld);
+			Player *newPlayer = new Player(glm::vec3(xRandom, 0, zRandom), dynamicsWorld);
 			pedestrians.push_back(newPlayer);
 		}
 	}
@@ -172,5 +186,6 @@ void GameWorld::DetectWeaponHit(glm::vec3 CameraPosition, glm::vec3 lookDirectio
 
 void GameWorld::update()
 {
+	Update();
 	dynamicsWorld->stepSimulation(1 / 60.f, 10);
 }

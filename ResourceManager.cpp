@@ -17,14 +17,17 @@ void ResourceManager::update()
 {
 	while (true) {
 		mylock.lock();
-		std::vector<Model>::iterator i = waitingList.begin();
-		while (i != waitingList.end())
-		{
-			i->Load();
-			gameworld->models.push_back(*i);
-			//if (i->dynamic) gameworld->GetDynamicsWorld()->addRigidBody(gameworld->models.back().getBody());
-			i = waitingList.erase(i);
+
+		for (int i = 0; i < waitingList.size(); i++) {
+			waitingList[i].Load();
+			gameworld->models.emplace_back(std::move(waitingList[i]));
+			waitingList.erase(waitingList.begin() + i);
 		}
 		mylock.unlock();
+
+		/*or (int i = 0; i < gameworld->models.size; i++)
+		{
+			if (gameworld->models[i].BuffersCreated) 
+		}*/
 	}
 }

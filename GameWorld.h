@@ -22,7 +22,7 @@ class GameWorld
 
 public:
 	std::vector<Model> models;
-	std::vector<Player> pedestrians;
+	std::vector<Player*> pedestrians;
 	std::vector<Vehicle> vehicles;
 	uint8_t gameMinute;
 	uint8_t gameHour;
@@ -45,6 +45,7 @@ public:
 
 	void createPedestrian();
 	void createVehicle();
+	void Update();
 	void UpdateTraffic(glm::vec3 cameraPosition);
 	Vehicle* FindNearestVehicle();
 	void DetectWeaponHit(glm::vec3 CameraPosition, glm::vec3 lookDirection);

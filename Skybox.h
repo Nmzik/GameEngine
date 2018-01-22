@@ -7,7 +7,8 @@
 class Skybox
 {
 	Shader* SkyboxShader;
-	unsigned int skyboxVAO, skyboxVBO;
+	unsigned int vertex_buffer, EBO, VAO, normal_buffer, tex_coord_buffer, tangent_buffer, bitangent_buffer;
+	int num_indices;
 	unsigned int cubemapTexture;
 public:
 	Skybox();
