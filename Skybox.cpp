@@ -12,9 +12,9 @@ Skybox::Skybox()
 	std::vector<tinyobj::material_t> materials;
 	std::string err;
 
-	tinyobj::LoadObj(shapes, materials, err, "C:\\Users\\nmzik\\Desktop\\skydome.obj", nullptr, tinyobj::triangulation | tinyobj::calculate_normals);
+	//tinyobj::LoadObj(shapes, materials, err, "C:\\Users\\nmzik\\Desktop\\skydome.obj", nullptr, tinyobj::triangulation | tinyobj::calculate_normals);
 
-	glGenVertexArrays(1, &VAO);
+	/*glGenVertexArrays(1, &VAO);
 
 	glBindVertexArray(VAO);
 
@@ -42,7 +42,7 @@ Skybox::Skybox()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, shapes[0].mesh.indices.size() * sizeof(unsigned int), &shapes[0].mesh.indices[0], GL_STATIC_DRAW);
 
-	//cubemapTexture = loadCubemap(faces);
+	//cubemapTexture = loadCubemap(faces);*/
 }
 
 

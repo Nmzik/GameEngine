@@ -15,6 +15,8 @@ GameWorld::GameWorld()
 
 	_ResourceManager = new ResourceManager(this);
 
+	//YdrLoader test;
+
 	player = new Player(glm::vec3(-50, 20, 0), dynamicsWorld);
 
 	gameHour = 10;

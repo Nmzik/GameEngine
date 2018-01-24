@@ -5,6 +5,7 @@
 #include "Vehicle.h"
 #include "ResourceManager.h"
 #include "PhysicsDebugDrawer.h"
+#include "YdrLoader.h"
 
 class ResourceManager;
 

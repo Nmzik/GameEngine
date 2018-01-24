@@ -87,7 +87,7 @@ typedef struct {
   std::vector<float> positions;
   std::vector<float> normals;
   std::vector<float> texcoords;
-  std::vector<unsigned int> indices;
+  std::vector<uint16_t> indices;
   std::vector<unsigned char>
       num_vertices;              // The number of vertices per face. Up to 255.
   std::vector<int> material_ids; // per-face material ID

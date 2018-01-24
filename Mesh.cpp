@@ -2,7 +2,7 @@
 
 
 
-Mesh::Mesh(std::vector<float>& vertices, std::vector<unsigned int>& indices, std::vector<float>& normals, std::vector<float>& texcoords, char const * pathTexture, char const * specTexture)
+Mesh::Mesh(std::vector<float>& vertices, std::vector<uint16_t>& indices, std::vector<float>& normals, std::vector<float>& texcoords, char const * pathTexture, char const * specTexture)
 {
 	glGenVertexArrays(1, &VAO);
 
@@ -30,7 +30,7 @@ Mesh::Mesh(std::vector<float>& vertices, std::vector<unsigned int>& indices, std
 
 	glGenBuffers(1, &EBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint16_t), &indices[0], GL_STATIC_DRAW); //16 BIT INDICES max 65536
 
 	material = new Material(pathTexture, specTexture);
 }
@@ -44,5 +44,5 @@ void Mesh::Draw()
 {
 	glBindVertexArray(VAO);
 	material->bind();
-	glDrawElements(GL_TRIANGLES, num_indices, GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, num_indices, GL_UNSIGNED_SHORT, 0);
 }
