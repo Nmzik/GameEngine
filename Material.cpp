@@ -1,7 +1,5 @@
 #include "Material.h"
 
-
-
 Material::Material(const char* diffuseTexture, const char* specTexture)
 {
 	if (diffuseTexture != 0)

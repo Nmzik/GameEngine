@@ -49,7 +49,7 @@ public:
 	bool GenerateCollision = true;
 	bool isLoaded = false;
 	btRigidBody* getBody();
-	glm::mat4 GetMat4();
+	glm::mat4 getModelMatrix();
 	glm::vec3 GetPosition();
 	void Load();
 	void UploadToBuffers();

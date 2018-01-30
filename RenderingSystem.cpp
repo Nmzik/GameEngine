@@ -24,7 +24,7 @@ void myDebugCallback(
 		message);
 }
 
-RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, lightPos(0.0f, 50.0f, 0.0f), sunDirection{ 0.1, 0.8, 0.1 }
+RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, lightPos(0.0f, 50.0f, 0.0f), dirLight(glm::vec3(0.1, 0.8, 0.1), glm::vec3(0.2f, 0.2f, 0.2f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1.0f, 1.0f, 1.0f), true)
 {
 	glcontext = SDL_GL_CreateContext(window);
 
@@ -88,9 +88,10 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, light
 	gbufferLighting->setInt("gAlbedoSpec", 2);
 	gbufferLighting->setInt("shadowMap", 3);
 	gbufferLighting->setInt("ssao", 4);
-	gbufferLighting->setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
-	gbufferLighting->setVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
-	gbufferLighting->setVec3("light.specular", 1.0f, 1.0f, 1.0f);
+
+	gbufferLighting->setVec3("light.ambient", dirLight.ambient);
+	gbufferLighting->setVec3("light.diffuse", dirLight.diffuse);
+	gbufferLighting->setVec3("light.specular", dirLight.specular);
 
 
 	float quadVertices[] = {
@@ -310,20 +311,24 @@ void RenderingSystem::render(GameWorld* world)
 	gbuffer->setMat4("model", model);
 	world->models[0].Draw();*/
 
-	for (int i = 0; i < world->models.size(); i++)
+	for (auto& model : world->models)
 	{
-		if (world->models[i].isLoaded == false) {
-			world->models[i].UploadToBuffers();
-			if (world->models[i].GenerateCollision) world->GetDynamicsWorld()->addRigidBody(world->models[i].getBody());
+		if (model.isLoaded == false) {
+			model.UploadToBuffers();
+			if (model.GenerateCollision) world->GetDynamicsWorld()->addRigidBody(model.getBody());
 		}
-		//printf("%f\n", glm::distance(camera->Position, glm::vec3(world->models[i].getBody()->getWorldTransform().getOrigin().getX(), world->models[i].getBody()->getWorldTransform().getOrigin().getY(), world->models[i].getBody()->getWorldTransform().getOrigin().getZ())));
-		//if (glm::distance(camera->Position, glm::vec3(world->models[i].getBody()->getWorldTransform().getOrigin().getX(), world->models[i].getBody()->getWorldTransform().getOrigin().getY(), world->models[i].getBody()->getWorldTransform().getOrigin().getZ())) < 80.0f) {
-		//if (glm::distance(camera->Position, world->models[i].GetPosition()) < 80.0f) {
-			auto model = world->models[i].GetMat4();
-			gbuffer->setMat4("model", model);
-			world->models[i].Draw();
+		//printf("%f\n", glm::distance(camera->Position, model.GetPosition()));
+		//if (glm::distance(camera->Position, model.GetPosition()) < 80.0f) {
+			auto modelMatrix = model.getModelMatrix();
+			gbuffer->setMat4("model", modelMatrix);
+			model.Draw();
 		//}
 	}
+
+	//TEST
+	auto modelpos = world->ydrLoader[0].GetMat4();
+	gbuffer->setMat4("model", modelpos);
+	world->ydrLoader[0].Draw();
 
 	for (int i = 0; i < world->pedestrians.size(); i++) {
 		auto model = world->pedestrians[i]->getPosition();
@@ -341,13 +346,13 @@ void RenderingSystem::render(GameWorld* world)
 	gbuffer->setMat4("model", glm::mat4(1.0));
 	world->getDebugDrawer()->render();
 
-	auto model = world->player->getPosition();
-	gbuffer->setMat4("model", model);
+	auto modelMatrix = world->player->getPosition();
+	gbuffer->setMat4("model", modelMatrix);
 	world->player->Draw();
 	//glDisable(GL_CULL_FACE);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	sunDirection = glm::rotateZ(sunDirection, -0.005f);
+	dirLight.direction = glm::rotateZ(dirLight.direction, -0.005f);
 	// --------------------------------ShadowPass----------------------------------
 	/*glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 	glViewport(0, 0, 1024, 1024);
@@ -355,27 +360,24 @@ void RenderingSystem::render(GameWorld* world)
 	//lightPos.x = camera->Position.x;
 	//lightPos.y = camera->Position.y + 50.f;
 	//lightPos.z = camera->Position.z;
-	sunDirection = glm::rotateZ(sunDirection, -0.005f);
 	//lightdirection = glm::rotateY(lightdirection, -0.01f);
 	//printf("%f %f %f\n", sunDirection.x, sunDirection.y, sunDirection.z);
 	glm::mat4 lightProjection, lightView;
 	glm::mat4 lightSpaceMatrix;
 	float near_plane = 1.f, far_plane = 5000.f;
 	lightProjection = glm::ortho(-450.0f, 450.0f, -450.0f, 450.0f, -100.f, 200.f);
-	glm::vec3 lightInvDir = glm::vec3(2.0f, 0.5f, 2.0f);
-	glm::vec3 lightPos = camera->Position + lightInvDir;
-	lightView = glm::lookAt(camera->Position, camera->Position + sunDirection, glm::vec3(0.0, 1.0, 0.0));
+	lightView = glm::lookAt(camera->Position, camera->Position + dirLight.direction, glm::vec3(0.0, 1.0, 0.0));
 	lightSpaceMatrix = lightProjection * lightView;
 	// render scene from light's point of view
 	DepthTexture->use();
 	DepthTexture->setMat4("lightSpaceMatrix", lightSpaceMatrix);
 
-	for (int i = 0; i < world->models.size(); i++)
+	for (auto& model : world->models)
 	{
-		auto model = world->models[i].GetMat4();
-		//if (glm::distance(camera->Position, world->models[i].GetPosition()) < 80.0f) {
-			DepthTexture->setMat4("model", model);
-			world->models[i].Draw();
+		auto modelMatrix = model.getModelMatrix();
+		//if (glm::distance(camera->Position, model.GetPosition()) < 80.0f) {
+			DepthTexture->setMat4("model", modelMatrix);
+			model.Draw();
 		//}
 	}
 
@@ -390,8 +392,9 @@ void RenderingSystem::render(GameWorld* world)
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, depthMap);
 	renderQuad();*/
-	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	//glViewport(0, 0, 1280, 720);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glViewport(0, 0, 1280, 720);
 
 	ssaoPass();
 
@@ -410,7 +413,7 @@ void RenderingSystem::render(GameWorld* world)
 	glActiveTexture(GL_TEXTURE4);
 	glBindTexture(GL_TEXTURE_2D, ssaoColorBufferBlur);
 
-	gbufferLighting->setVec3("light.direction", sunDirection);
+	gbufferLighting->setVec3("light.direction", dirLight.direction);
 	gbufferLighting->setVec3("viewPos", camera->Position);
 	gbufferLighting->setInt("type",type);
 	//gbufferLighting->setMat4("lightSpaceMatrix", lightSpaceMatrix);
@@ -424,6 +427,7 @@ void RenderingSystem::render(GameWorld* world)
 	glBindTexture(GL_TEXTURE_2D, colorBuffer);
 	float exposure = 2.0f;
 	hdrShader->setInt("hdr", hdrEnabled);
+	hdrShader->setInt("UseBlur", 0);
 	hdrShader->setFloat("exposure", exposure);
 	renderQuad();
 

@@ -11,7 +11,9 @@ class Mesh
 	Material* material;
 	unsigned int num_indices;
 public:
+	Mesh(char const * pathTexture, char const * specTexture);
 	Mesh(std::vector<float>& vertices, std::vector<uint16_t>& indices, std::vector<float>& normals, std::vector<float>& texcoords, char const * pathTexture, char const * specTexture);
+	Mesh(std::vector<uint8_t>& vertexData, std::vector<uint16_t>& indices, uint16_t VertexStride);
 	~Mesh();
 
 	void Draw();

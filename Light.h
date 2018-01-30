@@ -1,8 +1,29 @@
 #pragma once
-class Light
+#include "glm.hpp"
+
+class PointLight
 {
 public:
-	Light();
-	~Light();
+	PointLight() {
+
+	}
+	~PointLight() {
+
+	}
+};
+
+class DirectonalLight
+{
+public:
+	glm::vec3 direction;
+	glm::vec3 ambient;
+	glm::vec3 diffuse;
+	glm::vec3 specular;
+	bool castsShadows;
+
+	DirectonalLight(glm::vec3 direction, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, bool castsShadows = false);
+	~DirectonalLight() {
+
+	}
 };
 

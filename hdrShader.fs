@@ -9,6 +9,7 @@ float FXAA_REDUCE_MIN = 1.0f/128.0f;
 
 uniform sampler2D hdrBuffer;
 uniform bool hdr;
+uniform bool UseBlur;
 uniform float exposure;
 
 vec3 computeFxaa()
@@ -52,6 +53,21 @@ vec3 computeFxaa()
         return vec3(resultB);
 }
 
+vec3 blur() {
+	int blurSize = 8;
+	vec2 texelSize = 1.0 / vec2(textureSize(hdrBuffer, 0));
+	vec3 result = vec3(0, 0, 0);
+	vec2 startOffset = vec2(float(1 - blurSize) / 2.0);
+	for (int i = 0; i < blurSize; ++i) {
+		for (int j = 0; j < blurSize; ++j) {
+			vec2 offset = (startOffset + vec2(float(i), float(j))) * texelSize;
+			result += texture2D(hdrBuffer, TexCoords + offset).rgb;
+		}
+	}
+	result = result / float(blurSize * blurSize);
+	return result;
+}
+
 void main()
 {
     vec3 hdrColor = texture(hdrBuffer, TexCoords).rgb;
@@ -61,11 +77,14 @@ void main()
 		///FragColor = vec4(result, 1.0);
 
 		vec3 mapped = vec3(1.0) - exp(-result * exposure);
+		if (UseBlur) mapped += blur();
+
 		FragColor = vec4(mapped, 1.0);
     }
     else
     {
         vec3 result = pow(hdrColor, vec3(1.0));
+		if (UseBlur) result += blur();
         FragColor = vec4(result, 1.0);
     }
 }

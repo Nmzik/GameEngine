@@ -13,14 +13,26 @@ uniform mat4 lightSpaceMatrix;
 uniform vec3 viewPos;
 uniform int type;
 
-struct Light {
+struct DirectionalLight {
 	vec3 direction;
 
 	vec3 ambient;
     vec3 diffuse;
     vec3 specular;
 };
-uniform Light light;
+uniform DirectionalLight light;
+
+struct PointLight {    
+    vec3 position;
+    
+    float constant;
+    float linear;
+    float quadratic;  
+
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+};  
 
 void main()
 {             
@@ -44,6 +56,8 @@ void main()
     float spec = pow(max(dot(Normal, halfwayDir), 0.0), 16.0);
     vec3 specular = light.specular * spec * Specular;   
 	
+
+	//SHADOW
 	// perform perspective divide
     vec3 projCoords = FragPosLightSpace.xyz / FragPosLightSpace.w;
     // transform to [0,1] range
@@ -73,6 +87,8 @@ void main()
     // keep the shadow at 0.0 when outside the far_plane region of the light's frustum.
     if(projCoords.z > 1.0)
         shadow = 0.0;
+
+	//SHADOW
 
     FragColor = vec4(ambient + (1.0 - shadow) * (diffuse + specular), 1.0);
 }

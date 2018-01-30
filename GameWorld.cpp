@@ -15,8 +15,6 @@ GameWorld::GameWorld()
 
 	_ResourceManager = new ResourceManager(this);
 
-	//YdrLoader test;
-
 	player = new Player(glm::vec3(-50, 20, 0), dynamicsWorld);
 
 	gameHour = 10;
@@ -44,6 +42,11 @@ GameWorld::GameWorld()
 		dynamicsWorld->addRigidBody(models[i].getBody());
 	}*/
 
+	YmapLoader ymap;
+
+	YdrLoader test;
+	ydrLoader.push_back(test);
+
 	Model model(glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 1.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\plane.obj", nullptr, nullptr, false, true);
 	_ResourceManager->AddToWaitingList(model);
 	Model model1(glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 1.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\cube.obj", "container.jpg", "container2_specular.png", true, true);
@@ -52,7 +55,7 @@ GameWorld::GameWorld()
 	//Model model2(glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 0.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\rungholt\\rungholt.obj", nullptr, nullptr, false, false);
 	//_ResourceManager->AddToWaitingList(model2);
 
-	Model model2(glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 0.f), glm::vec3(10.0f), "C:\\Users\\nmzik\\Desktop\\skydome\\building1.obj", nullptr, nullptr, false, false);
+	Model model2(glm::vec3(0.f, 5.f, 0.f), glm::quat(0.f, 0.f, 0.f, 0.f), glm::vec3(10.0f), "C:\\Users\\nmzik\\Desktop\\skydome\\building1.obj", nullptr, nullptr, false, false);
 	_ResourceManager->AddToWaitingList(model2);
 
 	//dynamicsWorld->addRigidBody(model1.getBody());

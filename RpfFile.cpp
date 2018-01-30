@@ -1,12 +1,35 @@
 #include "RpfFile.h"
 
-RpfFile::RpfFile(std::string Path)
+RpfFile::RpfFile(std::string FileName_)
 {
-	std::ifstream rpf(Path);
-
+	std::string Path("C:\\Program Files\\Rockstar Games\\Grand Theft Auto V\\");
+	std::ifstream rpf(Path + FileName_, std::ios::binary);
 	if (!rpf.is_open()) {
-		printf("NOT FOUND!");
+		printf("NOT FOUND RPF!\n");
+		return;
 	}
+
+	std::istream& fileStream(rpf);
+
+	FileName = FileName_;
+	rpf.seekg(0, std::ios::end);
+	FileSize = rpf.tellg();
+	rpf.seekg(0, std::ios::beg);
+
+	LoadRpf(rpf);
+}
+RpfFile::RpfFile(std::istream& rpf, std::string FileName_, uint32_t FileSize_, uint64_t FileOffset)
+{
+	FileName = FileName_;
+	FileSize = FileSize_;
+
+	rpf.seekg(FileOffset);
+
+	LoadRpf(rpf);
+}
+void RpfFile::LoadRpf(std::istream& rpf)
+{
+	startPos = rpf.tellg();
 
 	rpf.read((char*)&Version, sizeof(uint32_t));
 	rpf.read((char*)&EntryCount, sizeof(uint32_t));
@@ -21,168 +44,77 @@ RpfFile::RpfFile(std::string Path)
 	uint8_t* entriesData = new uint8_t[EntryCount * 16];
 	uint8_t* namesData = new uint8_t[NamesLength];
 
+	rpf.read((char*)&entriesData[0], EntryCount * 16);
+	rpf.read((char*)&namesData[0], NamesLength);
+
 	switch (Encryption)
 	{
-	case 268435449:
-
+	case 0x0FFFFFF9:
+		printf("AES\n");
+		return;
+		break;
+	case 0x0FEFFFFF:
+		printf("NG\n");
+		entriesData = GTAEncryption::DecryptNG(entriesData, EntryCount * 16, FileName, (uint32_t)FileSize);
+		namesData = GTAEncryption::DecryptNG(namesData, NamesLength, FileName, (uint32_t)FileSize);
+		break;
 	default:
+		printf("ERROR");
 		break;
 	}
 
+	memstream EntriesStream(entriesData, EntryCount * 16);
+	memstream NamesStream(namesData, NamesLength);
+
 	for (int i = 0; i < EntryCount; i++)
 	{
+		uint32_t x;
+		uint32_t y;
+		EntriesStream.read((char*)&y, sizeof(uint32_t));
+		EntriesStream.read((char*)&x, sizeof(uint32_t));
+		EntriesStream.seekg(-8, std::ios::cur);
 
+		if (x == 0x7fffff00) {
+			printf("DIRECTORY\n");
+			RpfDirectoryEntry entry;
+			entry.Read(EntriesStream);
+			NamesStream.seekg(entry.NameOffset);
+			std::getline(NamesStream, entry.Name, '\0');
+			printf("%s\n", entry.Name.c_str());
+		}
+		else if ((x & 0x80000000) == 0)
+		{
+			printf("BINARY\n");
+			RpfBinaryFileEntry entry;
+			entry.Read(EntriesStream);
+			NamesStream.seekg(entry.NameOffset);
+			std::getline(NamesStream, entry.Name, '\0');
+			printf("%s\n", entry.Name.c_str());
+			BinaryEntries.push_back(entry);
+		}
+		else {
+			printf("RESOURCE\n");
+			RpfResourceFileEntry entry;
+			entry.Read(EntriesStream);
+			NamesStream.seekg(entry.NameOffset);
+			std::getline(NamesStream, entry.Name, '\0');
+			printf("%s\n", entry.Name.c_str());
+			ResourceEntries.push_back(entry);
+		}
 	}
-}
 
-uint8_t* RpfFile::DecryptNG(uint8_t* data, uint32_t dataLength, uint8_t* key, uint32_t keyLength)
-{
-	uint8_t* decryptedData = new uint8_t[dataLength];
-
-	uint32_t* keyuints = new uint32_t[keyLength / 4];
-	memcpy(keyuints, key, keyLength);
-	//Buffer.BlockCopy(key, 0, keyuints, 0, key.Length);
-
-	for (int blockIndex = 0; blockIndex < dataLength / 16; blockIndex++)
+	printf("=========================================\n");
+	printf("FILE===========================%s\n", FileName.c_str());
+	for (auto& BinaryEntry : BinaryEntries)
 	{
-		/*uint8_t* encryptedBlock = new uint8_t[16];
-		Array.Copy(data, 16 * blockIndex, encryptedBlock, 0, 16);
-		uint8_t decryptedBlock = DecryptNGBlock(encryptedBlock, keyuints);
-		Array.Copy(decryptedBlock, 0, decryptedData, 16 * blockIndex, 16);*/
+		if (BinaryEntry.Name.substr(BinaryEntry.Name.length() - 4) == ".rpf")
+		{
+			uint32_t RealFileSize = (BinaryEntry.FileSize == 0) ? BinaryEntry.FileUncompressedSize : BinaryEntry.FileSize;
+			RpfFile Subfile(rpf, BinaryEntry.Name, RealFileSize, startPos + ((uint64_t)BinaryEntry.FileOffset * 512));
+			SubFiles.push_back(Subfile);
+		}
 	}
 
-	if (dataLength % 16 != 0)
-	{
-		uint32_t left = dataLength % 16;
-		memcpy(decryptedData + dataLength - left, data + dataLength - left, left);
-		//Buffer.BlockCopy(data, data.Length - left, decryptedData, dataLength - left, left);
-	}
-
-	return decryptedData;
-}
-
-uint8_t* DecryptNGBlock(uint8_t* data, uint32_t dataLength, uint32_t* key)
-{
-	uint8_t* buffer = new uint8_t(dataLength);
-	memcpy(buffer, data, dataLength);
-
-	// prepare key...
-	uint32_t* subKeys[17];
-	for (int i = 0; i < 17; i++)
-	{
-		subKeys[i] = new uint32_t[4];
-		subKeys[i][0] = key[4 * i + 0];
-		subKeys[i][1] = key[4 * i + 1];
-		subKeys[i][2] = key[4 * i + 2];
-		subKeys[i][3] = key[4 * i + 3];
-	}
-
-	/*buffer = DecryptNGRoundA(buffer, subKeys[0], GTA5Keys.PC_NG_DECRYPT_TABLES[0]);
-	buffer = DecryptNGRoundA(buffer, subKeys[1], GTA5Keys.PC_NG_DECRYPT_TABLES[1]);
-	for (int k = 2; k <= 15; k++)
-		buffer = DecryptNGRoundB(buffer, subKeys[k], GTA5Keys.PC_NG_DECRYPT_TABLES[k]);
-	buffer = DecryptNGRoundA(buffer, subKeys[16], GTA5Keys.PC_NG_DECRYPT_TABLES[16]);*/
-
-	return buffer;
-}
-
-
-// round 1,2,16
-uint8_t* DecryptNGRoundA(uint8_t* data, uint32_t* key, uint32_t** table)
-{
-	uint32_t x1 =
-		table[0][data[0]] ^
-		table[1][data[1]] ^
-		table[2][data[2]] ^
-		table[3][data[3]] ^
-		key[0];
-	uint32_t x2 =
-		table[4][data[4]] ^
-		table[5][data[5]] ^
-		table[6][data[6]] ^
-		table[7][data[7]] ^
-		key[1];
-	uint32_t x3 =
-		table[8][data[8]] ^
-		table[9][data[9]] ^
-		table[10][data[10]] ^
-		table[11][data[11]] ^
-		key[2];
-	uint32_t x4 =
-		table[12][data[12]] ^
-		table[13][data[13]] ^
-		table[14][data[14]] ^
-		table[15][data[15]] ^
-		key[3];
-
-	uint8_t* result = new uint8_t[16];
-	result[0] = (uint8_t)((x1 >> 0) & 0xFF);
-	result[1] = (uint8_t)((x1 >> 8) & 0xFF);
-	result[2] = (uint8_t)((x1 >> 16) & 0xFF);
-	result[3] = (uint8_t)((x1 >> 24) & 0xFF);
-	result[4] = (uint8_t)((x2 >> 0) & 0xFF);
-	result[5] = (uint8_t)((x2 >> 8) & 0xFF);
-	result[6] = (uint8_t)((x2 >> 16) & 0xFF);
-	result[7] = (uint8_t)((x2 >> 24) & 0xFF);
-	result[8] = (uint8_t)((x3 >> 0) & 0xFF);
-	result[9] = (uint8_t)((x3 >> 8) & 0xFF);
-	result[10] = (uint8_t)((x3 >> 16) & 0xFF);
-	result[11] = (uint8_t)((x3 >> 24) & 0xFF);
-	result[12] = (uint8_t)((x4 >> 0) & 0xFF);
-	result[13] = (uint8_t)((x4 >> 8) & 0xFF);
-	result[14] = (uint8_t)((x4 >> 16) & 0xFF);
-	result[15] = (uint8_t)((x4 >> 24) & 0xFF);;
-	return result;
-}
-
-
-
-// round 3-15
-uint8_t* DecryptNGRoundB(uint8_t* data, uint32_t* key, uint32_t** table)
-{
-	uint32_t x1 =
-		table[0][data[0]] ^
-		table[7][data[7]] ^
-		table[10][data[10]] ^
-		table[13][data[13]] ^
-		key[0];
-	uint32_t x2 =
-		table[1][data[1]] ^
-		table[4][data[4]] ^
-		table[11][data[11]] ^
-		table[14][data[14]] ^
-		key[1];
-	uint32_t x3 =
-		table[2][data[2]] ^
-		table[5][data[5]] ^
-		table[8][data[8]] ^
-		table[15][data[15]] ^
-		key[2];
-	uint32_t x4 =
-		table[3][data[3]] ^
-		table[6][data[6]] ^
-		table[9][data[9]] ^
-		table[12][data[12]] ^
-		key[3];
-
-	uint8_t* result = new uint8_t[16];
-	result[0] = (uint8_t)((x1 >> 0) & 0xFF);
-	result[1] = (uint8_t)((x1 >> 8) & 0xFF);
-	result[2] = (uint8_t)((x1 >> 16) & 0xFF);
-	result[3] = (uint8_t)((x1 >> 24) & 0xFF);
-	result[4] = (uint8_t)((x2 >> 0) & 0xFF);
-	result[5] = (uint8_t)((x2 >> 8) & 0xFF);
-	result[6] = (uint8_t)((x2 >> 16) & 0xFF);
-	result[7] = (uint8_t)((x2 >> 24) & 0xFF);
-	result[8] = (uint8_t)((x3 >> 0) & 0xFF);
-	result[9] = (uint8_t)((x3 >> 8) & 0xFF);
-	result[10] = (uint8_t)((x3 >> 16) & 0xFF);
-	result[11] = (uint8_t)((x3 >> 24) & 0xFF);
-	result[12] = (uint8_t)((x4 >> 0) & 0xFF);
-	result[13] = (uint8_t)((x4 >> 8) & 0xFF);
-	result[14] = (uint8_t)((x4 >> 16) & 0xFF);
-	result[15] = (uint8_t)((x4 >> 24) & 0xFF);
-	return result;
 }
 
 RpfFile::~RpfFile()

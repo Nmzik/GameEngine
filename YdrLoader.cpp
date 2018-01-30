@@ -1,9 +1,8 @@
 #include "YdrLoader.h"
-#include <iostream>
 
 YdrLoader::YdrLoader()
 {
-	std::ifstream file("C:\\Users\\nmzik\\Desktop\\po1_10_largepipe.ydr", std::ios::binary);
+	std::ifstream file("C:\\Users\\nmzik\\Desktop\\po1_05_buildmesh239.ydr", std::ios::binary);
 
 	if (!file.is_open()) {
 		printf("NOT FOUND!");
@@ -72,21 +71,6 @@ YdrLoader::YdrLoader()
 		uint64_t DrawableModelsXPointer;
 	} DrawableBase;
 
-	file.read((char*)&DrawableBase, sizeof(DrawableBase));
-
-	uint64_t pos1 = file.tellg();
-
-	//SKIP SOME STUFF - NEED FIX POINTER STUFF ...
-	DrawableBase.DrawableModelsXPointer = 1342305584;
-	if ((DrawableBase.DrawableModelsXPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-		DrawableBase.DrawableModelsXPointer = DrawableBase.DrawableModelsXPointer & ~0x50000000;
-	}
-	if ((DrawableBase.DrawableModelsXPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-		DrawableBase.DrawableModelsXPointer = DrawableBase.DrawableModelsXPointer & ~0x60000000;
-	}
-
-	file.seekg(DrawableBase.DrawableModelsXPointer);
-
 	struct VertexBuffer {
 		uint32_t VFT;
 		uint32_t Unknown_4h; // 0x00000001
@@ -118,6 +102,7 @@ YdrLoader::YdrLoader()
 		uint32_t Unknown_74h; // 0x00000000
 		uint32_t Unknown_78h; // 0x00000000
 		uint32_t Unknown_7Ch; // 0x00000000
+		std::vector<uint8_t> VertexData;
 	};
 
 	struct IndexBuffer {
@@ -202,25 +187,37 @@ YdrLoader::YdrLoader()
 		std::vector<DrawableGeometry*> Geometries;
 	} DrawableModel;
 
-	file.read((char*)&DrawableModel, sizeof(DrawableModel) - 24);
+	file.read((char*)&DrawableBase, sizeof(DrawableBase));
 
-	//POINTER GO
-	uint64_t pos2 = file.tellg();
+	uint64_t pos1 = file.tellg();
 
-	if ((DrawableModel.GeometriesPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-		DrawableModel.GeometriesPointer = DrawableModel.GeometriesPointer & ~0x50000000;
+	//SKIP SOME STUFF - NEED FIX POINTER STUFF ...
+	//DrawableBase.DrawableModelsXPointer = 1342305584;
+	if ((DrawableBase.DrawableModelsXPointer & SYSTEM_BASE) == SYSTEM_BASE) {
+		DrawableBase.DrawableModelsXPointer = DrawableBase.DrawableModelsXPointer & ~0x50000000;
 	}
-	if ((DrawableModel.GeometriesPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-		DrawableModel.GeometriesPointer = DrawableModel.GeometriesPointer & ~0x60000000;
+	if ((DrawableBase.DrawableModelsXPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
+		DrawableBase.DrawableModelsXPointer = DrawableBase.DrawableModelsXPointer & ~0x60000000;
 	}
 
-	file.seekg(DrawableModel.GeometriesPointer);
+	file.seekg(DrawableBase.DrawableModelsXPointer);
 
-	for (int i = 0; i < DrawableModel.GeometriesCount1; i++) //no difference btween geometriescount1 and 2
+	struct {
+		uint64_t EntriesPointer;
+		uint16_t EntriesCount;
+		uint16_t EntriesCapacity;
+	} ResourcePointerList64;
+
+	file.read((char*)&ResourcePointerList64, sizeof(ResourcePointerList64));
+
+	//uint32_t garbage_value; //fix
+	//file.read((char*)&garbage_value, sizeof(uint32_t));
+
+	for (int i = 0; i < ResourcePointerList64.EntriesCount; i++)
 	{
 		uint64_t data_pointer;
 		file.read((char*)&data_pointer, sizeof(data_pointer));
-		uint64_t pos = file.tellg();
+		uint64_t posOriginal = file.tellg();
 
 		if ((data_pointer & SYSTEM_BASE) == SYSTEM_BASE) {
 			data_pointer = data_pointer & ~0x50000000;
@@ -231,85 +228,129 @@ YdrLoader::YdrLoader()
 
 		file.seekg(data_pointer);
 
-		DrawableGeometry* drawGeom = new DrawableGeometry();
+		file.read((char*)&DrawableModel, sizeof(DrawableModel) - 24);
 
-		file.read((char*)drawGeom, sizeof(DrawableGeometry) - 16);
+		//POINTER GO
+		uint64_t pos2 = file.tellg();
 
-		if ((drawGeom->VertexBufferPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-			drawGeom->VertexBufferPointer = drawGeom->VertexBufferPointer & ~0x50000000;
+		if ((DrawableModel.GeometriesPointer & SYSTEM_BASE) == SYSTEM_BASE) {
+			DrawableModel.GeometriesPointer = DrawableModel.GeometriesPointer & ~0x50000000;
 		}
-		if ((drawGeom->VertexBufferPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-			drawGeom->VertexBufferPointer = drawGeom->VertexBufferPointer & ~0x60000000;
-		}
-
-		file.seekg(drawGeom->VertexBufferPointer);
-
-		drawGeom->vertexBuffer = new VertexBuffer();
-		file.read((char*)drawGeom->vertexBuffer, sizeof(VertexBuffer));
-
-		if ((drawGeom->vertexBuffer->DataPointer1 & SYSTEM_BASE) == SYSTEM_BASE) {
-			drawGeom->vertexBuffer->DataPointer1 = drawGeom->vertexBuffer->DataPointer1 & ~0x50000000;
-		}
-		if ((drawGeom->vertexBuffer->DataPointer1 & GRAPHICS_BASE) == GRAPHICS_BASE) {
-			drawGeom->vertexBuffer->DataPointer1 = drawGeom->vertexBuffer->DataPointer1 & ~0x60000000;
+		if ((DrawableModel.GeometriesPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
+			DrawableModel.GeometriesPointer = DrawableModel.GeometriesPointer & ~0x60000000;
 		}
 
-		struct Meshdata {
+		file.seekg(DrawableModel.GeometriesPointer);
+
+		for (int i = 0; i < DrawableModel.GeometriesCount1; i++) //no difference btween geometriescount1 and 2
+		{
+			uint64_t data_pointer;
+			file.read((char*)&data_pointer, sizeof(data_pointer));
+			uint64_t pos = file.tellg();
+
+			if ((data_pointer & SYSTEM_BASE) == SYSTEM_BASE) {
+				data_pointer = data_pointer & ~0x50000000;
+			}
+			if ((data_pointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
+				data_pointer = data_pointer & ~0x60000000;
+			}
+
+			file.seekg(data_pointer);
+
+			DrawableGeometry* drawGeom = new DrawableGeometry();
+
+			file.read((char*)drawGeom, sizeof(DrawableGeometry) - 16);
+
+			if ((drawGeom->VertexBufferPointer & SYSTEM_BASE) == SYSTEM_BASE) {
+				drawGeom->VertexBufferPointer = drawGeom->VertexBufferPointer & ~0x50000000;
+			}
+			if ((drawGeom->VertexBufferPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
+				drawGeom->VertexBufferPointer = drawGeom->VertexBufferPointer & ~0x60000000;
+			}
+
+			file.seekg(drawGeom->VertexBufferPointer);
+
+			drawGeom->vertexBuffer = new VertexBuffer();
+			file.read((char*)drawGeom->vertexBuffer, sizeof(VertexBuffer) - 24);
+
+			if ((drawGeom->vertexBuffer->DataPointer1 & SYSTEM_BASE) == SYSTEM_BASE) {
+				drawGeom->vertexBuffer->DataPointer1 = drawGeom->vertexBuffer->DataPointer1 & ~0x50000000;
+			}
+			if ((drawGeom->vertexBuffer->DataPointer1 & GRAPHICS_BASE) == GRAPHICS_BASE) {
+				drawGeom->vertexBuffer->DataPointer1 = drawGeom->vertexBuffer->DataPointer1 & ~0x60000000;
+			}
+
+			/*struct Meshdata {
 			glm::vec3 vertices;
 			glm::vec3 normals;
 			uint8_t textcoord1[4];
 			glm::vec2 idk;
 			glm::vec3 idk2;
 			float idk3;
-		};
+			};*/
 
-		std::vector<Meshdata> meshtest;
-		file.seekg(drawGeom->vertexBuffer->DataPointer1);
+			file.seekg(drawGeom->vertexBuffer->DataPointer1);
 
-		for (int i = 0; i < drawGeom->vertexBuffer->VertexCount; i++) {
-			Meshdata test;
-			file.read((char*)&test, sizeof(Meshdata));
-			meshtest.push_back(test);
+			drawGeom->vertexBuffer->VertexData.resize(drawGeom->vertexBuffer->VertexCount * drawGeom->vertexBuffer->VertexStride);
+			file.read((char*)&drawGeom->vertexBuffer->VertexData[0], drawGeom->vertexBuffer->VertexCount * drawGeom->vertexBuffer->VertexStride);
+
+			if ((drawGeom->IndexBufferPointer & SYSTEM_BASE) == SYSTEM_BASE) {
+				drawGeom->IndexBufferPointer = drawGeom->IndexBufferPointer & ~0x50000000;
+			}
+			if ((drawGeom->IndexBufferPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
+				drawGeom->IndexBufferPointer = drawGeom->IndexBufferPointer & ~0x60000000;
+			}
+
+			file.seekg(drawGeom->IndexBufferPointer);
+
+			drawGeom->indexBuffer = new IndexBuffer();
+			file.read((char*)drawGeom->indexBuffer, sizeof(IndexBuffer) - 24);
+
+			//drawGeom->indexBuffer->Indices = new uint16_t[drawGeom->indexBuffer->IndicesCount];
+
+			//INDICES READING
+			if ((drawGeom->indexBuffer->IndicesPointer & SYSTEM_BASE) == SYSTEM_BASE) {
+				drawGeom->indexBuffer->IndicesPointer = drawGeom->indexBuffer->IndicesPointer & ~0x50000000;
+			}
+			if ((drawGeom->indexBuffer->IndicesPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
+				drawGeom->indexBuffer->IndicesPointer = drawGeom->indexBuffer->IndicesPointer & ~0x60000000;
+			}
+
+			file.seekg(drawGeom->indexBuffer->IndicesPointer);
+
+			drawGeom->indexBuffer->Indices.resize(drawGeom->indexBuffer->IndicesCount * sizeof(uint16_t));
+			file.read((char*)&drawGeom->indexBuffer->Indices[0], sizeof(uint16_t) * drawGeom->indexBuffer->IndicesCount);
+
+			DrawableModel.Geometries.push_back(drawGeom);
+
+			file.seekg(pos);
 		}
+	}
 
-		if ((drawGeom->IndexBufferPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-			drawGeom->IndexBufferPointer = drawGeom->IndexBufferPointer & ~0x50000000;
-		}
-		if ((drawGeom->IndexBufferPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-			drawGeom->IndexBufferPointer = drawGeom->IndexBufferPointer & ~0x60000000;
-		}
+	file.close();
 
-		file.seekg(drawGeom->IndexBufferPointer);
-
-		drawGeom->indexBuffer = new IndexBuffer();
-		file.read((char*)drawGeom->indexBuffer, sizeof(IndexBuffer) - 24);
-
-		//drawGeom->indexBuffer->Indices = new uint16_t[drawGeom->indexBuffer->IndicesCount];
-
-		//INDICES READING
-		if ((drawGeom->indexBuffer->IndicesPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-			drawGeom->indexBuffer->IndicesPointer = drawGeom->indexBuffer->IndicesPointer & ~0x50000000;
-		}
-		if ((drawGeom->indexBuffer->IndicesPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-			drawGeom->indexBuffer->IndicesPointer = drawGeom->indexBuffer->IndicesPointer & ~0x60000000;
-		}
-
-		file.seekg(drawGeom->indexBuffer->IndicesPointer);
-
-		for (int i = 0; i < drawGeom->indexBuffer->IndicesCount; i++)
-		{
-			uint16_t index = 0;
-			file.read((char*)&index, sizeof(uint16_t));
-			drawGeom->indexBuffer->Indices.push_back(index);
-		}
-
-		DrawableModel.Geometries.push_back(drawGeom);
-
-		file.seekg(pos);
+	for (int i = 0; i < DrawableModel.Geometries.size(); i++)
+	{
+		Mesh mesh(DrawableModel.Geometries[i]->vertexBuffer->VertexData, DrawableModel.Geometries[i]->indexBuffer->Indices, DrawableModel.Geometries[i]->vertexBuffer->VertexStride);
+		meshes.push_back(mesh);
 	}
 }
 
 
 YdrLoader::~YdrLoader()
 {
+}
+
+glm::mat4 YdrLoader::GetMat4()
+{
+	glm::mat4 model(1.0);
+	model = glm::translate(model, glm::vec3(0,20,0));
+	return model;
+}
+
+void YdrLoader::Draw()
+{
+	for (int i = 0; i < meshes.size(); i++) {
+		meshes[i].Draw();
+	}
 }

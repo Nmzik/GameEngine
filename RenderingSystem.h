@@ -17,10 +17,13 @@
 #include "Skybox.h"
 #include "Camera.h"
 #include "GameWorld.h"
+#include "Light.h"
 
 class RenderingSystem
 {
 private:
+	DirectonalLight dirLight;
+
 	Shader* ourShader;
 	Shader* gbuffer;
 	Shader* shaderSSAO;
@@ -61,7 +64,6 @@ public:
 	~RenderingSystem();
 
 	glm::vec3 lightPos;
-	glm::vec3 sunDirection;
 	int hdrEnabled = 1;
 	float x = 50.f;
 	Camera& getCamera();

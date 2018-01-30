@@ -14,7 +14,7 @@ class Game
 {
 	SDL_Window *window;
 
-	GameData data;
+	//GameData data;
 	std::unique_ptr<GameWorld> gameWorld;
 	std::unique_ptr<RenderingSystem> rendering_system;
 

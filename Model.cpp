@@ -5,7 +5,7 @@ Model::Model(glm::vec3 position, glm::quat rot, glm::vec3 scale, char const * Mo
 	ModelMatrix = glm::mat4(1.0);
 	ModelMatrix = glm::translate(ModelMatrix, position);
 	ModelMatrix *= glm::toMat4(rot);
-	ModelMatrix = glm::scale(ModelMatrix, scale);
+	//ModelMatrix = glm::scale(ModelMatrix, scale);
 }
 
 
@@ -17,20 +17,23 @@ btRigidBody* Model::getBody() {
 	return rigidBody;
 }
 
-glm::mat4 Model::GetMat4()
+glm::mat4 Model::getModelMatrix()
 {
 	if (rigidBody == NULL)
 	{
 		return ModelMatrix;
 	}
-	glm::mat4 model(1.0);
-	rigidBody->getWorldTransform().getOpenGLMatrix(&model[0][0]);
-	return model;
+	rigidBody->getWorldTransform().getOpenGLMatrix(&ModelMatrix[0][0]);
+	return ModelMatrix;
 }
 
 glm::vec3 Model::GetPosition()
 {
-	return position;
+	if (rigidBody == NULL)
+	{
+		return position;
+	}
+	 return glm::vec3(rigidBody->getWorldTransform().getOrigin().getX(), rigidBody->getWorldTransform().getOrigin().getY(), rigidBody->getWorldTransform().getOrigin().getZ());
 }
 
 void Model::Load()
@@ -115,20 +118,23 @@ void Model::Load()
 			rigidBody = new btRigidBody(groundRigidBodyCI);
 		};
 	}
+
+	meshes.reserve(shapes.size());
+
 }
 
 void Model::UploadToBuffers()
 {
-	for (int i = 0; i < shapes.size(); i++)
+	for (auto& shape : shapes)
 	{
-		meshes.push_back(Mesh(shapes[i].mesh.positions, shapes[i].mesh.indices, shapes[i].mesh.normals, shapes[i].mesh.texcoords, pathTexture, specTexture));
+		meshes.push_back(Mesh(shape.mesh.positions, shape.mesh.indices, shape.mesh.normals, shape.mesh.texcoords, pathTexture, specTexture));
 	}
 	isLoaded = true;
 }
 
 void Model::Draw()
 {
-	for (int i = 0; i < meshes.size(); i++) {
-		meshes[i].Draw();
+	for (auto& mesh : meshes) {
+		mesh.Draw();
 	}
 }

@@ -17,17 +17,12 @@ void ResourceManager::update()
 {
 	while (true) {
 		mylock.lock();
-
-		for (int i = 0; i < waitingList.size(); i++) {
-			waitingList[i].Load();
-			gameworld->models.emplace_back(std::move(waitingList[i]));
-			waitingList.erase(waitingList.begin() + i);
+		if (waitingList.size() > 0) {
+			auto& model = waitingList.back();
+			model.Load();
+			gameworld->models.emplace_back(std::move(model));
+			waitingList.pop_back();
 		}
 		mylock.unlock();
-
-		/*or (int i = 0; i < gameworld->models.size; i++)
-		{
-			if (gameworld->models[i].BuffersCreated) 
-		}*/
 	}
 }

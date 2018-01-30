@@ -6,6 +6,7 @@
 #include "ResourceManager.h"
 #include "PhysicsDebugDrawer.h"
 #include "YdrLoader.h"
+#include "YmapLoader.h"
 
 class ResourceManager;
 
@@ -22,6 +23,7 @@ class GameWorld
 	PhysicsDebugDrawer debug;
 
 public:
+	std::vector<YdrLoader> ydrLoader;
 	std::vector<Model> models;
 	std::vector<Player*> pedestrians;
 	std::vector<Vehicle> vehicles;
