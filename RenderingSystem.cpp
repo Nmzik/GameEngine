@@ -24,7 +24,7 @@ void myDebugCallback(
 		message);
 }
 
-RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, lightPos(0.0f, 50.0f, 0.0f), dirLight(glm::vec3(0.1, 0.8, 0.1), glm::vec3(0.2f, 0.2f, 0.2f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1.0f, 1.0f, 1.0f), true)
+RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLight(glm::vec3(0.1, 0.8, 0.1), glm::vec3(0.2f, 0.2f, 0.2f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1.0f, 1.0f, 1.0f), true)
 {
 	glcontext = SDL_GL_CreateContext(window);
 
@@ -49,8 +49,14 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, light
 
 	glEnable(GL_DEPTH_TEST);
 
+	ScreenResWidth = 1280;
+	ScreenResHeight = 720;
+	ShadowWidth = 1024;
+	ShadowHeight = 1024;
+
 	skybox = new Skybox();
 
+	SkyboxShader = new Shader("skybox.vs", "skybox.fs");
 	ourShader = new Shader("forward.vs", "forward.fs");
 	gbuffer = new Shader("gbuffer.vs", "gbuffer.fs");
 	shaderSSAO = new Shader("ssao.vs", "ssao.fs");
@@ -139,7 +145,7 @@ void RenderingSystem::createGBuffer()
 	// position color buffer
 	glGenTextures(1, &gPosition);
 	glBindTexture(GL_TEXTURE_2D, gPosition);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, 1280, 720, 0, GL_RGB, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, ScreenResWidth, ScreenResHeight, 0, GL_RGB, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -148,14 +154,14 @@ void RenderingSystem::createGBuffer()
 	// normal color buffer
 	glGenTextures(1, &gNormal);
 	glBindTexture(GL_TEXTURE_2D, gNormal);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, 1280, 720, 0, GL_RGB, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, ScreenResWidth, ScreenResHeight, 0, GL_RGB, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gNormal, 0);
 	// color + specular color buffer
 	glGenTextures(1, &gAlbedoSpec);
 	glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, 1280, 720, 0, GL_RGBA, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, ScreenResWidth, ScreenResHeight, 0, GL_RGBA, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gAlbedoSpec, 0);
@@ -166,7 +172,7 @@ void RenderingSystem::createGBuffer()
 	unsigned int rboDepth;
 	glGenRenderbuffers(1, &rboDepth);
 	glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, 1280, 720);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, ScreenResWidth, ScreenResHeight);
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
 	// finally check if framebuffer is complete
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -176,12 +182,11 @@ void RenderingSystem::createGBuffer()
 
 void RenderingSystem::createDepthFBO()
 {
-	const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
 	glGenFramebuffers(1, &depthMapFBO);
 	// create depth texture
 	glGenTextures(1, &depthMap);
 	glBindTexture(GL_TEXTURE_2D, depthMap);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, ShadowWidth, ShadowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -202,7 +207,7 @@ void RenderingSystem::createSSAO()
 	// SSAO color buffer
 	glGenTextures(1, &ssaoColorBuffer);
 	glBindTexture(GL_TEXTURE_2D, ssaoColorBuffer);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, 1280, 720, 0, GL_RGB, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, ScreenResWidth, ScreenResHeight, 0, GL_RGB, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ssaoColorBuffer, 0);
@@ -212,7 +217,7 @@ void RenderingSystem::createSSAO()
 	glBindFramebuffer(GL_FRAMEBUFFER, ssaoBlurFBO);
 	glGenTextures(1, &ssaoColorBufferBlur);
 	glBindTexture(GL_TEXTURE_2D, ssaoColorBufferBlur);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, 1280, 720, 0, GL_RGB, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, ScreenResWidth, ScreenResHeight, 0, GL_RGB, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ssaoColorBufferBlur, 0);
@@ -260,14 +265,14 @@ void RenderingSystem::createHDRFBO()
 	// create floating point color buffer
 	glGenTextures(1, &colorBuffer);
 	glBindTexture(GL_TEXTURE_2D, colorBuffer);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, 1280, 720, 0, GL_RGBA, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, ScreenResWidth, ScreenResHeight, 0, GL_RGBA, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	// create depth buffer (renderbuffer)
 	unsigned int rboDepth;
 	glGenRenderbuffers(1, &rboDepth);
 	glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, 1280, 720);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, ScreenResWidth, ScreenResHeight);
 	// attach buffers
 	glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorBuffer, 0);
@@ -287,7 +292,30 @@ void RenderingSystem::renderQuad()
 
 void RenderingSystem::render(GameWorld* world) 
 {
-	glClearColor(0.0, 0.0, 0.0, 1.0);
+	//float tod = world->gameHour + world->gameMinute / 60.f;
+	double SUNRISE = 5.47f;		// % of Day
+	double SUNSET = 19.35f;
+	uint8_t MOONRISE = 17;	// % of Day
+	uint8_t MOONSET = 4;
+	float tod = world->gameHour + world->gameMinute / 60.f;
+	if (tod > SUNRISE && tod < SUNSET) {
+		double sunT = ((double)tod - SUNRISE) / (SUNSET - SUNRISE);
+		float phi = glm::pi<float>() / 2.0f - (float)sunT * glm::pi<float>();
+		float theta = 0.0f;
+
+		dirLight.direction = glm::normalize(glm::vec3(-glm::sin(phi)*glm::cos(theta), glm::cos(phi), glm::sin(phi)*glm::sin(theta)));
+	}
+
+	/*if (world->gameHour < MOONSET || world->gameHour < MOONRISE) {
+		double total = 1.0 - MOONRISE + MOONSET;
+		double moonT = (CurrentTime < MOONRISE ? CurrentTime + 1.0 - MOONRISE : CurrentTime - MOONRISE) / total;
+		float phi = glm::pi<float>() / 2.0f - (float)moonT * glm::pi<float>();
+		float theta = 0.0f;
+
+		MoonDirection = glm::normalize(glm::vec3(-glm::sin(phi)*glm::cos(theta), glm::cos(phi), glm::sin(phi)*glm::sin(theta)));
+	}*/
+
+	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	///geometry to gbuffer->shadowmaps(directional light)->shadowmaps(point light)->ssao->lighting(Final)->skybox
@@ -352,21 +380,16 @@ void RenderingSystem::render(GameWorld* world)
 	//glDisable(GL_CULL_FACE);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	dirLight.direction = glm::rotateZ(dirLight.direction, -0.005f);
+	//dirLight.direction = glm::rotateZ(dirLight.direction, -0.005f);
 	// --------------------------------ShadowPass----------------------------------
-	/*glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 	glViewport(0, 0, 1024, 1024);
 	glClear(GL_DEPTH_BUFFER_BIT);
-	//lightPos.x = camera->Position.x;
-	//lightPos.y = camera->Position.y + 50.f;
-	//lightPos.z = camera->Position.z;
-	//lightdirection = glm::rotateY(lightdirection, -0.01f);
-	//printf("%f %f %f\n", sunDirection.x, sunDirection.y, sunDirection.z);
 	glm::mat4 lightProjection, lightView;
 	glm::mat4 lightSpaceMatrix;
 	float near_plane = 1.f, far_plane = 5000.f;
-	lightProjection = glm::ortho(-450.0f, 450.0f, -450.0f, 450.0f, -100.f, 200.f);
-	lightView = glm::lookAt(camera->Position, camera->Position + dirLight.direction, glm::vec3(0.0, 1.0, 0.0));
+	lightProjection = glm::ortho(-450.0f, 450.0f, -450.0f, 450.0f, 0.f, 200.f);
+	lightView = glm::lookAt(dirLight.direction * 50.0f + camera->Position, camera->Position, glm::vec3(0, 1, 0));
 	lightSpaceMatrix = lightProjection * lightView;
 	// render scene from light's point of view
 	DepthTexture->use();
@@ -394,13 +417,18 @@ void RenderingSystem::render(GameWorld* world)
 	renderQuad();*/
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glViewport(0, 0, 1280, 720);
+	glViewport(0, 0, ScreenResWidth, ScreenResHeight);
 
 	ssaoPass();
 
 	// --------------------------------LightingPass Deferred Rendering----------------------------------
 	glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	//SkyboxShader->use();
+
+	//skybox->Draw();
+
 	gbufferLighting->use();
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, gPosition);
@@ -416,7 +444,7 @@ void RenderingSystem::render(GameWorld* world)
 	gbufferLighting->setVec3("light.direction", dirLight.direction);
 	gbufferLighting->setVec3("viewPos", camera->Position);
 	gbufferLighting->setInt("type",type);
-	//gbufferLighting->setMat4("lightSpaceMatrix", lightSpaceMatrix);
+	gbufferLighting->setMat4("lightSpaceMatrix", lightSpaceMatrix);
 	renderQuad();
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 

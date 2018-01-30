@@ -72,7 +72,7 @@ void Game::run() {
 		current_time = SDL_GetTicks() / 1000.f;
 		delta_time = current_time - old_time;
 
-		StateManager::get().tick(delta_time);
+		StateManager::get().tick(delta_time*100);
 		if (!paused) {
 			gameWorld->update();
 			gameWorld->UpdateTraffic(rendering_system->getCamera().Position);

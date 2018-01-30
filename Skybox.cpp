@@ -6,15 +6,13 @@
 
 Skybox::Skybox()
 {
-	SkyboxShader = new Shader("skybox.vs", "skybox.fs");
-	
 	std::vector<tinyobj::shape_t> shapes;
 	std::vector<tinyobj::material_t> materials;
 	std::string err;
 
-	//tinyobj::LoadObj(shapes, materials, err, "C:\\Users\\nmzik\\Desktop\\skydome.obj", nullptr, tinyobj::triangulation | tinyobj::calculate_normals);
+	tinyobj::LoadObj(shapes, materials, err, "C:\\Users\\nmzik\\Desktop\\skydome.obj", nullptr, tinyobj::triangulation | tinyobj::calculate_normals);
 
-	/*glGenVertexArrays(1, &VAO);
+	glGenVertexArrays(1, &VAO);
 
 	glBindVertexArray(VAO);
 

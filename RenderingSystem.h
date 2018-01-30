@@ -24,6 +24,7 @@ class RenderingSystem
 private:
 	DirectonalLight dirLight;
 
+	Shader* SkyboxShader;
 	Shader* ourShader;
 	Shader* gbuffer;
 	Shader* shaderSSAO;
@@ -39,6 +40,11 @@ private:
 	unsigned int quadVBO;
 	int type = 0;
 	//Game& game;
+	int ScreenResWidth;
+	int ScreenResHeight;
+	int ShadowWidth;
+	int ShadowHeight;
+
 	glm::mat4 projection;
 	unsigned int depthMapFBO;
 	unsigned int depthMap;
