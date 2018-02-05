@@ -43,7 +43,7 @@ public:
 	float Zoom;
 
 	// Constructor with vectors
-	Camera(glm::vec3 position = glm::vec3(0.0f, 30.0f, -50.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVTY), Zoom(ZOOM)
+	Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVTY), Zoom(ZOOM)
 	{
 		Position = position;
 		WorldUp = up;
@@ -66,7 +66,7 @@ public:
 	{
 		//printf("POSITION %f, %f, %f\n",Position.x, Position.y, Position.z);
 		//printf("TEST %f, %f, %f\n", Position.x + Front.x, Position.y + Front.y, Position.z + Front.z);
-		return glm::lookAt(Position, Position + Front, Up);
+		return glm::lookAt(Position - Front * 8.0f, Position, Up);
 	}
 
 	// Processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)

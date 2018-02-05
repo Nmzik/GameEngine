@@ -38,102 +38,92 @@ void InGameState::tick(float delta_time)
 		clockAccumulator -= 1.f;
 	}
 
-	printf("Time %d %d\n", game->getWorld()->gameHour, game->getWorld()->gameMinute);
+	//printf("Time %d %d\n", game->getWorld()->gameHour, game->getWorld()->gameMinute);
 
 	static bool DebugPressed = true;
 	//KEYBOARD
-	const Uint8 *state = SDL_GetKeyboardState(NULL);
 
-	if (state[SDL_SCANCODE_Q]) {
+	if (game->getInput()->IsKeyPressed(SDL_SCANCODE_Q)) {
 		game->getRenderer()->hdrEnabled = true;
 	}
 
-	if (state[SDL_SCANCODE_E]) {
+	if (game->getInput()->IsKeyPressed(SDL_SCANCODE_E)) {
 		game->getRenderer()->hdrEnabled = false;
 	}
 
-	if (state[SDL_SCANCODE_Z]) {
-		//game->getRenderer()->sunDirection.z += 0.1f;
+	if (game->getInput()->IsKeyPressed(SDL_SCANCODE_Z)) {
+		//game->getWorld()->ydrLoader[0].z += 0.1f;
 	}
 
-	if (state[SDL_SCANCODE_X]) {
-		//game->getRenderer()->sunDirection.z -= 0.1f;
+	if (game->getInput()->IsKeyPressed(SDL_SCANCODE_X)) {
+		//game->getWorld()->ydrLoader[0].z -= 0.1f;
 	}
 
-	if (state[SDL_SCANCODE_C]) {
-		//game->getRenderer()->sunDirection.x += 0.01f;
+	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_I)) {
+		game->getRenderer()->RenderDebugWorld = !game->getRenderer()->RenderDebugWorld;
 	}
 
-	if (state[SDL_SCANCODE_V]) {
-		//game->getRenderer()->sunDirection.x -= 0.01f;
+	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_F)) {
+		DebugPressed = !DebugPressed;
 	}
 
-	if (state[SDL_SCANCODE_F]) {
-		DebugPressed = true;
-	}
-
-	if (state[SDL_SCANCODE_G]) {
-		DebugPressed = false;
-	}
 	if (DebugPressed) {
-		if (state[SDL_SCANCODE_W]) game->getRenderer()->getCamera().ProcessKeyboard(FORWARD, delta_time);
-		if (state[SDL_SCANCODE_S]) game->getRenderer()->getCamera().ProcessKeyboard(BACKWARD, delta_time);
-		if (state[SDL_SCANCODE_A]) game->getRenderer()->getCamera().ProcessKeyboard(LEFT, delta_time);
-		if (state[SDL_SCANCODE_D]) game->getRenderer()->getCamera().ProcessKeyboard(RIGHT, delta_time);
-		if (game->getWorld()->player != nullptr) game->getWorld()->player->getPhysCharacter()->setWalkDirection(btVector3(0.f, 0.f, 0.f));
+		if (game->getInput()->IsKeyPressed(SDL_SCANCODE_W)) game->getRenderer()->getCamera().ProcessKeyboard(FORWARD, delta_time);
+		if (game->getInput()->IsKeyPressed(SDL_SCANCODE_S)) game->getRenderer()->getCamera().ProcessKeyboard(BACKWARD, delta_time);
+		if (game->getInput()->IsKeyPressed(SDL_SCANCODE_A)) game->getRenderer()->getCamera().ProcessKeyboard(LEFT, delta_time);
+		if (game->getInput()->IsKeyPressed(SDL_SCANCODE_D)) game->getRenderer()->getCamera().ProcessKeyboard(RIGHT, delta_time);
+		game->getWorld()->player->getPhysCharacter()->setWalkDirection(btVector3(0.f, 0.f, 0.f));
 	}
 	else {
 
 		//NEED PROPER FIX
-		game->getRenderer()->getCamera().Position = glm::vec3(game->getWorld()->player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getX(), game->getWorld()->player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getY(), game->getWorld()->player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getZ()) + glm::vec3(0.0f,0.0f,-5.f);
 
-		if (state[SDL_SCANCODE_Y]) {
+		if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_U)) {
 			if (game->getWorld()->player->GetCurrentVehicle()) {
 				//in Vehicle
 				printf("EXITING");
 				game->getWorld()->player->getPhysCharacter()->warp(game->getWorld()->player->GetCurrentVehicle()->m_carChassis->getWorldTransform().getOrigin());
 				game->getWorld()->player->ExitVehicle();
-			}
-		}
-
-		if (state[SDL_SCANCODE_U]) {
-			if (!game->getWorld()->player->GetCurrentVehicle()) {
+			} else {
 				printf("ENTERING");
 				game->getWorld()->player->EnterVehicle(game->getWorld()->FindNearestVehicle());
 			}
 		}
 
 		glm::vec3 movement;
-		movement.x = state[SDL_SCANCODE_W] - state[SDL_SCANCODE_S];
-		movement.z = state[SDL_SCANCODE_A] - state[SDL_SCANCODE_D];
+		movement.x = game->getInput()->IsKeyPressed(SDL_SCANCODE_W) - game->getInput()->IsKeyPressed(SDL_SCANCODE_S);
+		movement.z = game->getInput()->IsKeyPressed(SDL_SCANCODE_A) - game->getInput()->IsKeyPressed(SDL_SCANCODE_D);
 
 		if (game->getWorld()->player->GetCurrentVehicle()) {
-			if (state[SDL_SCANCODE_W]) {
+			if (game->getInput()->IsKeyPressed(SDL_SCANCODE_W)) {
 				game->getWorld()->player->GetCurrentVehicle()->SetThrottle(1.0);
 			}
-			if (state[SDL_SCANCODE_S]) {
+			if (game->getInput()->IsKeyPressed(SDL_SCANCODE_S)) {
 				game->getWorld()->player->GetCurrentVehicle()->SetThrottle(-1.0);
 			}
-			if (state[SDL_SCANCODE_A]) {
+			if (game->getInput()->IsKeyPressed(SDL_SCANCODE_A)) {
 				game->getWorld()->player->GetCurrentVehicle()->SetSteeringValue(1.0);
 			}
-			if (state[SDL_SCANCODE_D]) {
+			if (game->getInput()->IsKeyPressed(SDL_SCANCODE_D)) {
 				game->getWorld()->player->GetCurrentVehicle()->SetSteeringValue(-1.0);
 			}
 		}
 		else {
-			float speed = state[SDL_SCANCODE_LSHIFT] ? 2.0f : 1.0f;
+			game->getRenderer()->getCamera().Position = glm::vec3(game->getWorld()->player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getX(), game->getWorld()->player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getY(), game->getWorld()->player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getZ());
+
+			float speed = game->getInput()->IsKeyPressed(SDL_SCANCODE_LSHIFT) ? 2.0f : 1.0f;
 
 			float length = glm::length(movement);
 			if (length > 0.1f) {
 				auto move = speed * glm::normalize(movement);
+				//move *= delta_time;
 				game->getWorld()->player->getPhysCharacter()->setWalkDirection(btVector3(move.z, 0.f, move.x));
 			}
 			else {
 				game->getWorld()->player->getPhysCharacter()->setWalkDirection(btVector3(0.f, 0.f, 0.f));
 			}
 
-			if (state[SDL_SCANCODE_SPACE]) game->getWorld()->player->Jump();
+			if (game->getInput()->IsKeyPressed(SDL_SCANCODE_SPACE)) game->getWorld()->player->Jump();
 		}
 	}
 

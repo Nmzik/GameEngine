@@ -5,7 +5,7 @@ GameData::GameData()
 	GTAEncryption::LoadKeys();
 
 	std::vector <std::string> RpfsFiles = {
-		"x64a.rpf",
+		/*"x64a.rpf",
 		"x64b.rpf",
 		"x64c.rpf",
 		"x64d.rpf",
@@ -21,23 +21,158 @@ GameData::GameData()
 		"x64n.rpf",
 		"x64o.rpf",
 		"x64p.rpf",
-		"x64q.rpf",
+		"x64q.rpf",*/
 		"x64r.rpf",
-		"x64s.rpf",
+		/*"x64s.rpf",
 		"x64t.rpf",
 		"x64u.rpf",
 		"x64v.rpf",
-		"x64w.rpf",
+		"x64w.rpf",*/
 	};
 
 	for (std::string& rpfFile : RpfsFiles)
 	{
-		RpfFile file(rpfFile);
-		RpfFiles.push_back(file);
+		LoadRpf(rpfFile);
+	}
+	//shrink to fit
+	for (auto& rpfFile : RpfFiles)
+	{
+		for (auto& entry : rpfFile->ResourceEntries) //////////////////////SOMETHING FISHY IS GOING ON HERE!!!!!!!!!!!
+		{
+			if (!entry.Name.empty()) {
+				std::string extension = entry.Name.substr(entry.Name.length() - 4);
+				std::transform(entry.Name.begin(), entry.Name.end(), entry.Name.begin(), tolower);
+				entry.NameHash = GenHash(entry.Name);
+				size_t index = entry.Name.find_last_of('.');
+				entry.ShortNameHash = (index > 0) ? GenHash(entry.Name.substr(0, index)) : entry.NameHash;
+
+				if (extension == ".ydr") {
+					YdrEntries[entry.NameHash] = entry;
+					YdrEntries[entry.ShortNameHash] = entry;
+				}
+				if (extension == ".ydd") {
+					YddEntries[entry.NameHash] = entry;
+					YddEntries[entry.ShortNameHash] = entry;
+				}
+				if (extension == ".ytd") {
+					YtdEntries[entry.NameHash] = entry;
+					YtdEntries[entry.ShortNameHash] = entry;
+				}
+				if (extension == ".ybn") {
+					YbnEntries[entry.NameHash] = entry;
+					YbnEntries[entry.ShortNameHash] = entry;
+				}
+				if (entry.Name.substr(entry.Name.length() - 5) == ".ymap") {
+					YmapEntries[entry.NameHash] = entry;
+					YmapEntries[entry.ShortNameHash] = entry;
+				}
+			}
+		}
 	}
 }
 
 
 GameData::~GameData()
 {
+}
+
+void GameData::LoadRpf(std::string& RpfPath)
+{
+	std::string Path("C:\\Program Files\\Rockstar Games\\Grand Theft Auto V\\");
+
+	std::ifstream rpf(Path + RpfPath, std::ios::binary);
+	if (!rpf.is_open()) {
+		printf("NOT FOUND RPF!\n");
+		return;
+	}
+
+	std::istream& fileStream(rpf);
+	RpfFile* file = new RpfFile(fileStream, RpfPath);
+	RpfFiles.push_back(file);
+
+	for (auto& BinaryFileEntry : file->BinaryEntries)
+	{
+		if (BinaryFileEntry.Name.substr(BinaryFileEntry.Name.length() - 4) == ".rpf")
+		{
+			uint32_t RealFileSize = (BinaryFileEntry.FileSize == 0) ? BinaryFileEntry.FileUncompressedSize : BinaryFileEntry.FileSize;
+			LoadRpf(fileStream, RpfPath, BinaryFileEntry.Name, RealFileSize, file->startPos + ((uint64_t)BinaryFileEntry.FileOffset * 512));
+		}
+	}
+}
+
+void GameData::LoadRpf(std::istream& rpf, std::string& FullPath_, std::string FileName_, uint32_t FileSize_, uint64_t FileOffset)
+{
+	RpfFile* file = new RpfFile(rpf, FullPath_, FileName_, FileSize_, FileOffset);
+	RpfFiles.push_back(file);
+	for (auto& BinaryFileEntry : file->BinaryEntries)
+	{
+		if (BinaryFileEntry.Name.substr(BinaryFileEntry.Name.length() - 4) == ".rpf")
+		{
+			uint32_t RealFileSize = (BinaryFileEntry.FileSize == 0) ? BinaryFileEntry.FileUncompressedSize : BinaryFileEntry.FileSize;
+			LoadRpf(rpf, FullPath_, BinaryFileEntry.Name, RealFileSize, file->startPos + ((uint64_t)BinaryFileEntry.FileOffset * 512));
+		}
+	}
+}
+
+void GameData::ExtractFileResource(RpfResourceFileEntry entry, std::vector<uint8_t>& output)
+{
+	std::string Path("C:\\Program Files\\Rockstar Games\\Grand Theft Auto V\\");
+	std::ifstream rpf(Path + entry.Path, std::ios::binary);
+
+	rpf.seekg(entry.File->startPos + ((long)entry.FileOffset * 512));
+
+	if (entry.FileSize > 0) {
+		uint32_t offset = 0x10;
+		uint32_t totlen = entry.FileSize - offset;
+
+		uint8_t* tbytes = new uint8_t[totlen];
+
+		rpf.seekg(offset, std::ios::cur);
+		rpf.read((char*)&tbytes[0], (int)totlen);
+
+		uint8_t* decr = tbytes;
+		//if (entry.IsEncrypted)
+		//{
+			/*if (IsAESEncrypted)
+			{
+				decr = GTACrypto.DecryptAES(tbytes);
+			}
+			else //if (IsNGEncrypted) //assume the archive is set to NG encryption if not AES... (comment: fix for openIV modded files)
+			{*/
+				//decr = GTACrypto.DecryptNG(tbytes, entry.Name, entry.FileSize);
+			//}
+			//else
+			//{ }
+		//}
+
+		GTAEncryption::DecompressBytes(decr, totlen, output);
+
+		/*if (deflated != nullptr)
+		{
+			//return deflated;
+		}
+		else
+		{
+			entry.FileSize -= offset;
+			return decr;
+		}*/
+	}
+
+	//return nullptr;
+}
+
+uint32_t GameData::GenHash(std::string Name)
+{
+	uint32_t h = 0;
+	for (int i = 0; i < Name.size(); i++)
+	{
+		h += (uint8_t)Name[i];
+		h += (h << 10);
+		h ^= (h >> 6);
+	}
+	h += (h << 3);
+	h ^= (h >> 11);
+	h += (h << 15);
+
+	return h;
 }

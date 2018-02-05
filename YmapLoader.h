@@ -2,11 +2,12 @@
 #include "fstream"
 #include <iostream>
 #include "zlib.h"
+#include "RpfEntry.h"
 
 class YmapLoader
 {
 public:
-	YmapLoader();
+	YmapLoader(memstream& file);
 	~YmapLoader();
 };
 

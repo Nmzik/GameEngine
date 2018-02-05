@@ -1,8 +1,13 @@
 #pragma once
-#include "GameWorld.h"
+#include "fstream"
+#include <iostream>
+#include <vector>
+#include "zlib.h"
+#include "aes.hpp"
 
 class GTAEncryption
 {
+	static uint8_t PC_AES_KEY[32];
 	static uint8_t LUT[256];
 	static uint8_t PC_NG_KEYS[101][272];
 	static uint32_t PC_NG_DECRYPT_TABLES[17][16][256];
@@ -13,10 +18,13 @@ public:
 
 	static uint8_t * GetNGKey(std::string name, uint32_t length);
 
+	static uint8_t * DecryptAES(uint8_t* data, uint32_t DataLength);
 	static uint8_t * DecryptNG(uint8_t* data, uint32_t dataLength, std::string name, uint32_t length);
 	static uint8_t * DecryptNG(uint8_t * data, uint32_t dataLength, uint8_t * key);
 	static uint8_t * DecryptNGBlock(uint8_t * data, uint32_t dataLength, uint32_t * key);
 	static uint8_t * DecryptNGRoundA(uint8_t* data, uint32_t* key, uint32_t table[][256]);
 	static uint8_t * DecryptNGRoundB(uint8_t * data, uint32_t * key, uint32_t table[][256]);
+
+	static void DecompressBytes(uint8_t* data, uint32_t dataLength, std::vector<uint8_t>& output);
 };
 

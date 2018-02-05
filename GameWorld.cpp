@@ -15,7 +15,7 @@ GameWorld::GameWorld()
 
 	_ResourceManager = new ResourceManager(this);
 
-	player = new Player(glm::vec3(-50, 20, 0), dynamicsWorld);
+	player = new Player(glm::vec3(0, 20, 0), dynamicsWorld);
 
 	gameHour = 10;
 	gameMinute = 0;
@@ -25,15 +25,6 @@ GameWorld::GameWorld()
 		btIDebugDraw::DBG_DrawConstraintLimits);
 	dynamicsWorld->setDebugDrawer(&debug);
 
-	/*for (int i = 0; i < 20; i++) {
-		createPedestrian();
-	}*/
-
-	//vehicles.reserve(20);
-
-	for (int i = 0; i < 20; i++) {
-		createVehicle();
-	}
 	/*for (int i = 0; i < 500; i++) {
 		Model model(glm::vec3(0.f, 200.f, 0.f), glm::quat(0.f, 0.f, 0.f, 1.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\cube.obj", "container.jpg", "container2_specular.png", true, true);
 		model.Load();
@@ -42,21 +33,25 @@ GameWorld::GameWorld()
 		dynamicsWorld->addRigidBody(models[i].getBody());
 	}*/
 
-	YmapLoader ymap;
+	//LoadYDR(2711776237);
+	LoadYmap(1198958185);
 
-	YdrLoader test;
-	ydrLoader.push_back(test);
+	YbnLoader loaderybn(dynamicsWorld);
+	ybnLoader.push_back(loaderybn);
 
-	Model model(glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 1.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\plane.obj", nullptr, nullptr, false, true);
+	YddLoader testydd;
+	yddLoader.push_back(testydd);
+
+	Model model(dynamicsWorld, glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 1.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\plane.obj", nullptr, nullptr, false, true);
 	_ResourceManager->AddToWaitingList(model);
-	Model model1(glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 1.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\cube.obj", "container.jpg", "container2_specular.png", true, true);
+	Model model1(dynamicsWorld, glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 1.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\cube.obj", "container.jpg", "container2_specular.png", true, true);
 	_ResourceManager->AddToWaitingList(model1);
 
 	//Model model2(glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 0.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\rungholt\\rungholt.obj", nullptr, nullptr, false, false);
 	//_ResourceManager->AddToWaitingList(model2);
 
-	Model model2(glm::vec3(0.f, 5.f, 0.f), glm::quat(0.f, 0.f, 0.f, 0.f), glm::vec3(10.0f), "C:\\Users\\nmzik\\Desktop\\skydome\\building1.obj", nullptr, nullptr, false, false);
-	_ResourceManager->AddToWaitingList(model2);
+	//Model model2(glm::vec3(0.f, 5.f, 0.f), glm::quat(0.f, 0.f, 0.f, 0.f), glm::vec3(10.0f), "C:\\Users\\nmzik\\Desktop\\skydome\\building1.obj", nullptr, nullptr, false, false);
+	//_ResourceManager->AddToWaitingList(model2);
 
 	//dynamicsWorld->addRigidBody(model1.getBody());
 }
@@ -64,6 +59,52 @@ GameWorld::GameWorld()
 GameWorld::~GameWorld()
 {
 	delete dynamicsWorld;
+}
+
+void GameWorld::LoadYmap(uint32_t hash)
+{
+	std::unordered_map<uint32_t, RpfResourceFileEntry>::iterator it;
+	it = data.YmapEntries.find(hash);
+	if (it != data.YmapEntries.end())
+	{
+		std::cout << "Element Found";
+		auto& element = it->second;
+		
+
+		//CAN BE AN ERROR HERE - NOT FULLY IMPLEMENTED!
+		std::vector<uint8_t> outputBuffer;
+		data.ExtractFileResource(element, outputBuffer);
+
+		memstream stream(outputBuffer.data(), outputBuffer.size());
+
+		YmapLoader ymap(stream);
+	}
+	else
+	{
+		std::cout << "Element Not Found" << std::endl;
+	}
+}
+
+void GameWorld::LoadYDR(uint32_t hash)
+{
+	std::unordered_map<uint32_t, RpfResourceFileEntry>::iterator it;
+	it = data.YdrEntries.find(hash);
+	if (it != data.YdrEntries.end())
+	{
+		std::cout << "Element Found";
+		auto& element = it->second;
+		std::vector<uint8_t> outputBuffer;
+		data.ExtractFileResource(element, outputBuffer);
+
+		memstream stream(outputBuffer.data(), outputBuffer.size());
+
+		YdrLoader test(stream);
+		ydrLoader.push_back(test);
+	}
+	else
+	{
+		std::cout << "Element Not Found" << std::endl;
+	}
 }
 
 void GameWorld::createPedestrian()

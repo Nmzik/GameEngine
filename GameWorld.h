@@ -6,7 +6,12 @@
 #include "ResourceManager.h"
 #include "PhysicsDebugDrawer.h"
 #include "YdrLoader.h"
+#include "YddLoader.h"
 #include "YmapLoader.h"
+#include "YndLoader.h"
+#include "YbnLoader.h"
+#include "GameData.h"
+#include <windows.h>
 
 class ResourceManager;
 
@@ -18,12 +23,16 @@ class GameWorld
 	btSequentialImpulseConstraintSolver* solver;
 	btDiscreteDynamicsWorld* dynamicsWorld;
 
+	GameData data;
 	ResourceManager* _ResourceManager;
 	SoundManager sound;
 	PhysicsDebugDrawer debug;
 
 public:
 	std::vector<YdrLoader> ydrLoader;
+	std::vector<YddLoader> yddLoader;
+	std::vector<YndLoader> yndLoader;
+	std::vector<YbnLoader> ybnLoader;
 	std::vector<Model> models;
 	std::vector<Player*> pedestrians;
 	std::vector<Vehicle> vehicles;
@@ -33,6 +42,8 @@ public:
 
 	GameWorld();
 	~GameWorld();
+
+	void LoadYmap(uint32_t hash);
 
 	ResourceManager* GetResourceManager() {
 		return _ResourceManager;
@@ -46,6 +57,7 @@ public:
 		return &debug;
 	}
 
+	void LoadYDR(uint32_t hash);
 	void createPedestrian();
 	void createVehicle();
 	void Update();

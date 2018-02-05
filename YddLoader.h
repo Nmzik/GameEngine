@@ -1,5 +1,4 @@
 #pragma once
-
 #include "Mesh.h"
 #include "fstream"
 #include <iostream>
@@ -10,15 +9,13 @@
 #include "gtx/rotate_vector.hpp"
 #include "gtc/type_ptr.hpp"
 #include "glm/gtc/quaternion.hpp"
-#include "membuf.h"
 
-class YdrLoader
+class YddLoader
 {
 	std::vector<Mesh> meshes;
 public:
-
-	YdrLoader(memstream& file);
-	~YdrLoader();
+	YddLoader();
+	~YddLoader();
 
 	glm::mat4 GetMat4();
 

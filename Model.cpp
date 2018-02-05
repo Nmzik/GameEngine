@@ -1,11 +1,11 @@
 #include "Model.h"
 
-Model::Model(glm::vec3 position, glm::quat rot, glm::vec3 scale, char const * ModelPath, char const * pathTexture, char const * specTexture, bool dynamic = false, bool GenerateCollision = true) : position{ position }, rot{ rot }, ModelPath{ ModelPath }, pathTexture{ pathTexture }, specTexture{ specTexture }, dynamic{ dynamic }, GenerateCollision{ GenerateCollision }
+Model::Model(btDiscreteDynamicsWorld* DynamicsWorld, glm::vec3 position, glm::quat rot, glm::vec3 scale, char const * ModelPath, char const * pathTexture, char const * specTexture, bool dynamic = false, bool GenerateCollision = true) : position{ position }, rot{ rot }, ModelPath{ ModelPath }, pathTexture{ pathTexture }, specTexture{ specTexture }, dynamic{ dynamic }, GenerateCollision{ GenerateCollision }, world{ DynamicsWorld }
 {
 	ModelMatrix = glm::mat4(1.0);
 	ModelMatrix = glm::translate(ModelMatrix, position);
 	ModelMatrix *= glm::toMat4(rot);
-	//ModelMatrix = glm::scale(ModelMatrix, scale);
+	ModelMatrix = glm::scale(ModelMatrix, scale);
 }
 
 
@@ -117,6 +117,7 @@ void Model::Load()
 			btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(0, MotionState, shape, btVector3(0, 0, 0));
 			rigidBody = new btRigidBody(groundRigidBodyCI);
 		};
+		world->addRigidBody(rigidBody);
 	}
 
 	meshes.reserve(shapes.size());

@@ -29,6 +29,7 @@ class Model
 	std::vector<tinyobj::shape_t> shapes;
 	std::vector<tinyobj::material_t> materials;
 
+	btDiscreteDynamicsWorld* world;
 	btRigidBody* rigidBody;
 	glm::vec3 position;
 	glm::quat rot;
@@ -43,7 +44,7 @@ class Model
 	char const * specTexture;
 
 public:
-	Model(glm::vec3 position, glm::quat rot, glm::vec3 scale, char const * ModelPath, char const * pathTexture, const char* specTexture, bool dynamic, bool GenerateCollision);
+	Model(btDiscreteDynamicsWorld* DynamicsWorld, glm::vec3 position, glm::quat rot, glm::vec3 scale, char const * ModelPath, char const * pathTexture, const char* specTexture, bool dynamic, bool GenerateCollision);
 	~Model();
 
 	bool GenerateCollision = true;

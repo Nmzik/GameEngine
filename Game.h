@@ -9,23 +9,27 @@
 #include "StateManager.h"
 #include "MenuState.h"
 #include "InGameState.h"
+#include "InputManager.h"
 
 class Game
 {
 	SDL_Window *window;
 
-	//GameData data;
 	std::unique_ptr<GameWorld> gameWorld;
 	std::unique_ptr<RenderingSystem> rendering_system;
+	InputManager* input;
 
 public:
 	Game();
 	~Game();
-
 	bool paused = false;
 
 	void updateFPS(float delta_time);
 	void run();
+
+	InputManager* getInput() {
+		return input;
+	}
 
 	GameWorld* getWorld() {
 		return gameWorld.get();

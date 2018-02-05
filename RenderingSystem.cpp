@@ -54,7 +54,7 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 	ShadowWidth = 1024;
 	ShadowHeight = 1024;
 
-	skybox = new Skybox();
+	//skybox = new Skybox();
 
 	SkyboxShader = new Shader("skybox.vs", "skybox.fs");
 	ourShader = new Shader("forward.vs", "forward.fs");
@@ -339,11 +339,11 @@ void RenderingSystem::render(GameWorld* world)
 	gbuffer->setMat4("model", model);
 	world->models[0].Draw();*/
 
+	world->GetResourceManager()->mainLock.lock();
 	for (auto& model : world->models)
 	{
 		if (model.isLoaded == false) {
 			model.UploadToBuffers();
-			if (model.GenerateCollision) world->GetDynamicsWorld()->addRigidBody(model.getBody());
 		}
 		//printf("%f\n", glm::distance(camera->Position, model.GetPosition()));
 		//if (glm::distance(camera->Position, model.GetPosition()) < 80.0f) {
@@ -352,11 +352,42 @@ void RenderingSystem::render(GameWorld* world)
 			model.Draw();
 		//}
 	}
+	world->GetResourceManager()->mainLock.unlock();
 
-	//TEST
-	auto modelpos = world->ydrLoader[0].GetMat4();
-	gbuffer->setMat4("model", modelpos);
-	world->ydrLoader[0].Draw();
+	//TEST YBN
+	for (int i = 0; i < world->ybnLoader[0].meshes.size(); i++)
+	{
+		glm::mat4 model = glm::translate(glm::mat4(), world->ybnLoader[0].CenterGeometry[i]);
+		//model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+		glm::mat4 rotate = glm::toMat4(glm::quat(0.707f, -0.707f, 0.0, 0.0f));
+		model = rotate * model; //ROTATION ORDER
+		//model *= glm::mat4_cast(glm::normalize(glm::quat(0.707f, -0.707f, 0.0, 0.0f)));
+		//model = rotate * model;
+
+		glm::vec3 scale;
+		glm::quat rotation;
+		glm::vec3 translation;
+		glm::vec3 skew;
+		glm::vec4 perspective;
+		glm::decompose(model, scale, rotation, translation, skew, perspective);
+		rotation = glm::conjugate(rotation);
+		//printf("POSITION %s ROTATION %s SCALE %s\n",  glm::to_string(translation).c_str(), glm::to_string(rotation).c_str(), glm::to_string(scale).c_str());
+		gbuffer->setMat4("model", model);
+		world->ybnLoader[0].meshes[i].DrawCollision();
+	}
+	//printf("=========================\n");
+	//TEST YDD
+	/*auto modelpos1 = world->yddLoader[0].GetMat4();
+	gbuffer->setMat4("model", modelpos1);
+	world->yddLoader[0].Draw();*/
+
+	//TEST YDR
+	for (auto& YdrFile : world->ydrLoader)
+	{
+		auto modelpos = YdrFile.GetMat4();
+		gbuffer->setMat4("model", modelpos);
+		YdrFile.Draw();
+	}
 
 	for (int i = 0; i < world->pedestrians.size(); i++) {
 		auto model = world->pedestrians[i]->getPosition();
@@ -370,19 +401,22 @@ void RenderingSystem::render(GameWorld* world)
 		world->vehicles[i].Draw();
 	}
 
-	world->GetDynamicsWorld()->debugDrawWorld();
-	gbuffer->setMat4("model", glm::mat4(1.0));
-	world->getDebugDrawer()->render();
+	if (RenderDebugWorld) {
+		world->GetDynamicsWorld()->debugDrawWorld();
+		gbuffer->setMat4("model", glm::mat4(1.0));
+		world->getDebugDrawer()->render();
+	}
 
 	auto modelMatrix = world->player->getPosition();
 	gbuffer->setMat4("model", modelMatrix);
 	world->player->Draw();
+
 	//glDisable(GL_CULL_FACE);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	//dirLight.direction = glm::rotateZ(dirLight.direction, -0.005f);
 	// --------------------------------ShadowPass----------------------------------
-	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+	/*glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 	glViewport(0, 0, 1024, 1024);
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glm::mat4 lightProjection, lightView;
@@ -444,7 +478,7 @@ void RenderingSystem::render(GameWorld* world)
 	gbufferLighting->setVec3("light.direction", dirLight.direction);
 	gbufferLighting->setVec3("viewPos", camera->Position);
 	gbufferLighting->setInt("type",type);
-	gbufferLighting->setMat4("lightSpaceMatrix", lightSpaceMatrix);
+	//gbufferLighting->setMat4("lightSpaceMatrix", lightSpaceMatrix);
 	renderQuad();
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 

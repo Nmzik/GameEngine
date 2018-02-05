@@ -1,5 +1,28 @@
 #include "Mesh.h"
 
+Mesh::Mesh(std::vector<glm::vec3>& vertices, std::vector<glm::vec3>& normals)
+{
+	glGenVertexArrays(1, &VAO);
+
+	glBindVertexArray(VAO);
+
+	glGenBuffers(1, &vertex_buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+	glGenBuffers(1, &normal_buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, normal_buffer);
+	glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), &normals[0], GL_STATIC_DRAW);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+	num_vertices = vertices.size();
+
+	material = new Material(0, 0);
+}
+
 Mesh::Mesh(std::vector<float>& vertices, std::vector<uint16_t>& indices, std::vector<float>& normals, std::vector<float>& texcoords, char const * pathTexture, char const * specTexture)
 {
 	glGenVertexArrays(1, &VAO);
@@ -70,4 +93,11 @@ void Mesh::Draw()
 	glBindVertexArray(VAO);
 	material->bind();
 	glDrawElements(GL_TRIANGLES, num_indices, GL_UNSIGNED_SHORT, 0);
+}
+
+void Mesh::DrawCollision()
+{
+	glBindVertexArray(VAO);
+	material->bind();
+	glDrawArrays(GL_TRIANGLES, 0, num_vertices);
 }

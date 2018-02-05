@@ -24,6 +24,7 @@ Game::Game() {
 
 	rendering_system = std::make_unique<RenderingSystem>(window);
 	gameWorld = std::make_unique<GameWorld>();
+	input = new InputManager();
 
 	StateManager::get().enter<InGameState>(this);
 }
@@ -72,7 +73,8 @@ void Game::run() {
 		current_time = SDL_GetTicks() / 1000.f;
 		delta_time = current_time - old_time;
 
-		StateManager::get().tick(delta_time*100);
+		input->Update();
+		StateManager::get().tick(delta_time);
 		if (!paused) {
 			gameWorld->update();
 			gameWorld->UpdateTraffic(rendering_system->getCamera().Position);

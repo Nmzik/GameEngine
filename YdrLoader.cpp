@@ -1,13 +1,7 @@
 #include "YdrLoader.h"
 
-YdrLoader::YdrLoader()
+YdrLoader::YdrLoader(memstream& file)
 {
-	std::ifstream file("C:\\Users\\nmzik\\Desktop\\po1_05_buildmesh239.ydr", std::ios::binary);
-
-	if (!file.is_open()) {
-		printf("NOT FOUND!");
-	}
-
 	struct {
 		uint32_t FileVFT;
 		uint32_t FileUnknown;
@@ -327,7 +321,7 @@ YdrLoader::YdrLoader()
 		}
 	}
 
-	file.close();
+	//file.close();
 
 	for (int i = 0; i < DrawableModel.Geometries.size(); i++)
 	{
@@ -343,8 +337,13 @@ YdrLoader::~YdrLoader()
 
 glm::mat4 YdrLoader::GetMat4()
 {
-	glm::mat4 model(1.0);
-	model = glm::translate(model, glm::vec3(0,20,0));
+	//glm::mat4 model(1.0);
+	glm::mat4 model = glm::translate(glm::mat4(), glm::vec3(0,20,0));
+	model *= glm::toMat4(glm::quat(0.707f, -0.707f, 0.0, 0.0f));
+	//model = glm::rotate(model, glm::degrees(x), glm::vec3(1.0, 0.0, 0.0f));
+	//model = glm::scale(model, glm::vec3(1.0f));
+	//glm::quat test1 = glm::quat_cast(model);
+	//printf("%f %f %f %f\n",test1.x,test1.y,test1.z,test1,w);
 	return model;
 }
 

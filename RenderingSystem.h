@@ -11,6 +11,7 @@
 #include "gtc/matrix_transform.hpp"
 #include "gtx/rotate_vector.hpp"
 #include "gtc/type_ptr.hpp"
+#include "glm/gtx/matrix_decompose.hpp"
 
 #include "Shader.h"
 #include "Model.h"
@@ -70,6 +71,7 @@ public:
 	~RenderingSystem();
 
 	glm::vec3 lightPos;
+	bool RenderDebugWorld = false;
 	int hdrEnabled = 1;
 	float x = 50.f;
 	Camera& getCamera();

@@ -71,7 +71,7 @@ Vehicle::Vehicle(glm::vec3 position, btDiscreteDynamicsWorld* world) : throttle(
 	bool isFrontWheel = true;
 
 	//choose coordinate system
-	m_vehicle->setCoordinateSystem(rightIndex, upIndex, forwardIndex);
+	m_vehicle->setCoordinateSystem(0, 1, 2); //NOT SURE IF IT WORKS!!!
 
 
 	btVector3 connectionPointCS0(0, connectionHeight, 2);

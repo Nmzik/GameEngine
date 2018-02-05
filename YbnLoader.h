@@ -1,5 +1,4 @@
 #pragma once
-
 #include "Mesh.h"
 #include "fstream"
 #include <iostream>
@@ -10,18 +9,17 @@
 #include "gtx/rotate_vector.hpp"
 #include "gtc/type_ptr.hpp"
 #include "glm/gtc/quaternion.hpp"
-#include "membuf.h"
+#include <btBulletDynamicsCommon.h>
 
-class YdrLoader
+class YbnLoader
 {
-	std::vector<Mesh> meshes;
 public:
+	std::vector<Mesh> meshes;
+	std::vector<glm::vec3> CenterGeometry;
 
-	YdrLoader(memstream& file);
-	~YdrLoader();
-
+	YbnLoader(btDiscreteDynamicsWorld* world);
+	~YbnLoader();
 	glm::mat4 GetMat4();
-
 	void Draw();
 };
 

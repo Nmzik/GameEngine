@@ -1,15 +1,8 @@
 #include "YmapLoader.h"
 
-
-
-YmapLoader::YmapLoader()
+YmapLoader::YmapLoader(memstream& file)
 {
-	std::ifstream file("C:\\Users\\nmzik\\Desktop\\vb_34_day.ymap", std::ios::binary);
-
-	if (!file.is_open()) {
-		printf("NOT FOUND!");
-	}
-	//ADD NEED
+/*	//ADD NEED
 	uint32_t rsc7;
 	file.read((char*)&rsc7, sizeof(uint32_t));
 
@@ -18,46 +11,84 @@ YmapLoader::YmapLoader()
 	}
 	else {
 		printf("HERE");
-	}
+	}*/
 
-	file.seekg(0);
-	uint8_t *ttest1 = new uint8_t[1000];
-	file.read((char*)&ttest1[0], 1000);
-	uint8_t *ttest2 = new uint8_t[1000];
-	int ret;
-	z_stream strm;
+	struct {
+		uint32_t FileVFT;
+		uint32_t FileUnknown;
+		uint64_t FilePagesInfoPointer;
+	} ResourceFileBase;
+	file.read((char*)&ResourceFileBase, sizeof(ResourceFileBase));
 
-	strm.zalloc = Z_NULL;
-	strm.zfree = Z_NULL;
-	strm.opaque = Z_NULL;
-	strm.avail_in = 0;
-	strm.next_in = Z_NULL;
-	ret = inflateInit(&strm);
+	uint64_t SYSTEM_BASE = 0x50000000;
+	uint64_t GRAPHICS_BASE = 0x60000000;
 
-	if (ret != Z_OK) {
-		std::cerr << "Zlib error: inflateInit() failed" << std::endl;
-	}
+	struct {
+		int32_t Unknown_10h;
+		uint16_t Unknown_14h;
+		uint8_t HasUselessData;
+		uint8_t Unknown_17h;
+		int32_t Unknown_18h;
+		int32_t RootBlockIndex;
+		uint64_t StructureInfosPointer;
+		uint64_t EnumInfosPointer;
+		uint64_t DataBlocksPointer;
+		uint64_t NamePointer;
+		uint64_t UselessPointer;
+		uint16_t StructureInfosCount;
+		uint16_t EnumInfosCount;
+		uint16_t DataBlocksCount;
+		uint16_t Unknown_4Eh;
+		uint32_t Unknown_50h;
+		uint32_t Unknown_54h;
+		uint32_t Unknown_58h;
+		uint32_t Unknown_5Ch;
+		uint32_t Unknown_60h;
+		uint32_t Unknown_64h;
+		uint32_t Unknown_68h;
+		uint32_t Unknown_6Ch;
+	} Meta;
 
-	strm.avail_in = 1000;
-	strm.next_in = (Bytef*)ttest1;
-	strm.avail_out = 100000;
-	strm.next_out = (Bytef*)ttest2;
+	struct MetaStructureInfo {
+		uint32_t StructureNameHash;
+		uint32_t StructureKey;
+		uint32_t Unknown_8h;
+		uint32_t Unknown_Ch; //0x00000000;
+		uint64_t EntriesPointer;
+		int32_t StructureSize;
+		int16_t Unknown_1Ch; //0x0000;
+		int16_t EntriesCount;
+	};
 
-	ret = inflate(&strm, Z_NO_FLUSH);
+	struct MetaStructureEntryInfo_s {
+		uint32_t EntryNameHash;
+		int32_t DataOffset;
+		uint8_t DataType;
+		uint8_t Unknown_9h;
+		int16_t ReferenceTypeIndex;
+		uint32_t ReferenceKey;
+	};
 
-	switch (ret) {
-	case Z_NEED_DICT:
-		ret = Z_DATA_ERROR;
-	case Z_DATA_ERROR:
-	case Z_MEM_ERROR:
-		std::cerr << "Zlib error: inflate()" << std::endl;
-		//return ret;
-	}
-	inflateEnd(&strm);
+	struct MetaEnumInfo {
+		uint32_t EnumNameHash;
+		uint32_t EnumKey;
+		uint64_t EntriesPointer;
+		int32_t EntriesCount;
+		int32_t Unknown_14h; //0x00000000;
+	};
 
+	struct MetaEnumEntryInfo_s {
+		uint32_t EntryNameHash;
+		int32_t EntryValue;
+	};
 
-
-	file.close();
+	struct MetaDataBlock {
+		uint32_t StructureNameHash;
+		int32_t DataLength;
+		uint64_t DataPointer;
+	};
+	file.read((char*)&Meta, sizeof(Meta));
+	
 }
 
 

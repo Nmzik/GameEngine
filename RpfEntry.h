@@ -1,15 +1,14 @@
 #pragma once
 #include "membuf.h"
-#include "GameWorld.h"
 
 class RpfEntry {
+	friend class RpfFile;
 public:
 	uint32_t NameHash;
 	uint32_t ShortNameHash;
 
 	uint32_t NameOffset = 0;
 	std::string Name;
-	std::string NameLower;
 	std::string Path;
 };
 
@@ -56,10 +55,11 @@ public:
 
 class RpfResourceFileEntry : public RpfFileEntry {
 public:
+	RpfFile * File = nullptr;
 	uint32_t SystemFlags;
 	uint32_t GraphicsFlags;
 
-	void Read(memstream& stream) {
+	void Read(memstream& stream, std::istream& originalFile, uint64_t StartPos) {
 		stream.read((char*)&NameOffset, sizeof(uint16_t)); //READING 16 bit to 32bit vatiable NEED TO CLEAR IT!
 
 		uint8_t buf1[3];
@@ -77,13 +77,12 @@ public:
 		// means length>=0xffffff
 		if (FileSize == 0xFFFFFF)
 		{
-			printf("TODO");
-			/*BinaryReader cfr = File.CurrentFileReader;
-			long opos = cfr.BaseStream.Position;
-			cfr.BaseStream.Position = File.StartPos + ((long)FileOffset * 512); //need to use the base offset!!
-			var buf = cfr.ReadBytes(16);
-			FileSize = ((uint)buf[7] << 0) | ((uint)buf[14] << 8) | ((uint)buf[5] << 16) | ((uint)buf[2] << 24);
-			cfr.BaseStream.Position = opos;*/
+			uint64_t pos = originalFile.tellg();
+			originalFile.seekg(StartPos + ((long)FileOffset * 512));
+			uint8_t buf[16];
+			originalFile.read((char*)&buf[0], 16);
+			FileSize = ((uint32_t)buf[7] << 0) | ((uint32_t)buf[14] << 8) | ((uint32_t)buf[5] << 16) | ((uint32_t)buf[2] << 24);
+			originalFile.seekg(pos);
 		}
 	}
 };

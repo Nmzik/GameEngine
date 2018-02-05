@@ -1,11 +1,21 @@
 #include "GTAEncryption.h"
 
+uint8_t GTAEncryption::PC_AES_KEY[32];
 uint8_t GTAEncryption::LUT[256];
 uint8_t GTAEncryption::PC_NG_KEYS[101][272];
 uint32_t GTAEncryption::PC_NG_DECRYPT_TABLES[17][16][256];
 
 void GTAEncryption::LoadKeys()
 {
+	std::ifstream aesFile("C:\\Users\\nmzik\\source\\repos\\MyGameEngine\\MyGameEngine\\gtav_aes_key.dat", std::ios::binary);
+
+	if (!aesFile.is_open()) {
+		printf("NOT FOUND AES!");
+	}
+
+	aesFile.read((char*)&PC_AES_KEY[0], 32);
+	aesFile.close();
+
 	std::ifstream lutFile("C:\\Users\\nmzik\\source\\repos\\MyGameEngine\\MyGameEngine\\gtav_hash_lut.dat", std::ios::binary);
 
 	if (!lutFile.is_open()) {
@@ -61,6 +71,18 @@ uint8_t* GTAEncryption::GetNGKey(std::string name, uint32_t length)
 	uint32_t hash = CalculateHash(name);
 	uint32_t keyidx = (hash + length + (101 - 40)) % 0x65;
 	return PC_NG_KEYS[keyidx];
+}
+
+uint8_t * GTAEncryption::DecryptAES(uint8_t * data, uint32_t DataLength)
+{
+	struct AES_ctx ctx;
+	AES_init_ctx(&ctx, PC_AES_KEY);
+	for (int i = 0; i < DataLength / 16; i++)
+	{
+		AES_ECB_decrypt(&ctx, &data[i * 16]);
+	}
+
+	return data;
 }
 
 uint8_t* GTAEncryption::DecryptNG(uint8_t* data, uint32_t dataLength, std::string name, uint32_t length)
@@ -215,4 +237,37 @@ uint8_t* GTAEncryption::DecryptNGRoundB(uint8_t* data, uint32_t* key, uint32_t t
 	result[14] = (uint8_t)((x4 >> 16) & 0xFF);
 	result[15] = (uint8_t)((x4 >> 24) & 0xFF);
 	return result;
+}
+
+void GTAEncryption::DecompressBytes(uint8_t * data, uint32_t dataLength, std::vector<uint8_t>& output)
+{
+	z_stream strm;
+
+	/* allocate inflate state */
+	strm.zalloc = Z_NULL;
+	strm.zfree = Z_NULL;
+	strm.opaque = Z_NULL;
+	strm.avail_in = dataLength;
+	strm.next_in = data;
+	int ret = inflateInit2(&strm, -MAX_WBITS);
+	if (ret != Z_OK) printf("ERROR IN ZLIB");
+
+	std::vector<unsigned char> buf(1024 * 1024);
+
+	//std::vector<uint8_t> dest;
+	output.resize(0);
+
+	do {
+		strm.avail_out = buf.size();
+		strm.next_out = &buf[0];
+
+		ret = inflate(&strm, Z_NO_FLUSH);
+		if (ret < 0 || ret == Z_NEED_DICT) {
+			(void)inflateEnd(&strm);
+			printf("Error %d in zlib uncompress\n", ret);
+		}
+		output.insert(output.end(), &buf[0], &buf[0] + buf.size() - strm.avail_out);
+	} while (ret != Z_STREAM_END);
+
+	(void)inflateEnd(&strm);
 }

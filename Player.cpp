@@ -3,7 +3,7 @@
 Player::Player(glm::vec3 position, btDiscreteDynamicsWorld* world)
 {
 	btPairCachingGhostObject* physObject = new btPairCachingGhostObject();
-	physShape = new btCapsuleShapeZ(1.0f, 2.0f);
+	physShape = new btCapsuleShapeZ(0.45f, 1.2f);
 	physObject->setUserPointer(this);
 	physObject->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), btVector3(position.x, position.y, position.z)));
 	physObject->setCollisionShape(physShape);
@@ -17,47 +17,47 @@ Player::Player(glm::vec3 position, btDiscreteDynamicsWorld* world)
 	world->addAction(physCharacter);
 
 	std::vector <float> vertices = {
-			-1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
-             1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
-             1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 0.0f, // bottom-right         
-             1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
-            -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
-            -1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 1.0f, // top-left
+			-0.4f, -0.4f, -0.4f,  0.0f,  0.0f, -0.4f, 0.0f, 0.0f, // bottom-left
+             0.4f,  0.4f, -0.4f,  0.0f,  0.0f, -0.4f, 0.4f, 0.4f, // top-right
+             0.4f, -0.4f, -0.4f,  0.0f,  0.0f, -0.4f, 0.4f, 0.0f, // bottom-right         
+             0.4f,  0.4f, -0.4f,  0.0f,  0.0f, -0.4f, 0.4f, 0.4f, // top-right
+            -0.4f, -0.4f, -0.4f,  0.0f,  0.0f, -0.4f, 0.0f, 0.0f, // bottom-left
+            -0.4f,  0.4f, -0.4f,  0.0f,  0.0f, -0.4f, 0.0f, 0.4f, // top-left
             // front face
-            -1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
-             1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 0.0f, // bottom-right
-             1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
-             1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
-            -1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f, 1.0f, // top-left
-            -1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
+            -0.4f, -0.4f,  0.4f,  0.0f,  0.0f,  0.4f, 0.0f, 0.0f, // bottom-left
+             0.4f, -0.4f,  0.4f,  0.0f,  0.0f,  0.4f, 0.4f, 0.0f, // bottom-right
+             0.4f,  0.4f,  0.4f,  0.0f,  0.0f,  0.4f, 0.4f, 0.4f, // top-right
+             0.4f,  0.4f,  0.4f,  0.0f,  0.0f,  0.4f, 0.4f, 0.4f, // top-right
+            -0.4f,  0.4f,  0.4f,  0.0f,  0.0f,  0.4f, 0.0f, 0.4f, // top-left
+            -0.4f, -0.4f,  0.4f,  0.0f,  0.0f,  0.4f, 0.0f, 0.0f, // bottom-left
             // left face
-            -1.0f,  1.0f,  1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
-            -1.0f,  1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-left
-            -1.0f, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-left
-            -1.0f, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-left
-            -1.0f, -1.0f,  1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-right
-            -1.0f,  1.0f,  1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
+            -0.4f,  0.4f,  0.4f, -0.4f,  0.0f,  0.0f, 0.4f, 0.0f, // top-right
+            -0.4f,  0.4f, -0.4f, -0.4f,  0.0f,  0.0f, 0.4f, 0.4f, // top-left
+            -0.4f, -0.4f, -0.4f, -0.4f,  0.0f,  0.0f, 0.0f, 0.4f, // bottom-left
+            -0.4f, -0.4f, -0.4f, -0.4f,  0.0f,  0.0f, 0.0f, 0.4f, // bottom-left
+            -0.4f, -0.4f,  0.4f, -0.4f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-right
+            -0.4f,  0.4f,  0.4f, -0.4f,  0.0f,  0.0f, 0.4f, 0.0f, // top-right
             // right face
-             1.0f,  1.0f,  1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
-             1.0f, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-right
-             1.0f,  1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-right         
-             1.0f, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-right
-             1.0f,  1.0f,  1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
-             1.0f, -1.0f,  1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-left     
+             0.4f,  0.4f,  0.4f,  0.4f,  0.0f,  0.0f, 0.4f, 0.0f, // top-left
+             0.4f, -0.4f, -0.4f,  0.4f,  0.0f,  0.0f, 0.0f, 0.4f, // bottom-right
+             0.4f,  0.4f, -0.4f,  0.4f,  0.0f,  0.0f, 0.4f, 0.4f, // top-right         
+             0.4f, -0.4f, -0.4f,  0.4f,  0.0f,  0.0f, 0.0f, 0.4f, // bottom-right
+             0.4f,  0.4f,  0.4f,  0.4f,  0.0f,  0.0f, 0.4f, 0.0f, // top-left
+             0.4f, -0.4f,  0.4f,  0.4f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-left     
             // bottom face
-            -1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
-             1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 1.0f, // top-left
-             1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // bottom-left
-             1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // bottom-left
-            -1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 0.0f, // bottom-right
-            -1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
+            -0.4f, -0.4f, -0.4f,  0.0f, -0.4f,  0.0f, 0.0f, 0.4f, // top-right
+             0.4f, -0.4f, -0.4f,  0.0f, -0.4f,  0.0f, 0.4f, 0.4f, // top-left
+             0.4f, -0.4f,  0.4f,  0.0f, -0.4f,  0.0f, 0.4f, 0.0f, // bottom-left
+             0.4f, -0.4f,  0.4f,  0.0f, -0.4f,  0.0f, 0.4f, 0.0f, // bottom-left
+            -0.4f, -0.4f,  0.4f,  0.0f, -0.4f,  0.0f, 0.0f, 0.0f, // bottom-right
+            -0.4f, -0.4f, -0.4f,  0.0f, -0.4f,  0.0f, 0.0f, 0.4f, // top-right
             // top face
-            -1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
-             1.0f,  1.0f , 1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
-             1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 1.0f, // top-right     
-             1.0f,  1.0f,  1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
-            -1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
-            -1.0f,  1.0f,  1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f  // bottom-left  
+            -0.4f,  0.4f, -0.4f,  0.0f,  0.4f,  0.0f, 0.0f, 0.4f, // top-left
+             0.4f,  0.4f , 0.4f,  0.0f,  0.4f,  0.0f, 0.4f, 0.0f, // bottom-right
+             0.4f,  0.4f, -0.4f,  0.0f,  0.4f,  0.0f, 0.4f, 0.4f, // top-right     
+             0.4f,  0.4f,  0.4f,  0.0f,  0.4f,  0.0f, 0.4f, 0.0f, // bottom-right
+            -0.4f,  0.4f, -0.4f,  0.0f,  0.4f,  0.0f, 0.0f, 0.4f, // top-left
+            -0.4f,  0.4f,  0.4f,  0.0f,  0.4f,  0.0f, 0.0f, 0.0f  // bottom-left  
 };
 
 	glGenVertexArrays(1, &VAO);
@@ -114,7 +114,7 @@ void Player::PhysicsTick()
 
 void Player::ExitVehicle()
 {
-	vehicle->SetThrottle(0.0f);
+	vehicle->SetThrottle(1.0f);
 	vehicle->SetSteeringValue(0.0f);
 	vehicle = NULL;
 }
