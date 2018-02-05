@@ -342,14 +342,14 @@ void RenderingSystem::render(GameWorld* world)
 	world->GetResourceManager()->mainLock.lock();
 	for (auto& model : world->models)
 	{
-		if (model.isLoaded == false) {
-			model.UploadToBuffers();
+		if (model->isLoaded == false) {
+			model->UploadToBuffers();
 		}
 		//printf("%f\n", glm::distance(camera->Position, model.GetPosition()));
 		//if (glm::distance(camera->Position, model.GetPosition()) < 80.0f) {
-			auto modelMatrix = model.getModelMatrix();
+			auto modelMatrix = model->getModelMatrix();
 			gbuffer->setMat4("model", modelMatrix);
-			model.Draw();
+			model->Draw();
 		//}
 	}
 	world->GetResourceManager()->mainLock.unlock();

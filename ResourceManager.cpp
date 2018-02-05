@@ -19,7 +19,7 @@ void ResourceManager::update()
 		mylock.lock();
 		if (waitingList.size() > 0) {
 			auto& model = waitingList.back();
-			model.Load();
+			model->Load();
 			mainLock.lock();
 			gameworld->models.emplace_back(std::move(model));
 			mainLock.unlock();

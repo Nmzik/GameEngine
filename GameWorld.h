@@ -33,7 +33,7 @@ public:
 	std::vector<YddLoader> yddLoader;
 	std::vector<YndLoader> yndLoader;
 	std::vector<YbnLoader> ybnLoader;
-	std::vector<Model> models;
+	std::vector<Model*> models;
 	std::vector<Player*> pedestrians;
 	std::vector<Vehicle> vehicles;
 	uint8_t gameMinute;

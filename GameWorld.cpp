@@ -42,12 +42,12 @@ GameWorld::GameWorld()
 	YddLoader testydd;
 	yddLoader.push_back(testydd);
 
-	Model model(dynamicsWorld, glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 1.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\plane.obj", nullptr, nullptr, false, true);
+	Model *model = new Model(dynamicsWorld, glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 1.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\plane.obj", nullptr, nullptr, false, true);
+	Model *model1 = new Model(dynamicsWorld, glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 1.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\cube.obj", "container.jpg", "container2_specular.png", true, true);
 	_ResourceManager->AddToWaitingList(model);
-	Model model1(dynamicsWorld, glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 1.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\cube.obj", "container.jpg", "container2_specular.png", true, true);
 	_ResourceManager->AddToWaitingList(model1);
 
-	//Model model2(glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 0.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\rungholt\\rungholt.obj", nullptr, nullptr, false, false);
+	//Model *model2 = new Model(dynamicsWorld, glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 0.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\rungholt\\rungholt.obj", nullptr, nullptr, false, false);
 	//_ResourceManager->AddToWaitingList(model2);
 
 	//Model model2(glm::vec3(0.f, 5.f, 0.f), glm::quat(0.f, 0.f, 0.f, 0.f), glm::vec3(10.0f), "C:\\Users\\nmzik\\Desktop\\skydome\\building1.obj", nullptr, nullptr, false, false);
