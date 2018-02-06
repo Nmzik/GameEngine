@@ -47,10 +47,43 @@ GameData::GameData()
 				entry.ShortNameHash = (index > 0) ? GenHash(entry.Name.substr(0, index)) : entry.NameHash;
 
 				if (extension == ".ydr") {
+					YdrEntries[GenHash(entry.Name.substr(0, entry.Name.length() - 4) + "_lod")] = entry;
 					YdrEntries[entry.NameHash] = entry;
 					YdrEntries[entry.ShortNameHash] = entry;
 				}
 				if (extension == ".ydd") {
+					if (entry.Name.length() > 13) { //SHOULD WORK
+						if (entry.Name.substr(entry.Name.length() - 13) == "_children.ydd") {
+							
+							//YddEntries[GenHash(entry.Name.substr(0, entry.Name.length() - 13) + "_lod")] = entry;
+							YddEntries[GenHash(entry.Name.substr(0, entry.Name.length() - 13))] = entry;
+							YddEntries[GenHash(entry.Name.substr(0, entry.Name.length() - 13))] = entry;
+
+							size_t index1 = entry.Name.find_last_of('_');
+							if (index1 > 0)
+							{
+								std::string str1 = entry.Name.substr(0, index1);
+								size_t index2 = str1.find_last_of('_');
+								if (index2 > 0)
+								{
+									std::string str2 = str1.substr(0, index2);
+									YddEntries[GenHash(str2 + "_lod")] = entry;
+									uint32_t maxi = 100;
+									for (uint32_t i = 1; i <= maxi; i++)
+									{
+										std::string str3 = str2 + "_" + std::to_string(i);
+										if (i < 10)
+											str3.insert(str3.length() - 1, "0");
+										//printf("%s\n", str3.c_str());
+										//std::string str3 = str2 + "_" + i.ToString().PadLeft(2, '0');
+										YddEntries[GenHash(str3 + "_lod")] = entry;
+									}
+								}
+							}
+
+						}
+					}
+
 					YddEntries[entry.NameHash] = entry;
 					YddEntries[entry.ShortNameHash] = entry;
 				}

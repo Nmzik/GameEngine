@@ -51,8 +51,8 @@ void InGameState::tick(float delta_time)
 		game->getRenderer()->hdrEnabled = false;
 	}
 
-	if (game->getInput()->IsKeyPressed(SDL_SCANCODE_Z)) {
-		//game->getWorld()->ydrLoader[0].z += 0.1f;
+	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_Z)) {
+		game->getWorld()->models[0]->xpos += 1.0f;
 	}
 
 	if (game->getInput()->IsKeyPressed(SDL_SCANCODE_X)) {
@@ -117,7 +117,7 @@ void InGameState::tick(float delta_time)
 			if (length > 0.1f) {
 				auto move = speed * glm::normalize(movement);
 				//move *= delta_time;
-				game->getWorld()->player->getPhysCharacter()->setWalkDirection(btVector3(move.z, 0.f, move.x));
+				game->getWorld()->player->getPhysCharacter()->setWalkDirection(btVector3(move.x, move.z, 0.f));
 			}
 			else {
 				game->getWorld()->player->getPhysCharacter()->setWalkDirection(btVector3(0.f, 0.f, 0.f));

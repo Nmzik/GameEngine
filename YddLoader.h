@@ -2,6 +2,7 @@
 #include "Mesh.h"
 #include "fstream"
 #include <iostream>
+#include "membuf.h"
 #include "glm.hpp"
 #include "glm/ext.hpp"
 #include "glm/gtx/transform.hpp"
@@ -14,7 +15,7 @@ class YddLoader
 {
 	std::vector<Mesh> meshes;
 public:
-	YddLoader();
+	YddLoader(memstream& file);
 	~YddLoader();
 
 	glm::mat4 GetMat4();

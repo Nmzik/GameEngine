@@ -8,6 +8,7 @@
 #include "gtx/rotate_vector.hpp"
 #include "gtc/type_ptr.hpp"
 #include "glm/gtc/quaternion.hpp"
+#include "glm/gtx/matrix_decompose.hpp"
 #include "glew.h"
 #include "BulletCollision/CollisionDispatch/btGhostObject.h"
 #include "BulletDynamics/Character/btKinematicCharacterController.h"
@@ -47,6 +48,7 @@ public:
 	Model(btDiscreteDynamicsWorld* DynamicsWorld, glm::vec3 position, glm::quat rot, glm::vec3 scale, char const * ModelPath, char const * pathTexture, const char* specTexture, bool dynamic, bool GenerateCollision);
 	~Model();
 
+	float xpos = 0;
 	bool GenerateCollision = true;
 	bool isLoaded = false;
 	btRigidBody* getBody();

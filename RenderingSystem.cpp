@@ -359,8 +359,8 @@ void RenderingSystem::render(GameWorld* world)
 	{
 		glm::mat4 model = glm::translate(glm::mat4(), world->ybnLoader[0].CenterGeometry[i]);
 		//model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-		glm::mat4 rotate = glm::toMat4(glm::quat(0.707f, -0.707f, 0.0, 0.0f));
-		model = rotate * model; //ROTATION ORDER
+		glm::mat4 rotate = glm::toMat4(glm::quat(0.f, 0.f, 0.0, 1.0f));
+		//model = rotate * model; //ROTATION ORDER
 		//model *= glm::mat4_cast(glm::normalize(glm::quat(0.707f, -0.707f, 0.0, 0.0f)));
 		//model = rotate * model;
 
@@ -382,12 +382,15 @@ void RenderingSystem::render(GameWorld* world)
 	world->yddLoader[0].Draw();*/
 
 	//TEST YDR
-	for (auto& YdrFile : world->ydrLoader)
+	//for (auto& YdrFile : world->ydrLoader)
+	//{
+	for (int i = 0; i < world->ydrLoader.size(); i++)
 	{
-		auto modelpos = YdrFile.GetMat4();
+		auto modelpos = world->ydrLoader[i].GetMat4();
 		gbuffer->setMat4("model", modelpos);
-		YdrFile.Draw();
+		world->ydrLoader[i].Draw();
 	}
+	//}
 
 	for (int i = 0; i < world->pedestrians.size(); i++) {
 		auto model = world->pedestrians[i]->getPosition();

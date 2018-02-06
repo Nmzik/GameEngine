@@ -43,7 +43,7 @@ public:
 	float Zoom;
 
 	// Constructor with vectors
-	Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVTY), Zoom(ZOOM)
+	Camera(glm::vec3 position = glm::vec3(0.0f,0.0f, 0.f), glm::vec3 up = glm::vec3(0.0f, 0.0f, 1.0f), float yaw = YAW, float pitch = PITCH) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVTY), Zoom(ZOOM)
 	{
 		Position = position;
 		WorldUp = up;
@@ -89,15 +89,16 @@ public:
 		xoffset *= MouseSensitivity;
 		yoffset *= MouseSensitivity;
 
-		Yaw += xoffset;
-		Pitch += yoffset;
+		Pitch += xoffset;
+		Yaw += yoffset;
 		// Make sure that when pitch is out of bounds, screen doesn't get flipped
+		//printf("%f %f \n", Yaw, Pitch);
 		if (constrainPitch)
 		{
-			if (Pitch > 40.0f)
-				Pitch = 40.0f;
-			if (Pitch < -89.0f)
-				Pitch = -89.0f;
+			if (Yaw > 40.0f)
+				Yaw = 40.0f;
+			if (Yaw < -89.0f)
+				Yaw = -89.0f;
 		}
 		//printf("PITCH %f", Pitch);
 		// Update Front, Right and Up Vectors using the updated Eular angles

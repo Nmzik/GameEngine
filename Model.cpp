@@ -19,12 +19,17 @@ btRigidBody* Model::getBody() {
 
 glm::mat4 Model::getModelMatrix()
 {
-	if (rigidBody == NULL)
-	{
-		return ModelMatrix;
-	}
-	rigidBody->getWorldTransform().getOpenGLMatrix(&ModelMatrix[0][0]);
-	return ModelMatrix;
+	//if (rigidBody == NULL)
+	//{
+		//return ModelMatrix;
+	//}
+
+	glm::mat4 testmat = glm::mat4(1.0);
+	testmat *= glm::toMat4(glm::quat(0.f, 0.f, -0.707f, 0.707f));
+	//glm::mat4 rotate = glm::toMat4(glm::quat(0.f, 0.f, 0.0, 1.0f));
+	//model = rotate * model; //ROTATION ORDER
+	//rigidBody->getWorldTransform().getOpenGLMatrix(&ModelMatrix[0][0]);
+	return testmat;
 }
 
 glm::vec3 Model::GetPosition()
@@ -105,7 +110,7 @@ void Model::Load()
 		shape->addChildShape(t, childShape);
 		}*/
 
-		btDefaultMotionState* MotionState = new btDefaultMotionState(btTransform(btQuaternion(rot.x, rot.y, rot.z, rot.w), btVector3(position.x, position.y, position.z)));
+		btDefaultMotionState* MotionState = new btDefaultMotionState(btTransform(btQuaternion(rot.x, rot.z, rot.y, rot.w), btVector3(position.x, position.y, position.z)));
 		if (dynamic) {
 			btScalar mass = 1;
 			btVector3 fallInertia(0, 0, 0);

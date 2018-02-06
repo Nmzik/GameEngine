@@ -307,7 +307,7 @@ YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world)
 		file.seekg(BoundsPointer);
 	}
 
-	btDefaultMotionState* MotionState = new btDefaultMotionState(btTransform(btQuaternion(0.707f, 0.f, 0.f, -0.707f), btVector3(0, 0, 0)));
+	btDefaultMotionState* MotionState = new btDefaultMotionState(btTransform(btQuaternion(0.f, 0.f, 0.f, 1.f), btVector3(0, 0, 0)));
 	btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(0, MotionState, compound, btVector3(0, 0, 0));
 	btRigidBody* rigidBody = new btRigidBody(groundRigidBodyCI);
 	world->addRigidBody(rigidBody);

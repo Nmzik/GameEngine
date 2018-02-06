@@ -134,7 +134,7 @@ Vehicle* Player::GetCurrentVehicle()
 
 void Player::Jump()
 {
-	if (physCharacter->onGround()) physCharacter->jump(btVector3(0.0f, 30.0f, 0.0f));
+	if (physCharacter->onGround()) physCharacter->jump(btVector3(0.0f, 0.0f, 30.0f));
 }
 
 void Player::Draw()

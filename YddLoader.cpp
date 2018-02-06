@@ -2,13 +2,8 @@
 
 
 
-YddLoader::YddLoader()
+YddLoader::YddLoader(memstream& file)
 {
-	std::ifstream file("C:\\Users\\nmzik\\Desktop\\g_m_y_ballasout_01.ydd", std::ios::binary);
-
-	if (!file.is_open()) {
-		printf("NOT FOUND!");
-	}
 
 	struct {
 		uint32_t FileVFT;
@@ -358,7 +353,7 @@ YddLoader::YddLoader()
 		file.seekg(DrawablePointer);
 	}
 
-	file.close();
+	//file.close();
 
 	for (auto& drawBase : DrawableDictionary.DrawableBases)
 	{

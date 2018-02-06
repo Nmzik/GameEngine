@@ -15,9 +15,10 @@
 class YdrLoader
 {
 	std::vector<Mesh> meshes;
+	glm::vec3 Position;
 public:
 
-	YdrLoader(memstream& file);
+	YdrLoader(memstream& file, glm::vec3 position);
 	~YdrLoader();
 
 	glm::mat4 GetMat4();

@@ -1,7 +1,11 @@
 #include "YdrLoader.h"
 
-YdrLoader::YdrLoader(memstream& file)
+YdrLoader::YdrLoader(memstream& file, glm::vec3 position) : Position(position)
 {
+	Position.x = position.x;
+	Position.y = position.z;
+	Position.z = position.y;
+
 	struct {
 		uint32_t FileVFT;
 		uint32_t FileUnknown;
@@ -328,6 +332,17 @@ YdrLoader::YdrLoader(memstream& file)
 		Mesh mesh(DrawableModel.Geometries[i]->vertexBuffer->VertexData, DrawableModel.Geometries[i]->indexBuffer->Indices, DrawableModel.Geometries[i]->vertexBuffer->VertexStride);
 		meshes.push_back(mesh);
 	}
+
+	for (int i = 0; i< DrawableModel.Geometries.size(); i++)
+	{
+		DrawableModel.Geometries[i]->indexBuffer->Indices.clear();
+		DrawableModel.Geometries[i]->indexBuffer->Indices.shrink_to_fit();
+		delete DrawableModel.Geometries[i]->vertexBuffer;
+		delete DrawableModel.Geometries[i]->indexBuffer;
+		delete (DrawableModel.Geometries[i]);
+	}
+	DrawableModel.Geometries.clear();
+	DrawableModel.Geometries.shrink_to_fit();
 }
 
 
@@ -338,7 +353,7 @@ YdrLoader::~YdrLoader()
 glm::mat4 YdrLoader::GetMat4()
 {
 	//glm::mat4 model(1.0);
-	glm::mat4 model = glm::translate(glm::mat4(), glm::vec3(0,20,0));
+	glm::mat4 model = glm::translate(glm::mat4(), Position);
 	model *= glm::toMat4(glm::quat(0.707f, -0.707f, 0.0, 0.0f));
 	//model = glm::rotate(model, glm::degrees(x), glm::vec3(1.0, 0.0, 0.0f));
 	//model = glm::scale(model, glm::vec3(1.0f));

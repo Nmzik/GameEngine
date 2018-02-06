@@ -8,14 +8,14 @@ GameWorld::GameWorld()
 	solver = new btSequentialImpulseConstraintSolver;
 	dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
 
-	dynamicsWorld->setGravity(btVector3(0, -10, 0));
+	dynamicsWorld->setGravity(btVector3(0, 0, -10));
 
 	btOverlappingPairCallback* _overlappingPairCallback = new btGhostPairCallback();
 	broadphase->getOverlappingPairCache()->setInternalGhostPairCallback(_overlappingPairCallback);
 
 	_ResourceManager = new ResourceManager(this);
 
-	player = new Player(glm::vec3(0, 20, 0), dynamicsWorld);
+	player = new Player(glm::vec3(0, 0, 20), dynamicsWorld);
 
 	gameHour = 10;
 	gameMinute = 0;
@@ -34,18 +34,18 @@ GameWorld::GameWorld()
 	}*/
 
 	//LoadYDR(2711776237);
-	LoadYmap(1198958185);
+	//LoadYmap(1198958185);
 
 	YbnLoader loaderybn(dynamicsWorld);
 	ybnLoader.push_back(loaderybn);
 
-	YddLoader testydd;
-	yddLoader.push_back(testydd);
+	//YddLoader testydd;
+	//yddLoader.push_back(testydd);
 
-	Model *model = new Model(dynamicsWorld, glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 1.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\plane.obj", nullptr, nullptr, false, true);
-	Model *model1 = new Model(dynamicsWorld, glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 1.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\cube.obj", "container.jpg", "container2_specular.png", true, true);
+	Model *model = new Model(dynamicsWorld, glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, -0.707f, 0.707f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\plane.obj", nullptr, nullptr, false, true);
+	//Model *model1 = new Model(dynamicsWorld, glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 1.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\cube.obj", "container.jpg", "container2_specular.png", true, true);
 	_ResourceManager->AddToWaitingList(model);
-	_ResourceManager->AddToWaitingList(model1);
+	//_ResourceManager->AddToWaitingList(model1);
 
 	//Model *model2 = new Model(dynamicsWorld, glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 0.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\rungholt\\rungholt.obj", nullptr, nullptr, false, false);
 	//_ResourceManager->AddToWaitingList(model2);
@@ -78,6 +78,22 @@ void GameWorld::LoadYmap(uint32_t hash)
 		memstream stream(outputBuffer.data(), outputBuffer.size());
 
 		YmapLoader ymap(stream);
+		uint32_t testi = 0;
+
+		for (int i = 0; i < ymap.CEntityDefs.size(); i++)
+		{
+			LoadYDR(ymap.CEntityDefs[i].archetypeName, ymap.CEntityDefs[i].position);
+		}
+
+
+		//for (auto& entity : ymap.CEntityDefs)
+		//
+			//printf("%s ",std::to_string(testi++));
+			//LoadYDD(entity.archetypeName);
+			//LoadYDR(entity.archetypeName, entity.position);
+			//LoadYDD(entity.archetypeName);
+			//if ((!LoadYDR(entity.archetypeName)) && (!LoadYDD(entity.archetypeName))) printf("Element Not Found\n");
+		//}
 	}
 	else
 	{
@@ -85,25 +101,53 @@ void GameWorld::LoadYmap(uint32_t hash)
 	}
 }
 
-void GameWorld::LoadYDR(uint32_t hash)
+bool GameWorld::LoadYDD(uint32_t hash)
 {
 	std::unordered_map<uint32_t, RpfResourceFileEntry>::iterator it;
-	it = data.YdrEntries.find(hash);
-	if (it != data.YdrEntries.end())
+	it = data.YddEntries.find(hash);
+	if (it != data.YddEntries.end())
 	{
-		std::cout << "Element Found";
+		std::cout << "Element Found YDD " << it->second.Name << std::endl;
 		auto& element = it->second;
 		std::vector<uint8_t> outputBuffer;
 		data.ExtractFileResource(element, outputBuffer);
 
 		memstream stream(outputBuffer.data(), outputBuffer.size());
+		YddLoader test(stream);
+		yddLoader.push_back(test);
 
-		YdrLoader test(stream);
-		ydrLoader.push_back(test);
+		return true;
 	}
 	else
 	{
-		std::cout << "Element Not Found" << std::endl;
+		//std::cout << "Element Not Found" << std::endl;
+		return false;
+	}
+}
+
+bool GameWorld::LoadYDR(uint32_t hash, glm::vec3 position)
+{
+	std::unordered_map<uint32_t, RpfResourceFileEntry>::iterator it;
+	it = data.YdrEntries.find(hash);
+	if (it != data.YdrEntries.end())
+	{
+		std::cout << "Element Found YDR " << it->second.Name << std::endl;
+		auto& element = it->second;
+		std::vector<uint8_t> outputBuffer;
+		data.ExtractFileResource(element, outputBuffer);
+		printf(" SIZE BUFFER %d MB\n", outputBuffer.size()/1024/1024);
+
+		memstream stream(outputBuffer.data(), outputBuffer.size());
+
+		//YdrLoader test(stream, position);
+		ydrLoader.emplace_back(YdrLoader(stream, position));
+
+		return true;
+	}
+	else
+	{
+		//std::cout << "Element Not Found" << std::endl;
+		return false;
 	}
 }
 
@@ -151,11 +195,11 @@ void GameWorld::UpdateTraffic(glm::vec3 cameraPosition)
 	}
 
 	int MaximumAvailablePeds = 20 - pedestrians.size(); //HARDCODED
-	if (cameraPosition.y < 100.0f) {
+	if (cameraPosition.z < 100.0f) {
 		for (int i = 0; i < MaximumAvailablePeds; i++) {
 			float xRandom = RandomFloat(cameraPosition.x - radiusTraffic, cameraPosition.x + radiusTraffic);
-			float zRandom = RandomFloat(cameraPosition.z - radiusTraffic, cameraPosition.z + radiusTraffic);
-			Player *newPlayer = new Player(glm::vec3(xRandom, 0, zRandom), dynamicsWorld);
+			float yRandom = RandomFloat(cameraPosition.y - radiusTraffic, cameraPosition.y + radiusTraffic);
+			Player *newPlayer = new Player(glm::vec3(xRandom, yRandom, 1), dynamicsWorld);
 			pedestrians.push_back(newPlayer);
 		}
 	}
@@ -170,11 +214,11 @@ void GameWorld::UpdateTraffic(glm::vec3 cameraPosition)
 	}
 
 	int MaximumAvailableVehicles = 10 - vehicles.size(); //HARDCODED
-	if (cameraPosition.y < 100.0f) {
+	if (cameraPosition.z < 100.0f) {
 		for (int i = 0; i < MaximumAvailableVehicles; i++) {
 			float xRandom = RandomFloat(cameraPosition.x - radiusTraffic, cameraPosition.x + radiusTraffic);
-			float zRandom = RandomFloat(cameraPosition.z - radiusTraffic, cameraPosition.z + radiusTraffic);
-			Vehicle newVehicle(glm::vec3(xRandom, 1, zRandom), dynamicsWorld);
+			float yRandom = RandomFloat(cameraPosition.y - radiusTraffic, cameraPosition.y + radiusTraffic);
+			Vehicle newVehicle(glm::vec3(xRandom, yRandom, 1), dynamicsWorld);
 			vehicles.push_back(newVehicle);
 		}
 	}
