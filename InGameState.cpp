@@ -95,6 +95,7 @@ void InGameState::tick(float delta_time)
 		movement.z = game->getInput()->IsKeyPressed(SDL_SCANCODE_A) - game->getInput()->IsKeyPressed(SDL_SCANCODE_D);
 
 		if (game->getWorld()->player->GetCurrentVehicle()) {
+			game->getRenderer()->getCamera().Position = glm::vec3(game->getWorld()->player->GetCurrentVehicle()->m_carChassis->getWorldTransform().getOrigin().getX(), game->getWorld()->player->GetCurrentVehicle()->m_carChassis->getWorldTransform().getOrigin().getY(), game->getWorld()->player->GetCurrentVehicle()->m_carChassis->getWorldTransform().getOrigin().getZ());
 			if (game->getInput()->IsKeyPressed(SDL_SCANCODE_W)) {
 				game->getWorld()->player->GetCurrentVehicle()->SetThrottle(1.0);
 			}
@@ -102,11 +103,14 @@ void InGameState::tick(float delta_time)
 				game->getWorld()->player->GetCurrentVehicle()->SetThrottle(-1.0);
 			}
 			if (game->getInput()->IsKeyPressed(SDL_SCANCODE_A)) {
-				game->getWorld()->player->GetCurrentVehicle()->SetSteeringValue(1.0);
+				game->getWorld()->player->GetCurrentVehicle()->steeringValue += 0.04;
+				if (game->getWorld()->player->GetCurrentVehicle()->steeringValue > 0.3) game->getWorld()->player->GetCurrentVehicle()->steeringValue = 0.3;
 			}
 			if (game->getInput()->IsKeyPressed(SDL_SCANCODE_D)) {
-				game->getWorld()->player->GetCurrentVehicle()->SetSteeringValue(-1.0);
+				game->getWorld()->player->GetCurrentVehicle()->steeringValue -= 0.04;
+				if (game->getWorld()->player->GetCurrentVehicle()->steeringValue < -0.3) game->getWorld()->player->GetCurrentVehicle()->steeringValue = -0.3;
 			}
+			printf("%f \n", game->getWorld()->player->GetCurrentVehicle()->steeringValue);
 		}
 		else {
 			game->getRenderer()->getCamera().Position = glm::vec3(game->getWorld()->player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getX(), game->getWorld()->player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getY(), game->getWorld()->player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getZ());
@@ -131,7 +135,7 @@ void InGameState::tick(float delta_time)
 	int x;
 	int y;
 	SDL_GetRelativeMouseState(&x, &y);
-	game->getRenderer()->getCamera().ProcessMouseMovement(x, -y);
+	game->getRenderer()->getCamera().ProcessMouseMovement(-x, -y);
 
 }
 

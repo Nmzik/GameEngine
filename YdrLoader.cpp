@@ -1,10 +1,7 @@
 #include "YdrLoader.h"
 
-YdrLoader::YdrLoader(memstream& file, glm::vec3 position) : Position(position)
+YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation) : Position(position), Rotation(rotation)
 {
-	Position.x = position.x;
-	Position.y = position.z;
-	Position.z = position.y;
 
 	struct {
 		uint32_t FileVFT;
@@ -354,7 +351,7 @@ glm::mat4 YdrLoader::GetMat4()
 {
 	//glm::mat4 model(1.0);
 	glm::mat4 model = glm::translate(glm::mat4(), Position);
-	model *= glm::toMat4(glm::quat(0.707f, -0.707f, 0.0, 0.0f));
+	model *= glm::toMat4(Rotation);
 	//model = glm::rotate(model, glm::degrees(x), glm::vec3(1.0, 0.0, 0.0f));
 	//model = glm::scale(model, glm::vec3(1.0f));
 	//glm::quat test1 = glm::quat_cast(model);

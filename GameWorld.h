@@ -47,7 +47,7 @@ public:
 
 	bool LoadYDD(uint32_t hash);
 
-	bool LoadYDR(uint32_t hash, glm::vec3 position);
+	bool LoadYDR(uint32_t hash, glm::vec3 position, glm::quat rotation);
 
 	ResourceManager* GetResourceManager() {
 		return _ResourceManager;
@@ -61,7 +61,6 @@ public:
 		return &debug;
 	}
 
-	bool LoadYDR(uint32_t hash);
 	void createPedestrian();
 	void createVehicle();
 	void Update();

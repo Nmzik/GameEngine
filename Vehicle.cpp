@@ -3,22 +3,22 @@
 int rightIndex = 0;
 int upIndex = 1;
 int forwardIndex = 2;
-
-btVector3 wheelDirectionCS0(0, -1, 0);
-btVector3 wheelAxleCS(-1, 0, 0);
+#define CUBE_HALF_EXTENTS 1
+btVector3 wheelDirectionCS0(0, 0, -1);
+btVector3 wheelAxleCS(1, 0, 0);
 
 float	gVehicleSteering = 0.f;
-float	steeringIncrement = 0.4f;
+float	steeringIncrement = 0.04f;
 float	steeringClamp = 0.3f;
 float	wheelRadius = 0.5f;
-float	wheelWidth = 1.0f;
+float	wheelWidth = 0.4f;
 float	wheelFriction = 1000;//BT_LARGE_FLOAT;
 float	suspensionStiffness = 20.f;
 float	suspensionDamping = 2.3f;
 float	suspensionCompression = 4.4f;
-float	rollInfluence = 0.4f;//1.0f;
+float	rollInfluence = 0.1f;//1.0f;
 
-btScalar suspensionRestLength(0.6);
+btScalar suspensionRestLength(0.6f);
 btScalar m_defaultContactProcessingThreshold(BT_LARGE_FLOAT);
 
 Vehicle::Vehicle(glm::vec3 position, btDiscreteDynamicsWorld* world) : throttle(0), steeringValue(0)
@@ -27,21 +27,19 @@ Vehicle::Vehicle(glm::vec3 position, btDiscreteDynamicsWorld* world) : throttle(
 	tr.setIdentity();
 
 	btRaycastVehicle::btVehicleTuning m_tuning;
-	btCollisionShape* chassisShape = new btBoxShape(btVector3(1, 0.5f, 1));
+	btCollisionShape* chassisShape = new btBoxShape(btVector3(1.f, 2.f, 0.5f));
 	btCompoundShape* compound = new btCompoundShape();
 	btTransform localTrans;
 	localTrans.setIdentity();
-	localTrans.setOrigin(btVector3(0, 0, 0));
+	//localTrans effectively shifts the center of mass with respect to the chassis
+	localTrans.setOrigin(btVector3(0, 0, 1));
 
 	compound->addChildShape(localTrans, chassisShape);
-	compound->setMargin(0);
-
-	tr.setOrigin(btVector3(position.x, position.y, position.z));
 
 	btVector3 localInertia(0, 0, 0);
 	compound->calculateLocalInertia(800, localInertia);
 
-	//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
+	tr.setOrigin(btVector3(position.x, position.y, position.z));
 
 	btDefaultMotionState* myMotionState = new btDefaultMotionState(tr);
 
@@ -50,12 +48,13 @@ Vehicle::Vehicle(glm::vec3 position, btDiscreteDynamicsWorld* world) : throttle(
 	m_carChassis = new btRigidBody(cInfo);
 	m_carChassis->setContactProcessingThreshold(m_defaultContactProcessingThreshold);
 
-
 	m_carChassis->setWorldTransform(tr);
 	
 	world->addRigidBody(m_carChassis);
 
 	btCollisionShape* m_wheelShape = new btCylinderShapeX(btVector3(wheelWidth, wheelRadius, wheelRadius));
+
+	m_wheelShape = new btCylinderShapeX(btVector3(wheelWidth, wheelRadius, wheelRadius));
 
 	m_vehicleRayCaster = new btDefaultVehicleRaycaster(world);
 	m_vehicle = new btRaycastVehicle(m_tuning, m_carChassis, m_vehicleRayCaster);
@@ -65,29 +64,27 @@ Vehicle::Vehicle(glm::vec3 position, btDiscreteDynamicsWorld* world) : throttle(
 
 	world->addVehicle(m_vehicle);
 
-	float connectionHeight = 0.1f;
-
+	float connectionHeight = 1.2f;
 
 	bool isFrontWheel = true;
 
 	//choose coordinate system
-	m_vehicle->setCoordinateSystem(0, 1, 2); //NOT SURE IF IT WORKS!!!
+	m_vehicle->setCoordinateSystem(rightIndex, upIndex, forwardIndex);
 
-
-	btVector3 connectionPointCS0(0, connectionHeight, 2);
+	btVector3 connectionPointCS0(CUBE_HALF_EXTENTS - (0.3*wheelWidth), 2 * CUBE_HALF_EXTENTS - wheelRadius, connectionHeight);
 
 
 	m_vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, m_tuning, isFrontWheel);
 
-	connectionPointCS0 = btVector3(1, connectionHeight, 2);
+	connectionPointCS0 = btVector3(-CUBE_HALF_EXTENTS + (0.3*wheelWidth), 2 * CUBE_HALF_EXTENTS - wheelRadius, connectionHeight);
 
 
 	m_vehicle->addWheel(connectionPointCS0,wheelDirectionCS0,wheelAxleCS,suspensionRestLength,wheelRadius,m_tuning,isFrontWheel);
 
-	connectionPointCS0 = btVector3(-1, connectionHeight, -2);
+	connectionPointCS0 = btVector3(-CUBE_HALF_EXTENTS + (0.3*wheelWidth), -2 * CUBE_HALF_EXTENTS + wheelRadius, connectionHeight);
 	isFrontWheel = false;
 	m_vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, m_tuning, isFrontWheel);
-	connectionPointCS0 = btVector3(1, connectionHeight, -2);
+	connectionPointCS0 = btVector3(CUBE_HALF_EXTENTS - (0.3*wheelWidth), -2 * CUBE_HALF_EXTENTS + wheelRadius, connectionHeight);
 
 	m_vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, m_tuning, isFrontWheel);
 
@@ -186,8 +183,8 @@ void Vehicle::PhysicsTick()
 {
 	float engineForce = throttle * 500.0f;
 
-	m_vehicle->applyEngineForce(engineForce, 0);
-	m_vehicle->applyEngineForce(engineForce, 1);
+	m_vehicle->applyEngineForce(engineForce, 2);
+	m_vehicle->applyEngineForce(engineForce, 3);
 
 	m_vehicle->setSteeringValue(steeringValue, 0);
 	m_vehicle->setSteeringValue(steeringValue, 1);

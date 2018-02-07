@@ -82,7 +82,7 @@ void GameWorld::LoadYmap(uint32_t hash)
 
 		for (int i = 0; i < ymap.CEntityDefs.size(); i++)
 		{
-			LoadYDR(ymap.CEntityDefs[i].archetypeName, ymap.CEntityDefs[i].position);
+			LoadYDR(ymap.CEntityDefs[i].archetypeName, ymap.CEntityDefs[i].position, glm::quat(ymap.CEntityDefs[i].rotation.x, ymap.CEntityDefs[i].rotation.y, ymap.CEntityDefs[i].rotation.z, ymap.CEntityDefs[i].rotation.w));
 		}
 
 
@@ -125,7 +125,7 @@ bool GameWorld::LoadYDD(uint32_t hash)
 	}
 }
 
-bool GameWorld::LoadYDR(uint32_t hash, glm::vec3 position)
+bool GameWorld::LoadYDR(uint32_t hash, glm::vec3 position, glm::quat rotation)
 {
 	std::unordered_map<uint32_t, RpfResourceFileEntry>::iterator it;
 	it = data.YdrEntries.find(hash);
@@ -140,7 +140,7 @@ bool GameWorld::LoadYDR(uint32_t hash, glm::vec3 position)
 		memstream stream(outputBuffer.data(), outputBuffer.size());
 
 		//YdrLoader test(stream, position);
-		ydrLoader.emplace_back(YdrLoader(stream, position));
+		ydrLoader.emplace_back(YdrLoader(stream, position, rotation));
 
 		return true;
 	}
@@ -218,7 +218,7 @@ void GameWorld::UpdateTraffic(glm::vec3 cameraPosition)
 		for (int i = 0; i < MaximumAvailableVehicles; i++) {
 			float xRandom = RandomFloat(cameraPosition.x - radiusTraffic, cameraPosition.x + radiusTraffic);
 			float yRandom = RandomFloat(cameraPosition.y - radiusTraffic, cameraPosition.y + radiusTraffic);
-			Vehicle newVehicle(glm::vec3(xRandom, yRandom, 1), dynamicsWorld);
+			Vehicle newVehicle(glm::vec3(xRandom, yRandom, 5), dynamicsWorld);
 			vehicles.push_back(newVehicle);
 		}
 	}

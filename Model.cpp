@@ -47,7 +47,7 @@ void Model::Load()
 
 	std::string mtlPath(ModelPath);
 
-	size_type pos = mtlPath.find_last_of("\\");
+	size_t pos = mtlPath.find_last_of("\\");
 	if (pos != std::string::npos)
 	{
 		mtlPath.erase(pos+1);
