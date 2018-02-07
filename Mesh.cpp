@@ -78,7 +78,7 @@ Mesh::Mesh(std::vector<uint8_t>& vertexData, std::vector<uint16_t>& indices, uin
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint16_t), &indices[0], GL_STATIC_DRAW); //16 BIT INDICES max 65536
 
-	material = new Material(0, 0);
+	material = new Material(0, 0, true, 0);
 
 }
 

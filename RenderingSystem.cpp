@@ -377,9 +377,12 @@ void RenderingSystem::render(GameWorld* world)
 	}
 	//printf("=========================\n");
 	//TEST YDD
-	/*auto modelpos1 = world->yddLoader[0].GetMat4();
-	gbuffer->setMat4("model", modelpos1);
-	world->yddLoader[0].Draw();*/
+	for (int i = 0; i < world->yddLoader.size(); i++)
+	{
+		auto modelpos = world->yddLoader[i].GetMat4();
+		gbuffer->setMat4("model", modelpos);
+		world->yddLoader[i].Draw();
+	}
 
 	//TEST YDR
 	//for (auto& YdrFile : world->ydrLoader)

@@ -33,8 +33,16 @@ GameWorld::GameWorld()
 		dynamicsWorld->addRigidBody(models[i].getBody());
 	}*/
 
-	//LoadYDR(2711776237);
+	//LoadYDR(1709559537, glm::vec3(0,0,0), glm::quat(0,0,0,0));
 	//LoadYmap(1198958185);
+	LoadYmap(710206074);
+	LoadYmap(3229005336);
+	LoadYmap(324492252);
+	LoadYmap(611909151);
+	LoadYmap(3871703737);
+	LoadYmap(4160496934);
+	LoadYmap(1234356306);
+	LoadYmap(1560373118);
 
 	YbnLoader loaderybn(dynamicsWorld);
 	ybnLoader.push_back(loaderybn);
@@ -67,9 +75,8 @@ void GameWorld::LoadYmap(uint32_t hash)
 	it = data.YmapEntries.find(hash);
 	if (it != data.YmapEntries.end())
 	{
-		std::cout << "Element Found";
+		std::cout << "YMAP Found" << std::endl;
 		auto& element = it->second;
-		
 
 		//CAN BE AN ERROR HERE - NOT FULLY IMPLEMENTED!
 		std::vector<uint8_t> outputBuffer;
@@ -82,7 +89,8 @@ void GameWorld::LoadYmap(uint32_t hash)
 
 		for (int i = 0; i < ymap.CEntityDefs.size(); i++)
 		{
-			LoadYDR(ymap.CEntityDefs[i].archetypeName, ymap.CEntityDefs[i].position, glm::quat(ymap.CEntityDefs[i].rotation.x, ymap.CEntityDefs[i].rotation.y, ymap.CEntityDefs[i].rotation.z, ymap.CEntityDefs[i].rotation.w));
+			if (!LoadYDR(ymap.CEntityDefs[i].archetypeName, ymap.CEntityDefs[i].position, glm::quat(ymap.CEntityDefs[i].rotation.x, ymap.CEntityDefs[i].rotation.y, ymap.CEntityDefs[i].rotation.z, ymap.CEntityDefs[i].rotation.w)))
+				LoadYDD(ymap.CEntityDefs[i].archetypeName, ymap.CEntityDefs[i].position, glm::quat(ymap.CEntityDefs[i].rotation.x, ymap.CEntityDefs[i].rotation.y, ymap.CEntityDefs[i].rotation.z, ymap.CEntityDefs[i].rotation.w));
 		}
 
 
@@ -97,23 +105,23 @@ void GameWorld::LoadYmap(uint32_t hash)
 	}
 	else
 	{
-		std::cout << "Element Not Found" << std::endl;
+		std::cout << "YMAP Not Found" << std::endl;
 	}
 }
 
-bool GameWorld::LoadYDD(uint32_t hash)
+bool GameWorld::LoadYDD(uint32_t hash, glm::vec3 position, glm::quat rotation)
 {
 	std::unordered_map<uint32_t, RpfResourceFileEntry>::iterator it;
 	it = data.YddEntries.find(hash);
 	if (it != data.YddEntries.end())
 	{
-		std::cout << "Element Found YDD " << it->second.Name << std::endl;
+		std::cout << "YDD Found " << it->second.Name << std::endl;
 		auto& element = it->second;
 		std::vector<uint8_t> outputBuffer;
 		data.ExtractFileResource(element, outputBuffer);
 
 		memstream stream(outputBuffer.data(), outputBuffer.size());
-		YddLoader test(stream);
+		YddLoader test(stream, position, rotation, hash);
 		yddLoader.push_back(test);
 
 		return true;
@@ -131,16 +139,16 @@ bool GameWorld::LoadYDR(uint32_t hash, glm::vec3 position, glm::quat rotation)
 	it = data.YdrEntries.find(hash);
 	if (it != data.YdrEntries.end())
 	{
-		std::cout << "Element Found YDR " << it->second.Name << std::endl;
+		std::cout << "YDR Found " << it->second.Name << std::endl;
 		auto& element = it->second;
 		std::vector<uint8_t> outputBuffer;
 		data.ExtractFileResource(element, outputBuffer);
-		printf(" SIZE BUFFER %d MB\n", outputBuffer.size()/1024/1024);
+		printf(" SIZE BUFFER %d MB\n", outputBuffer.size() * sizeof(uint8_t)/1024/1024);
 
 		memstream stream(outputBuffer.data(), outputBuffer.size());
 
 		//YdrLoader test(stream, position);
-		ydrLoader.emplace_back(YdrLoader(stream, position, rotation));
+		ydrLoader.emplace_back(YdrLoader(stream, position, rotation, 0));
 
 		return true;
 	}

@@ -79,14 +79,18 @@ public:
 			MetaEnumInfo_struct.EntriesPointer = MetaEnumInfo_struct.EntriesPointer & ~0x60000000;
 		}
 
+		uint64_t pos = file.tellg();
+
 		file.seekg(MetaEnumInfo_struct.EntriesPointer);
 
-		for (int i = 0; i < MetaEnumInfo_struct.EntriesCount; i++)
+		for (int i = 0; i < (uint32_t)MetaEnumInfo_struct.EntriesCount; i++)
 		{
 			MetaEnumEntryInfo_s info;
+			//printf("POSITION %zd\n", file.tellg());
 			file.read((char*)&info, sizeof(MetaEnumEntryInfo_s));
 			infos.push_back(info);
 		}
+		file.seekg(pos);
 	}
 };
 

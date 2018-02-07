@@ -1,6 +1,6 @@
 #include "YdrLoader.h"
 
-YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation) : Position(position), Rotation(rotation)
+YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, uint32_t TextureID) : Position(position), Rotation(rotation)
 {
 
 	struct {
@@ -179,8 +179,9 @@ YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation) : 
 		uint64_t ShaderMappingPointer;
 		uint32_t Unknown_28h;
 		uint32_t Unknown_2Ch;
-		std::vector<DrawableGeometry*> Geometries;
 	} DrawableModel;
+
+	std::vector<DrawableGeometry> Geometries;
 
 	file.read((char*)&DrawableBase, sizeof(DrawableBase));
 
@@ -205,8 +206,14 @@ YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation) : 
 
 	file.read((char*)&ResourcePointerList64, sizeof(ResourcePointerList64));
 
-	//uint32_t garbage_value; //fix
-	//file.read((char*)&garbage_value, sizeof(uint32_t));
+	if ((ResourcePointerList64.EntriesPointer & SYSTEM_BASE) == SYSTEM_BASE) {
+		ResourcePointerList64.EntriesPointer = ResourcePointerList64.EntriesPointer & ~0x50000000;
+	}
+	if ((ResourcePointerList64.EntriesPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
+		ResourcePointerList64.EntriesPointer = ResourcePointerList64.EntriesPointer & ~0x60000000;
+	}
+
+	file.seekg(ResourcePointerList64.EntriesPointer);
 
 	for (int i = 0; i < ResourcePointerList64.EntriesCount; i++)
 	{
@@ -223,10 +230,7 @@ YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation) : 
 
 		file.seekg(data_pointer);
 
-		file.read((char*)&DrawableModel, sizeof(DrawableModel) - 24);
-
-		//POINTER GO
-		uint64_t pos2 = file.tellg();
+		file.read((char*)&DrawableModel, sizeof(DrawableModel));
 
 		if ((DrawableModel.GeometriesPointer & SYSTEM_BASE) == SYSTEM_BASE) {
 			DrawableModel.GeometriesPointer = DrawableModel.GeometriesPointer & ~0x50000000;
@@ -252,27 +256,27 @@ YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation) : 
 
 			file.seekg(data_pointer);
 
-			DrawableGeometry* drawGeom = new DrawableGeometry();
+			DrawableGeometry drawGeom;
 
-			file.read((char*)drawGeom, sizeof(DrawableGeometry) - 16);
+			file.read((char*)&drawGeom, sizeof(DrawableGeometry) - 16);
 
-			if ((drawGeom->VertexBufferPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-				drawGeom->VertexBufferPointer = drawGeom->VertexBufferPointer & ~0x50000000;
+			if ((drawGeom.VertexBufferPointer & SYSTEM_BASE) == SYSTEM_BASE) {
+				drawGeom.VertexBufferPointer = drawGeom.VertexBufferPointer & ~0x50000000;
 			}
-			if ((drawGeom->VertexBufferPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-				drawGeom->VertexBufferPointer = drawGeom->VertexBufferPointer & ~0x60000000;
+			if ((drawGeom.VertexBufferPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
+				drawGeom.VertexBufferPointer = drawGeom.VertexBufferPointer & ~0x60000000;
 			}
 
-			file.seekg(drawGeom->VertexBufferPointer);
+			file.seekg(drawGeom.VertexBufferPointer);
 
-			drawGeom->vertexBuffer = new VertexBuffer();
-			file.read((char*)drawGeom->vertexBuffer, sizeof(VertexBuffer) - 24);
+			drawGeom.vertexBuffer = new VertexBuffer();
+			file.read((char*)drawGeom.vertexBuffer, sizeof(VertexBuffer) - 24);
 
-			if ((drawGeom->vertexBuffer->DataPointer1 & SYSTEM_BASE) == SYSTEM_BASE) {
-				drawGeom->vertexBuffer->DataPointer1 = drawGeom->vertexBuffer->DataPointer1 & ~0x50000000;
+			if ((drawGeom.vertexBuffer->DataPointer1 & SYSTEM_BASE) == SYSTEM_BASE) {
+				drawGeom.vertexBuffer->DataPointer1 = drawGeom.vertexBuffer->DataPointer1 & ~0x50000000;
 			}
-			if ((drawGeom->vertexBuffer->DataPointer1 & GRAPHICS_BASE) == GRAPHICS_BASE) {
-				drawGeom->vertexBuffer->DataPointer1 = drawGeom->vertexBuffer->DataPointer1 & ~0x60000000;
+			if ((drawGeom.vertexBuffer->DataPointer1 & GRAPHICS_BASE) == GRAPHICS_BASE) {
+				drawGeom.vertexBuffer->DataPointer1 = drawGeom.vertexBuffer->DataPointer1 & ~0x60000000;
 			}
 
 			/*struct Meshdata {
@@ -284,62 +288,61 @@ YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation) : 
 			float idk3;
 			};*/
 
-			file.seekg(drawGeom->vertexBuffer->DataPointer1);
+			file.seekg(drawGeom.vertexBuffer->DataPointer1);
 
-			drawGeom->vertexBuffer->VertexData.resize(drawGeom->vertexBuffer->VertexCount * drawGeom->vertexBuffer->VertexStride);
-			file.read((char*)&drawGeom->vertexBuffer->VertexData[0], drawGeom->vertexBuffer->VertexCount * drawGeom->vertexBuffer->VertexStride);
+			drawGeom.vertexBuffer->VertexData.resize(drawGeom.vertexBuffer->VertexCount * drawGeom.vertexBuffer->VertexStride);
+			file.read((char*)&drawGeom.vertexBuffer->VertexData[0], drawGeom.vertexBuffer->VertexCount * drawGeom.vertexBuffer->VertexStride);
 
-			if ((drawGeom->IndexBufferPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-				drawGeom->IndexBufferPointer = drawGeom->IndexBufferPointer & ~0x50000000;
+			if ((drawGeom.IndexBufferPointer & SYSTEM_BASE) == SYSTEM_BASE) {
+				drawGeom.IndexBufferPointer = drawGeom.IndexBufferPointer & ~0x50000000;
 			}
-			if ((drawGeom->IndexBufferPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-				drawGeom->IndexBufferPointer = drawGeom->IndexBufferPointer & ~0x60000000;
+			if ((drawGeom.IndexBufferPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
+				drawGeom.IndexBufferPointer = drawGeom.IndexBufferPointer & ~0x60000000;
 			}
 
-			file.seekg(drawGeom->IndexBufferPointer);
+			file.seekg(drawGeom.IndexBufferPointer);
 
-			drawGeom->indexBuffer = new IndexBuffer();
-			file.read((char*)drawGeom->indexBuffer, sizeof(IndexBuffer) - 24);
+			drawGeom.indexBuffer = new IndexBuffer();
+			file.read((char*)drawGeom.indexBuffer, sizeof(IndexBuffer) - 24);
 
 			//drawGeom->indexBuffer->Indices = new uint16_t[drawGeom->indexBuffer->IndicesCount];
 
 			//INDICES READING
-			if ((drawGeom->indexBuffer->IndicesPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-				drawGeom->indexBuffer->IndicesPointer = drawGeom->indexBuffer->IndicesPointer & ~0x50000000;
+			if ((drawGeom.indexBuffer->IndicesPointer & SYSTEM_BASE) == SYSTEM_BASE) {
+				drawGeom.indexBuffer->IndicesPointer = drawGeom.indexBuffer->IndicesPointer & ~0x50000000;
 			}
-			if ((drawGeom->indexBuffer->IndicesPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-				drawGeom->indexBuffer->IndicesPointer = drawGeom->indexBuffer->IndicesPointer & ~0x60000000;
+			if ((drawGeom.indexBuffer->IndicesPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
+				drawGeom.indexBuffer->IndicesPointer = drawGeom.indexBuffer->IndicesPointer & ~0x60000000;
 			}
 
-			file.seekg(drawGeom->indexBuffer->IndicesPointer);
+			file.seekg(drawGeom.indexBuffer->IndicesPointer);
 
-			drawGeom->indexBuffer->Indices.resize(drawGeom->indexBuffer->IndicesCount * sizeof(uint16_t));
-			file.read((char*)&drawGeom->indexBuffer->Indices[0], sizeof(uint16_t) * drawGeom->indexBuffer->IndicesCount);
+			drawGeom.indexBuffer->Indices.resize(drawGeom.indexBuffer->IndicesCount * sizeof(uint16_t));
+			file.read((char*)&drawGeom.indexBuffer->Indices[0], sizeof(uint16_t) * drawGeom.indexBuffer->IndicesCount);
 
-			DrawableModel.Geometries.push_back(drawGeom);
+			Geometries.push_back(drawGeom);
 
 			file.seekg(pos);
 		}
+		file.seekg(posOriginal);
 	}
 
+	uint32_t sizeVertex = 0;
+	uint32_t sizeIndex = 0;
 	//file.close();
-
-	for (int i = 0; i < DrawableModel.Geometries.size(); i++)
+	for (int i = 0; i < Geometries.size(); i++)
 	{
-		Mesh mesh(DrawableModel.Geometries[i]->vertexBuffer->VertexData, DrawableModel.Geometries[i]->indexBuffer->Indices, DrawableModel.Geometries[i]->vertexBuffer->VertexStride);
-		meshes.push_back(mesh);
+		sizeVertex  += Geometries[i].vertexBuffer->VertexData.size() * sizeof(uint8_t);
+		sizeIndex += Geometries[i].indexBuffer->Indices.size() * sizeof(uint16_t);
 	}
 
-	for (int i = 0; i< DrawableModel.Geometries.size(); i++)
+	//printf("SIZE %d\n", (sizeVertex + sizeIndex)/1024/1024);
+
+	for (int i = 0; i < Geometries.size(); i++)
 	{
-		DrawableModel.Geometries[i]->indexBuffer->Indices.clear();
-		DrawableModel.Geometries[i]->indexBuffer->Indices.shrink_to_fit();
-		delete DrawableModel.Geometries[i]->vertexBuffer;
-		delete DrawableModel.Geometries[i]->indexBuffer;
-		delete (DrawableModel.Geometries[i]);
+		//Mesh mesh(Geometries[i].vertexBuffer->VertexData, Geometries[i].indexBuffer->Indices, Geometries[i].vertexBuffer->VertexStride);
+		meshes.emplace_back(Geometries[i].vertexBuffer->VertexData, Geometries[i].indexBuffer->Indices, Geometries[i].vertexBuffer->VertexStride);
 	}
-	DrawableModel.Geometries.clear();
-	DrawableModel.Geometries.shrink_to_fit();
 }
 
 
@@ -352,6 +355,16 @@ glm::mat4 YdrLoader::GetMat4()
 	//glm::mat4 model(1.0);
 	glm::mat4 model = glm::translate(glm::mat4(), Position);
 	model *= glm::toMat4(Rotation);
+	/*glm::vec3 scale;
+	glm::quat rotation;
+	glm::vec3 translation;
+	glm::vec3 skew;
+	glm::vec4 perspective;
+	rotation = glm::conjugate(rotation);
+
+	glm::decompose(model, scale, rotation, translation, skew, perspective);
+
+	printf("RETURNED %s ORIGINAL %s\n", glm::to_string(rotation).c_str(), glm::to_string(Rotation).c_str());*/
 	//model = glm::rotate(model, glm::degrees(x), glm::vec3(1.0, 0.0, 0.0f));
 	//model = glm::scale(model, glm::vec3(1.0f));
 	//glm::quat test1 = glm::quat_cast(model);

@@ -106,6 +106,7 @@
     <ClCompile Include="Skybox.cpp" />
     <ClCompile Include="SoundManager.cpp" />
     <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="TextureManager.cpp" />
     <ClCompile Include="tiny_obj_loader.cc" />
     <ClCompile Include="Vehicle.cpp" />
     <ClCompile Include="YbnLoader.cpp" />
@@ -145,6 +146,7 @@
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Skybox.h" />
     <ClInclude Include="Texture.h" />
+    <ClInclude Include="TextureManager.h" />
     <ClInclude Include="tiny_obj_loader.h" />
     <ClInclude Include="Vehicle.h" />
     <ClInclude Include="YbnLoader.h" />

@@ -179,7 +179,7 @@ void GameData::ExtractFileResource(RpfResourceFileEntry entry, std::vector<uint8
 		//}
 
 		GTAEncryption::DecompressBytes(decr, totlen, output);
-
+		delete[] decr;
 		/*if (deflated != nullptr)
 		{
 			//return deflated;

@@ -10,6 +10,7 @@
 #include "gtx/rotate_vector.hpp"
 #include "gtc/type_ptr.hpp"
 #include "glm/gtc/quaternion.hpp"
+#include "glm/gtx/matrix_decompose.hpp"
 #include "membuf.h"
 
 class YdrLoader
@@ -19,7 +20,7 @@ class YdrLoader
 	glm::quat Rotation;
 public:
 
-	YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation);
+	YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, uint32_t TextureID);
 	~YdrLoader();
 
 	glm::mat4 GetMat4();

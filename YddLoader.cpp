@@ -2,7 +2,7 @@
 
 
 
-YddLoader::YddLoader(memstream& file)
+YddLoader::YddLoader(memstream& file, glm::vec3 position, glm::quat rotation, uint32_t Hash) : Position(position), Rotation(rotation)
 {
 
 	struct {
@@ -174,6 +174,19 @@ YddLoader::YddLoader(memstream& file)
 	} DrawableDictionary;
 
 	file.read((char*)&DrawableDictionary, sizeof(DrawableDictionary) - 24);
+
+	if ((DrawableDictionary.HashesPointer & SYSTEM_BASE) == SYSTEM_BASE) {
+		DrawableDictionary.HashesPointer = DrawableDictionary.HashesPointer & ~0x50000000;
+	}
+	if ((DrawableDictionary.HashesPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
+		DrawableDictionary.HashesPointer = DrawableDictionary.HashesPointer & ~0x60000000;
+	}
+
+	file.seekg(DrawableDictionary.HashesPointer);
+
+	Hashes.resize(DrawableDictionary.HashesCount1);
+
+	file.read((char*)&Hashes[0], sizeof(uint32_t) * DrawableDictionary.HashesCount1);
 
 	if ((DrawableDictionary.DrawablesPointer & SYSTEM_BASE) == SYSTEM_BASE) {
 		DrawableDictionary.DrawablesPointer = DrawableDictionary.DrawablesPointer & ~0x50000000;
@@ -354,15 +367,18 @@ YddLoader::YddLoader(memstream& file)
 	}
 
 	//file.close();
+	//Load specific YDR from YDD through hash
 
-	for (auto& drawBase : DrawableDictionary.DrawableBases)
+	for (int i = 0; i < Hashes.size(); i++)
 	{
-		for (auto& DrawModel : drawBase.DrawableModels)
-		{
-			for (auto& Geometry : DrawModel.Geometries)
+		if (Hashes[i] == Hash) {
+			printf("FOUND INSIDE YDD %d\n",i);
+			for (int j = 0; j < DrawableDictionary.DrawableBases[i].DrawableModels.size(); j++)
 			{
-				Mesh mesh(Geometry->vertexBuffer->VertexData, Geometry->indexBuffer->Indices, Geometry->vertexBuffer->VertexStride);
-				meshes.push_back(mesh);
+				for (int k = 0; k < DrawableDictionary.DrawableBases[i].DrawableModels[j].Geometries.size(); k++)
+				{
+					meshes.emplace_back(DrawableDictionary.DrawableBases[i].DrawableModels[j].Geometries[k]->vertexBuffer->VertexData, DrawableDictionary.DrawableBases[i].DrawableModels[j].Geometries[k]->indexBuffer->Indices, DrawableDictionary.DrawableBases[i].DrawableModels[j].Geometries[k]->vertexBuffer->VertexStride);
+				}
 			}
 		}
 	}
@@ -370,7 +386,19 @@ YddLoader::YddLoader(memstream& file)
 
 glm::mat4 YddLoader::GetMat4()
 {
-	glm::mat4 model = glm::translate(glm::mat4(), glm::vec3(0, 20, 0));
+	glm::mat4 model = glm::translate(glm::mat4(), Position);
+	model *= glm::toMat4(Rotation);
+	/*glm::vec3 scale;
+	glm::quat rotation;
+	glm::vec3 translation;
+	glm::vec3 skew;
+	glm::vec4 perspective;
+	rotation = glm::conjugate(rotation);
+
+	glm::decompose(model, scale, rotation, translation, skew, perspective);
+
+	printf("RETURNED %s ORIGINAL %s\n", glm::to_string(rotation).c_str(), glm::to_string(Rotation).c_str());*/
+
 	return model;
 }
 

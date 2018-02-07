@@ -11,6 +11,7 @@
 #include "YndLoader.h"
 #include "YbnLoader.h"
 #include "GameData.h"
+#include "Material.h"
 #include <windows.h>
 
 class ResourceManager;
@@ -45,7 +46,7 @@ public:
 
 	void LoadYmap(uint32_t hash);
 
-	bool LoadYDD(uint32_t hash);
+	bool LoadYDD(uint32_t hash, glm::vec3 position, glm::quat rotation);
 
 	bool LoadYDR(uint32_t hash, glm::vec3 position, glm::quat rotation);
 
