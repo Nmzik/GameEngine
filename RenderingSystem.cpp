@@ -315,6 +315,8 @@ void RenderingSystem::render(GameWorld* world)
 		MoonDirection = glm::normalize(glm::vec3(-glm::sin(phi)*glm::cos(theta), glm::cos(phi), glm::sin(phi)*glm::sin(theta)));
 	}*/
 
+	world->GetVisibleYmaps(camera->Position);
+
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -355,9 +357,17 @@ void RenderingSystem::render(GameWorld* world)
 	world->GetResourceManager()->mainLock.unlock();
 
 	//TEST YBN
-	for (int i = 0; i < world->ybnLoader[0].meshes.size(); i++)
+	for (int i = 0; i < world->ybnLoader.size(); i++)
 	{
-		glm::mat4 model = glm::translate(glm::mat4(), world->ybnLoader[0].CenterGeometry[i]);
+		for (int j = 0; j < world->ybnLoader[i]->meshes.size(); j++)
+		{
+			glm::mat4 model = glm::translate(glm::mat4(), world->ybnLoader[i]->CenterGeometry[j]);
+			glm::mat4 rotate = glm::toMat4(glm::quat(0.f, 0.f, 0.0, 1.0f));
+			gbuffer->setMat4("model", model);
+			world->ybnLoader[i]->meshes[j].DrawCollision();
+		}
+
+		/*glm::mat4 model = glm::translate(glm::mat4(), world->ybnLoader[0].CenterGeometry[i]);
 		//model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
 		glm::mat4 rotate = glm::toMat4(glm::quat(0.f, 0.f, 0.0, 1.0f));
 		//model = rotate * model; //ROTATION ORDER
@@ -373,7 +383,7 @@ void RenderingSystem::render(GameWorld* world)
 		rotation = glm::conjugate(rotation);
 		//printf("POSITION %s ROTATION %s SCALE %s\n",  glm::to_string(translation).c_str(), glm::to_string(rotation).c_str(), glm::to_string(scale).c_str());
 		gbuffer->setMat4("model", model);
-		world->ybnLoader[0].meshes[i].DrawCollision();
+		world->ybnLoader[0].meshes[i].DrawCollision();*/
 	}
 	//printf("=========================\n");
 	//TEST YDD

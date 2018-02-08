@@ -84,6 +84,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="aes.c" />
+    <ClCompile Include="CacheDatFile.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameData.cpp" />
     <ClCompile Include="GameObject.cpp" />
@@ -105,6 +106,7 @@
     <ClCompile Include="RpfFile.cpp" />
     <ClCompile Include="Skybox.cpp" />
     <ClCompile Include="SoundManager.cpp" />
+    <ClCompile Include="SpaceGrid.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="TextureManager.cpp" />
     <ClCompile Include="tiny_obj_loader.cc" />
@@ -118,6 +120,7 @@
   <ItemGroup>
     <ClInclude Include="aes.h" />
     <ClInclude Include="aes.hpp" />
+    <ClInclude Include="CacheDatFile.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameData.h" />
@@ -137,6 +140,7 @@
     <ClInclude Include="RpfEntry.h" />
     <ClInclude Include="RpfFile.h" />
     <ClInclude Include="SoundManager.h" />
+    <ClInclude Include="SpaceGrid.h" />
     <ClInclude Include="State.h" />
     <ClInclude Include="StateManager.h" />
     <ClInclude Include="stb_image.h" />

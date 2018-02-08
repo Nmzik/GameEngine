@@ -85,6 +85,7 @@ Mesh::Mesh(std::vector<uint8_t>& vertexData, std::vector<uint16_t>& indices, uin
 
 Mesh::~Mesh()
 {
+	//delete material;
 	//glDeleteVertexArrays(1, &VAO);
 }
 

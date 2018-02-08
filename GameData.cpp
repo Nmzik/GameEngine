@@ -5,7 +5,7 @@ GameData::GameData()
 	GTAEncryption::LoadKeys();
 
 	std::vector <std::string> RpfsFiles = {
-		/*"x64a.rpf",
+		"x64a.rpf",
 		"x64b.rpf",
 		"x64c.rpf",
 		"x64d.rpf",
@@ -21,13 +21,13 @@ GameData::GameData()
 		"x64n.rpf",
 		"x64o.rpf",
 		"x64p.rpf",
-		"x64q.rpf",*/
+		"x64q.rpf",
 		"x64r.rpf",
-		/*"x64s.rpf",
+		"x64s.rpf",
 		"x64t.rpf",
 		"x64u.rpf",
 		"x64v.rpf",
-		"x64w.rpf",*/
+		"x64w.rpf",
 	};
 
 	for (std::string& rpfFile : RpfsFiles)

@@ -12,6 +12,8 @@
 #include "YbnLoader.h"
 #include "GameData.h"
 #include "Material.h"
+#include "CacheDatFile.h"
+#include "SpaceGrid.h"
 #include <windows.h>
 
 class ResourceManager;
@@ -25,15 +27,18 @@ class GameWorld
 	btDiscreteDynamicsWorld* dynamicsWorld;
 
 	GameData data;
+	CacheDatFile cacheFile;
+	SpaceGrid spaceGrid;
 	ResourceManager* _ResourceManager;
 	SoundManager sound;
 	PhysicsDebugDrawer debug;
+	std::vector<uint32_t> Hashes;
 
 public:
 	std::vector<YdrLoader> ydrLoader;
 	std::vector<YddLoader> yddLoader;
 	std::vector<YndLoader> yndLoader;
-	std::vector<YbnLoader> ybnLoader;
+	std::vector<YbnLoader*> ybnLoader;
 	std::vector<Model*> models;
 	std::vector<Player*> pedestrians;
 	std::vector<Vehicle> vehicles;
@@ -44,11 +49,15 @@ public:
 	GameWorld();
 	~GameWorld();
 
-	void LoadYmap(uint32_t hash);
+	void LoadYmap(uint32_t hash, glm::vec3 cameraPosition);
 
 	bool LoadYDD(uint32_t hash, glm::vec3 position, glm::quat rotation);
 
 	bool LoadYDR(uint32_t hash, glm::vec3 position, glm::quat rotation);
+
+	bool LoadYBN(uint32_t hash);
+
+	void GetVisibleYmaps(glm::vec3 Position);
 
 	ResourceManager* GetResourceManager() {
 		return _ResourceManager;
@@ -68,6 +77,9 @@ public:
 	void UpdateTraffic(glm::vec3 cameraPosition);
 	Vehicle* FindNearestVehicle();
 	void DetectWeaponHit(glm::vec3 CameraPosition, glm::vec3 lookDirection);
-	void update();
+	void update(float delta_time);
+
+	void TestFunction();
+	void ClearTestFunction();
 };
 

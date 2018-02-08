@@ -2,6 +2,7 @@
 #include "Mesh.h"
 #include "fstream"
 #include <iostream>
+#include "membuf.h"
 #include "glm.hpp"
 #include "glm/ext.hpp"
 #include "glm/gtx/transform.hpp"
@@ -13,11 +14,17 @@
 
 class YbnLoader
 {
+	btRigidBody * rigidBody;
+	btDiscreteDynamicsWorld* CollisionWorld;
+	btCompoundShape* compound;
+	std::vector<btTriangleMesh*> btMeshes;
+	std::vector<btBvhTriangleMeshShape*> btTriangleMeshes;
 public:
+	uint32_t Hash;
 	std::vector<Mesh> meshes;
 	std::vector<glm::vec3> CenterGeometry;
 
-	YbnLoader(btDiscreteDynamicsWorld* world);
+	YbnLoader(btDiscreteDynamicsWorld* world, memstream& file, uint32_t hash);
 	~YbnLoader();
 	glm::mat4 GetMat4();
 	void Draw();

@@ -1,14 +1,14 @@
 #include "YbnLoader.h"
 
-YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world)
+YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world, memstream& file, uint32_t hash) : Hash(hash), CollisionWorld(world)
 {
-	std::ifstream file("C:\\Users\\nmzik\\Desktop\\sm_smugdlc_int_01.ybn", std::ios::binary);
+	/*std::ifstream file("C:\\Users\\nmzik\\Desktop\\sm_smugdlc_int_01.ybn", std::ios::binary);
 
 	if (!file.is_open()) {
 		printf("NOT FOUND!");
-	}
+	}*/
 
-	btCompoundShape* compound = new btCompoundShape();
+	compound = new btCompoundShape();
 	std::vector<glm::vec3> FinalVertices;
 	std::vector<glm::vec3> FinalNormals;
 
@@ -46,9 +46,6 @@ YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world)
 		float Unknown_64h;
 		float Unknown_68h;
 		float BoundingBoxVolume;
-
-
-
 	} Bounds;
 
 	file.read((char*)&Bounds, sizeof(Bounds));
@@ -259,9 +256,9 @@ YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world)
 		}
 
 		delete [] vertices;
-
-		//FinalVertices.resize(PolygonTriangles.size());
 		btTriangleMesh* TriMesh = new btTriangleMesh();
+		btMeshes.push_back(TriMesh);
+
 		for (int i = 0; i < PolygonTriangles.size(); i++)
 		{
 			glm::vec3 Vertex1 = geom.Vertices[PolygonTriangles[i].vertIndex1];
@@ -271,9 +268,6 @@ YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world)
 			glm::vec3 Vertex3 = geom.Vertices[PolygonTriangles[i].vertIndex3];
 			FinalVertices.push_back(Vertex3);
 			TriMesh->addTriangle(btVector3(Vertex1.x, Vertex1.y, Vertex1.z), btVector3(Vertex2.x, Vertex2.y, Vertex2.z), btVector3(Vertex3.x, Vertex3.y, Vertex3.z));
-			//shape->addPoint(btVector3(Vertex1.x, Vertex1.y, Vertex1.z));
-			//shape->addPoint(btVector3(Vertex2.x, Vertex2.y, Vertex2.z));
-			//shape->addPoint(btVector3(Vertex3.x, Vertex3.y, Vertex3.z));
 			glm::vec3 normal = glm::normalize(glm::cross(Vertex2 - Vertex1, Vertex3 - Vertex1));
 			FinalNormals.push_back(normal);
 			FinalNormals.push_back(normal);
@@ -282,7 +276,7 @@ YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world)
 		if (TriMesh->getNumTriangles() != 0) {
 			btBvhTriangleMeshShape* trishape =
 				new btBvhTriangleMeshShape(TriMesh, false);
-
+			btTriangleMeshes.push_back(trishape);
 
 			if (FinalVertices.size() != 0) {
 				btTransform localTrans;
@@ -309,13 +303,23 @@ YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world)
 
 	btDefaultMotionState* MotionState = new btDefaultMotionState(btTransform(btQuaternion(0.f, 0.f, 0.f, 1.f), btVector3(0, 0, 0)));
 	btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(0, MotionState, compound, btVector3(0, 0, 0));
-	btRigidBody* rigidBody = new btRigidBody(groundRigidBodyCI);
+	rigidBody = new btRigidBody(groundRigidBodyCI);
 	world->addRigidBody(rigidBody);
 }
 
 
 YbnLoader::~YbnLoader()
 {
+	//CollisionWorld->removeCollisionObject
+	for (int i = 0; i < btMeshes.size(); i++)
+	{
+		delete btMeshes[i];
+	}
+	for (int i = 0; i < btTriangleMeshes.size(); i++)
+	{
+		delete btTriangleMeshes[i];
+	}
+	CollisionWorld->removeRigidBody(rigidBody);
 }
 
 glm::mat4 YbnLoader::GetMat4()

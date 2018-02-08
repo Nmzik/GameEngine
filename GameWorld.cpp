@@ -15,6 +15,16 @@ GameWorld::GameWorld()
 
 	_ResourceManager = new ResourceManager(this);
 
+	for (auto& mapNode : cacheFile.AllMapNodes)
+	{
+		spaceGrid.AddMapNode(&mapNode);
+	}
+
+	for (auto& BoundsItem : cacheFile.AllBoundsStoreItems)
+	{
+		spaceGrid.AddBoundsItem(&BoundsItem);
+	}
+
 	player = new Player(glm::vec3(0, 0, 20), dynamicsWorld);
 
 	gameHour = 10;
@@ -33,19 +43,21 @@ GameWorld::GameWorld()
 		dynamicsWorld->addRigidBody(models[i].getBody());
 	}*/
 
+	//LoadYBN(2371349205);
+
 	//LoadYDR(1709559537, glm::vec3(0,0,0), glm::quat(0,0,0,0));
 	//LoadYmap(1198958185);
-	LoadYmap(710206074);
-	LoadYmap(3229005336);
-	LoadYmap(324492252);
-	LoadYmap(611909151);
-	LoadYmap(3871703737);
-	LoadYmap(4160496934);
-	LoadYmap(1234356306);
-	LoadYmap(1560373118);
+	//LoadYmap(710206074);
+	//LoadYmap(3229005336);
+	//LoadYmap(324492252);
+	//LoadYmap(611909151);
+	//LoadYmap(3871703737);
+	//(4160496934);
+	//(1234356306);
+	//(1560373118);
 
-	YbnLoader loaderybn(dynamicsWorld);
-	ybnLoader.push_back(loaderybn);
+	//YbnLoader loaderybn(dynamicsWorld);
+	//ybnLoader.push_back(loaderybn);
 
 	//YddLoader testydd;
 	//yddLoader.push_back(testydd);
@@ -69,7 +81,7 @@ GameWorld::~GameWorld()
 	delete dynamicsWorld;
 }
 
-void GameWorld::LoadYmap(uint32_t hash)
+void GameWorld::LoadYmap(uint32_t hash, glm::vec3 cameraPosition)
 {
 	std::unordered_map<uint32_t, RpfResourceFileEntry>::iterator it;
 	it = data.YmapEntries.find(hash);
@@ -89,10 +101,15 @@ void GameWorld::LoadYmap(uint32_t hash)
 
 		for (int i = 0; i < ymap.CEntityDefs.size(); i++)
 		{
-			if (!LoadYDR(ymap.CEntityDefs[i].archetypeName, ymap.CEntityDefs[i].position, glm::quat(ymap.CEntityDefs[i].rotation.x, ymap.CEntityDefs[i].rotation.y, ymap.CEntityDefs[i].rotation.z, ymap.CEntityDefs[i].rotation.w)))
-				LoadYDD(ymap.CEntityDefs[i].archetypeName, ymap.CEntityDefs[i].position, glm::quat(ymap.CEntityDefs[i].rotation.x, ymap.CEntityDefs[i].rotation.y, ymap.CEntityDefs[i].rotation.z, ymap.CEntityDefs[i].rotation.w));
+			if (glm::distance(cameraPosition, ymap.CEntityDefs[i].position) <= ymap.CEntityDefs[i].lodDist) {
+				if (!LoadYDR(ymap.CEntityDefs[i].archetypeName, ymap.CEntityDefs[i].position, glm::quat(ymap.CEntityDefs[i].rotation.x, ymap.CEntityDefs[i].rotation.y, ymap.CEntityDefs[i].rotation.z, ymap.CEntityDefs[i].rotation.w)))
+					LoadYDD(ymap.CEntityDefs[i].archetypeName, ymap.CEntityDefs[i].position, glm::quat(ymap.CEntityDefs[i].rotation.x, ymap.CEntityDefs[i].rotation.y, ymap.CEntityDefs[i].rotation.z, ymap.CEntityDefs[i].rotation.w));
+			}
 		}
 
+		static int test = 0;
+		test++;
+		printf("KOLVO %d", test);
 
 		//for (auto& entity : ymap.CEntityDefs)
 		//
@@ -159,6 +176,93 @@ bool GameWorld::LoadYDR(uint32_t hash, glm::vec3 position, glm::quat rotation)
 	}
 }
 
+bool GameWorld::LoadYBN(uint32_t hash)
+{
+		std::unordered_map<uint32_t, RpfResourceFileEntry>::iterator it;
+		it = data.YbnEntries.find(hash);
+		if (it != data.YbnEntries.end())
+		{
+			std::cout << "YBN Found " << it->second.Name << std::endl;
+			auto& element = it->second;
+			std::vector<uint8_t> outputBuffer;
+			data.ExtractFileResource(element, outputBuffer);
+			printf(" SIZE BUFFER %d MB\n", outputBuffer.size() * sizeof(uint8_t) / 1024 / 1024);
+
+			memstream stream(outputBuffer.data(), outputBuffer.size());
+			//YbnLoader test(dynamicsWorld, stream, hash);
+			ybnLoader.emplace_back(new YbnLoader(dynamicsWorld, stream, hash));
+
+			return true;
+		}
+		else
+		{
+			//std::cout << "Element Not Found" << std::endl;
+			return false;
+		}
+}
+
+void GameWorld::GetVisibleYmaps(glm::vec3 Position)
+{
+	SpaceGridCell* cell = spaceGrid.GetCell(Position);
+
+	/*for (auto& mapNode : cell.MapNodes)
+	{
+		LoadYmap(mapNode.Name, Position);
+	}*/
+	
+
+	for (auto& BoundsItem : cell->BoundsStoreItems)
+	{
+		auto it = std::find_if(ybnLoader.begin(), ybnLoader.end(), [BoundsItem](YbnLoader* m) -> bool { return BoundsItem->Name == m->Hash; });
+		if (it != ybnLoader.end()) {
+
+		} else{
+			LoadYBN(BoundsItem->Name);
+		}
+	}
+
+	for (int i = 0; i < ybnLoader.size(); i++)
+	{
+		auto it = std::find_if(cell->BoundsStoreItems.begin(), cell->BoundsStoreItems.end(), [this, &i](BoundsStoreItem* item) -> bool { return this->ybnLoader[i]->Hash == item->Name; });
+		if (it != cell->BoundsStoreItems.end()) {
+
+		}
+		else {
+			//printf("NEED TO DELETE");
+			delete ybnLoader[i];
+			ybnLoader.erase(ybnLoader.begin() + i);
+		}
+	}
+
+	/*for (int i = 0; i < ybnLoader.size(); i++)
+	{
+		auto it = std::find_if(cell.BoundsStoreItems.begin(), cell.BoundsStoreItems.end(), [&ybnLoader[i] loader](BoundsStoreItem* item) -> bool { return item->Name == 1; });
+		if (it != cell.BoundsStoreItems.end()) {
+
+		}
+		else {
+			printf("NEED TO DELETE");
+			ybnLoader.erase(ybnLoader.begin() + i);
+		}
+	}*/
+
+	
+	/*std::vector<YbnLoader*>::iterator it = ybnLoader.begin();
+
+	while (it != ybnLoader.end()) {
+		std::find_if(cell.BoundsStoreItems.begin(), cell.BoundsStoreItems.end(), [this](BoundsStoreItem* item) -> bool { return this->ybnLoader.at(1)->Hash == item->Name; });
+		if (std::find(cell.BoundsStoreItems.begin(), cell.BoundsStoreItems.end(), (*it)->Hash) == cell.BoundsStoreItems.end()) { //NOT FOUND
+			printf("NEED TO DELEYE");
+			//delete *it;
+			//it = ybnLoader.erase(it);
+		}
+		else {
+			//printf("NEED TO LOAD");
+			it++;
+		}
+	}*/
+}
+
 void GameWorld::createPedestrian()
 {
 	Player *newPlayer = new Player(glm::vec3(0,20,0), dynamicsWorld);
@@ -207,7 +311,7 @@ void GameWorld::UpdateTraffic(glm::vec3 cameraPosition)
 		for (int i = 0; i < MaximumAvailablePeds; i++) {
 			float xRandom = RandomFloat(cameraPosition.x - radiusTraffic, cameraPosition.x + radiusTraffic);
 			float yRandom = RandomFloat(cameraPosition.y - radiusTraffic, cameraPosition.y + radiusTraffic);
-			Player *newPlayer = new Player(glm::vec3(xRandom, yRandom, 1), dynamicsWorld);
+			Player *newPlayer = new Player(glm::vec3(xRandom, yRandom, cameraPosition.z), dynamicsWorld);
 			pedestrians.push_back(newPlayer);
 		}
 	}
@@ -226,7 +330,7 @@ void GameWorld::UpdateTraffic(glm::vec3 cameraPosition)
 		for (int i = 0; i < MaximumAvailableVehicles; i++) {
 			float xRandom = RandomFloat(cameraPosition.x - radiusTraffic, cameraPosition.x + radiusTraffic);
 			float yRandom = RandomFloat(cameraPosition.y - radiusTraffic, cameraPosition.y + radiusTraffic);
-			Vehicle newVehicle(glm::vec3(xRandom, yRandom, 5), dynamicsWorld);
+			Vehicle newVehicle(glm::vec3(xRandom, yRandom, cameraPosition.z), dynamicsWorld);
 			vehicles.push_back(newVehicle);
 		}
 	}
@@ -282,8 +386,29 @@ void GameWorld::DetectWeaponHit(glm::vec3 CameraPosition, glm::vec3 lookDirectio
 
 
 
-void GameWorld::update()
+void GameWorld::update(float delta_time)
 {
-	Update();
-	dynamicsWorld->stepSimulation(1 / 60.f, 10);
+	//Update();
+	dynamicsWorld->stepSimulation(1 / 60.f);
+}
+
+void GameWorld::TestFunction()
+{
+	LoadYBN(2179475296);
+	LoadYBN(395784137);
+	LoadYBN(2081927167);
+	LoadYBN(479886138);
+	LoadYBN(2445348866);
+	LoadYBN(1681413451);
+}
+
+void GameWorld::ClearTestFunction()
+{
+	for (int i = 0; i < ybnLoader.size(); i++)
+	{
+		delete ybnLoader[i];
+		ybnLoader.erase(ybnLoader.begin() + i);
+		ybnLoader.shrink_to_fit();
+		printf("SHOULD BE CLEARED");
+	}
 }

@@ -244,8 +244,14 @@ YddLoader::YddLoader(memstream& file, glm::vec3 position, glm::quat rotation, ui
 
 		file.read((char*)&ResourcePointerList64, sizeof(ResourcePointerList64));
 
-		//uint32_t garbage_value; //fix
-		//file.read((char*)&garbage_value, sizeof(uint32_t));
+		if ((ResourcePointerList64.EntriesPointer & SYSTEM_BASE) == SYSTEM_BASE) {
+			ResourcePointerList64.EntriesPointer = ResourcePointerList64.EntriesPointer & ~0x50000000;
+		}
+		if ((ResourcePointerList64.EntriesPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
+			ResourcePointerList64.EntriesPointer = ResourcePointerList64.EntriesPointer & ~0x60000000;
+		}
+
+		file.seekg(ResourcePointerList64.EntriesPointer);
 
 		for (int i = 0; i < ResourcePointerList64.EntriesCount; i++)
 		{
@@ -264,9 +270,6 @@ YddLoader::YddLoader(memstream& file, glm::vec3 position, glm::quat rotation, ui
 
 			DrawableModel DrawModel;
 			file.read((char*)&DrawModel, sizeof(DrawableModel) - 24);
-
-			//POINTER GO
-			uint64_t pos2 = file.tellg();
 
 			if ((DrawModel.GeometriesPointer & SYSTEM_BASE) == SYSTEM_BASE) {
 				DrawModel.GeometriesPointer = DrawModel.GeometriesPointer & ~0x50000000;
@@ -361,6 +364,8 @@ YddLoader::YddLoader(memstream& file, glm::vec3 position, glm::quat rotation, ui
 				file.seekg(pos);
 			}
 			DrawBase.DrawableModels.push_back(DrawModel);
+
+			file.seekg(posOriginal);
 		}
 		DrawableDictionary.DrawableBases.push_back(DrawBase);
 		file.seekg(DrawablePointer);

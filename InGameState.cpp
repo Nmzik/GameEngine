@@ -59,12 +59,19 @@ void InGameState::tick(float delta_time)
 		//game->getWorld()->ydrLoader[0].z -= 0.1f;
 	}
 
+	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_V)) {
+		game->getWorld()->TestFunction();
+	}
+	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_B)) {
+		game->getWorld()->ClearTestFunction();
+	}
 	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_I)) {
 		game->getRenderer()->RenderDebugWorld = !game->getRenderer()->RenderDebugWorld;
 	}
 
 	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_F)) {
 		DebugPressed = !DebugPressed;
+		if (DebugPressed == false) game->getWorld()->player->getPhysCharacter()->warp(btVector3(game->getRenderer()->getCamera().Position.x, game->getRenderer()->getCamera().Position.y, game->getRenderer()->getCamera().Position.z));
 	}
 
 	if (DebugPressed) {
@@ -72,7 +79,8 @@ void InGameState::tick(float delta_time)
 		if (game->getInput()->IsKeyPressed(SDL_SCANCODE_S)) game->getRenderer()->getCamera().ProcessKeyboard(BACKWARD, delta_time);
 		if (game->getInput()->IsKeyPressed(SDL_SCANCODE_A)) game->getRenderer()->getCamera().ProcessKeyboard(LEFT, delta_time);
 		if (game->getInput()->IsKeyPressed(SDL_SCANCODE_D)) game->getRenderer()->getCamera().ProcessKeyboard(RIGHT, delta_time);
-		game->getWorld()->player->getPhysCharacter()->setWalkDirection(btVector3(0.f, 0.f, 0.f));
+		//game->getWorld()->player->getPhysCharacter()->warp(btVector3(game->getRenderer()->getCamera().Position.x, game->getRenderer()->getCamera().Position.y, game->getRenderer()->getCamera().Position.z));
+		//game->getWorld()->player->getPhysCharacter()->setWalkDirection(btVector3(0.f, 0.f, 0.f));
 	}
 	else {
 
