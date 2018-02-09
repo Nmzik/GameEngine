@@ -60,20 +60,20 @@ void SpaceGrid::AddMapNode(MapDataStoreNode* node)
 	}
 }
 
-SpaceGridCell* SpaceGrid::GetCell(glm::vec3 P)
+SpaceGridCell& SpaceGrid::GetCell(glm::vec3 P)
 {
 	return GetCell(GetCellPos(P));
 }
 typedef SpaceGridCell test[][500];
 
-SpaceGridCell* SpaceGrid::GetCell(glm::i32vec2 g)
+SpaceGridCell& SpaceGrid::GetCell(glm::i32vec2 g)
 {
 	if ((g.x < 0) || (g.y < 0) || (g.x >= CellCount) || (g.y >= CellCount))
 	{
 		printf("ERROR HERE\n");
-		return new SpaceGridCell();
+		return Grid[0];
 	}
-	return &Grid[g.x * 500 + g.y];
+	return Grid[g.x * 500 + g.y];
 	/*const SpaceGridCell cell = Grid[g.x, g.y];
 	Grid[300][250]
 	if (cell == null)

@@ -19,7 +19,8 @@ class YddLoader
 	glm::vec3 Position;
 	glm::quat Rotation;
 public:
-	YddLoader(memstream& file, glm::vec3 position, glm::quat rotation, uint32_t Hash);
+	uint32_t Hash;
+	YddLoader(memstream& file, glm::vec3 position, glm::quat rotation, uint32_t hash);
 	~YddLoader();
 
 	glm::mat4 GetMat4();

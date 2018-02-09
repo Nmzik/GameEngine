@@ -399,9 +399,9 @@ void RenderingSystem::render(GameWorld* world)
 	//{
 	for (int i = 0; i < world->ydrLoader.size(); i++)
 	{
-		auto modelpos = world->ydrLoader[i].GetMat4();
+		auto modelpos = world->ydrLoader[i]->GetMat4();
 		gbuffer->setMat4("model", modelpos);
-		world->ydrLoader[i].Draw();
+		world->ydrLoader[i]->Draw();
 	}
 	//}
 

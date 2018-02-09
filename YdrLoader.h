@@ -15,12 +15,12 @@
 
 class YdrLoader
 {
-	std::vector<Mesh> meshes;
+	std::vector<Mesh*> meshes;
 	glm::vec3 Position;
 	glm::quat Rotation;
 public:
-
-	YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, uint32_t TextureID);
+	uint32_t Hash;
+	YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, uint32_t hash);
 	~YdrLoader();
 
 	glm::mat4 GetMat4();

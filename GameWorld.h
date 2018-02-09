@@ -35,10 +35,11 @@ class GameWorld
 	std::vector<uint32_t> Hashes;
 
 public:
-	std::vector<YdrLoader> ydrLoader;
+	std::vector<YdrLoader*> ydrLoader;
 	std::vector<YddLoader> yddLoader;
 	std::vector<YndLoader> yndLoader;
 	std::vector<YbnLoader*> ybnLoader;
+	std::vector<YmapLoader*> ymapLoader;
 	std::vector<Model*> models;
 	std::vector<Player*> pedestrians;
 	std::vector<Vehicle> vehicles;

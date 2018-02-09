@@ -2,7 +2,7 @@
 
 
 
-YddLoader::YddLoader(memstream& file, glm::vec3 position, glm::quat rotation, uint32_t Hash) : Position(position), Rotation(rotation)
+YddLoader::YddLoader(memstream& file, glm::vec3 position, glm::quat rotation, uint32_t hash) : Position(position), Rotation(rotation), Hash(hash)
 {
 
 	struct {

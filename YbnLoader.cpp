@@ -287,8 +287,8 @@ YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world, memstream& file, uint32_t h
 			}
 		}
 
-		Mesh mesh(FinalVertices, FinalNormals);
-		meshes.push_back(mesh);
+		//Mesh mesh(FinalVertices, FinalNormals);
+		//meshes.push_back(mesh);
 
 		FinalVertices.clear();
 		FinalVertices.shrink_to_fit();

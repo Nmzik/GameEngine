@@ -44,8 +44,8 @@ public:
 
 	void AddBoundsItem(BoundsStoreItem* item);
 	void AddMapNode(MapDataStoreNode* node);
-	SpaceGridCell *GetCell(glm::vec3 P);
-	SpaceGridCell *GetCell(glm::i32vec2 g);
+	SpaceGridCell &GetCell(glm::vec3 P);
+	SpaceGridCell &GetCell(glm::i32vec2 g);
 	glm::i32vec2 GetCellPos(glm::vec3 p);
 };
 

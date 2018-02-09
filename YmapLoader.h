@@ -66,9 +66,10 @@ class YmapLoader
 		uint32_t Unused6;//124
 	};
 public:
+	uint32_t Hash;
 	std::vector<CEntityDef> CEntityDefs;
 
-	YmapLoader(memstream& file);
+	YmapLoader(memstream& file, uint32_t hash);
 	~YmapLoader();
 };
 

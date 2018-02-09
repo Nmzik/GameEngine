@@ -8,11 +8,11 @@ class GameData
 	std::vector<RpfFile*> RpfFiles;
 
 public:
-	std::unordered_map<uint32_t, RpfResourceFileEntry> YdrEntries;
-	std::unordered_map<uint32_t, RpfResourceFileEntry> YddEntries;
-	std::unordered_map<uint32_t, RpfResourceFileEntry> YtdEntries;
-	std::unordered_map<uint32_t, RpfResourceFileEntry> YmapEntries;
-	std::unordered_map<uint32_t, RpfResourceFileEntry> YbnEntries;
+	std::unordered_map<uint32_t, RpfResourceFileEntry*> YdrEntries;
+	std::unordered_map<uint32_t, RpfResourceFileEntry*> YddEntries;
+	std::unordered_map<uint32_t, RpfResourceFileEntry*> YtdEntries;
+	std::unordered_map<uint32_t, RpfResourceFileEntry*> YmapEntries;
+	std::unordered_map<uint32_t, RpfResourceFileEntry*> YbnEntries;
 
 	GameData();
 	~GameData();

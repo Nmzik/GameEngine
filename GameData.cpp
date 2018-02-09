@@ -34,6 +34,8 @@ GameData::GameData()
 	{
 		LoadRpf(rpfFile);
 	}
+	printf("%d\n", sizeof(RpfFile));
+	printf("%d\n", sizeof(std::vector<RpfFile>) * RpfFiles.size() * sizeof(RpfFile)/1024/1024);
 	//shrink to fit
 	for (auto& rpfFile : RpfFiles)
 	{
@@ -47,17 +49,17 @@ GameData::GameData()
 				entry.ShortNameHash = (index > 0) ? GenHash(entry.Name.substr(0, index)) : entry.NameHash;
 
 				if (extension == ".ydr") {
-					YdrEntries[GenHash(entry.Name.substr(0, entry.Name.length() - 4) + "_lod")] = entry;
-					YdrEntries[entry.NameHash] = entry;
-					YdrEntries[entry.ShortNameHash] = entry;
+					YdrEntries[GenHash(entry.Name.substr(0, entry.Name.length() - 4) + "_lod")] = &entry;
+					YdrEntries[entry.NameHash] = &entry;
+					YdrEntries[entry.ShortNameHash] = &entry;
 				}
 				if (extension == ".ydd") {
 					if (entry.Name.length() > 13) { //SHOULD WORK
 						if (entry.Name.substr(entry.Name.length() - 13) == "_children.ydd") {
 							
 							//YddEntries[GenHash(entry.Name.substr(0, entry.Name.length() - 13) + "_lod")] = entry;
-							YddEntries[GenHash(entry.Name.substr(0, entry.Name.length() - 13))] = entry;
-							YddEntries[GenHash(entry.Name.substr(0, entry.Name.length() - 13))] = entry;
+							YddEntries[GenHash(entry.Name.substr(0, entry.Name.length() - 13))] = &entry;
+							YddEntries[GenHash(entry.Name.substr(0, entry.Name.length() - 13))] = &entry;
 
 							size_t index1 = entry.Name.find_last_of('_');
 							if (index1 > 0)
@@ -67,7 +69,7 @@ GameData::GameData()
 								if (index2 > 0)
 								{
 									std::string str2 = str1.substr(0, index2);
-									YddEntries[GenHash(str2 + "_lod")] = entry;
+									YddEntries[GenHash(str2 + "_lod")] = &entry;
 									uint32_t maxi = 100;
 									for (uint32_t i = 1; i <= maxi; i++)
 									{
@@ -76,7 +78,7 @@ GameData::GameData()
 											str3.insert(str3.length() - 1, "0");
 										//printf("%s\n", str3.c_str());
 										//std::string str3 = str2 + "_" + i.ToString().PadLeft(2, '0');
-										YddEntries[GenHash(str3 + "_lod")] = entry;
+										YddEntries[GenHash(str3 + "_lod")] = &entry;
 									}
 								}
 							}
@@ -84,20 +86,20 @@ GameData::GameData()
 						}
 					}
 
-					YddEntries[entry.NameHash] = entry;
-					YddEntries[entry.ShortNameHash] = entry;
+					YddEntries[entry.NameHash] = &entry;
+					YddEntries[entry.ShortNameHash] = &entry;
 				}
 				if (extension == ".ytd") {
-					YtdEntries[entry.NameHash] = entry;
-					YtdEntries[entry.ShortNameHash] = entry;
+					YtdEntries[entry.NameHash] = &entry;
+					YtdEntries[entry.ShortNameHash] = &entry;
 				}
 				if (extension == ".ybn") {
-					YbnEntries[entry.NameHash] = entry;
-					YbnEntries[entry.ShortNameHash] = entry;
+					YbnEntries[entry.NameHash] = &entry;
+					YbnEntries[entry.ShortNameHash] = &entry;
 				}
 				if (entry.Name.substr(entry.Name.length() - 5) == ".ymap") {
-					YmapEntries[entry.NameHash] = entry;
-					YmapEntries[entry.ShortNameHash] = entry;
+					YmapEntries[entry.NameHash] = &entry;
+					YmapEntries[entry.ShortNameHash] = &entry;
 				}
 			}
 		}
@@ -163,7 +165,7 @@ void GameData::ExtractFileResource(RpfResourceFileEntry entry, std::vector<uint8
 		rpf.seekg(offset, std::ios::cur);
 		rpf.read((char*)&tbytes[0], (int)totlen);
 
-		uint8_t* decr = tbytes;
+		//uint8_t* decr = tbytes;
 		//if (entry.IsEncrypted)
 		//{
 			/*if (IsAESEncrypted)
@@ -178,8 +180,8 @@ void GameData::ExtractFileResource(RpfResourceFileEntry entry, std::vector<uint8
 			//{ }
 		//}
 
-		GTAEncryption::DecompressBytes(decr, totlen, output);
-		delete[] decr;
+		GTAEncryption::DecompressBytes(tbytes, totlen, output);
+		delete[] tbytes;
 		/*if (deflated != nullptr)
 		{
 			//return deflated;

@@ -209,7 +209,7 @@ public:
 
 };
 
-YmapLoader::YmapLoader(memstream& file)
+YmapLoader::YmapLoader(memstream& file, uint32_t hash) : Hash(hash)
 {
 /*	//ADD NEED
 	uint32_t rsc7;
@@ -370,9 +370,14 @@ YmapLoader::YmapLoader(memstream& file)
 			}
 		}
 	}
+	//CELANING
+	for (auto& Block : meta.MetaBlocks) {
+		delete[] Block.Data;
+	}
 }
 
 
 YmapLoader::~YmapLoader()
 {
+
 }

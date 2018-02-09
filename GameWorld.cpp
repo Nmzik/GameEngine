@@ -83,63 +83,87 @@ GameWorld::~GameWorld()
 
 void GameWorld::LoadYmap(uint32_t hash, glm::vec3 cameraPosition)
 {
-	std::unordered_map<uint32_t, RpfResourceFileEntry>::iterator it;
-	it = data.YmapEntries.find(hash);
-	if (it != data.YmapEntries.end())
-	{
-		std::cout << "YMAP Found" << std::endl;
-		auto& element = it->second;
-
-		//CAN BE AN ERROR HERE - NOT FULLY IMPLEMENTED!
-		std::vector<uint8_t> outputBuffer;
-		data.ExtractFileResource(element, outputBuffer);
-
-		memstream stream(outputBuffer.data(), outputBuffer.size());
-
-		YmapLoader ymap(stream);
-		uint32_t testi = 0;
-
-		for (int i = 0; i < ymap.CEntityDefs.size(); i++)
+	auto it = std::find_if(ymapLoader.begin(), ymapLoader.end(), [hash](YmapLoader* item) -> bool { return item->Hash == hash; });
+	if (it != ymapLoader.end()) {
+		YmapLoader* map = (*it);
+		//printf("FOUND SAME\n");
+		//FOUND
+		for (int i = 0; i < map->CEntityDefs.size(); i++)
 		{
-			if (glm::distance(cameraPosition, ymap.CEntityDefs[i].position) <= ymap.CEntityDefs[i].lodDist) {
-				if (!LoadYDR(ymap.CEntityDefs[i].archetypeName, ymap.CEntityDefs[i].position, glm::quat(ymap.CEntityDefs[i].rotation.x, ymap.CEntityDefs[i].rotation.y, ymap.CEntityDefs[i].rotation.z, ymap.CEntityDefs[i].rotation.w)))
-					LoadYDD(ymap.CEntityDefs[i].archetypeName, ymap.CEntityDefs[i].position, glm::quat(ymap.CEntityDefs[i].rotation.x, ymap.CEntityDefs[i].rotation.y, ymap.CEntityDefs[i].rotation.z, ymap.CEntityDefs[i].rotation.w));
+			if (!map->CEntityDefs[i].lodLevel != 1 && !map->CEntityDefs[i].lodLevel != 2 && !map->CEntityDefs[i].lodLevel != 3 && !map->CEntityDefs[i].lodLevel != 4 && !map->CEntityDefs[i].lodLevel != 5 && !map->CEntityDefs[i].lodLevel != 6 && !(map->CEntityDefs[i].lodDist < 0)) {
+				if (glm::distance(cameraPosition, map->CEntityDefs[i].position) <= map->CEntityDefs[i].lodDist) {
+					LoadYDR(map->CEntityDefs[i].archetypeName, map->CEntityDefs[i].position, glm::quat(map->CEntityDefs[i].rotation.w, map->CEntityDefs[i].rotation.x, map->CEntityDefs[i].rotation.y, -map->CEntityDefs[i].rotation.z));
+					//LoadYDD(map->CEntityDefs[i].archetypeName, map->CEntityDefs[i].position, glm::quat(map->CEntityDefs[i].rotation.w, map->CEntityDefs[i].rotation.x, map->CEntityDefs[i].rotation.y, map->CEntityDefs[i].rotation.z));
+				}
 			}
 		}
+	}
+	else {
+		std::unordered_map<uint32_t, RpfResourceFileEntry*>::iterator it;
+		it = data.YmapEntries.find(hash);
+		if (it != data.YmapEntries.end())
+		{
+			//std::cout << "YMAP Found" << std::endl;
+			auto& element = *(it->second);
 
-		static int test = 0;
-		test++;
-		printf("KOLVO %d", test);
+			//CAN BE AN ERROR HERE - NOT FULLY IMPLEMENTED!
+			std::vector<uint8_t> outputBuffer;
+			data.ExtractFileResource(element, outputBuffer);
 
-		//for (auto& entity : ymap.CEntityDefs)
-		//
+			memstream stream(outputBuffer.data(), outputBuffer.size());
+
+			YmapLoader *ymap = new YmapLoader(stream, hash);
+			ymapLoader.push_back(ymap);
+
+			for (int i = 0; i < ymap->CEntityDefs.size(); i++)
+			{
+				if(!ymap->CEntityDefs[i].lodLevel != 1 && !ymap->CEntityDefs[i].lodLevel != 2 && !ymap->CEntityDefs[i].lodLevel != 3 && !ymap->CEntityDefs[i].lodLevel != 4 && !ymap->CEntityDefs[i].lodLevel != 5 && !ymap->CEntityDefs[i].lodLevel != 6 && !(ymap->CEntityDefs[i].lodDist < 0)) {
+					if (glm::distance(cameraPosition, ymap->CEntityDefs[i].position) <= ymap->CEntityDefs[i].lodDist) {
+						LoadYDR(ymap->CEntityDefs[i].archetypeName, ymap->CEntityDefs[i].position, glm::quat(ymap->CEntityDefs[i].rotation.w, ymap->CEntityDefs[i].rotation.x, ymap->CEntityDefs[i].rotation.y, -ymap->CEntityDefs[i].rotation.z));
+						//if (!LoadYDR(ymap->CEntityDefs[i].archetypeName, ymap->CEntityDefs[i].position, glm::quat(ymap->CEntityDefs[i].rotation.x, ymap->CEntityDefs[i].rotation.y, ymap->CEntityDefs[i].rotation.z, ymap->CEntityDefs[i].rotation.w)))
+							//LoadYDD(ymap->CEntityDefs[i].archetypeName, ymap->CEntityDefs[i].position, glm::quat(ymap->CEntityDefs[i].rotation.x, ymap->CEntityDefs[i].rotation.y, ymap->CEntityDefs[i].rotation.z, ymap->CEntityDefs[i].rotation.w));
+					}
+				}
+			}
+
+			//static int test = 0;
+			//test++;
+			//printf("KOLVO %d", test);
+
+			//for (auto& entity : ymap.CEntityDefs)
+			//
 			//printf("%s ",std::to_string(testi++));
 			//LoadYDD(entity.archetypeName);
 			//LoadYDR(entity.archetypeName, entity.position);
 			//LoadYDD(entity.archetypeName);
 			//if ((!LoadYDR(entity.archetypeName)) && (!LoadYDD(entity.archetypeName))) printf("Element Not Found\n");
-		//}
-	}
-	else
-	{
-		std::cout << "YMAP Not Found" << std::endl;
+			//}
+		}
+		else
+		{
+			std::cout << "YMAP Not Found" << std::endl;
+		}
 	}
 }
 
 bool GameWorld::LoadYDD(uint32_t hash, glm::vec3 position, glm::quat rotation)
 {
-	std::unordered_map<uint32_t, RpfResourceFileEntry>::iterator it;
+	for (auto& yddFile : yddLoader)
+	{
+		if (yddFile.Hash == hash) return true;
+	}
+	std::unordered_map<uint32_t, RpfResourceFileEntry*>::iterator it;
 	it = data.YddEntries.find(hash);
 	if (it != data.YddEntries.end())
 	{
-		std::cout << "YDD Found " << it->second.Name << std::endl;
-		auto& element = it->second;
+		std::cout << "YDD Found " << it->second->Name << std::endl;
+		auto& element = *(it->second);
 		std::vector<uint8_t> outputBuffer;
 		data.ExtractFileResource(element, outputBuffer);
 
 		memstream stream(outputBuffer.data(), outputBuffer.size());
-		YddLoader test(stream, position, rotation, hash);
-		yddLoader.push_back(test);
+		//YddLoader test(stream, position, rotation, hash);
+		yddLoader.emplace_back(YddLoader(stream, position, rotation, hash));
 
 		return true;
 	}
@@ -152,20 +176,24 @@ bool GameWorld::LoadYDD(uint32_t hash, glm::vec3 position, glm::quat rotation)
 
 bool GameWorld::LoadYDR(uint32_t hash, glm::vec3 position, glm::quat rotation)
 {
-	std::unordered_map<uint32_t, RpfResourceFileEntry>::iterator it;
+	for (auto& ydrFile : ydrLoader)
+	{
+		if (ydrFile->Hash == hash) return true;
+	}
+	std::unordered_map<uint32_t, RpfResourceFileEntry*>::iterator it;
 	it = data.YdrEntries.find(hash);
 	if (it != data.YdrEntries.end())
 	{
-		std::cout << "YDR Found " << it->second.Name << std::endl;
-		auto& element = it->second;
+		std::cout << "YDR Found " << it->second->Name << std::endl;
+		auto& element = *(it->second);
 		std::vector<uint8_t> outputBuffer;
 		data.ExtractFileResource(element, outputBuffer);
-		printf(" SIZE BUFFER %d MB\n", outputBuffer.size() * sizeof(uint8_t)/1024/1024);
+		//printf(" SIZE BUFFER %d MB\n", outputBuffer.size() * sizeof(uint8_t)/1024/1024);
 
 		memstream stream(outputBuffer.data(), outputBuffer.size());
 
 		//YdrLoader test(stream, position);
-		ydrLoader.emplace_back(YdrLoader(stream, position, rotation, 0));
+		ydrLoader.emplace_back(new YdrLoader(stream, position, rotation, hash));
 
 		return true;
 	}
@@ -178,15 +206,15 @@ bool GameWorld::LoadYDR(uint32_t hash, glm::vec3 position, glm::quat rotation)
 
 bool GameWorld::LoadYBN(uint32_t hash)
 {
-		std::unordered_map<uint32_t, RpfResourceFileEntry>::iterator it;
+		std::unordered_map<uint32_t, RpfResourceFileEntry*>::iterator it;
 		it = data.YbnEntries.find(hash);
 		if (it != data.YbnEntries.end())
 		{
-			std::cout << "YBN Found " << it->second.Name << std::endl;
-			auto& element = it->second;
+			std::cout << "YBN Found " << it->second->Name << std::endl;
+			auto& element = *(it->second);
 			std::vector<uint8_t> outputBuffer;
 			data.ExtractFileResource(element, outputBuffer);
-			printf(" SIZE BUFFER %d MB\n", outputBuffer.size() * sizeof(uint8_t) / 1024 / 1024);
+			//printf(" SIZE BUFFER %d MB\n", outputBuffer.size() * sizeof(uint8_t) / 1024 / 1024);
 
 			memstream stream(outputBuffer.data(), outputBuffer.size());
 			//YbnLoader test(dynamicsWorld, stream, hash);
@@ -203,15 +231,39 @@ bool GameWorld::LoadYBN(uint32_t hash)
 
 void GameWorld::GetVisibleYmaps(glm::vec3 Position)
 {
-	SpaceGridCell* cell = spaceGrid.GetCell(Position);
+	SpaceGridCell& cell = spaceGrid.GetCell(Position);
 
-	/*for (auto& mapNode : cell.MapNodes)
+	for (auto& mapNode : cell.MapNodes)
 	{
-		LoadYmap(mapNode.Name, Position);
-	}*/
-	
+		LoadYmap(mapNode->Name, Position);
+	}
 
-	for (auto& BoundsItem : cell->BoundsStoreItems)
+	for (int i = 0; i < ymapLoader.size(); i++)
+	{
+		auto it = std::find_if(cell.MapNodes.begin(), cell.MapNodes.end(), [this , &i](MapDataStoreNode* node) -> bool { return this->ymapLoader[i]->Hash == node->Name; });
+		if (it != cell.MapNodes.end()) {
+
+		}
+		else {
+			printf("DELETED!\n");
+
+			for (auto& MapFile : ymapLoader[i]->CEntityDefs)
+			{
+				auto it2 = std::find_if(ydrLoader.begin(), ydrLoader.end(), [&MapFile](YdrLoader* loader) -> bool { return MapFile.archetypeName == loader->Hash; });
+				if (it2 != ydrLoader.end()) {
+					delete *it2;
+					it2 = ydrLoader.erase(it2);
+				}
+				else {
+					it2++;
+				}
+			}
+			delete ymapLoader[i];
+			ymapLoader.erase(ymapLoader.begin() + i);
+		}
+	}
+
+	for (auto& BoundsItem : cell.BoundsStoreItems)
 	{
 		auto it = std::find_if(ybnLoader.begin(), ybnLoader.end(), [BoundsItem](YbnLoader* m) -> bool { return BoundsItem->Name == m->Hash; });
 		if (it != ybnLoader.end()) {
@@ -223,8 +275,8 @@ void GameWorld::GetVisibleYmaps(glm::vec3 Position)
 
 	for (int i = 0; i < ybnLoader.size(); i++)
 	{
-		auto it = std::find_if(cell->BoundsStoreItems.begin(), cell->BoundsStoreItems.end(), [this, &i](BoundsStoreItem* item) -> bool { return this->ybnLoader[i]->Hash == item->Name; });
-		if (it != cell->BoundsStoreItems.end()) {
+		auto it = std::find_if(cell.BoundsStoreItems.begin(), cell.BoundsStoreItems.end(), [this, &i](BoundsStoreItem* item) -> bool { return this->ybnLoader[i]->Hash == item->Name; });
+		if (it != cell.BoundsStoreItems.end()) {
 
 		}
 		else {
@@ -394,21 +446,18 @@ void GameWorld::update(float delta_time)
 
 void GameWorld::TestFunction()
 {
-	LoadYBN(2179475296);
-	LoadYBN(395784137);
-	LoadYBN(2081927167);
-	LoadYBN(479886138);
-	LoadYBN(2445348866);
-	LoadYBN(1681413451);
+	for (int i = 0; i < 100; i++)
+	{
+		LoadYDR(2683913445, glm::vec3(0, 0, 0), glm::quat(0, 0, 0, 0));
+	}
 }
 
 void GameWorld::ClearTestFunction()
 {
-	for (int i = 0; i < ybnLoader.size(); i++)
+	for (int i = 0; i < ydrLoader.size(); i++)
 	{
-		delete ybnLoader[i];
-		ybnLoader.erase(ybnLoader.begin() + i);
-		ybnLoader.shrink_to_fit();
+		delete ydrLoader[i];
+		ydrLoader.erase(ydrLoader.begin() + i);
 		printf("SHOULD BE CLEARED");
 	}
 }

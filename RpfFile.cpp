@@ -101,6 +101,8 @@ void RpfFile::LoadRpf(std::istream& rpf)
 		}
 	}
 
+	delete[] entriesData;
+	delete[] namesData;
 	//printf("=========================================\n");
 	//printf("FILE===========================%s\n", FileName.c_str());
 }

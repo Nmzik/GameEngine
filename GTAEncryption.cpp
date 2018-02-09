@@ -105,6 +105,8 @@ uint8_t* GTAEncryption::DecryptNG(uint8_t* data, uint32_t dataLength, uint8_t* k
 		memcpy(encryptedBlock, data + 16 * blockIndex, 16);
 		uint8_t* decryptedBlock = DecryptNGBlock(encryptedBlock, 16, keyuints);
 		memcpy(decryptedData + 16 * blockIndex, decryptedBlock, 16);
+
+		delete[] decryptedBlock;
 	}
 
 	if (dataLength % 16 != 0)
@@ -114,6 +116,8 @@ uint8_t* GTAEncryption::DecryptNG(uint8_t* data, uint32_t dataLength, uint8_t* k
 		//Buffer.BlockCopy(data, data.Length - left, decryptedData, dataLength - left, left);
 	}
 
+	delete[] data;
+	delete[] keyuints;
 	return decryptedData;
 }
 
@@ -121,6 +125,8 @@ uint8_t* GTAEncryption::DecryptNGBlock(uint8_t* data, uint32_t dataLength, uint3
 {
 	uint8_t* buffer = new uint8_t[dataLength];
 	memcpy(buffer, data, dataLength);
+	
+	delete[] data;
 
 	// prepare key...
 	uint32_t* subKeys[17];
@@ -138,6 +144,12 @@ uint8_t* GTAEncryption::DecryptNGBlock(uint8_t* data, uint32_t dataLength, uint3
 	for (int k = 2; k <= 15; k++)
 	buffer = DecryptNGRoundB(buffer, subKeys[k], PC_NG_DECRYPT_TABLES[k]);
 	buffer = DecryptNGRoundA(buffer, subKeys[16], PC_NG_DECRYPT_TABLES[16]);
+
+
+	for (int i = 0; i < 17; i++)
+	{
+		delete[] subKeys[i];
+	}
 
 	return buffer;
 }
@@ -185,7 +197,10 @@ uint8_t* GTAEncryption::DecryptNGRoundA(uint8_t* data, uint32_t* key, uint32_t t
 	result[12] = (uint8_t)((x4 >> 0) & 0xFF);
 	result[13] = (uint8_t)((x4 >> 8) & 0xFF);
 	result[14] = (uint8_t)((x4 >> 16) & 0xFF);
-	result[15] = (uint8_t)((x4 >> 24) & 0xFF);;
+	result[15] = (uint8_t)((x4 >> 24) & 0xFF);
+
+	delete[] data;
+
 	return result;
 }
 
@@ -236,6 +251,9 @@ uint8_t* GTAEncryption::DecryptNGRoundB(uint8_t* data, uint32_t* key, uint32_t t
 	result[13] = (uint8_t)((x4 >> 8) & 0xFF);
 	result[14] = (uint8_t)((x4 >> 16) & 0xFF);
 	result[15] = (uint8_t)((x4 >> 24) & 0xFF);
+
+	delete[] data;
+
 	return result;
 }
 
@@ -252,7 +270,7 @@ void GTAEncryption::DecompressBytes(uint8_t * data, uint32_t dataLength, std::ve
 	int ret = inflateInit2(&strm, -MAX_WBITS);
 	if (ret != Z_OK) printf("ERROR IN ZLIB");
 
-	std::vector<unsigned char> buf(1024 * 1024);
+	std::vector<uint8_t> buf(1024 * 1024);
 
 	//std::vector<uint8_t> dest;
 	output.resize(0);
