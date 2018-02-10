@@ -5,7 +5,7 @@ GameData::GameData()
 	GTAEncryption::LoadKeys();
 
 	std::vector <std::string> RpfsFiles = {
-		"x64a.rpf",
+		/*"x64a.rpf",
 		"x64b.rpf",
 		"x64c.rpf",
 		"x64d.rpf",
@@ -21,19 +21,20 @@ GameData::GameData()
 		"x64n.rpf",
 		"x64o.rpf",
 		"x64p.rpf",
-		"x64q.rpf",
+		"x64q.rpf",*/
 		"x64r.rpf",
-		"x64s.rpf",
+		/*"x64s.rpf",
 		"x64t.rpf",
 		"x64u.rpf",
 		"x64v.rpf",
-		"x64w.rpf",
+		"x64w.rpf",*/
 	};
 
 	for (std::string& rpfFile : RpfsFiles)
 	{
 		LoadRpf(rpfFile);
 	}
+	LoadWaterQuads();
 	printf("%d\n", sizeof(RpfFile));
 	printf("%d\n", sizeof(std::vector<RpfFile>) * RpfFiles.size() * sizeof(RpfFile)/1024/1024);
 	//shrink to fit
@@ -109,6 +110,72 @@ GameData::GameData()
 
 GameData::~GameData()
 {
+}
+
+void GameData::LoadWaterQuads()
+{
+	tinyxml2::XMLDocument doc;
+	tinyxml2::XMLError eResult  = doc.LoadFile("C:\\Users\\nmzik\\Desktop\\water.xml");
+
+	//tinyxml2::XMLNode* pRoot = doc.FirstChild();
+	//if(pRoot == nullptr) printf("ERRORMAIN");
+	tinyxml2::XMLElement * root = doc.FirstChildElement("WaterData");
+
+	if (root == nullptr) printf("ERROR");
+
+	tinyxml2::XMLElement* element = root->FirstChildElement("WaterQuads");
+	if (element == nullptr) printf("ERROR ELEMENT");
+
+	//tinyxml2::XMLElement* ItemElement = element->FirstChildElement("Item");
+	//if (ItemElement == nullptr) printf("ERROR ELEMENT");
+
+	int test = 0;
+	for (tinyxml2::XMLElement* e = element->FirstChildElement("Item"); e != NULL; e = e->NextSiblingElement("Item"))
+	{
+		WaterQuad waterQuad;
+		tinyxml2::XMLElement* element = e->FirstChildElement("minX");
+		element->QueryFloatAttribute("value", &waterQuad.minX);
+		///
+		element = element->NextSiblingElement("maxX");
+		element->QueryFloatAttribute("value", &waterQuad.maxX);
+		///
+		element = element->NextSiblingElement("minY");
+		element->QueryFloatAttribute("value", &waterQuad.minY);
+		///
+		element = element->NextSiblingElement("maxY");
+		element->QueryFloatAttribute("value", &waterQuad.maxY);
+		///
+		element = element->NextSiblingElement("Type");
+		element->QueryIntAttribute("value", &waterQuad.Type);
+		///
+		element = element->NextSiblingElement("IsInvisible");
+		element->QueryBoolAttribute("value", &waterQuad.IsInvisible);
+		///
+		element = element->NextSiblingElement("HasLimitedDepth");
+		element->QueryBoolAttribute("value", &waterQuad.HasLimitedDepth);
+		///
+		element = element->NextSiblingElement("z");
+		element->QueryFloatAttribute("value", &waterQuad.z);
+		///
+		element = element->NextSiblingElement("a1");
+		element->QueryFloatAttribute("value", &waterQuad.a1);
+		///
+		element = element->NextSiblingElement("a2");
+		element->QueryFloatAttribute("value", &waterQuad.a2);
+		///
+		element = element->NextSiblingElement("a3");
+		element->QueryFloatAttribute("value", &waterQuad.a3);
+		///
+		element = element->NextSiblingElement("a4");
+		element->QueryFloatAttribute("value", &waterQuad.a4);
+		///
+		element = element->NextSiblingElement("NoStencil");
+		element->QueryBoolAttribute("value", &waterQuad.NoStencil);
+
+		WaterQuads.push_back(waterQuad);
+	}
+
+	printf("%d", test);
 }
 
 void GameData::LoadRpf(std::string& RpfPath)

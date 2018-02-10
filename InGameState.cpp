@@ -65,6 +65,9 @@ void InGameState::tick(float delta_time)
 	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_B)) {
 		game->getWorld()->ClearTestFunction();
 	}
+	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_M)) {
+		game->getRenderer()->test = !game->getRenderer()->test;
+	}
 	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_I)) {
 		game->getRenderer()->RenderDebugWorld = !game->getRenderer()->RenderDebugWorld;
 	}

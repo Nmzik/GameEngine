@@ -35,6 +35,7 @@ GameWorld::GameWorld()
 		btIDebugDraw::DBG_DrawConstraintLimits);
 	dynamicsWorld->setDebugDrawer(&debug);
 
+	LoadYTD(3510635013);
 	/*for (int i = 0; i < 500; i++) {
 		Model model(glm::vec3(0.f, 200.f, 0.f), glm::quat(0.f, 0.f, 0.f, 1.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\cube.obj", "container.jpg", "container2_specular.png", true, true);
 		model.Load();
@@ -90,12 +91,10 @@ void GameWorld::LoadYmap(uint32_t hash, glm::vec3 cameraPosition)
 		//FOUND
 		for (int i = 0; i < map->CEntityDefs.size(); i++)
 		{
-			if (!map->CEntityDefs[i].lodLevel != 1 && !map->CEntityDefs[i].lodLevel != 2 && !map->CEntityDefs[i].lodLevel != 3 && !map->CEntityDefs[i].lodLevel != 4 && !map->CEntityDefs[i].lodLevel != 5 && !map->CEntityDefs[i].lodLevel != 6 && !(map->CEntityDefs[i].lodDist < 0)) {
 				if (glm::distance(cameraPosition, map->CEntityDefs[i].position) <= map->CEntityDefs[i].lodDist) {
-					LoadYDR(map->CEntityDefs[i].archetypeName, map->CEntityDefs[i].position, glm::quat(map->CEntityDefs[i].rotation.w, map->CEntityDefs[i].rotation.x, map->CEntityDefs[i].rotation.y, -map->CEntityDefs[i].rotation.z));
-					//LoadYDD(map->CEntityDefs[i].archetypeName, map->CEntityDefs[i].position, glm::quat(map->CEntityDefs[i].rotation.w, map->CEntityDefs[i].rotation.x, map->CEntityDefs[i].rotation.y, map->CEntityDefs[i].rotation.z));
+					LoadYDR(map->CEntityDefs[i].archetypeName, map->CEntityDefs[i].position, glm::quat(-map->CEntityDefs[i].rotation.w, map->CEntityDefs[i].rotation.x, map->CEntityDefs[i].rotation.y, map->CEntityDefs[i].rotation.z));
+						//LoadYDD(map->CEntityDefs[i].archetypeName, map->CEntityDefs[i].position, glm::quat(-map->CEntityDefs[i].rotation.w, map->CEntityDefs[i].rotation.x, map->CEntityDefs[i].rotation.y, map->CEntityDefs[i].rotation.z));
 				}
-			}
 		}
 	}
 	else {
@@ -117,32 +116,40 @@ void GameWorld::LoadYmap(uint32_t hash, glm::vec3 cameraPosition)
 
 			for (int i = 0; i < ymap->CEntityDefs.size(); i++)
 			{
-				if(!ymap->CEntityDefs[i].lodLevel != 1 && !ymap->CEntityDefs[i].lodLevel != 2 && !ymap->CEntityDefs[i].lodLevel != 3 && !ymap->CEntityDefs[i].lodLevel != 4 && !ymap->CEntityDefs[i].lodLevel != 5 && !ymap->CEntityDefs[i].lodLevel != 6 && !(ymap->CEntityDefs[i].lodDist < 0)) {
 					if (glm::distance(cameraPosition, ymap->CEntityDefs[i].position) <= ymap->CEntityDefs[i].lodDist) {
-						LoadYDR(ymap->CEntityDefs[i].archetypeName, ymap->CEntityDefs[i].position, glm::quat(ymap->CEntityDefs[i].rotation.w, ymap->CEntityDefs[i].rotation.x, ymap->CEntityDefs[i].rotation.y, -ymap->CEntityDefs[i].rotation.z));
-						//if (!LoadYDR(ymap->CEntityDefs[i].archetypeName, ymap->CEntityDefs[i].position, glm::quat(ymap->CEntityDefs[i].rotation.x, ymap->CEntityDefs[i].rotation.y, ymap->CEntityDefs[i].rotation.z, ymap->CEntityDefs[i].rotation.w)))
-							//LoadYDD(ymap->CEntityDefs[i].archetypeName, ymap->CEntityDefs[i].position, glm::quat(ymap->CEntityDefs[i].rotation.x, ymap->CEntityDefs[i].rotation.y, ymap->CEntityDefs[i].rotation.z, ymap->CEntityDefs[i].rotation.w));
+						LoadYDR(ymap->CEntityDefs[i].archetypeName, ymap->CEntityDefs[i].position, glm::quat(-ymap->CEntityDefs[i].rotation.w, ymap->CEntityDefs[i].rotation.x, ymap->CEntityDefs[i].rotation.y, ymap->CEntityDefs[i].rotation.z));
+							//LoadYDD(ymap->CEntityDefs[i].archetypeName, ymap->CEntityDefs[i].position, glm::quat(-ymap->CEntityDefs[i].rotation.w, ymap->CEntityDefs[i].rotation.x, ymap->CEntityDefs[i].rotation.y, ymap->CEntityDefs[i].rotation.z));
 					}
-				}
 			}
-
-			//static int test = 0;
-			//test++;
-			//printf("KOLVO %d", test);
-
-			//for (auto& entity : ymap.CEntityDefs)
-			//
-			//printf("%s ",std::to_string(testi++));
-			//LoadYDD(entity.archetypeName);
-			//LoadYDR(entity.archetypeName, entity.position);
-			//LoadYDD(entity.archetypeName);
-			//if ((!LoadYDR(entity.archetypeName)) && (!LoadYDD(entity.archetypeName))) printf("Element Not Found\n");
-			//}
 		}
 		else
 		{
-			std::cout << "YMAP Not Found" << std::endl;
+			//std::cout << "YMAP Not Found" << std::endl;
 		}
+	}
+}
+
+bool GameWorld::LoadYTD(uint32_t hash)
+{
+	std::unordered_map<uint32_t, RpfResourceFileEntry*>::iterator it;
+	it = data.YtdEntries.find(hash);
+	if (it != data.YtdEntries.end())
+	{
+		std::cout << "YTD Found " << it->second->Name << std::endl;
+		auto& element = *(it->second);
+		std::vector<uint8_t> outputBuffer;
+		data.ExtractFileResource(element, outputBuffer);
+
+		memstream stream(outputBuffer.data(), outputBuffer.size());
+
+		YtdFile file(stream);
+
+		return true;
+	}
+	else
+	{
+		//std::cout << "Element Not Found" << std::endl;
+		return false;
 	}
 }
 
@@ -150,7 +157,7 @@ bool GameWorld::LoadYDD(uint32_t hash, glm::vec3 position, glm::quat rotation)
 {
 	for (auto& yddFile : yddLoader)
 	{
-		if (yddFile.Hash == hash) return true;
+		if (yddFile->Hash == hash) return true;
 	}
 	std::unordered_map<uint32_t, RpfResourceFileEntry*>::iterator it;
 	it = data.YddEntries.find(hash);
@@ -163,7 +170,7 @@ bool GameWorld::LoadYDD(uint32_t hash, glm::vec3 position, glm::quat rotation)
 
 		memstream stream(outputBuffer.data(), outputBuffer.size());
 		//YddLoader test(stream, position, rotation, hash);
-		yddLoader.emplace_back(YddLoader(stream, position, rotation, hash));
+		yddLoader.emplace_back(new YddLoader(stream, position, rotation, hash));
 
 		return true;
 	}
@@ -233,6 +240,8 @@ void GameWorld::GetVisibleYmaps(glm::vec3 Position)
 {
 	SpaceGridCell& cell = spaceGrid.GetCell(Position);
 
+	//DetectInWater(Position);
+
 	for (auto& mapNode : cell.MapNodes)
 	{
 		LoadYmap(mapNode->Name, Position);
@@ -245,7 +254,7 @@ void GameWorld::GetVisibleYmaps(glm::vec3 Position)
 
 		}
 		else {
-			printf("DELETED!\n");
+			//printf("DELETED!\n");
 
 			for (auto& MapFile : ymapLoader[i]->CEntityDefs)
 			{
@@ -256,6 +265,15 @@ void GameWorld::GetVisibleYmaps(glm::vec3 Position)
 				}
 				else {
 					it2++;
+				}
+
+				auto it3 = std::find_if(yddLoader.begin(), yddLoader.end(), [&MapFile](YddLoader* loader) -> bool { return MapFile.archetypeName == loader->Hash; });
+				if (it3 != yddLoader.end()) {
+					delete *it3;
+					it3 = yddLoader.erase(it3);
+				}
+				else {
+					it3++;
 				}
 			}
 			delete ymapLoader[i];
@@ -449,6 +467,16 @@ void GameWorld::TestFunction()
 	for (int i = 0; i < 100; i++)
 	{
 		LoadYDR(2683913445, glm::vec3(0, 0, 0), glm::quat(0, 0, 0, 0));
+	}
+}
+
+void GameWorld::DetectInWater(glm::vec3 Position) {
+	for (auto& waterQuad : data.WaterQuads)
+	{
+		if (waterQuad.minX < Position.x && waterQuad.maxX > Position.x && waterQuad.minY < Position.y && waterQuad.maxY > Position.y)
+		{
+			printf("WE ARE IN WATER\n");
+		}
 	}
 }
 

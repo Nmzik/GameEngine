@@ -88,7 +88,7 @@ Mesh::~Mesh()
 	glDeleteBuffers(1, &vertex_buffer);
 	glDeleteBuffers(1, &EBO);
 	glDeleteVertexArrays(1, &VAO);
-	//delete material;
+	delete material;
 	//glDeleteVertexArrays(1, &VAO);
 }
 

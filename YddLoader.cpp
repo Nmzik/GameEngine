@@ -2,9 +2,10 @@
 
 
 
-YddLoader::YddLoader(memstream& file, glm::vec3 position, glm::quat rotation, uint32_t hash) : Position(position), Rotation(rotation), Hash(hash)
+YddLoader::YddLoader(memstream& file, glm::vec3 position, glm::quat rotation, uint32_t hash) : Hash(hash)
 {
-
+	ModelMatrix = glm::translate(glm::mat4(), position);
+	ModelMatrix *= glm::toMat4(rotation);
 	struct {
 		uint32_t FileVFT;
 		uint32_t FileUnknown;
@@ -377,22 +378,21 @@ YddLoader::YddLoader(memstream& file, glm::vec3 position, glm::quat rotation, ui
 	for (int i = 0; i < Hashes.size(); i++)
 	{
 		if (Hashes[i] == Hash) {
-			printf("FOUND INSIDE YDD %d\n",i);
+			//printf("FOUND INSIDE YDD %d\n",i);
 			for (int j = 0; j < DrawableDictionary.DrawableBases[i].DrawableModels.size(); j++)
 			{
 				for (int k = 0; k < DrawableDictionary.DrawableBases[i].DrawableModels[j].Geometries.size(); k++)
 				{
-					meshes.emplace_back(DrawableDictionary.DrawableBases[i].DrawableModels[j].Geometries[k]->vertexBuffer->VertexData, DrawableDictionary.DrawableBases[i].DrawableModels[j].Geometries[k]->indexBuffer->Indices, DrawableDictionary.DrawableBases[i].DrawableModels[j].Geometries[k]->vertexBuffer->VertexStride);
+					meshes.emplace_back(new Mesh(DrawableDictionary.DrawableBases[i].DrawableModels[j].Geometries[k]->vertexBuffer->VertexData, DrawableDictionary.DrawableBases[i].DrawableModels[j].Geometries[k]->indexBuffer->Indices, DrawableDictionary.DrawableBases[i].DrawableModels[j].Geometries[k]->vertexBuffer->VertexStride));
 				}
 			}
 		}
 	}
 }
 
-glm::mat4 YddLoader::GetMat4()
+glm::mat4& YddLoader::GetMat4()
 {
-	glm::mat4 model = glm::translate(glm::mat4(), Position);
-	model *= glm::toMat4(Rotation);
+	return ModelMatrix;
 	/*glm::vec3 scale;
 	glm::quat rotation;
 	glm::vec3 translation;
@@ -403,17 +403,19 @@ glm::mat4 YddLoader::GetMat4()
 	glm::decompose(model, scale, rotation, translation, skew, perspective);
 
 	printf("RETURNED %s ORIGINAL %s\n", glm::to_string(rotation).c_str(), glm::to_string(Rotation).c_str());*/
-
-	return model;
 }
 
 YddLoader::~YddLoader()
 {
+	for (auto& mesh : meshes)
+	{
+		delete mesh;
+	}
 }
 
 void YddLoader::Draw()
 {
 	for (int i = 0; i < meshes.size(); i++) {
-		meshes[i].Draw();
+		meshes[i]->Draw();
 	}
 }

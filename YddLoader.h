@@ -15,15 +15,14 @@
 class YddLoader
 {
 	std::vector<uint32_t> Hashes;
-	std::vector<Mesh> meshes;
-	glm::vec3 Position;
-	glm::quat Rotation;
+	std::vector<Mesh*> meshes;
+	glm::mat4 ModelMatrix;
 public:
 	uint32_t Hash;
 	YddLoader(memstream& file, glm::vec3 position, glm::quat rotation, uint32_t hash);
 	~YddLoader();
 
-	glm::mat4 GetMat4();
+	glm::mat4& GetMat4();
 
 	void Draw();
 };

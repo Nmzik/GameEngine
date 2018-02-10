@@ -71,6 +71,8 @@ public:
 	~RenderingSystem();
 
 	glm::vec3 lightPos;
+	bool DrawCollision = false;
+	bool test = true;
 	bool RenderDebugWorld = false;
 	int hdrEnabled = 1;
 	float x = 50.f;

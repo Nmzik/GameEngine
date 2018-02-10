@@ -1,8 +1,9 @@
 #include "YdrLoader.h"
 
-YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, uint32_t hash) : Position(position), Rotation(rotation), Hash(hash)
+YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, uint32_t hash) : Hash(hash)
 {
-
+	ModelMatrix = glm::translate(glm::mat4(), position);
+	ModelMatrix *= glm::toMat4(rotation);
 	struct {
 		uint32_t FileVFT;
 		uint32_t FileUnknown;
@@ -331,8 +332,6 @@ YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, ui
 		file.seekg(posOriginal);
 	}
 
-	uint32_t sizeVertex = 0;
-	uint32_t sizeIndex = 0;
 	//file.close();
 	/*for (int i = 0; i < Geometries.size(); i++)
 	{
@@ -364,11 +363,21 @@ YdrLoader::~YdrLoader()
 	}
 }
 
-glm::mat4 YdrLoader::GetMat4()
+void YdrLoader::UploadMeshes()
 {
+	for (auto& mesh : meshes)
+	{
+		//mesh->Upload();
+	}
+	Loaded = true;
+}
+
+glm::mat4& YdrLoader::GetMat4()
+{
+	return ModelMatrix;
 	//glm::mat4 model(1.0);
-	glm::mat4 model = glm::translate(glm::mat4(), Position);
-	model *= glm::toMat4(Rotation);
+	//glm::mat4 model = glm::translate(glm::mat4(), Position);
+	//model *= glm::toMat4(Rotation);
 	/*glm::vec3 scale;
 	glm::quat rotation;
 	glm::vec3 translation;
@@ -383,12 +392,12 @@ glm::mat4 YdrLoader::GetMat4()
 	//model = glm::scale(model, glm::vec3(1.0f));
 	//glm::quat test1 = glm::quat_cast(model);
 	//printf("%f %f %f %f\n",test1.x,test1.y,test1.z,test1,w);
-	return model;
+	//return model;
 }
 
 void YdrLoader::Draw()
 {
-	for (int i = 0; i < meshes.size(); i++) {
-		meshes[i]->Draw();
+	for (auto& mesh : meshes) {
+		mesh->Draw();
 	}
 }

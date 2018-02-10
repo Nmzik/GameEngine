@@ -1,5 +1,4 @@
 #pragma once
-
 #include "Mesh.h"
 #include "fstream"
 #include <iostream>
@@ -13,21 +12,12 @@
 #include "glm/gtx/matrix_decompose.hpp"
 #include "membuf.h"
 
-class YdrLoader
+class YtdFile
 {
-	glm::mat4 ModelMatrix;
-	std::vector<Mesh*> meshes;
-	//glm::vec3 Position;
-	//glm::quat Rotation;
 public:
-	bool Loaded = false;
-	uint32_t Hash;
-	YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, uint32_t hash);
-	~YdrLoader();
+	GLuint textureID;
 
-	void UploadMeshes();
-	glm::mat4& GetMat4();
-
-	void Draw();
+	YtdFile(memstream& file);
+	~YtdFile();
 };
 

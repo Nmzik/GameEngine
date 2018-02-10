@@ -44,6 +44,9 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 	glewExperimental = GL_TRUE;
 	glewInit();
 
+	if (!GLEW_ARB_texture_compression_bptc) printf("NOT INITALIZED BPTC\n");
+	if (!GLEW_EXT_texture_compression_s3tc) printf("NOT INITALIZED s3tc\n");
+
 	glEnable(GL_DEBUG_OUTPUT);
 	glDebugMessageCallback(myDebugCallback, nullptr);
 
@@ -315,7 +318,7 @@ void RenderingSystem::render(GameWorld* world)
 		MoonDirection = glm::normalize(glm::vec3(-glm::sin(phi)*glm::cos(theta), glm::cos(phi), glm::sin(phi)*glm::sin(theta)));
 	}*/
 
-	world->GetVisibleYmaps(camera->Position);
+	if (test == true) world->GetVisibleYmaps(camera->Position);
 
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -357,51 +360,32 @@ void RenderingSystem::render(GameWorld* world)
 	world->GetResourceManager()->mainLock.unlock();
 
 	//TEST YBN
-	for (int i = 0; i < world->ybnLoader.size(); i++)
-	{
-		for (int j = 0; j < world->ybnLoader[i]->meshes.size(); j++)
+	if (DrawCollision) {
+		for (int i = 0; i < world->ybnLoader.size(); i++)
 		{
-			glm::mat4 model = glm::translate(glm::mat4(), world->ybnLoader[i]->CenterGeometry[j]);
-			glm::mat4 rotate = glm::toMat4(glm::quat(0.f, 0.f, 0.0, 1.0f));
-			gbuffer->setMat4("model", model);
-			world->ybnLoader[i]->meshes[j].DrawCollision();
+			for (int j = 0; j < world->ybnLoader[i]->meshes.size(); j++)
+			{
+				glm::mat4 model = glm::translate(glm::mat4(), world->ybnLoader[i]->CenterGeometry[j]);
+				glm::mat4 rotate = glm::toMat4(glm::quat(0.f, 0.f, 0.0, 1.0f));
+				gbuffer->setMat4("model", model);
+				world->ybnLoader[i]->meshes[j].DrawCollision();
+			}
 		}
-
-		/*glm::mat4 model = glm::translate(glm::mat4(), world->ybnLoader[0].CenterGeometry[i]);
-		//model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-		glm::mat4 rotate = glm::toMat4(glm::quat(0.f, 0.f, 0.0, 1.0f));
-		//model = rotate * model; //ROTATION ORDER
-		//model *= glm::mat4_cast(glm::normalize(glm::quat(0.707f, -0.707f, 0.0, 0.0f)));
-		//model = rotate * model;
-
-		glm::vec3 scale;
-		glm::quat rotation;
-		glm::vec3 translation;
-		glm::vec3 skew;
-		glm::vec4 perspective;
-		glm::decompose(model, scale, rotation, translation, skew, perspective);
-		rotation = glm::conjugate(rotation);
-		//printf("POSITION %s ROTATION %s SCALE %s\n",  glm::to_string(translation).c_str(), glm::to_string(rotation).c_str(), glm::to_string(scale).c_str());
-		gbuffer->setMat4("model", model);
-		world->ybnLoader[0].meshes[i].DrawCollision();*/
 	}
 	//printf("=========================\n");
 	//TEST YDD
-	for (int i = 0; i < world->yddLoader.size(); i++)
+	for (auto& yddFile : world->yddLoader)
 	{
-		auto modelpos = world->yddLoader[i].GetMat4();
+		auto modelpos = yddFile->GetMat4();
 		gbuffer->setMat4("model", modelpos);
-		world->yddLoader[i].Draw();
+		yddFile->Draw();
 	}
 
-	//TEST YDR
-	//for (auto& YdrFile : world->ydrLoader)
-	//{
-	for (int i = 0; i < world->ydrLoader.size(); i++)
+	for (auto& YdrFile : world->ydrLoader)
 	{
-		auto modelpos = world->ydrLoader[i]->GetMat4();
+		auto modelpos = YdrFile->GetMat4();
 		gbuffer->setMat4("model", modelpos);
-		world->ydrLoader[i]->Draw();
+		YdrFile->Draw();
 	}
 	//}
 

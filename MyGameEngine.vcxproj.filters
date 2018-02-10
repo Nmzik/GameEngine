@@ -120,6 +120,12 @@
     <ClCompile Include="SpaceGrid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="YtdLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tinyxml2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -240,6 +246,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SpaceGrid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="YtdLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tinyxml2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

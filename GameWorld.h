@@ -10,6 +10,7 @@
 #include "YmapLoader.h"
 #include "YndLoader.h"
 #include "YbnLoader.h"
+#include "YtdLoader.h"
 #include "GameData.h"
 #include "Material.h"
 #include "CacheDatFile.h"
@@ -36,7 +37,7 @@ class GameWorld
 
 public:
 	std::vector<YdrLoader*> ydrLoader;
-	std::vector<YddLoader> yddLoader;
+	std::vector<YddLoader*> yddLoader;
 	std::vector<YndLoader> yndLoader;
 	std::vector<YbnLoader*> ybnLoader;
 	std::vector<YmapLoader*> ymapLoader;
@@ -51,6 +52,8 @@ public:
 	~GameWorld();
 
 	void LoadYmap(uint32_t hash, glm::vec3 cameraPosition);
+
+	bool LoadYTD(uint32_t hash);
 
 	bool LoadYDD(uint32_t hash, glm::vec3 position, glm::quat rotation);
 
@@ -81,6 +84,7 @@ public:
 	void update(float delta_time);
 
 	void TestFunction();
+	void DetectInWater(glm::vec3 Position);
 	void ClearTestFunction();
 };
 
