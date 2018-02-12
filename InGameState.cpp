@@ -128,6 +128,19 @@ void InGameState::tick(float delta_time)
 
 			float speed = game->getInput()->IsKeyPressed(SDL_SCANCODE_LSHIFT) ? 2.0f : 1.0f;
 
+			/*bool inWater = false;
+			if (game->getWorld()->DetectInWater(glm::vec3(game->getWorld()->player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getX(), game->getWorld()->player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getY(), game->getWorld()->player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getZ())))
+			{
+				if (game->getWorld()->player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getZ() < 0 && !inWater) {
+					game->getWorld()->player->getPhysCharacter()->setGravity(btVector3(0.0f, 0.0f, 0.0f));
+					inWater = true;
+				}
+				else if (inWater == true){
+					game->getWorld()->player->getPhysCharacter()->setGravity(btVector3(0, 0, -10));
+					inWater = false;
+				}
+			}*/
+
 			float length = glm::length(movement);
 			if (length > 0.1f) {
 				auto move = speed * glm::normalize(movement);

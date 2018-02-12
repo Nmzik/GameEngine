@@ -470,14 +470,16 @@ void GameWorld::TestFunction()
 	}
 }
 
-void GameWorld::DetectInWater(glm::vec3 Position) {
+bool GameWorld::DetectInWater(glm::vec3 Position) {
 	for (auto& waterQuad : data.WaterQuads)
 	{
 		if (waterQuad.minX < Position.x && waterQuad.maxX > Position.x && waterQuad.minY < Position.y && waterQuad.maxY > Position.y)
 		{
-			printf("WE ARE IN WATER\n");
+			//printf("WE ARE IN WATER\n");
+			return true;
 		}
 	}
+	return false;
 }
 
 void GameWorld::ClearTestFunction()

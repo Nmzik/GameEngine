@@ -84,7 +84,7 @@ public:
 	void update(float delta_time);
 
 	void TestFunction();
-	void DetectInWater(glm::vec3 Position);
+	bool DetectInWater(glm::vec3 Position);
 	void ClearTestFunction();
 };
 
