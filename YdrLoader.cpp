@@ -320,8 +320,9 @@ YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, ui
 			indexbuffer.Indices.resize(indexbuffer.IndicesCount * sizeof(uint16_t));
 			file.read((char*)&indexbuffer.Indices[0], sizeof(uint16_t) * indexbuffer.IndicesCount);
 
-			printf("%d\n",sizeof(Mesh));
-			meshes.emplace_back(new Mesh(vertbuffer.VertexData, indexbuffer.Indices, vertbuffer.VertexStride));
+			//printf("%d\n",sizeof(Mesh));
+			Mesh* newMesh = new Mesh(vertbuffer.VertexData, indexbuffer.Indices, vertbuffer.VertexStride);
+			meshes.push_back(newMesh);
 
 			//Geometries.push_back(drawGeom);
 			//vertexBuffer.push_back(vertbuffer);
