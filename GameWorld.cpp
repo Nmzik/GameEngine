@@ -242,7 +242,7 @@ void GameWorld::GetVisibleYmaps(glm::vec3 Position)
 
 	//DetectInWater(Position);
 
-	for (auto& mapNode : cell.MapNodes)
+	/*for (auto& mapNode : cell.MapNodes)
 	{
 		LoadYmap(mapNode->Name, Position);
 	}
@@ -279,7 +279,7 @@ void GameWorld::GetVisibleYmaps(glm::vec3 Position)
 			delete ymapLoader[i];
 			ymapLoader.erase(ymapLoader.begin() + i);
 		}
-	}
+	}*/
 
 	for (auto& BoundsItem : cell.BoundsStoreItems)
 	{
@@ -303,34 +303,6 @@ void GameWorld::GetVisibleYmaps(glm::vec3 Position)
 			ybnLoader.erase(ybnLoader.begin() + i);
 		}
 	}
-
-	/*for (int i = 0; i < ybnLoader.size(); i++)
-	{
-		auto it = std::find_if(cell.BoundsStoreItems.begin(), cell.BoundsStoreItems.end(), [&ybnLoader[i] loader](BoundsStoreItem* item) -> bool { return item->Name == 1; });
-		if (it != cell.BoundsStoreItems.end()) {
-
-		}
-		else {
-			printf("NEED TO DELETE");
-			ybnLoader.erase(ybnLoader.begin() + i);
-		}
-	}*/
-
-	
-	/*std::vector<YbnLoader*>::iterator it = ybnLoader.begin();
-
-	while (it != ybnLoader.end()) {
-		std::find_if(cell.BoundsStoreItems.begin(), cell.BoundsStoreItems.end(), [this](BoundsStoreItem* item) -> bool { return this->ybnLoader.at(1)->Hash == item->Name; });
-		if (std::find(cell.BoundsStoreItems.begin(), cell.BoundsStoreItems.end(), (*it)->Hash) == cell.BoundsStoreItems.end()) { //NOT FOUND
-			printf("NEED TO DELEYE");
-			//delete *it;
-			//it = ybnLoader.erase(it);
-		}
-		else {
-			//printf("NEED TO LOAD");
-			it++;
-		}
-	}*/
 }
 
 void GameWorld::createPedestrian()
@@ -341,7 +313,7 @@ void GameWorld::createPedestrian()
 
 void GameWorld::createVehicle()
 {
-	Vehicle newVehicle(glm::vec3(-20,0,0), dynamicsWorld);
+	Vehicle *newVehicle = new Vehicle(glm::vec3(-20,0,0), dynamicsWorld);
 	vehicles.push_back(newVehicle);
 }
 
@@ -354,7 +326,7 @@ void GameWorld::Update()
 
 	for (auto& vehicle : vehicles)
 	{
-		vehicle.PhysicsTick();
+		vehicle->PhysicsTick();
 	}
 }
 
@@ -371,7 +343,7 @@ void GameWorld::UpdateTraffic(glm::vec3 cameraPosition)
 		if (glm::distance(cameraPosition, pedestrianPosition) >= 100.0f) {
 			dynamicsWorld->removeCharacter(pedestrians[i]->getPhysCharacter());
 			dynamicsWorld->removeCollisionObject(pedestrians[i]->getPhysCharacter()->getGhostObject());
-			//delete pedestrians[i];
+			delete pedestrians[i];
 			pedestrians.erase(pedestrians.begin() + i);
 		}
 	}
@@ -381,16 +353,16 @@ void GameWorld::UpdateTraffic(glm::vec3 cameraPosition)
 		for (int i = 0; i < MaximumAvailablePeds; i++) {
 			float xRandom = RandomFloat(cameraPosition.x - radiusTraffic, cameraPosition.x + radiusTraffic);
 			float yRandom = RandomFloat(cameraPosition.y - radiusTraffic, cameraPosition.y + radiusTraffic);
-			Player *newPlayer = new Player(glm::vec3(xRandom, yRandom, cameraPosition.z), dynamicsWorld);
+			Player *newPlayer = new Player(glm::vec3(xRandom, yRandom, cameraPosition.z + 5.0f), dynamicsWorld);
 			pedestrians.push_back(newPlayer);
 		}
 	}
 	//CARS
 	for (int i = 0; i < vehicles.size(); i++) {
-		glm::vec3 vehiclePosition(vehicles[i].m_carChassis->getWorldTransform().getOrigin().getX(), vehicles[i].m_carChassis->getWorldTransform().getOrigin().getY(), vehicles[i].m_carChassis->getWorldTransform().getOrigin().getZ());
+		glm::vec3 vehiclePosition(vehicles[i]->m_carChassis->getWorldTransform().getOrigin().getX(), vehicles[i]->m_carChassis->getWorldTransform().getOrigin().getY(), vehicles[i]->m_carChassis->getWorldTransform().getOrigin().getZ());
 		if (glm::distance(cameraPosition, vehiclePosition) >= 100.0f) {
-			dynamicsWorld->removeVehicle((vehicles[i].m_vehicle));
-			dynamicsWorld->removeRigidBody((vehicles[i].m_carChassis));
+			dynamicsWorld->removeVehicle((vehicles[i]->m_vehicle));
+			dynamicsWorld->removeRigidBody((vehicles[i]->m_carChassis));
 			vehicles.erase(vehicles.begin() + i);
 		}
 	}
@@ -400,7 +372,7 @@ void GameWorld::UpdateTraffic(glm::vec3 cameraPosition)
 		for (int i = 0; i < MaximumAvailableVehicles; i++) {
 			float xRandom = RandomFloat(cameraPosition.x - radiusTraffic, cameraPosition.x + radiusTraffic);
 			float yRandom = RandomFloat(cameraPosition.y - radiusTraffic, cameraPosition.y + radiusTraffic);
-			Vehicle newVehicle(glm::vec3(xRandom, yRandom, cameraPosition.z), dynamicsWorld);
+			Vehicle* newVehicle= new Vehicle(glm::vec3(xRandom, yRandom, cameraPosition.z + 5.0f), dynamicsWorld);
 			vehicles.push_back(newVehicle);
 		}
 	}
@@ -415,11 +387,11 @@ Vehicle* GameWorld::FindNearestVehicle()
 	for (auto& vehicle: vehicles)
 	{
 		glm::vec3 PlayerPosition(player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getX(), player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getY(), player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getZ());
-		glm::vec3 VehiclePosition(vehicle.m_carChassis->getWorldTransform().getOrigin().getX(), vehicle.m_carChassis->getWorldTransform().getOrigin().getY(), vehicle.m_carChassis->getWorldTransform().getOrigin().getZ());
+		glm::vec3 VehiclePosition(vehicle->m_carChassis->getWorldTransform().getOrigin().getX(), vehicle->m_carChassis->getWorldTransform().getOrigin().getY(), vehicle->m_carChassis->getWorldTransform().getOrigin().getZ());
 		float vd = glm::length(PlayerPosition - VehiclePosition);
 		if (vd < d) {
 			d = vd;
-			nearestVehicle = &vehicle;
+			nearestVehicle = vehicle;
 		}
 	}
 
@@ -458,7 +430,7 @@ void GameWorld::DetectWeaponHit(glm::vec3 CameraPosition, glm::vec3 lookDirectio
 
 void GameWorld::update(float delta_time)
 {
-	//Update();
+	Update();
 	dynamicsWorld->stepSimulation(1 / 60.f);
 }
 

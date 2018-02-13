@@ -181,7 +181,7 @@ glm::mat4 Vehicle::GetMat4()
 
 void Vehicle::PhysicsTick()
 {
-	float engineForce = throttle * 500.0f;
+	float engineForce = throttle * 1000.0f;
 
 	m_vehicle->applyEngineForce(engineForce, 2);
 	m_vehicle->applyEngineForce(engineForce, 3);

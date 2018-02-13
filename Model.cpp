@@ -133,7 +133,7 @@ void Model::UploadToBuffers()
 {
 	for (auto& shape : shapes)
 	{
-		meshes.emplace_back(shape.mesh.positions, shape.mesh.indices, shape.mesh.normals, shape.mesh.texcoords, pathTexture, specTexture);
+		//meshes.emplace_back(shape.mesh.positions, shape.mesh.indices, shape.mesh.normals, shape.mesh.texcoords, pathTexture, specTexture);
 	}
 	isLoaded = true;
 }

@@ -21,7 +21,7 @@ class YbnLoader
 	std::vector<btBvhTriangleMeshShape*> btTriangleMeshes;
 public:
 	uint32_t Hash;
-	std::vector<Mesh> meshes;
+	std::vector<Mesh*> meshes;
 	std::vector<glm::vec3> CenterGeometry;
 
 	YbnLoader(btDiscreteDynamicsWorld* world, memstream& file, uint32_t hash);

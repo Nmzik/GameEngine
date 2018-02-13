@@ -11,8 +11,8 @@ Mesh::Mesh(std::vector<glm::vec3>& vertices, std::vector<glm::vec3>& normals)
 
 	glBindVertexArray(VAO);
 
-	glGenBuffers(1, &vertex_buffer);
-	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
+	glGenBuffers(1, &VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
@@ -28,21 +28,14 @@ Mesh::Mesh(std::vector<glm::vec3>& vertices, std::vector<glm::vec3>& normals)
 	material = new Material(0, 0);
 }
 
-Mesh::Mesh(std::vector<float>& vertices, std::vector<uint16_t>& indices, std::vector<float>& normals, std::vector<float>& texcoords, char const * pathTexture, char const * specTexture)
-{
-	
-
-	material = new Material(pathTexture, specTexture);
-}
-
 Mesh::Mesh(std::vector<uint8_t>& vertexData, std::vector<uint16_t>& indices, uint16_t VertexStride)
 {
 	glGenVertexArrays(1, &VAO);
 
 	glBindVertexArray(VAO);
 
-	glGenBuffers(1, &vertex_buffer);
-	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
+	glGenBuffers(1, &VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, vertexData.size() * sizeof(uint8_t), &vertexData[0], GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, VertexStride, nullptr);
@@ -68,7 +61,8 @@ Mesh::Mesh(std::vector<uint8_t>& vertexData, std::vector<uint16_t>& indices, uin
 Mesh::~Mesh()
 {
 	glDeleteBuffers(1, &EBO);
-	glDeleteBuffers(1, &vertex_buffer);
+	glDeleteBuffers(1, &normal_buffer);
+	glDeleteBuffers(1, &VBO);
 	glDeleteVertexArrays(1, &VAO);
 	delete material;
 }

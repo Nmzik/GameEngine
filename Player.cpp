@@ -82,7 +82,10 @@ Player::Player(glm::vec3 position, btDiscreteDynamicsWorld* world)
 
 Player::~Player()
 {
-	printf("DESTRUCTOR \n");
+	glDeleteBuffers(1, &EBO);
+	glDeleteBuffers(1, &VBO);
+	glDeleteVertexArrays(1, &VAO);
+	//printf("DESTRUCTOR \n");
 }
 
 btKinematicCharacterController* Player::getPhysCharacter()

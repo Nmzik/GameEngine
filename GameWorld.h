@@ -43,7 +43,7 @@ public:
 	std::vector<YmapLoader*> ymapLoader;
 	std::vector<Model*> models;
 	std::vector<Player*> pedestrians;
-	std::vector<Vehicle> vehicles;
+	std::vector<Vehicle*> vehicles;
 	uint8_t gameMinute;
 	uint8_t gameHour;
 	Player* player;

@@ -55,8 +55,8 @@ void InGameState::tick(float delta_time)
 		game->getWorld()->models[0]->xpos += 1.0f;
 	}
 
-	if (game->getInput()->IsKeyPressed(SDL_SCANCODE_X)) {
-		//game->getWorld()->ydrLoader[0].z -= 0.1f;
+	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_X)) {
+		game->getRenderer()->DrawCollision = !game->getRenderer()->DrawCollision;
 	}
 
 	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_V)) {
@@ -93,7 +93,7 @@ void InGameState::tick(float delta_time)
 			if (game->getWorld()->player->GetCurrentVehicle()) {
 				//in Vehicle
 				printf("EXITING");
-				game->getWorld()->player->getPhysCharacter()->warp(game->getWorld()->player->GetCurrentVehicle()->m_carChassis->getWorldTransform().getOrigin());
+				game->getWorld()->player->getPhysCharacter()->warp(game->getWorld()->player->GetCurrentVehicle()->m_carChassis->getWorldTransform().getOrigin() + btVector3(0.0f, 50.0f, 0.0f));
 				game->getWorld()->player->ExitVehicle();
 			} else {
 				printf("ENTERING");
@@ -113,15 +113,16 @@ void InGameState::tick(float delta_time)
 			if (game->getInput()->IsKeyPressed(SDL_SCANCODE_S)) {
 				game->getWorld()->player->GetCurrentVehicle()->SetThrottle(-1.0);
 			}
-			if (game->getInput()->IsKeyPressed(SDL_SCANCODE_A)) {
-				game->getWorld()->player->GetCurrentVehicle()->steeringValue += 0.04;
-				if (game->getWorld()->player->GetCurrentVehicle()->steeringValue > 0.3) game->getWorld()->player->GetCurrentVehicle()->steeringValue = 0.3;
+
+			float steering = 0.0f;
+
+			if (game->getInput()->IsKeyPressed(SDL_SCANCODE_A) != game->getInput()->IsKeyPressed(SDL_SCANCODE_D)) {
+				steering = (game->getInput()->IsKeyPressed(SDL_SCANCODE_A) ? 0.3 : -0.3);
 			}
-			if (game->getInput()->IsKeyPressed(SDL_SCANCODE_D)) {
-				game->getWorld()->player->GetCurrentVehicle()->steeringValue -= 0.04;
-				if (game->getWorld()->player->GetCurrentVehicle()->steeringValue < -0.3) game->getWorld()->player->GetCurrentVehicle()->steeringValue = -0.3;
-			}
-			printf("%f \n", game->getWorld()->player->GetCurrentVehicle()->steeringValue);
+
+			game->getWorld()->player->GetCurrentVehicle()->steeringValue = steering;
+			
+			//printf("%f \n", game->getWorld()->player->GetCurrentVehicle()->steeringValue);
 		}
 		else {
 			game->getRenderer()->getCamera().Position = glm::vec3(game->getWorld()->player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getX(), game->getWorld()->player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getY(), game->getWorld()->player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getZ());

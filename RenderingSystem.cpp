@@ -368,7 +368,7 @@ void RenderingSystem::render(GameWorld* world)
 				glm::mat4 model = glm::translate(glm::mat4(), world->ybnLoader[i]->CenterGeometry[j]);
 				glm::mat4 rotate = glm::toMat4(glm::quat(0.f, 0.f, 0.0, 1.0f));
 				gbuffer->setMat4("model", model);
-				world->ybnLoader[i]->meshes[j].DrawCollision();
+				world->ybnLoader[i]->meshes[j]->DrawCollision();
 			}
 		}
 	}
@@ -396,9 +396,9 @@ void RenderingSystem::render(GameWorld* world)
 	}
 
 	for (int i = 0; i < world->vehicles.size(); i++) {
-		auto modelVehicle = world->vehicles[i].GetMat4();
+		auto modelVehicle = world->vehicles[i]->GetMat4();
 		gbuffer->setMat4("model", modelVehicle);
-		world->vehicles[i].Draw();
+		world->vehicles[i]->Draw();
 	}
 
 	if (RenderDebugWorld) {

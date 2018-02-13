@@ -287,8 +287,7 @@ YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world, memstream& file, uint32_t h
 			}
 		}
 
-		//Mesh mesh(FinalVertices, FinalNormals);
-		//meshes.push_back(mesh);
+		meshes.emplace_back(new Mesh(FinalVertices, FinalNormals));
 
 		FinalVertices.clear();
 		FinalVertices.shrink_to_fit();
@@ -310,7 +309,11 @@ YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world, memstream& file, uint32_t h
 
 YbnLoader::~YbnLoader()
 {
-	//CollisionWorld->removeCollisionObject
+	for (auto& mesh : meshes)
+	{
+		delete mesh;
+	}
+
 	for (int i = 0; i < btMeshes.size(); i++)
 	{
 		delete btMeshes[i];
@@ -331,6 +334,6 @@ glm::mat4 YbnLoader::GetMat4()
 void YbnLoader::Draw()
 {
 	for (int i = 0; i < 1; i++) {
-		meshes[i].DrawCollision();
+		meshes[i]->DrawCollision();
 	}
 }
