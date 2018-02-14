@@ -83,7 +83,7 @@ public:
 	void DetectWeaponHit(glm::vec3 CameraPosition, glm::vec3 lookDirection);
 	void update(float delta_time);
 
-	void TestFunction();
+	void TestFunction(glm::vec3 Position);
 	bool DetectInWater(glm::vec3 Position);
 	void ClearTestFunction();
 };

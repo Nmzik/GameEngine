@@ -66,6 +66,7 @@ class YmapLoader
 		uint32_t Unused6;//124
 	};
 public:
+	uint32_t flags;
 	uint32_t Hash;
 	std::vector<CEntityDef> CEntityDefs;
 

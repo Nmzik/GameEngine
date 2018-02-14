@@ -357,6 +357,8 @@ YmapLoader::YmapLoader(memstream& file, uint32_t hash) : Hash(hash)
 		}
 	}
 
+	flags = _CMapData.flags;
+
 	for (auto& Block : meta.MetaBlocks)
 	{
 		if (Block.MetaDataBlock_struct.StructureNameHash == 3461354627)

@@ -27,8 +27,8 @@ Vehicle::Vehicle(glm::vec3 position, btDiscreteDynamicsWorld* world) : throttle(
 	tr.setIdentity();
 
 	btRaycastVehicle::btVehicleTuning m_tuning;
-	btCollisionShape* chassisShape = new btBoxShape(btVector3(1.f, 2.f, 0.5f));
-	btCompoundShape* compound = new btCompoundShape();
+	chassisShape = new btBoxShape(btVector3(1.f, 2.f, 0.5f));
+	compound = new btCompoundShape();
 	btTransform localTrans;
 	localTrans.setIdentity();
 	//localTrans effectively shifts the center of mass with respect to the chassis
@@ -51,8 +51,6 @@ Vehicle::Vehicle(glm::vec3 position, btDiscreteDynamicsWorld* world) : throttle(
 	m_carChassis->setWorldTransform(tr);
 	
 	world->addRigidBody(m_carChassis);
-
-	btCollisionShape* m_wheelShape = new btCylinderShapeX(btVector3(wheelWidth, wheelRadius, wheelRadius));
 
 	m_wheelShape = new btCylinderShapeX(btVector3(wheelWidth, wheelRadius, wheelRadius));
 
@@ -164,10 +162,19 @@ Vehicle::Vehicle(glm::vec3 position, btDiscreteDynamicsWorld* world) : throttle(
 
 Vehicle::~Vehicle()
 {
-	//delete m_vehicleRayCaster;
-	//m_vehicleRayCaster = NULL;
-	//delete m_vehicle;
-	//m_vehicle = NULL;
+	delete m_carChassis->getMotionState();
+	delete m_carChassis;
+	delete chassisShape;
+	delete compound;
+	delete m_wheelShape;
+	delete m_vehicleRayCaster;
+	m_vehicleRayCaster = NULL;
+	delete m_vehicle;
+	m_vehicle = NULL;
+
+	//glDeleteBuffers(1, &EBO);
+	glDeleteBuffers(1, &VBO);
+	glDeleteVertexArrays(1, &VAO);
 }
 
 glm::mat4 Vehicle::GetMat4()

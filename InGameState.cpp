@@ -60,7 +60,7 @@ void InGameState::tick(float delta_time)
 	}
 
 	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_V)) {
-		game->getWorld()->TestFunction();
+		game->getWorld()->TestFunction(game->getRenderer()->getCamera().Position);
 	}
 	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_B)) {
 		game->getWorld()->ClearTestFunction();

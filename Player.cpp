@@ -8,12 +8,12 @@ Player::Player(glm::vec3 position, btDiscreteDynamicsWorld* world)
 	physObject->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), btVector3(position.x, position.y, position.z)));
 	physObject->setCollisionShape(physShape);
 	physObject->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
-	physCharacter = new btKinematicCharacterController(physObject, physShape, 0.30f, btVector3(0.f, 0.f, 1.f));
-	physCharacter->setFallSpeed(10.f);
-	physCharacter->setUseGhostSweepTest(true);
-	physCharacter->setVelocityForTimeInterval(btVector3(1.f, 1.f, 1.f), 1.f);
+	physCharacter = new btKinematicCharacterController(physObject, physShape, 0.30f);
+	physCharacter->setFallSpeed(100.f);
+	physCharacter->setUseGhostSweepTest(false);
+	//physCharacter->setVelocityForTimeInterval(btVector3(1.f, 1.f, 1.f), 1.f);
 	physCharacter->setGravity(world->getGravity());
-	world->addCollisionObject(physObject, btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::AllFilter);
+	world->addCollisionObject(physObject, btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter);
 	world->addAction(physCharacter);
 
 	std::vector <float> vertices = {

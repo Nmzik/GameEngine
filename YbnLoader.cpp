@@ -287,7 +287,7 @@ YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world, memstream& file, uint32_t h
 			}
 		}
 
-		meshes.emplace_back(new Mesh(FinalVertices, FinalNormals));
+		//meshes.emplace_back(new Mesh(FinalVertices, FinalNormals));
 
 		FinalVertices.clear();
 		FinalVertices.shrink_to_fit();

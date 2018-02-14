@@ -12,8 +12,11 @@ public:
 	float throttle;
 	float steeringValue;
 	btRigidBody* m_carChassis;
+	btCollisionShape* chassisShape;
+	btCompoundShape* compound;
 	btVehicleRaycaster* m_vehicleRayCaster;
 	btRaycastVehicle* m_vehicle;
+	btCollisionShape* m_wheelShape;
 
 	void SetThrottle(float throttle) {
 		this->throttle = throttle;
