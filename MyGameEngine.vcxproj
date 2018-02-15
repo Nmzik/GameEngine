@@ -98,6 +98,7 @@
     <ClCompile Include="MenuState.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
+    <ClCompile Include="nv_dds.cpp" />
     <ClCompile Include="PauseState.cpp" />
     <ClCompile Include="PhysicsDebugDrawer.cpp" />
     <ClCompile Include="Player.cpp" />
@@ -118,6 +119,7 @@
     <ClCompile Include="YmapLoader.cpp" />
     <ClCompile Include="YndLoader.cpp" />
     <ClCompile Include="YtdLoader.cpp" />
+    <ClCompile Include="YtypLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="aes.h" />
@@ -135,6 +137,7 @@
     <ClInclude Include="Material.h" />
     <ClInclude Include="membuf.h" />
     <ClInclude Include="MenuState.h" />
+    <ClInclude Include="nv_dds.h" />
     <ClInclude Include="PauseState.h" />
     <ClInclude Include="PhysicsDebugDrawer.h" />
     <ClInclude Include="Player.h" />
@@ -162,6 +165,7 @@
     <ClInclude Include="YmapLoader.h" />
     <ClInclude Include="YndLoader.h" />
     <ClInclude Include="YtdLoader.h" />
+    <ClInclude Include="YtypLoader.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="skybox.vs" />

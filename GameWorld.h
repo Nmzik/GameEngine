@@ -8,6 +8,7 @@
 #include "YdrLoader.h"
 #include "YddLoader.h"
 #include "YmapLoader.h"
+#include "YtypLoader.h"
 #include "YndLoader.h"
 #include "YbnLoader.h"
 #include "YtdLoader.h"
@@ -16,6 +17,7 @@
 #include "CacheDatFile.h"
 #include "SpaceGrid.h"
 #include <windows.h>
+#include "SDL.h"
 
 class ResourceManager;
 
@@ -40,6 +42,7 @@ public:
 	std::vector<YddLoader*> yddLoader;
 	std::vector<YndLoader> yndLoader;
 	std::vector<YbnLoader*> ybnLoader;
+	std::vector<YtypLoader*> ytypLoader;
 	std::vector<YmapLoader*> ymapLoader;
 	std::vector<Model*> models;
 	std::vector<Player*> pedestrians;
@@ -52,6 +55,8 @@ public:
 	~GameWorld();
 
 	void LoadYmap(uint32_t hash, glm::vec3 cameraPosition);
+
+	bool LoadYTYP(uint32_t hash);
 
 	bool LoadYTD(uint32_t hash);
 

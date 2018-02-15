@@ -35,8 +35,6 @@ GameData::GameData()
 		LoadRpf(rpfFile);
 	}
 	LoadWaterQuads();
-	printf("%d\n", sizeof(RpfFile));
-	printf("%d\n", sizeof(std::vector<RpfFile>) * RpfFiles.size() * sizeof(RpfFile)/1024/1024);
 	//shrink to fit
 	for (auto& rpfFile : RpfFiles)
 	{
@@ -101,6 +99,23 @@ GameData::GameData()
 				if (entry.Name.substr(entry.Name.length() - 5) == ".ymap") {
 					YmapEntries[entry.NameHash] = &entry;
 					YmapEntries[entry.ShortNameHash] = &entry;
+				}
+				if (entry.Name.substr(entry.Name.length() - 5) == ".ytyp") {
+					//YtypEntries[entry.NameHash] = &entry;
+					//YtypEntries[entry.ShortNameHash] = &entry;
+
+					std::vector<uint8_t> outputBuffer;
+					ExtractFileResource(entry, outputBuffer);
+
+					memstream stream(outputBuffer.data(), outputBuffer.size());
+
+					YtypLoader* file = new YtypLoader(stream);
+					for (auto&  def : file->CBaseArchetypeDefs)
+					{
+						TextureDictionary[def.assetName] = def.textureDictionary;
+					}
+					delete file;
+
 				}
 			}
 		}

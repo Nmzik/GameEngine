@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <unordered_map>
 #include "tinyxml2.h"
+#include "YtypLoader.h"
 
 struct WaterQuad
 {
@@ -27,10 +28,14 @@ class GameData
 
 public:
 	std::vector<WaterQuad> WaterQuads;
+
+	std::unordered_map<uint32_t, uint32_t> TextureDictionary; //FIRST - architextureName SECOND - textureDict
+
 	std::unordered_map<uint32_t, RpfResourceFileEntry*> YdrEntries;
 	std::unordered_map<uint32_t, RpfResourceFileEntry*> YddEntries;
 	std::unordered_map<uint32_t, RpfResourceFileEntry*> YtdEntries;
 	std::unordered_map<uint32_t, RpfResourceFileEntry*> YmapEntries;
+	std::unordered_map<uint32_t, RpfResourceFileEntry*> YtypEntries;
 	std::unordered_map<uint32_t, RpfResourceFileEntry*> YbnEntries;
 
 	GameData();

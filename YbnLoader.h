@@ -20,6 +20,7 @@ class YbnLoader
 	std::vector<btTriangleMesh*> btMeshes;
 	std::vector<btBvhTriangleMeshShape*> btTriangleMeshes;
 public:
+	uint32_t time;
 	uint32_t Hash;
 	std::vector<Mesh*> meshes;
 	std::vector<glm::vec3> CenterGeometry;

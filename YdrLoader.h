@@ -20,6 +20,7 @@ class YdrLoader
 	//glm::vec3 Position;
 	//glm::quat Rotation;
 public:
+	uint32_t time;
 	bool Loaded = false;
 	uint32_t Hash;
 	YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, uint32_t hash);

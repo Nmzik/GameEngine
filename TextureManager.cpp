@@ -1,9 +1,20 @@
 #include "TextureManager.h"
 
+bool TextureManager::testvar = false;
 std::unordered_map<std::string, GLuint> TextureManager::TexturesMap;
+
+void TextureManager::ChangeBool()
+{
+	testvar = !testvar;
+}
 
 GLuint TextureManager::SearchTexture(std::string texture)
 {
+	if (testvar == true) {
+		std::unordered_map<std::string, GLuint>::iterator it;
+		it = TexturesMap.find("default");
+		return it->second;
+	}
 	std::unordered_map<std::string, GLuint>::iterator it;
 	it = TexturesMap.find(texture);
 	if (it != TexturesMap.end())
@@ -20,6 +31,11 @@ GLuint TextureManager::SearchTexture(std::string texture)
 		TexturesMap[texture] = TextureID;
 		return TextureID;
 	}
+}
+
+void TextureManager::LoadTexture(GLuint TextureID)
+{
+	TexturesMap["default"] = TextureID;
 }
 
 unsigned int TextureManager::loadTexture(std::string path)

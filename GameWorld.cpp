@@ -35,7 +35,6 @@ GameWorld::GameWorld()
 		btIDebugDraw::DBG_DrawConstraintLimits);
 	dynamicsWorld->setDebugDrawer(&debug);
 
-	LoadYTD(3510635013);
 	/*for (int i = 0; i < 500; i++) {
 		Model model(glm::vec3(0.f, 200.f, 0.f), glm::quat(0.f, 0.f, 0.f, 1.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\cube.obj", "container.jpg", "container2_specular.png", true, true);
 		model.Load();
@@ -94,6 +93,7 @@ void GameWorld::LoadYmap(uint32_t hash, glm::vec3 cameraPosition)
 		YmapLoader* map = (*it);
 		//printf("FOUND SAME\n");
 		//FOUND
+		map->time = SDL_GetTicks() / 1000;
 		if (!(map->flags & 1) > 0) { //DONT LOAD SCRIPTED MAPS
 			for (int i = 0; i < map->CEntityDefs.size(); i++)
 			{
@@ -121,12 +121,14 @@ void GameWorld::LoadYmap(uint32_t hash, glm::vec3 cameraPosition)
 			memstream stream(outputBuffer.data(), outputBuffer.size());
 
 			YmapLoader *ymap = new YmapLoader(stream, hash);
+			ymap->time = SDL_GetTicks() / 1000;
 			ymapLoader.push_back(ymap);
 
 			if (!(ymap->flags & 1) > 0) { //DONT LOAD SCRIPTED MAPS
 				for (int i = 0; i < ymap->CEntityDefs.size(); i++)
 				{
 					if (ymap->CEntityDefs[i].lodLevel == 0) {
+						LoadYTD(ymap->CEntityDefs[i].archetypeName);
 						if (glm::distance(cameraPosition, ymap->CEntityDefs[i].position) <= ymap->CEntityDefs[i].lodDist) {
 							LoadYDR(ymap->CEntityDefs[i].archetypeName, ymap->CEntityDefs[i].position, glm::quat(-ymap->CEntityDefs[i].rotation.w, ymap->CEntityDefs[i].rotation.x, ymap->CEntityDefs[i].rotation.y, ymap->CEntityDefs[i].rotation.z));
 							//LoadYDD(ymap->CEntityDefs[i].archetypeName, ymap->CEntityDefs[i].position, glm::quat(-ymap->CEntityDefs[i].rotation.w, ymap->CEntityDefs[i].rotation.x, ymap->CEntityDefs[i].rotation.y, ymap->CEntityDefs[i].rotation.z));
@@ -142,20 +144,21 @@ void GameWorld::LoadYmap(uint32_t hash, glm::vec3 cameraPosition)
 	}
 }
 
-bool GameWorld::LoadYTD(uint32_t hash)
+bool GameWorld::LoadYTYP(uint32_t hash)
 {
 	std::unordered_map<uint32_t, RpfResourceFileEntry*>::iterator it;
-	it = data.YtdEntries.find(hash);
-	if (it != data.YtdEntries.end())
+	it = data.YtypEntries.find(hash);
+	if (it != data.YtypEntries.end())
 	{
-		std::cout << "YTD Found " << it->second->Name << std::endl;
+		std::cout << "YTYP Found " << it->second->Name << std::endl;
 		auto& element = *(it->second);
 		std::vector<uint8_t> outputBuffer;
 		data.ExtractFileResource(element, outputBuffer);
 
 		memstream stream(outputBuffer.data(), outputBuffer.size());
 
-		YtdFile file(stream);
+		YtypLoader* file = new YtypLoader(stream);
+		ytypLoader.push_back(file);
 
 		return true;
 	}
@@ -163,6 +166,32 @@ bool GameWorld::LoadYTD(uint32_t hash)
 	{
 		//std::cout << "Element Not Found" << std::endl;
 		return false;
+	}
+}
+
+bool GameWorld::LoadYTD(uint32_t hash)
+{
+	std::unordered_map<uint32_t, uint32_t>::iterator it; //FOUND ARCH ->TEXTURES FILE
+	it = data.TextureDictionary.find(hash);
+	if (it != data.TextureDictionary.end())
+	{
+		std::cout << "YTD Found " << std::endl;
+
+		std::unordered_map<uint32_t, RpfResourceFileEntry*>::iterator iter;
+		iter = data.YtdEntries.find(it->second);
+		if (iter != data.YtdEntries.end())
+		{
+			std::cout << "YTD Found " << iter->second->Name << std::endl;
+			auto& element = *(iter->second);
+			std::vector<uint8_t> outputBuffer;
+			data.ExtractFileResource(element, outputBuffer);
+
+			memstream stream(outputBuffer.data(), outputBuffer.size());
+
+			YtdFile* file = new YtdFile(stream);
+
+			return true;
+		}
 	}
 }
 
@@ -198,7 +227,10 @@ bool GameWorld::LoadYDR(uint32_t hash, glm::vec3 position, glm::quat rotation)
 {
 	for (auto& ydrFile : ydrLoader)
 	{
-		if (ydrFile->Hash == hash) return true;
+		if (ydrFile->Hash == hash) {
+			ydrFile->time = SDL_GetTicks() / 1000;
+			return true;
+		}
 	}
 	std::unordered_map<uint32_t, RpfResourceFileEntry*>::iterator it;
 	it = data.YdrEntries.find(hash);
@@ -212,8 +244,9 @@ bool GameWorld::LoadYDR(uint32_t hash, glm::vec3 position, glm::quat rotation)
 
 		memstream stream(outputBuffer.data(), outputBuffer.size());
 
-		//YdrLoader test(stream, position);
-		ydrLoader.emplace_back(new YdrLoader(stream, position, rotation, hash));
+		YdrLoader *newYdr = new YdrLoader(stream, position, rotation, hash);
+		newYdr->time = SDL_GetTicks() / 1000;
+		ydrLoader.emplace_back(newYdr);
 
 		return true;
 	}
@@ -226,6 +259,13 @@ bool GameWorld::LoadYDR(uint32_t hash, glm::vec3 position, glm::quat rotation)
 
 bool GameWorld::LoadYBN(uint32_t hash)
 {
+	for (auto& ybnFile : ybnLoader)
+	{
+		if (ybnFile->Hash == hash) {
+			ybnFile->time = SDL_GetTicks() / 1000;
+			return true;
+		}
+	}
 		std::unordered_map<uint32_t, RpfResourceFileEntry*>::iterator it;
 		it = data.YbnEntries.find(hash);
 		if (it != data.YbnEntries.end())
@@ -238,7 +278,9 @@ bool GameWorld::LoadYBN(uint32_t hash)
 
 			memstream stream(outputBuffer.data(), outputBuffer.size());
 			//YbnLoader test(dynamicsWorld, stream, hash);
-			ybnLoader.emplace_back(new YbnLoader(dynamicsWorld, stream, hash));
+			YbnLoader *newYbn = new YbnLoader(dynamicsWorld, stream, hash);
+			newYbn->time = SDL_GetTicks() / 1000;
+			ybnLoader.emplace_back(newYbn);
 
 			return true;
 		}
@@ -255,12 +297,41 @@ void GameWorld::GetVisibleYmaps(glm::vec3 Position)
 
 	//DetectInWater(Position);
 
+	for (auto& BoundsItem : cell.BoundsStoreItems)
+	{
+		LoadYBN(BoundsItem->Name);
+	}
+
 	for (auto& mapNode : cell.MapNodes)
 	{
 		LoadYmap(mapNode->Name, Position);
 	}
 
-	for (int i = 0; i < ymapLoader.size(); i++)
+	uint32_t curTime = SDL_GetTicks() / 1000;
+
+	for (int i = 0; i < ybnLoader.size(); i++) {
+		if ((curTime - ybnLoader[i]->time) > 5) {
+			delete ybnLoader[i];
+			ybnLoader.erase(ybnLoader.begin() + i);
+		}
+	}
+
+	//CLEARING
+	for (int i = 0; i < ymapLoader.size(); i++) {
+		if ((curTime - ymapLoader[i]->time) > 5) {
+			delete ymapLoader[i];
+			ymapLoader.erase(ymapLoader.begin() + i);
+		}
+	}
+
+	for (int i = 0; i < ydrLoader.size(); i++) {
+		if ((curTime - ydrLoader[i]->time) > 5) {
+			delete ydrLoader[i];
+			ydrLoader.erase(ydrLoader.begin() + i);
+		}
+	}
+
+	/*for (int i = 0; i < ymapLoader.size(); i++)
 	{
 		auto it = std::find_if(cell.MapNodes.begin(), cell.MapNodes.end(), [this , &i](MapDataStoreNode* node) -> bool { return this->ymapLoader[i]->Hash == node->Name; });
 		if (it != cell.MapNodes.end()) {
@@ -292,7 +363,7 @@ void GameWorld::GetVisibleYmaps(glm::vec3 Position)
 			delete ymapLoader[i];
 			ymapLoader.erase(ymapLoader.begin() + i);
 		}
-	}
+	}*/
 
 	/*for (auto& BoundsItem : cell.BoundsStoreItems)
 	{

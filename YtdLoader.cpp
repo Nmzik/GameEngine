@@ -179,29 +179,48 @@ YtdFile::YtdFile(memstream& file)
 
 		if (Texture.Format == D3DFMT_DXT1)
 		{
-			printf("HERE");
-			unsigned int components = (Texture.Format == D3DFMT_DXT1) ? 3 : 4;
-			unsigned int format = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
+			//if (i == 9) {
+				printf("HERE");
 
-			glGenTextures(1, &textureID);
+				/*nv_dds::CDDSImage image;
+				image.load("C:\\Users\\nmzik\\Desktop\\cs_rsl_aa_dirttrack3.dds");
 
-			glBindTexture(GL_TEXTURE_2D, textureID);
-			glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+				glGenTextures(1, &textureID);
+				//glEnable(GL_TEXTURE_2D);
+				glBindTexture(GL_TEXTURE_2D, textureID);
+				glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+				glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+				glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+				glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+				//
+				glCompressedTexImage2DARB(GL_TEXTURE_2D, 0, image.get_format(),image.get_width(), image.get_height(), 0, image.get_size(),image);*/
 
-			unsigned int blockSize = (format == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT) ? 8 : 16;
-			unsigned int offset = 0;
+				unsigned int components = (Texture.Format == D3DFMT_DXT1) ? 3 : 4;
+				unsigned int format = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
 
-			for (unsigned int level = 0; level < Texture.Levels; ++level)
-			{
-				unsigned int size = ((Texture.Width + 3) / 4)*((Texture.Height + 3) / 4)*blockSize;
-				glCompressedTexImage2D(GL_TEXTURE_2D, level, format, Texture.Width, Texture.Height,
-					0, size, &TextureData[0] + offset);
+				glGenTextures(1, &textureID);
 
-				offset += size;
-				Texture.Width /= 2;
-				Texture.Height /= 2;
-			}
+				glBindTexture(GL_TEXTURE_2D, textureID);
+				glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+				glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+				glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+				glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+				//glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
+				unsigned int blockSize = (format == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT) ? 8 : 16;
+				unsigned int offset = 0;
+
+				for (unsigned int level = 0; level < Texture.Levels; ++level)
+				{
+					unsigned int size = ((Texture.Width + 3) / 4)*((Texture.Height + 3) / 4)*blockSize;
+
+					glCompressedTexImage2D(GL_TEXTURE_2D, 0, format, Texture.Width, Texture.Height, 0, size, &TextureData[0] + offset);
+
+					offset += size;
+					Texture.Width /= 2;
+					Texture.Height /= 2;
+				}
+			//}
 		}
 
 		file.seekg(posOriginal);
