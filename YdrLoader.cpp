@@ -42,6 +42,43 @@ YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, ui
 
 	file.seekg(pos);*/
 
+	struct
+	{
+		uint32_t VFT;
+		uint32_t Unknown_4h; // 0x00000001
+		uint64_t TextureDictionaryPointer;
+		uint64_t ShadersPointer;
+		uint16_t ShadersCount1;
+		uint16_t ShadersCount2;
+		uint32_t Unknown_1Ch; // 0x00000000
+		uint32_t Unknown_20h; // 0x00000000
+		uint32_t Unknown_24h; // 0x00000000
+		uint32_t Unknown_28h; // 0x00000000
+		uint32_t Unknown_2Ch; // 0x00000000
+		uint32_t Unknown_30h;
+		uint32_t Unknown_34h; // 0x00000000
+		uint32_t Unknown_38h; // 0x00000000
+		uint32_t Unknown_3Ch; // 0x00000000
+	} ShaderGroup;
+
+	struct {
+			uint64_t ParametersPointer;
+			uint32_t Name; //530103687, 2401522793, 1912906641
+			uint32_t Unknown_Ch; // 0x00000000
+			uint8_t ParameterCount;
+			uint8_t Unknown_11h; // 2, 0, 
+			uint16_t Unknown_12h; // 32768
+			uint32_t Unknown_14h; //10485872, 17826000, 26214720
+			uint32_t FileName; //2918136469, 2635608835, 2247429097
+			uint32_t Unknown_1Ch; // 0x00000000
+			uint32_t Unknown_20h; //65284, 65281
+			uint16_t Unknown_24h; //0
+			uint8_t Unknown_26h; //0
+			uint8_t TextureParametersCount;
+			uint32_t Unknown_28h; // 0x00000000
+			uint32_t Unknown_2Ch; // 0x00000000
+	} ShaderFX;
+
 	struct {
 		uint64_t ShaderGroupPointer;
 		uint64_t SkeletonPointer;
@@ -186,6 +223,10 @@ YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, ui
 	std::vector<DrawableGeometry> Geometries;
 
 	file.read((char*)&DrawableBase, sizeof(DrawableBase));
+
+	//Shader stuff
+
+
 
 	uint64_t pos1 = file.tellg();
 

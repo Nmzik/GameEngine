@@ -168,27 +168,18 @@
     <ClInclude Include="YtypLoader.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="skybox.vs" />
+    <Text Include="skybox.shader" />
     <Text Include="TODO.txt" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="debug_quad.fs" />
-    <None Include="debug_quad.vs" />
-    <None Include="DepthTexture.fs" />
-    <None Include="DepthTexture.vs" />
-    <None Include="gbuffer.fs" />
-    <None Include="gbuffer.vs" />
-    <None Include="gbufferLighting.fs" />
-    <None Include="gbufferLighting.vs" />
-    <None Include="hdrShader.fs" />
-    <None Include="hdrShader.vs" />
-    <None Include="skybox.fs" />
-    <None Include="forward.fs" />
-    <None Include="forward.vs" />
-    <None Include="ssao.fs" />
-    <None Include="ssao.vs" />
-    <None Include="ssao_blur.fs" />
-    <None Include="ssao_blur.vs" />
+    <None Include="debug_quad.shader" />
+    <None Include="DepthTexture.shader" />
+    <None Include="gbuffer.shader" />
+    <None Include="gbufferLighting.shader" />
+    <None Include="hdrShader.shader" />
+    <None Include="forward.shader" />
+    <None Include="ssao.shader" />
+    <None Include="ssao_blur.shader" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="skybox_textures\back.jpg" />

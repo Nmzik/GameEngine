@@ -10,36 +10,35 @@ class Shader
 	GLuint ID;
 
 public:
-	Shader(const char* vertexPath, const char* fragmentPath)
+	Shader(const char* ShaderPath)
 	{
-		// 1. retrieve the vertex/fragment source code from filePath
 		std::string vertexCode;
 		std::string fragmentCode;
-		std::ifstream vShaderFile;
-		std::ifstream fShaderFile;
-		// ensure ifstream objects can throw exceptions:
-		vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-		fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-		try
-		{
-			// open files
-			vShaderFile.open(vertexPath);
-			fShaderFile.open(fragmentPath);
-			std::stringstream vShaderStream, fShaderStream;
-			// read file's buffer contents into streams
-			vShaderStream << vShaderFile.rdbuf();
-			fShaderStream << fShaderFile.rdbuf();
-			// close file handlers
-			vShaderFile.close();
-			fShaderFile.close();
-			// convert stream into string
-			vertexCode = vShaderStream.str();
-			fragmentCode = fShaderStream.str();
+		std::ifstream ShaderFile;
+		std::string line;
+		uint32_t type;
+		std::stringstream ss[2];
+		// open files
+		ShaderFile.open(ShaderPath);
+
+		while (std::getline(ShaderFile, line)) {
+			if (line.find("#shader") != std::string::npos)
+			{
+				if (line.find("vertex") != std::string::npos)
+					type = 0;
+				else if (line.find("fragment") != std::string::npos)
+					type = 1;
+			}
+			else
+			{
+				ss[type] << line << '\n';
+			}
 		}
-		catch (std::ifstream::failure e)
-		{
-			std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
-		}
+		// close file handlers
+		ShaderFile.close();
+		// convert stream into string
+		vertexCode = ss[0].str();
+		fragmentCode = ss[1].str();
 		const char* vShaderCode = vertexCode.c_str();
 		const char * fShaderCode = fragmentCode.c_str();
 		// 2. compile shaders

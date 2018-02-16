@@ -35,6 +35,8 @@ GameWorld::GameWorld()
 		btIDebugDraw::DBG_DrawConstraintLimits);
 	dynamicsWorld->setDebugDrawer(&debug);
 
+
+	//LoadYTD(1264848310);
 	/*for (int i = 0; i < 500; i++) {
 		Model model(glm::vec3(0.f, 200.f, 0.f), glm::quat(0.f, 0.f, 0.f, 1.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\cube.obj", "container.jpg", "container2_specular.png", true, true);
 		model.Load();
@@ -43,42 +45,7 @@ GameWorld::GameWorld()
 		dynamicsWorld->addRigidBody(models[i].getBody());
 	}*/
 
-	//LoadYBN(2371349205);
-
-	//LoadYDR(1709559537, glm::vec3(0,0,0), glm::quat(0,0,0,0));
-	//LoadYmap(1198958185);
-	//LoadYmap(710206074);
-	//LoadYmap(3229005336);
-	//LoadYmap(324492252);
-	//LoadYmap(611909151);
-	//LoadYmap(3871703737);
-	//(4160496934);
-	//(1234356306);
-	//(1560373118);
-
-	//YbnLoader loaderybn(dynamicsWorld);
-	//ybnLoader.push_back(loaderybn);
-
-	//YddLoader testydd;
-	//yddLoader.push_back(testydd);
-
-	/*Player* player = new Player(glm::vec3(0, 0, 0), dynamicsWorld);
-	delete player;
-	Player* player1 = new Player(glm::vec3(0, 0, 0), dynamicsWorld);
-	delete player1;*/
-
-	//Model *model = new Model(dynamicsWorld, glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, -0.707f, 0.707f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\plane.obj", nullptr, nullptr, false, true);
-	//Model *model1 = new Model(dynamicsWorld, glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 1.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\cube.obj", "container.jpg", "container2_specular.png", true, true);
-	//_ResourceManager->AddToWaitingList(model);
-	//_ResourceManager->AddToWaitingList(model1);
-
-	//Model *model2 = new Model(dynamicsWorld, glm::vec3(0.f, 0.f, 0.f), glm::quat(0.f, 0.f, 0.f, 0.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\rungholt\\rungholt.obj", nullptr, nullptr, false, false);
-	//_ResourceManager->AddToWaitingList(model2);
-
-	//Model model2(glm::vec3(0.f, 5.f, 0.f), glm::quat(0.f, 0.f, 0.f, 0.f), glm::vec3(10.0f), "C:\\Users\\nmzik\\Desktop\\skydome\\building1.obj", nullptr, nullptr, false, false);
-	//_ResourceManager->AddToWaitingList(model2);
-
-	//dynamicsWorld->addRigidBody(model1.getBody());
+	
 }
 
 GameWorld::~GameWorld()
@@ -175,10 +142,9 @@ bool GameWorld::LoadYTD(uint32_t hash)
 	it = data.TextureDictionary.find(hash);
 	if (it != data.TextureDictionary.end())
 	{
-		std::cout << "YTD Found " << std::endl;
-
+		//std::cout << "YTD Found " << std::endl;
 		std::unordered_map<uint32_t, RpfResourceFileEntry*>::iterator iter;
-		iter = data.YtdEntries.find(it->second);
+		iter = data.YtdEntries.find(hash);
 		if (iter != data.YtdEntries.end())
 		{
 			std::cout << "YTD Found " << iter->second->Name << std::endl;
@@ -189,6 +155,8 @@ bool GameWorld::LoadYTD(uint32_t hash)
 			memstream stream(outputBuffer.data(), outputBuffer.size());
 
 			YtdFile* file = new YtdFile(stream);
+			//TextureManager::LoadTexture(file->textureID);
+			delete file;
 
 			return true;
 		}

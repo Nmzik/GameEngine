@@ -59,15 +59,15 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 
 	//skybox = new Skybox();
 
-	SkyboxShader = new Shader("skybox.vs", "skybox.fs");
-	ourShader = new Shader("forward.vs", "forward.fs");
-	gbuffer = new Shader("gbuffer.vs", "gbuffer.fs");
-	shaderSSAO = new Shader("ssao.vs", "ssao.fs");
-	shaderSSAOBlur = new Shader("ssao_blur.vs", "ssao_blur.fs");
-	gbufferLighting = new Shader("gbufferLighting.vs", "gbufferLighting.fs");
-	DepthTexture = new Shader("DepthTexture.vs", "DepthTexture.fs");
-	hdrShader = new Shader("hdrShader.vs", "hdrShader.fs");
-	debugDepthQuad = new Shader("debug_quad.vs", "debug_quad.fs");
+	SkyboxShader = new Shader("skybox.shader");
+	ourShader = new Shader("forward.shader");
+	gbuffer = new Shader("gbuffer.shader");
+	shaderSSAO = new Shader("ssao.shader");
+	shaderSSAOBlur = new Shader("ssao_blur.shader");
+	gbufferLighting = new Shader("gbufferLighting.shader");
+	DepthTexture = new Shader("DepthTexture.shader");
+	hdrShader = new Shader("hdrShader.shader");
+	debugDepthQuad = new Shader("debug_quad.shader");
 
 	debugDepthQuad->use();
 	debugDepthQuad->setInt("depthMap", 0);

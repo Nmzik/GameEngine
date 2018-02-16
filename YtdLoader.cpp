@@ -65,25 +65,6 @@ YtdFile::YtdFile(memstream& file)
 	} Texture;
 
 	struct {
-		// structure data
-		uint32_t VFT;
-		uint32_t Unknown_4h; // 0x00000001
-		uint32_t Unknown_8h; // 0x00000000
-		uint32_t Unknown_Ch; // 0x00000000
-		uint32_t Unknown_10h; // 0x00000000
-		uint32_t Unknown_14h; // 0x00000000
-		uint32_t Unknown_18h; // 0x00000000
-		uint32_t Unknown_1Ch; // 0x00000000
-		uint32_t Unknown_20h; // 0x00000000
-		uint32_t Unknown_24h; // 0x00000000
-		uint64_t NamePointer;
-		uint32_t Unknown_30h;
-		uint32_t Unknown_34h; // 0x00000000
-		uint32_t Unknown_38h; // 0x00000000
-		uint32_t Unknown_3Ch; // 0x00000000
-	} TextureBase;
-
-	struct {
 		uint32_t FileVFT;
 		uint32_t FileUnknown;
 		uint64_t FilePagesInfoPointer;
@@ -145,7 +126,9 @@ YtdFile::YtdFile(memstream& file)
 
 		file.seekg(data_pointer);
 
-		file.read((char*)&TextureBase, sizeof(TextureBase));
+		TextureBase texBase;
+
+		file.read((char*)&texBase, sizeof(TextureBase));
 		file.read((char*)&Texture, sizeof(Texture));
 
 		//READ ACTUAL DATA
@@ -175,11 +158,11 @@ YtdFile::YtdFile(memstream& file)
 		TextureData.resize(fullLength);
 		file.read((char*)&TextureData[0], fullLength);
 
-		printf("%d\n", TextureData[fullLength]);
+		//printf("%d\n", TextureData[fullLength]);
 
 		if (Texture.Format == D3DFMT_DXT1)
 		{
-			//if (i == 9) {
+			//if (i == 0) {
 				printf("HERE");
 
 				/*nv_dds::CDDSImage image;
@@ -198,6 +181,8 @@ YtdFile::YtdFile(memstream& file)
 				unsigned int components = (Texture.Format == D3DFMT_DXT1) ? 3 : 4;
 				unsigned int format = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
 
+				GLuint textureID;
+
 				glGenTextures(1, &textureID);
 
 				glBindTexture(GL_TEXTURE_2D, textureID);
@@ -214,12 +199,13 @@ YtdFile::YtdFile(memstream& file)
 				{
 					unsigned int size = ((Texture.Width + 3) / 4)*((Texture.Height + 3) / 4)*blockSize;
 
-					glCompressedTexImage2D(GL_TEXTURE_2D, 0, format, Texture.Width, Texture.Height, 0, size, &TextureData[0] + offset);
+					glCompressedTexImage2D(GL_TEXTURE_2D, level, format, Texture.Width, Texture.Height, 0, size, &TextureData[0] + offset);
 
 					offset += size;
 					Texture.Width /= 2;
 					Texture.Height /= 2;
 				}
+				textures.push_back(textureID);
 			//}
 		}
 

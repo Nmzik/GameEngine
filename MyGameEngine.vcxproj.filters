@@ -268,63 +268,36 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="skybox.vs">
+    <Text Include="TODO.txt">
       <Filter>Source Files</Filter>
     </Text>
-    <Text Include="TODO.txt">
+    <Text Include="skybox.shader">
       <Filter>Source Files</Filter>
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <None Include="skybox.fs">
+    <None Include="ssao.shader">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="forward.fs">
+    <None Include="ssao_blur.shader">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="forward.vs">
+    <None Include="debug_quad.shader">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="gbuffer.vs">
+    <None Include="gbuffer.shader">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="gbuffer.fs">
+    <None Include="gbufferLighting.shader">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="gbufferLighting.vs">
+    <None Include="hdrShader.shader">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="gbufferLighting.fs">
+    <None Include="forward.shader">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="DepthTexture.vs">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="DepthTexture.fs">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="debug_quad.vs">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="debug_quad.fs">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="ssao.vs">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="ssao.fs">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="ssao_blur.vs">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="ssao_blur.fs">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="hdrShader.vs">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="hdrShader.fs">
+    <None Include="DepthTexture.shader">
       <Filter>Source Files</Filter>
     </None>
   </ItemGroup>
