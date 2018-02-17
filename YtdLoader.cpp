@@ -158,29 +158,29 @@ YtdFile::YtdFile(memstream& file)
 		TextureData.resize(fullLength);
 		file.read((char*)&TextureData[0], fullLength);
 
-		//printf("%d\n", TextureData[fullLength]);
+		/*nv_dds::CDDSImage image;
+		image.load("C:\\Users\\nmzik\\Desktop\\cs_rsl_aa_dirttrack3.dds");
+		*/
 
-		if (Texture.Format == D3DFMT_DXT1)
+		unsigned int format;
+		switch (Texture.Format)
 		{
-			//if (i == 0) {
-				printf("HERE");
+		case D3DFMT_DXT1:
+			format = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
+			break;
+		case D3DFMT_DXT3:
+			format = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
+			break;
+		case D3DFMT_DXT5:
+			format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+			break;
+		default:
+			printf("UNSUPPORTED FORMAT\n");
+			break;
+		}
 
-				/*nv_dds::CDDSImage image;
-				image.load("C:\\Users\\nmzik\\Desktop\\cs_rsl_aa_dirttrack3.dds");
-
-				glGenTextures(1, &textureID);
-				//glEnable(GL_TEXTURE_2D);
-				glBindTexture(GL_TEXTURE_2D, textureID);
-				glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-				glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-				glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-				glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-				//
-				glCompressedTexImage2DARB(GL_TEXTURE_2D, 0, image.get_format(),image.get_width(), image.get_height(), 0, image.get_size(),image);*/
-
-				unsigned int components = (Texture.Format == D3DFMT_DXT1) ? 3 : 4;
-				unsigned int format = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
-
+		if (Texture.Format == D3DFMT_DXT1 || Texture.Format == D3DFMT_DXT3 || Texture.Format == D3DFMT_DXT5)
+		{
 				GLuint textureID;
 
 				glGenTextures(1, &textureID);

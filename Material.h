@@ -6,8 +6,7 @@
 class Material
 {
 public:
-	Material(const char* diffuseTexture, const char* specTexture, bool UseSametextureID, GLuint TextureID);
-	Material(const char * diffuseTexture, const char * specTexture);
+	Material(uint32_t Hash);
 	~Material();
 
 	GLuint diffuseTextureID;

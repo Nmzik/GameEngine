@@ -25,7 +25,7 @@ Mesh::Mesh(std::vector<glm::vec3>& vertices, std::vector<glm::vec3>& normals)
 
 	num_vertices = vertices.size();
 
-	material = new Material(0, 0);
+	material = new Material(0);
 }
 
 Mesh::Mesh(std::vector<uint8_t>& vertexData, std::vector<uint16_t>& indices, uint16_t VertexStride)
@@ -53,7 +53,7 @@ Mesh::Mesh(std::vector<uint8_t>& vertexData, std::vector<uint16_t>& indices, uin
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-	material = new Material(0, 0, true, 0);
+	material = new Material(0);
 
 }
 

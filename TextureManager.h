@@ -10,10 +10,10 @@ class TextureManager
 {
 public:
 	static bool testvar;
-	static std::unordered_map<std::string, GLuint> TexturesMap;
+	static std::unordered_map<uint32_t, GLuint> TexturesMap;
 	static void ChangeBool();
-	static GLuint SearchTexture(std::string texture);
-	static void LoadTexture(GLuint TextureID);
-	static unsigned int loadTexture(std::string path);
+	static GLuint GetTexture(uint32_t textureHash);
+	static void LoadTexture(uint32_t Hash, GLuint TextureID);
+	static GLuint loadTexture(std::string path);
 };
 

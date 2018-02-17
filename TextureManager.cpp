@@ -1,22 +1,22 @@
 #include "TextureManager.h"
 
 bool TextureManager::testvar = false;
-std::unordered_map<std::string, GLuint> TextureManager::TexturesMap;
+std::unordered_map<uint32_t, GLuint> TextureManager::TexturesMap;
 
 void TextureManager::ChangeBool()
 {
 	testvar = !testvar;
 }
 
-GLuint TextureManager::SearchTexture(std::string texture)
+GLuint TextureManager::GetTexture(uint32_t textureHash)
 {
 	if (testvar == true) {
-		std::unordered_map<std::string, GLuint>::iterator it;
-		it = TexturesMap.find("default");
+		std::unordered_map<uint32_t, GLuint>::iterator it;
+		it = TexturesMap.find(0);
 		return it->second;
 	}
-	std::unordered_map<std::string, GLuint>::iterator it;
-	it = TexturesMap.find(texture);
+	std::unordered_map<uint32_t, GLuint>::iterator it;
+	it = TexturesMap.find(textureHash);
 	if (it != TexturesMap.end())
 	{
 		//std::cout << "FOUND Texture " << it->first << std::endl;
@@ -24,21 +24,14 @@ GLuint TextureManager::SearchTexture(std::string texture)
 
 		return element;
 	}
-	else
-	{
-		//std::cout << "CREATED Texture " << texture << std::endl;
-		GLuint TextureID = loadTexture(texture);
-		TexturesMap[texture] = TextureID;
-		return TextureID;
-	}
 }
 
-void TextureManager::LoadTexture(GLuint TextureID)
+void TextureManager::LoadTexture(uint32_t Hash, GLuint TextureID)
 {
-	TexturesMap["default"] = TextureID;
+	TexturesMap[Hash] = TextureID;
 }
 
-unsigned int TextureManager::loadTexture(std::string path)
+GLuint TextureManager::loadTexture(std::string path)
 {
 	unsigned int textureID;
 	glGenTextures(1, &textureID);

@@ -13,6 +13,10 @@ GameWorld::GameWorld()
 	btOverlappingPairCallback* _overlappingPairCallback = new btGhostPairCallback();
 	broadphase->getOverlappingPairCache()->setInternalGhostPairCallback(_overlappingPairCallback);
 
+	//Default texture
+	TextureManager::LoadTexture(0, TextureManager::loadTexture("blank.jpg"));
+	//////////////////////////////////////////////////////////////////////////////
+
 	_ResourceManager = new ResourceManager(this);
 
 	for (auto& mapNode : cacheFile.AllMapNodes)
@@ -36,7 +40,7 @@ GameWorld::GameWorld()
 	dynamicsWorld->setDebugDrawer(&debug);
 
 
-	//LoadYTD(1264848310);
+	//LoadYTD(2920116216);
 	/*for (int i = 0; i < 500; i++) {
 		Model model(glm::vec3(0.f, 200.f, 0.f), glm::quat(0.f, 0.f, 0.f, 1.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\cube.obj", "container.jpg", "container2_specular.png", true, true);
 		model.Load();
@@ -95,7 +99,7 @@ void GameWorld::LoadYmap(uint32_t hash, glm::vec3 cameraPosition)
 				for (int i = 0; i < ymap->CEntityDefs.size(); i++)
 				{
 					if (ymap->CEntityDefs[i].lodLevel == 0) {
-						LoadYTD(ymap->CEntityDefs[i].archetypeName);
+						//LoadYTD(ymap->CEntityDefs[i].archetypeName);
 						if (glm::distance(cameraPosition, ymap->CEntityDefs[i].position) <= ymap->CEntityDefs[i].lodDist) {
 							LoadYDR(ymap->CEntityDefs[i].archetypeName, ymap->CEntityDefs[i].position, glm::quat(-ymap->CEntityDefs[i].rotation.w, ymap->CEntityDefs[i].rotation.x, ymap->CEntityDefs[i].rotation.y, ymap->CEntityDefs[i].rotation.z));
 							//LoadYDD(ymap->CEntityDefs[i].archetypeName, ymap->CEntityDefs[i].position, glm::quat(-ymap->CEntityDefs[i].rotation.w, ymap->CEntityDefs[i].rotation.x, ymap->CEntityDefs[i].rotation.y, ymap->CEntityDefs[i].rotation.z));
@@ -155,7 +159,7 @@ bool GameWorld::LoadYTD(uint32_t hash)
 			memstream stream(outputBuffer.data(), outputBuffer.size());
 
 			YtdFile* file = new YtdFile(stream);
-			//TextureManager::LoadTexture(file->textureID);
+			//TextureManager::LoadTexture(file->textures[0]);
 			delete file;
 
 			return true;
@@ -507,21 +511,20 @@ bool GameWorld::DetectInWater(glm::vec3 Position) {
 
 void GameWorld::ClearTestFunction()
 {
-	std::unordered_map<uint32_t, RpfResourceFileEntry*>::iterator it;
-	it = data.YmapEntries.find(3081229218);
-	if (it != data.YmapEntries.end())
-	{
-		//std::cout << "YMAP Found" << std::endl;
-		auto& element = *(it->second);
 
-		//CAN BE AN ERROR HERE - NOT FULLY IMPLEMENTED!
-		std::vector<uint8_t> outputBuffer;
-		data.ExtractFileResource(element, outputBuffer);
+	for (int i = 0; i < ybnLoader.size(); i++) {
+			delete ybnLoader[i];
+			ybnLoader.erase(ybnLoader.begin() + i);
+	}
 
-		memstream stream(outputBuffer.data(), outputBuffer.size());
+	//CLEARING
+	for (int i = 0; i < ymapLoader.size(); i++) {
+			delete ymapLoader[i];
+			ymapLoader.erase(ymapLoader.begin() + i);
+	}
 
-		YdrLoader *ymap = new YdrLoader(stream, glm::vec3(0, 0, 0), glm::quat(0, 0, 0, 0), 1709559537);
-		delete ymap;
-
+	for (int i = 0; i < ydrLoader.size(); i++) {
+		delete ydrLoader[i];
+		ydrLoader.erase(ydrLoader.begin() + i);
 	}
 }

@@ -1,30 +1,17 @@
 #include "Material.h"
 
-Material::Material(const char* diffuseTexture, const char* specTexture, bool UseSametextureID, GLuint TextureID)
+Material::Material(uint32_t Hash)
 {
-	//if (UseSametextureID)
-	//{
-		//diffuseTextureID = TextureID;
-	//}
+	diffuseTextureID = TextureManager::GetTexture(Hash);
 	//else {
-		if (diffuseTexture != 0)
+		/*if (diffuseTexture != 0)
 			diffuseTextureID = TextureManager::SearchTexture(diffuseTexture);
 		else
 			diffuseTextureID = TextureManager::SearchTexture("blank.jpg");
 		if (specTexture != 0)
 			specularTextureID = TextureManager::SearchTexture(specTexture);
-	//}
+	//}*/
 
-}
-
-Material::Material(const char* diffuseTexture, const char* specTexture)
-{
-	if (diffuseTexture != 0)
-		diffuseTextureID = TextureManager::SearchTexture(diffuseTexture);
-	else
-		diffuseTextureID = TextureManager::SearchTexture("blank.jpg");
-	if (specTexture != 0)
-		specularTextureID = TextureManager::SearchTexture(specTexture);
 }
 
 Material::~Material()
