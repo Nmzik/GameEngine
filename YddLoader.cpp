@@ -383,7 +383,7 @@ YddLoader::YddLoader(memstream& file, glm::vec3 position, glm::quat rotation, ui
 			{
 				for (int k = 0; k < DrawableDictionary.DrawableBases[i].DrawableModels[j].Geometries.size(); k++)
 				{
-					meshes.emplace_back(new Mesh(DrawableDictionary.DrawableBases[i].DrawableModels[j].Geometries[k]->vertexBuffer->VertexData, DrawableDictionary.DrawableBases[i].DrawableModels[j].Geometries[k]->indexBuffer->Indices, DrawableDictionary.DrawableBases[i].DrawableModels[j].Geometries[k]->vertexBuffer->VertexStride));
+					meshes.emplace_back(new Mesh(DrawableDictionary.DrawableBases[i].DrawableModels[j].Geometries[k]->vertexBuffer->VertexData, DrawableDictionary.DrawableBases[i].DrawableModels[j].Geometries[k]->indexBuffer->Indices, DrawableDictionary.DrawableBases[i].DrawableModels[j].Geometries[k]->vertexBuffer->VertexStride, 0));
 				}
 			}
 		}

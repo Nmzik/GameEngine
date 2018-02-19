@@ -122,7 +122,7 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 
 
-	projection = glm::perspective(glm::radians(45.0f), (float)1280 / (float)720, 0.1f, 5000.0f);
+	projection = glm::perspective(glm::radians(45.0f), (float)1280 / (float)720, 0.1f, 10000.0f);
 }
 
 RenderingSystem::~RenderingSystem() 
@@ -487,7 +487,7 @@ void RenderingSystem::render(GameWorld* world)
 	hdrShader->use();
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, colorBuffer);
-	float exposure = 2.0f;
+	float exposure = 5.0f;
 	hdrShader->setInt("hdr", hdrEnabled);
 	hdrShader->setInt("UseBlur", 0);
 	hdrShader->setFloat("exposure", exposure);

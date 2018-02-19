@@ -5,6 +5,8 @@
 #include "zlib.h"
 #include "aes.hpp"
 
+uint32_t GenHash(std::string Name);
+
 class GTAEncryption
 {
 	static uint8_t PC_AES_KEY[32];

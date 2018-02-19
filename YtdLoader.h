@@ -13,6 +13,23 @@
 #include "membuf.h"
 #include "nv_dds.h"
 
+struct ResourceSimpleList64Ptr
+{
+	// structure data
+	uint64_t EntriesPointer;
+	uint16_t EntriesCount;
+	uint16_t EntriesCapacity;
+	uint32_t Unused1;
+};
+
+struct TextureDictionary {
+	uint32_t Unknown_10h; // 0x00000000
+	uint32_t Unknown_14h; // 0x00000000
+	uint32_t Unknown_18h; // 0x00000001
+	uint32_t Unknown_1Ch; // 0x00000000
+	ResourceSimpleList64Ptr TextureNameHashesPtr;
+};
+
 struct TextureBase{
 	// structure data
 	uint32_t VFT;
@@ -35,9 +52,10 @@ struct TextureBase{
 class YtdFile
 {
 public:
+	uint32_t Hash;
 	std::vector<GLuint> textures;
 
-	YtdFile(memstream& file);
+	YtdFile(memstream& file, uint32_t hash);
 	~YtdFile();
 };
 

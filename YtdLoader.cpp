@@ -1,24 +1,7 @@
 #include "YtdLoader.h"
 
-YtdFile::YtdFile(memstream& file)
+YtdFile::YtdFile(memstream& file, uint32_t hash) : Hash(hash)
 {
-	struct ResourceSimpleList64Ptr
-	{
-		// structure data
-		uint64_t EntriesPointer;
-		uint16_t EntriesCount;
-		uint16_t EntriesCapacity;
-		uint32_t Unused1;
-	};
-
-	struct {
-		uint32_t Unknown_10h; // 0x00000000
-		uint32_t Unknown_14h; // 0x00000000
-		uint32_t Unknown_18h; // 0x00000001
-		uint32_t Unknown_1Ch; // 0x00000000
-		ResourceSimpleList64Ptr TextureNameHashesPtr;
-	} TextureDictionary;
-
 	enum TextureFormat
 	{
 		D3DFMT_A8R8G8B8 = 21,
@@ -28,9 +11,9 @@ YtdFile::YtdFile(memstream& file)
 		D3DFMT_L8 = 50,
 
 		// fourCC
-		D3DFMT_DXT1 = 0x31545844,
-		D3DFMT_DXT3 = 0x33545844,
-		D3DFMT_DXT5 = 0x35545844,
+		D3DFMT_DXT1 = 0x31545844, //
+		D3DFMT_DXT3 = 0x33545844, //
+		D3DFMT_DXT5 = 0x35545844, //
 		D3DFMT_ATI1 = 0x31495441,
 		D3DFMT_ATI2 = 0x32495441,
 		D3DFMT_BC7 = 0x20374342,
@@ -74,23 +57,25 @@ YtdFile::YtdFile(memstream& file)
 	uint64_t SYSTEM_BASE = 0x50000000;
 	uint64_t GRAPHICS_BASE = 0x60000000;
 
-	file.read((char*)&TextureDictionary, sizeof(TextureDictionary));
+	TextureDictionary texDictionary;
+
+	file.read((char*)&texDictionary, sizeof(TextureDictionary));
 
 	std::vector<uint32_t> TextureNameHashes;
-	TextureNameHashes.resize(TextureDictionary.TextureNameHashesPtr.EntriesCount);
+	TextureNameHashes.resize(texDictionary.TextureNameHashesPtr.EntriesCount);
 
-	if ((TextureDictionary.TextureNameHashesPtr.EntriesPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-		TextureDictionary.TextureNameHashesPtr.EntriesPointer = TextureDictionary.TextureNameHashesPtr.EntriesPointer & ~0x50000000;
+	if ((texDictionary.TextureNameHashesPtr.EntriesPointer & SYSTEM_BASE) == SYSTEM_BASE) {
+		texDictionary.TextureNameHashesPtr.EntriesPointer = texDictionary.TextureNameHashesPtr.EntriesPointer & ~0x50000000;
 	}
-	if ((TextureDictionary.TextureNameHashesPtr.EntriesPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-		TextureDictionary.TextureNameHashesPtr.EntriesPointer = TextureDictionary.TextureNameHashesPtr.EntriesPointer & ~0x60000000;
+	if ((texDictionary.TextureNameHashesPtr.EntriesPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
+		texDictionary.TextureNameHashesPtr.EntriesPointer = texDictionary.TextureNameHashesPtr.EntriesPointer & ~0x60000000;
 	}
 
 	uint64_t pos = file.tellg();
 
-	file.seekg(TextureDictionary.TextureNameHashesPtr.EntriesPointer);
+	file.seekg(texDictionary.TextureNameHashesPtr.EntriesPointer);
 
-	file.read((char*)&TextureNameHashes[0], sizeof(uint32_t) * TextureDictionary.TextureNameHashesPtr.EntriesCount);
+	file.read((char*)&TextureNameHashes[0], sizeof(uint32_t) * texDictionary.TextureNameHashesPtr.EntriesCount);
 
 	file.seekg(pos);
 
@@ -151,8 +136,8 @@ YtdFile::YtdFile(memstream& file)
 			length /= 4;
 		}
 
-		uint64_t positbe = file.tellg();
-		printf("%zd\n",positbe);
+		//uint64_t positbe = file.tellg();
+		//printf("%zd\n",positbe);
 
 		std::vector<uint8_t> TextureData;
 		TextureData.resize(fullLength);
@@ -205,7 +190,8 @@ YtdFile::YtdFile(memstream& file)
 					Texture.Width /= 2;
 					Texture.Height /= 2;
 				}
-				textures.push_back(textureID);
+				TextureManager::LoadTexture(TextureNameHashes[i], textureID);
+				//textures.push_back(textureID);
 			//}
 		}
 

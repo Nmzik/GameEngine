@@ -39,8 +39,7 @@ GameWorld::GameWorld()
 		btIDebugDraw::DBG_DrawConstraintLimits);
 	dynamicsWorld->setDebugDrawer(&debug);
 
-
-	//LoadYTD(2920116216);
+	LoadYTD(539222631);
 	/*for (int i = 0; i < 500; i++) {
 		Model model(glm::vec3(0.f, 200.f, 0.f), glm::quat(0.f, 0.f, 0.f, 1.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\cube.obj", "container.jpg", "container2_specular.png", true, true);
 		model.Load();
@@ -68,8 +67,9 @@ void GameWorld::LoadYmap(uint32_t hash, glm::vec3 cameraPosition)
 		if (!(map->flags & 1) > 0) { //DONT LOAD SCRIPTED MAPS
 			for (int i = 0; i < map->CEntityDefs.size(); i++)
 			{
-				if (map->CEntityDefs[i].lodLevel == 0) {
+				if (map->CEntityDefs[i].lodLevel == 0 || map->CEntityDefs[i].lodLevel == 4) {
 					if (glm::distance(cameraPosition, map->CEntityDefs[i].position) <= map->CEntityDefs[i].lodDist) {
+						LoadYTD(map->CEntityDefs[i].archetypeName);
 						LoadYDR(map->CEntityDefs[i].archetypeName, map->CEntityDefs[i].position, glm::quat(-map->CEntityDefs[i].rotation.w, map->CEntityDefs[i].rotation.x, map->CEntityDefs[i].rotation.y, map->CEntityDefs[i].rotation.z));
 						//LoadYDD(map->CEntityDefs[i].archetypeName, map->CEntityDefs[i].position, glm::quat(-map->CEntityDefs[i].rotation.w, map->CEntityDefs[i].rotation.x, map->CEntityDefs[i].rotation.y, map->CEntityDefs[i].rotation.z));
 					}
@@ -98,9 +98,9 @@ void GameWorld::LoadYmap(uint32_t hash, glm::vec3 cameraPosition)
 			if (!(ymap->flags & 1) > 0) { //DONT LOAD SCRIPTED MAPS
 				for (int i = 0; i < ymap->CEntityDefs.size(); i++)
 				{
-					if (ymap->CEntityDefs[i].lodLevel == 0) {
-						//LoadYTD(ymap->CEntityDefs[i].archetypeName);
+					if (ymap->CEntityDefs[i].lodLevel == 0 || ymap->CEntityDefs[i].lodLevel == 4) {
 						if (glm::distance(cameraPosition, ymap->CEntityDefs[i].position) <= ymap->CEntityDefs[i].lodDist) {
+							LoadYTD(ymap->CEntityDefs[i].archetypeName);
 							LoadYDR(ymap->CEntityDefs[i].archetypeName, ymap->CEntityDefs[i].position, glm::quat(-ymap->CEntityDefs[i].rotation.w, ymap->CEntityDefs[i].rotation.x, ymap->CEntityDefs[i].rotation.y, ymap->CEntityDefs[i].rotation.z));
 							//LoadYDD(ymap->CEntityDefs[i].archetypeName, ymap->CEntityDefs[i].position, glm::quat(-ymap->CEntityDefs[i].rotation.w, ymap->CEntityDefs[i].rotation.x, ymap->CEntityDefs[i].rotation.y, ymap->CEntityDefs[i].rotation.z));
 						}
@@ -142,13 +142,17 @@ bool GameWorld::LoadYTYP(uint32_t hash)
 
 bool GameWorld::LoadYTD(uint32_t hash)
 {
+	for (auto& ytdFile : ytdLoader)
+	{
+		if (ytdFile->Hash == hash) return true;
+	}
 	std::unordered_map<uint32_t, uint32_t>::iterator it; //FOUND ARCH ->TEXTURES FILE
 	it = data.TextureDictionary.find(hash);
 	if (it != data.TextureDictionary.end())
 	{
 		//std::cout << "YTD Found " << std::endl;
 		std::unordered_map<uint32_t, RpfResourceFileEntry*>::iterator iter;
-		iter = data.YtdEntries.find(hash);
+		iter = data.YtdEntries.find(it->second);
 		if (iter != data.YtdEntries.end())
 		{
 			std::cout << "YTD Found " << iter->second->Name << std::endl;
@@ -158,9 +162,10 @@ bool GameWorld::LoadYTD(uint32_t hash)
 
 			memstream stream(outputBuffer.data(), outputBuffer.size());
 
-			YtdFile* file = new YtdFile(stream);
+			YtdFile* file = new YtdFile(stream, hash);
+			ytdLoader.push_back(file);
 			//TextureManager::LoadTexture(file->textures[0]);
-			delete file;
+			//delete file;
 
 			return true;
 		}
@@ -487,7 +492,7 @@ void GameWorld::DetectWeaponHit(glm::vec3 CameraPosition, glm::vec3 lookDirectio
 void GameWorld::update(float delta_time)
 {
 	Update();
-	dynamicsWorld->stepSimulation(1 / 60.f);
+	dynamicsWorld->stepSimulation(delta_time, 4, 1.0f / 30.0f);
 }
 
 

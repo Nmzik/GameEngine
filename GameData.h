@@ -47,6 +47,6 @@ public:
 
 	void ExtractFileResource(RpfResourceFileEntry entry, std::vector<uint8_t>& output);
 
-	uint32_t GenHash(std::string Name);
+	//uint32_t GenHash(std::string Name);
 };
 

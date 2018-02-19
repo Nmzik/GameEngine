@@ -10,19 +10,18 @@ void TextureManager::ChangeBool()
 
 GLuint TextureManager::GetTexture(uint32_t textureHash)
 {
-	if (testvar == true) {
-		std::unordered_map<uint32_t, GLuint>::iterator it;
-		it = TexturesMap.find(0);
-		return it->second;
-	}
 	std::unordered_map<uint32_t, GLuint>::iterator it;
 	it = TexturesMap.find(textureHash);
 	if (it != TexturesMap.end())
 	{
-		//std::cout << "FOUND Texture " << it->first << std::endl;
+		std::cout << "FOUND Texture " << it->first << std::endl;
 		auto& element = it->second;
 
 		return element;
+	}
+	else {
+		it = TexturesMap.find(0);
+		return it->second;
 	}
 }
 

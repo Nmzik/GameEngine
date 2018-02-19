@@ -15,7 +15,7 @@ class Mesh
 public:
 	Mesh();
 	Mesh(std::vector<glm::vec3>& vertices, std::vector<glm::vec3>& normals);
-	Mesh(std::vector<uint8_t>& vertexData, std::vector<uint16_t>& indices, uint16_t VertexStride);
+	Mesh(std::vector<uint8_t>& vertexData, std::vector<uint16_t>& indices, uint16_t VertexStride, uint32_t textureHash);
 	~Mesh();
 
 	void Draw();

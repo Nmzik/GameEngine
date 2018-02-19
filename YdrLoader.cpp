@@ -4,6 +4,9 @@ YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, ui
 {
 	ModelMatrix = glm::translate(glm::mat4(), position);
 	ModelMatrix *= glm::toMat4(rotation);
+
+	std::vector<uint32_t> TexturesHashes;
+
 	struct {
 		uint32_t FileVFT;
 		uint32_t FileUnknown;
@@ -78,6 +81,15 @@ YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, ui
 			uint32_t Unknown_28h; // 0x00000000
 			uint32_t Unknown_2Ch; // 0x00000000
 	} ShaderFX;
+
+	struct ShaderParameter
+	{
+		uint8_t DataType;
+		uint8_t Unknown_1h;
+		uint16_t Unknown_2h;
+		uint32_t Unknown_4h;
+		uint64_t DataPointer;
+	};
 
 	struct {
 		uint64_t ShaderGroupPointer;
@@ -225,8 +237,110 @@ YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, ui
 	file.read((char*)&DrawableBase, sizeof(DrawableBase));
 
 	//Shader stuff
+	if ((DrawableBase.ShaderGroupPointer & SYSTEM_BASE) == SYSTEM_BASE) {
+		DrawableBase.ShaderGroupPointer = DrawableBase.ShaderGroupPointer & ~0x50000000;
+	}
+	if ((DrawableBase.ShaderGroupPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
+		DrawableBase.ShaderGroupPointer = DrawableBase.ShaderGroupPointer & ~0x60000000;
+	}
 
+	file.seekg(DrawableBase.ShaderGroupPointer);
 
+	file.read((char*)&ShaderGroup, sizeof(ShaderGroup));
+
+	/*if ((ShaderGroup.TextureDictionaryPointer & SYSTEM_BASE) == SYSTEM_BASE) {
+		ShaderGroup.TextureDictionaryPointer = ShaderGroup.TextureDictionaryPointer & ~0x50000000;
+	}
+	if ((ShaderGroup.TextureDictionaryPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
+		ShaderGroup.TextureDictionaryPointer = ShaderGroup.TextureDictionaryPointer & ~0x60000000;
+	}
+
+	file.seekg(ShaderGroup.TextureDictionaryPointer);
+
+	TextureDictionary texDictionary;
+	file.read((char*)&texDictionary, sizeof(TextureDictionary));*/
+
+	if ((ShaderGroup.ShadersPointer & SYSTEM_BASE) == SYSTEM_BASE) {
+		ShaderGroup.ShadersPointer = ShaderGroup.ShadersPointer & ~0x50000000;
+	}
+	if ((ShaderGroup.ShadersPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
+		ShaderGroup.ShadersPointer = ShaderGroup.ShadersPointer & ~0x60000000;
+	}
+
+	file.seekg(ShaderGroup.ShadersPointer);
+
+	for (int i = 0; i < ShaderGroup.ShadersCount1; i++)
+	{
+		uint64_t data_pointer;
+		file.read((char*)&data_pointer, sizeof(data_pointer));
+		uint64_t posOriginal = file.tellg();
+
+		if ((data_pointer & SYSTEM_BASE) == SYSTEM_BASE) {
+			data_pointer = data_pointer & ~0x50000000;
+		}
+		if ((data_pointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
+			data_pointer = data_pointer & ~0x60000000;
+		}
+
+		file.seekg(data_pointer);
+
+		file.read((char*)&ShaderFX, sizeof(ShaderFX));
+
+		if ((ShaderFX.ParametersPointer & SYSTEM_BASE) == SYSTEM_BASE) {
+			ShaderFX.ParametersPointer = ShaderFX.ParametersPointer & ~0x50000000;
+		}
+		if ((ShaderFX.ParametersPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
+			ShaderFX.ParametersPointer = ShaderFX.ParametersPointer & ~0x60000000;
+		}
+
+		file.seekg(ShaderFX.ParametersPointer);
+
+		for (int i = 0; i < 1; i++) ///i < ShaderFX.ParameterCount
+		{
+			ShaderParameter param;
+			file.read((char*)&param, sizeof(ShaderParameter));
+
+			if (param.DataType == 0) {
+
+				uint64_t Pos = file.tellg();
+
+				if ((param.DataPointer & SYSTEM_BASE) == SYSTEM_BASE) {
+					param.DataPointer = param.DataPointer & ~0x50000000;
+				}
+				if ((param.DataPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
+					param.DataPointer = param.DataPointer & ~0x60000000;
+				}
+
+				file.seekg(param.DataPointer);
+
+				TextureBase texBase;
+				file.read((char*)&texBase, sizeof(TextureBase));
+
+				if ((texBase.NamePointer & SYSTEM_BASE) == SYSTEM_BASE) {
+					texBase.NamePointer = texBase.NamePointer & ~0x50000000;
+				}
+				if ((texBase.NamePointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
+					texBase.NamePointer = texBase.NamePointer & ~0x60000000;
+				}
+
+				file.seekg(texBase.NamePointer);
+
+				std::string Name;
+				std::getline(file, Name, '\0');
+
+				std::transform(Name.begin(), Name.end(), Name.begin(), tolower);
+				uint32_t NameHash = GenHash(Name);
+
+				TexturesHashes.push_back(NameHash);
+
+				file.seekg(Pos);
+
+			}
+		}
+
+		file.seekg(posOriginal);
+
+	}
 
 	uint64_t pos1 = file.tellg();
 
@@ -272,6 +386,19 @@ YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, ui
 		file.seekg(data_pointer);
 
 		file.read((char*)&DrawableModel, sizeof(DrawableModel));
+
+		if ((DrawableModel.ShaderMappingPointer & SYSTEM_BASE) == SYSTEM_BASE) {
+			DrawableModel.ShaderMappingPointer = DrawableModel.ShaderMappingPointer & ~0x50000000;
+		}
+		if ((DrawableModel.ShaderMappingPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
+			DrawableModel.ShaderMappingPointer = DrawableModel.ShaderMappingPointer & ~0x60000000;
+		}
+
+		file.seekg(DrawableModel.ShaderMappingPointer);
+
+		std::vector<uint16_t> ShaderMapping;
+		ShaderMapping.resize(sizeof(uint16_t) * DrawableModel.GeometriesCount1);
+		file.read((char*)&ShaderMapping[0], sizeof(uint16_t) * DrawableModel.GeometriesCount1);
 
 		if ((DrawableModel.GeometriesPointer & SYSTEM_BASE) == SYSTEM_BASE) {
 			DrawableModel.GeometriesPointer = DrawableModel.GeometriesPointer & ~0x50000000;
@@ -362,7 +489,15 @@ YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, ui
 			file.read((char*)&indexbuffer.Indices[0], sizeof(uint16_t) * indexbuffer.IndicesCount);
 
 			//printf("%d\n",sizeof(Mesh));
-			Mesh* newMesh = new Mesh(vertbuffer.VertexData, indexbuffer.Indices, vertbuffer.VertexStride);
+			//TexturesID[ShaderMapping[i]];
+			uint32_t test;
+			if (TexturesHashes.size() == 0) {
+				test = 0;
+			}
+			else {
+				test = TexturesHashes[ShaderMapping[i]];
+			}
+			Mesh* newMesh = new Mesh(vertbuffer.VertexData, indexbuffer.Indices, vertbuffer.VertexStride, test);
 			meshes.push_back(newMesh);
 
 			//Geometries.push_back(drawGeom);

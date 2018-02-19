@@ -3,6 +3,7 @@
 #include "Mesh.h"
 #include "fstream"
 #include <iostream>
+#include <algorithm>
 #include "glm.hpp"
 #include "glm/ext.hpp"
 #include "glm/gtx/transform.hpp"
@@ -12,6 +13,7 @@
 #include "glm/gtc/quaternion.hpp"
 #include "glm/gtx/matrix_decompose.hpp"
 #include "membuf.h"
+#include "GtaEncryption.h"
 #include "YtdLoader.h"
 
 class YdrLoader

@@ -59,9 +59,9 @@ void Game::run() {
 	SDL_Event event;
 
 	bool running = true;
-	float delta_time;
-	float current_time = 0.f;
-	float old_time;
+	auto current_time = std::chrono::steady_clock::now();
+	//float current_time = 0.f;
+	//float old_time;
 	
 	while (running) {
 		while (SDL_PollEvent(&event)) {
@@ -69,9 +69,9 @@ void Game::run() {
 			if (event.type == SDL_QUIT) running = false;
 		}
 
-		old_time = current_time;
-		current_time = SDL_GetTicks() / 1000.f;
-		delta_time = current_time - old_time;
+		auto old_time = current_time;
+		current_time = std::chrono::steady_clock::now();
+		float delta_time = std::chrono::duration<float>(current_time - old_time).count();
 
 		input->Update();
 		StateManager::get().tick(delta_time);

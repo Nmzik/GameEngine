@@ -5,3 +5,11 @@ HDR + all toher effects DEFERRED RENDERING
 IMPLEMENT SHADOWS
 
 STATIC OBJECT
+
+Threading:
+1) Core + rendering 
+2) Resource Loader
+3)audio
+4)script manager
+
+OBJECT "hw1_17_ground1.ydr"

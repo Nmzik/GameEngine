@@ -40,6 +40,7 @@ class GameWorld
 public:
 	std::vector<YdrLoader*> ydrLoader;
 	std::vector<YddLoader*> yddLoader;
+	std::vector<YtdFile*> ytdLoader;
 	std::vector<YndLoader> yndLoader;
 	std::vector<YbnLoader*> ybnLoader;
 	std::vector<YtypLoader*> ytypLoader;
