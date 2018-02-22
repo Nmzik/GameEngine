@@ -147,7 +147,6 @@ YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, ui
 		uint32_t Unknown_74h; // 0x00000000
 		uint32_t Unknown_78h; // 0x00000000
 		uint32_t Unknown_7Ch; // 0x00000000
-		std::vector<uint8_t> VertexData;
 	};
 
 	struct IndexBuffer {
@@ -174,7 +173,6 @@ YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, ui
 		uint32_t Unknown_54h; // 0x00000000
 		uint32_t Unknown_58h; // 0x00000000
 		uint32_t Unknown_5Ch; // 0x00000000
-		std::vector<uint16_t> Indices;
 	};
 
 	struct DrawableGeometry {
@@ -438,7 +436,7 @@ YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, ui
 			file.seekg(drawGeom.VertexBufferPointer);
 
 			VertexBuffer vertbuffer;
-			file.read((char*)&vertbuffer, sizeof(VertexBuffer) - 24);
+			file.read((char*)&vertbuffer, sizeof(VertexBuffer));
 
 			if ((vertbuffer.DataPointer1 & SYSTEM_BASE) == SYSTEM_BASE) {
 				vertbuffer.DataPointer1 = vertbuffer.DataPointer1 & ~0x50000000;
@@ -462,7 +460,9 @@ YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, ui
 			file.seekg(drawGeom.IndexBufferPointer);
 
 			IndexBuffer indexbuffer;
-			file.read((char*)&indexbuffer, sizeof(IndexBuffer) - 24);
+			file.read((char*)&indexbuffer, sizeof(IndexBuffer));
+
+			//drawGeom->indexBuffer->Indices = new uint16_t[drawGeom->indexBuffer->IndicesCount];
 
 			//INDICES READING
 			if ((indexbuffer.IndicesPointer & SYSTEM_BASE) == SYSTEM_BASE) {
@@ -486,7 +486,7 @@ YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, ui
 			else {
 				test = TexturesHashes[ShaderMapping[i]];
 			}
-			Mesh* newMesh = new Mesh(file._buffer.p, vertbuffer.DataPointer1, vertbuffer.VertexCount * vertbuffer.VertexStride, indexbuffer.IndicesPointer, indexbuffer.IndicesCount * sizeof(uint16_t), vertbuffer.VertexStride, test);
+			Mesh* newMesh = new Mesh(file._buffer.p, vertbuffer.DataPointer1, vertbuffer.VertexCount * vertbuffer.VertexStride, indexbuffer.IndicesPointer, indexbuffer.IndicesCount, vertbuffer.VertexStride, test);
 			meshes.push_back(newMesh);
 
 			//Geometries.push_back(drawGeom);
