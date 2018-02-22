@@ -35,6 +35,5 @@ public:
 		rdbuf(&_buffer);
 	}
 
-private:
 	membuf _buffer;
 };

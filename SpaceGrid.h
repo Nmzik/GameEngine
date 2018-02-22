@@ -19,11 +19,11 @@ public:
 	~SpaceGridCell();
 
 	void AddNode(MapDataStoreNode* node) {
-		MapNodes.push_back(node);
+		MapNodes.emplace_back(node);
 	}
 
 	void AddBoundsItem(BoundsStoreItem* item) {
-		BoundsStoreItems.push_back(item);
+		BoundsStoreItems.emplace_back(item);
 	}
 };
 
@@ -36,7 +36,7 @@ public:
 	const float CellSize = 2.0f * WorldSize / (float)CellCount;//20.0f; //size of a cell
 	const float CellSizeInv = 1.0f / CellSize; //inverse of the cell size.
 	const float CellSizeHalf = CellSize * 0.5f;
-	SpaceGridCell *Grid;
+	SpaceGridCell Grid[500 * 500];
 	//std::array<
 
 	SpaceGrid();

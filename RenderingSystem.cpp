@@ -51,6 +51,7 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 	glDebugMessageCallback(myDebugCallback, nullptr);
 
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
 
 	ScreenResWidth = 1280;
 	ScreenResHeight = 720;
@@ -306,7 +307,7 @@ void RenderingSystem::render(GameWorld* world)
 		float phi = glm::pi<float>() / 2.0f - (float)sunT * glm::pi<float>();
 		float theta = 0.0f;
 
-		dirLight.direction = glm::normalize(glm::vec3(-glm::sin(phi)*glm::cos(theta), glm::cos(phi), glm::sin(phi)*glm::sin(theta)));
+		//dirLight.direction = glm::normalize(glm::vec3(-glm::sin(phi)*glm::cos(theta), glm::cos(phi), glm::sin(phi)*glm::sin(theta)));
 	}
 
 	/*if (world->gameHour < MOONSET || world->gameHour < MOONRISE) {
@@ -334,6 +335,8 @@ void RenderingSystem::render(GameWorld* world)
 	gbuffer->setMat4("projection", projection);
 	gbuffer->setMat4("view", view);
 
+	//camera->UpdateFrustum(view * projection);
+
 	//light position object
 	/*static glm::mat4 model(1.0f);
 	model = glm::translate(glm::vec3(0.0f,50.0f,0.0f));
@@ -344,7 +347,7 @@ void RenderingSystem::render(GameWorld* world)
 	gbuffer->setMat4("model", model);
 	world->models[0].Draw();*/
 
-	world->GetResourceManager()->mainLock.lock();
+	/*world->GetResourceManager()->mainLock.lock();
 	for (auto& model : world->models)
 	{
 		if (model->isLoaded == false) {
@@ -357,7 +360,7 @@ void RenderingSystem::render(GameWorld* world)
 			model->Draw();
 		//}
 	}
-	world->GetResourceManager()->mainLock.unlock();
+	world->GetResourceManager()->mainLock.unlock();*/
 
 	//TEST YBN
 	if (DrawCollision) {
@@ -381,13 +384,14 @@ void RenderingSystem::render(GameWorld* world)
 		yddFile->Draw();
 	}
 
+	//glEnable(GL_CULL_FACE);
 	for (auto& YdrFile : world->ydrLoader)
 	{
 		auto modelpos = YdrFile->GetMat4();
 		gbuffer->setMat4("model", modelpos);
 		YdrFile->Draw();
 	}
-	//}
+	//glDisable(GL_CULL_FACE);
 
 	for (int i = 0; i < world->pedestrians.size(); i++) {
 		auto model = world->pedestrians[i]->getPosition();
@@ -414,28 +418,26 @@ void RenderingSystem::render(GameWorld* world)
 	//glDisable(GL_CULL_FACE);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	//dirLight.direction = glm::rotateZ(dirLight.direction, -0.005f);
+	dirLight.direction = glm::rotateX(dirLight.direction, -0.005f);
 	// --------------------------------ShadowPass----------------------------------
-	/*glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 	glViewport(0, 0, 1024, 1024);
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glm::mat4 lightProjection, lightView;
 	glm::mat4 lightSpaceMatrix;
 	float near_plane = 1.f, far_plane = 5000.f;
-	lightProjection = glm::ortho(-450.0f, 450.0f, -450.0f, 450.0f, 0.f, 200.f);
-	lightView = glm::lookAt(dirLight.direction * 50.0f + camera->Position, camera->Position, glm::vec3(0, 1, 0));
+	lightProjection = glm::ortho(-50.0f, 50.0f, -50.0f, 50.0f, 0.f, 200.f);
+	lightView = glm::lookAt(dirLight.direction + camera->Position, camera->Position, glm::vec3(0, 0, 1));
 	lightSpaceMatrix = lightProjection * lightView;
 	// render scene from light's point of view
 	DepthTexture->use();
 	DepthTexture->setMat4("lightSpaceMatrix", lightSpaceMatrix);
 
-	for (auto& model : world->models)
+	for (auto& YdrFile : world->ydrLoader)
 	{
-		auto modelMatrix = model.getModelMatrix();
-		//if (glm::distance(camera->Position, model.GetPosition()) < 80.0f) {
-			DepthTexture->setMat4("model", modelMatrix);
-			model.Draw();
-		//}
+		auto modelpos = YdrFile->GetMat4();
+		DepthTexture->setMat4("model", modelpos);
+		YdrFile->Draw();
 	}
 
 	//printf("SUN %s\n",glm::to_string(sunDirection).c_str());
@@ -478,7 +480,7 @@ void RenderingSystem::render(GameWorld* world)
 	gbufferLighting->setVec3("light.direction", dirLight.direction);
 	gbufferLighting->setVec3("viewPos", camera->Position);
 	gbufferLighting->setInt("type",type);
-	//gbufferLighting->setMat4("lightSpaceMatrix", lightSpaceMatrix);
+	gbufferLighting->setMat4("lightSpaceMatrix", lightSpaceMatrix);
 	renderQuad();
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 

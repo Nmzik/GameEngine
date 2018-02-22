@@ -4,7 +4,7 @@
 
 SpaceGrid::SpaceGrid()
 {
-	Grid = new SpaceGridCell[500*500];
+	//Grid = new SpaceGridCell[500*500];
 }
 
 
@@ -23,7 +23,6 @@ void SpaceGrid::AddBoundsItem(BoundsStoreItem* item)
 		{
 			if (!((x < 0) || (y < 0) || (x >= CellCount) || (y >= CellCount)))
 				Grid[x * 500 + y].AddBoundsItem(item);
-				//Grid[x][y].AddBoundsItem(item);
 			/*SpaceGridCell* cell = GetCell(glm::vec2(x, y));
 			if (cell != nullptr)
 			{
@@ -44,7 +43,6 @@ void SpaceGrid::AddMapNode(MapDataStoreNode* node)
 		{
 			if (!((x < 0) || (y < 0) || (x >= CellCount) || (y >= CellCount)))
 				Grid[x * 500 + y].AddNode(node);
-				//Grid[x][y].AddNode(node);
 			/*SpaceGridCell* cell = GetCell(glm::vec2(x, y));
 			if (cell != nullptr)
 			{

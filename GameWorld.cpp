@@ -67,11 +67,11 @@ void GameWorld::LoadYmap(uint32_t hash, glm::vec3 cameraPosition)
 		if (!(map->flags & 1) > 0) { //DONT LOAD SCRIPTED MAPS
 			for (int i = 0; i < map->CEntityDefs.size(); i++)
 			{
-				if (map->CEntityDefs[i].lodLevel == 0 || map->CEntityDefs[i].lodLevel == 4) {
+				if (map->CEntityDefs[i].lodLevel == 0 || map->CEntityDefs[i].lodLevel == 4 || map->CEntityDefs[i].lodLevel == 5) {
 					if (glm::distance(cameraPosition, map->CEntityDefs[i].position) <= map->CEntityDefs[i].lodDist) {
 						LoadYTD(map->CEntityDefs[i].archetypeName);
-						LoadYDR(map->CEntityDefs[i].archetypeName, map->CEntityDefs[i].position, glm::quat(-map->CEntityDefs[i].rotation.w, map->CEntityDefs[i].rotation.x, map->CEntityDefs[i].rotation.y, map->CEntityDefs[i].rotation.z));
-						//LoadYDD(map->CEntityDefs[i].archetypeName, map->CEntityDefs[i].position, glm::quat(-map->CEntityDefs[i].rotation.w, map->CEntityDefs[i].rotation.x, map->CEntityDefs[i].rotation.y, map->CEntityDefs[i].rotation.z));
+						if (!LoadYDR(map->CEntityDefs[i].archetypeName, map->CEntityDefs[i].position, glm::quat(-map->CEntityDefs[i].rotation.w, map->CEntityDefs[i].rotation.x, map->CEntityDefs[i].rotation.y, map->CEntityDefs[i].rotation.z)))
+							LoadYDD(map->CEntityDefs[i].archetypeName, map->CEntityDefs[i].position, glm::quat(-map->CEntityDefs[i].rotation.w, map->CEntityDefs[i].rotation.x, map->CEntityDefs[i].rotation.y, map->CEntityDefs[i].rotation.z));
 					}
 				}
 			}
@@ -98,11 +98,12 @@ void GameWorld::LoadYmap(uint32_t hash, glm::vec3 cameraPosition)
 			if (!(ymap->flags & 1) > 0) { //DONT LOAD SCRIPTED MAPS
 				for (int i = 0; i < ymap->CEntityDefs.size(); i++)
 				{
-					if (ymap->CEntityDefs[i].lodLevel == 0 || ymap->CEntityDefs[i].lodLevel == 4) {
+					if (ymap->CEntityDefs[i].lodLevel == 0 || ymap->CEntityDefs[i].lodLevel == 4 || ymap->CEntityDefs[i].lodLevel == 5) {
 						if (glm::distance(cameraPosition, ymap->CEntityDefs[i].position) <= ymap->CEntityDefs[i].lodDist) {
 							LoadYTD(ymap->CEntityDefs[i].archetypeName);
-							LoadYDR(ymap->CEntityDefs[i].archetypeName, ymap->CEntityDefs[i].position, glm::quat(-ymap->CEntityDefs[i].rotation.w, ymap->CEntityDefs[i].rotation.x, ymap->CEntityDefs[i].rotation.y, ymap->CEntityDefs[i].rotation.z));
-							//LoadYDD(ymap->CEntityDefs[i].archetypeName, ymap->CEntityDefs[i].position, glm::quat(-ymap->CEntityDefs[i].rotation.w, ymap->CEntityDefs[i].rotation.x, ymap->CEntityDefs[i].rotation.y, ymap->CEntityDefs[i].rotation.z));
+
+							if (!LoadYDR(ymap->CEntityDefs[i].archetypeName, ymap->CEntityDefs[i].position, glm::quat(-ymap->CEntityDefs[i].rotation.w, ymap->CEntityDefs[i].rotation.x, ymap->CEntityDefs[i].rotation.y, ymap->CEntityDefs[i].rotation.z)))
+								LoadYDD(ymap->CEntityDefs[i].archetypeName, ymap->CEntityDefs[i].position, glm::quat(-ymap->CEntityDefs[i].rotation.w, ymap->CEntityDefs[i].rotation.x, ymap->CEntityDefs[i].rotation.y, ymap->CEntityDefs[i].rotation.z));
 						}
 					}
 				}

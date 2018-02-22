@@ -27,7 +27,13 @@ const float ZOOM = 25.0f;
 // An abstract camera class that processes input and calculates the corresponding Eular Angles, Vectors and Matrices for use in OpenGL
 class Camera
 {
+	class ViewPlane {
+	public:
+		glm::vec3 normal{};
+		float distance{};
+	};
 public:
+	ViewPlane planes[6];
 	// Camera Attributes
 	glm::vec3 Position;
 	glm::vec3 Front;
@@ -113,6 +119,33 @@ public:
 			Zoom = 1.0f;
 		if (Zoom >= 45.0f)
 			Zoom = 45.0f;
+	}
+
+	void UpdateFrustum(const glm::mat4& proj) {
+		for (size_t i = 0; i < 6; ++i) {
+			float sign = (i % 2 == 0) ? 1.f : -1.f;
+			int r = i / 2;
+			planes[i].normal.x = proj[0][3] + proj[0][r] * sign;
+			planes[i].normal.y = proj[1][3] + proj[1][r] * sign;
+			planes[i].normal.z = proj[2][3] + proj[2][r] * sign;
+			planes[i].distance = proj[3][3] + proj[3][r] * sign;
+
+			auto l = glm::length(planes[i].normal);
+			planes[i].normal /= l;
+			planes[i].distance /= l;
+		}
+	}
+
+	bool intersects(glm::vec3 center, float radius) const {
+		float d;
+		bool result = true;
+
+		for (const auto &plane : planes) {
+			d = glm::dot(plane.normal, center) + plane.distance;
+			if (d < -radius) result = false;
+		}
+
+		return result;
 	}
 
 private:
