@@ -13,9 +13,8 @@ class Mesh
 	unsigned int num_indices;
 	uint32_t num_vertices;
 public:
-	Mesh();
 	Mesh(std::vector<glm::vec3>& vertices, std::vector<glm::vec3>& normals);
-	Mesh(std::vector<uint8_t>& vertexData, std::vector<uint16_t>& indices, uint16_t VertexStride, uint32_t textureHash);
+	Mesh(const uint8_t* meshData, uint64_t VertexPointer, uint32_t VertexSize, uint64_t IndicesPointer, uint32_t IndicesSize, uint16_t VertexStride, uint32_t textureHash);
 	~Mesh();
 
 	void Draw();

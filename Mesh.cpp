@@ -1,10 +1,5 @@
 #include "Mesh.h"
 
-Mesh::Mesh()
-{
-
-}
-
 Mesh::Mesh(std::vector<glm::vec3>& vertices, std::vector<glm::vec3>& normals)
 {
 	glGenVertexArrays(1, &VAO);
@@ -28,20 +23,19 @@ Mesh::Mesh(std::vector<glm::vec3>& vertices, std::vector<glm::vec3>& normals)
 	material = new Material(0);
 }
 
-Mesh::Mesh(std::vector<uint8_t>& vertexData, std::vector<uint16_t>& indices, uint16_t VertexStride, uint32_t textureHash)
+Mesh::Mesh(const uint8_t* meshData, uint64_t VertexPointer, uint32_t VertexSize, uint64_t IndicesPointer, uint32_t IndicesSize, uint16_t VertexStride, uint32_t textureHash)
 {
 	glGenVertexArrays(1, &VAO);
-
 	glBindVertexArray(VAO);
 
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, vertexData.size() * sizeof(uint8_t), &vertexData[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, VertexSize, &meshData[VertexPointer], GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, VertexStride, nullptr);
 	glEnableVertexAttribArray(1); //NORMALS
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, VertexStride, (GLvoid*)12);
-	printf("VERTEX %d\n", VertexStride);
+	//printf("VERTEX %d\n", VertexStride);
 	glEnableVertexAttribArray(2); //TEXTCOORD
 	//if (VertexStride == 36) 
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, VertexStride, (GLvoid*)28);
@@ -56,11 +50,11 @@ Mesh::Mesh(std::vector<uint8_t>& vertexData, std::vector<uint16_t>& indices, uin
 	if (VertexStride == 72)
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, VertexStride, (GLvoid*)40);*/
 
-	num_indices = indices.size();
+	num_indices = IndicesSize;
 
 	glGenBuffers(1, &EBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint16_t), &indices[0], GL_STATIC_DRAW); //16 BIT INDICES max 65536
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, IndicesSize, &meshData[IndicesPointer], GL_STATIC_DRAW); //16 BIT INDICES max 65536
 
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
