@@ -63,9 +63,9 @@ void InGameState::tick(float delta_time)
 		game->getWorld()->TestFunction(game->getRenderer()->getCamera().Position);
 	}
 	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_B)) {
-		//game->getRenderer()->test = false;
-		//game->getWorld()->ClearTestFunction();
-		TextureManager::ChangeBool();
+		game->getRenderer()->test = false;
+		game->getWorld()->ClearTestFunction();
+		//TextureManager::ChangeBool();
 	}
 	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_M)) {
 		game->getRenderer()->test = !game->getRenderer()->test;

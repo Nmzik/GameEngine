@@ -1,9 +1,9 @@
 #shader vertex
-#version 330 core
+#version 430 core
 layout (location = 0) in vec3 aPos;
 
 uniform mat4 lightSpaceMatrix;
-uniform mat4 model;
+layout(location = 3) uniform mat4 model;
 
 void main()
 {
@@ -11,7 +11,7 @@ void main()
 }
 
 #shader fragment
-#version 330 core
+#version 430 core
 
 void main()
 {             

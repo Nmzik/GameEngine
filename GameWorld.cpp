@@ -517,14 +517,15 @@ bool GameWorld::DetectInWater(glm::vec3 Position) {
 
 void GameWorld::ClearTestFunction()
 {
-
+	//int test = ybnLoader.size();
 	for (int i = 0; i < ybnLoader.size(); i++) {
 			delete ybnLoader[i];
-			ybnLoader.erase(ybnLoader.begin() + i);
+			
 	}
+	ybnLoader.erase(ybnLoader.begin(), ybnLoader.end());
 
 	//CLEARING
-	for (int i = 0; i < ymapLoader.size(); i++) {
+	/*for (int i = 0; i < ymapLoader.size(); i++) {
 			delete ymapLoader[i];
 			ymapLoader.erase(ymapLoader.begin() + i);
 	}
@@ -532,5 +533,5 @@ void GameWorld::ClearTestFunction()
 	for (int i = 0; i < ydrLoader.size(); i++) {
 		delete ydrLoader[i];
 		ydrLoader.erase(ydrLoader.begin() + i);
-	}
+	}*/
 }

@@ -31,7 +31,7 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
 
@@ -294,6 +294,10 @@ void RenderingSystem::renderQuad()
 	glBindVertexArray(0);
 }
 
+#define ModelUniformLoc 3
+#define ViewUniformLoc 4
+#define ProjUniformLoc 5
+
 void RenderingSystem::render(GameWorld* world) 
 {
 	//float tod = world->gameHour + world->gameMinute / 60.f;
@@ -321,8 +325,8 @@ void RenderingSystem::render(GameWorld* world)
 
 	if (test == true) world->GetVisibleYmaps(camera->Position);
 
-	glClearColor(0.0, 0.0, 0.0, 0.0);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//glClearColor(0.0, 0.0, 0.0, 0.0);
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	///geometry to gbuffer->shadowmaps(directional light)->shadowmaps(point light)->ssao->lighting(Final)->skybox
 	// --------------------------------GeometryPass Deferred Rendering----------------------------------
@@ -332,8 +336,8 @@ void RenderingSystem::render(GameWorld* world)
 	//glEnable(GL_CULL_FACE);;
 	glm::mat4 view = camera->GetViewMatrix();
 	gbuffer->use();
-	gbuffer->setMat4("projection", projection);
-	gbuffer->setMat4("view", view);
+	gbuffer->setMat4(ProjUniformLoc, projection);
+	gbuffer->setMat4(ViewUniformLoc, view);
 
 	//camera->UpdateFrustum(view * projection);
 
@@ -361,26 +365,12 @@ void RenderingSystem::render(GameWorld* world)
 		//}
 	}
 	world->GetResourceManager()->mainLock.unlock();*/
-
-	//TEST YBN
-	if (DrawCollision) {
-		for (int i = 0; i < world->ybnLoader.size(); i++)
-		{
-			for (int j = 0; j < world->ybnLoader[i]->meshes.size(); j++)
-			{
-				glm::mat4 model = glm::translate(glm::mat4(), world->ybnLoader[i]->CenterGeometry[j]);
-				glm::mat4 rotate = glm::toMat4(glm::quat(0.f, 0.f, 0.0, 1.0f));
-				gbuffer->setMat4("model", model);
-				world->ybnLoader[i]->meshes[j]->DrawCollision();
-			}
-		}
-	}
 	//printf("=========================\n");
 	//TEST YDD
 	for (auto& yddFile : world->yddLoader)
 	{
 		auto modelpos = yddFile->GetMat4();
-		gbuffer->setMat4("model", modelpos);
+		gbuffer->setMat4(ModelUniformLoc, modelpos);
 		yddFile->Draw();
 	}
 
@@ -388,31 +378,31 @@ void RenderingSystem::render(GameWorld* world)
 	for (auto& YdrFile : world->ydrLoader)
 	{
 		auto modelpos = YdrFile->GetMat4();
-		gbuffer->setMat4("model", modelpos);
+		gbuffer->setMat4(ModelUniformLoc, modelpos);
 		YdrFile->Draw();
 	}
 	//glDisable(GL_CULL_FACE);
 
 	for (int i = 0; i < world->pedestrians.size(); i++) {
 		auto model = world->pedestrians[i]->getPosition();
-		gbuffer->setMat4("model", model);
+		gbuffer->setMat4(ModelUniformLoc, model);
 		world->pedestrians[i]->Draw();
 	}
 
 	for (int i = 0; i < world->vehicles.size(); i++) {
 		auto modelVehicle = world->vehicles[i]->GetMat4();
-		gbuffer->setMat4("model", modelVehicle);
+		gbuffer->setMat4(ModelUniformLoc, modelVehicle);
 		world->vehicles[i]->Draw();
 	}
 
 	if (RenderDebugWorld) {
 		world->GetDynamicsWorld()->debugDrawWorld();
-		gbuffer->setMat4("model", glm::mat4(1.0));
+		gbuffer->setMat4(ModelUniformLoc, glm::mat4(1.0));
 		world->getDebugDrawer()->render();
 	}
 
 	auto modelMatrix = world->player->getPosition();
-	gbuffer->setMat4("model", modelMatrix);
+	gbuffer->setMat4(ModelUniformLoc, modelMatrix);
 	world->player->Draw();
 
 	//glDisable(GL_CULL_FACE);
@@ -436,7 +426,7 @@ void RenderingSystem::render(GameWorld* world)
 	for (auto& YdrFile : world->ydrLoader)
 	{
 		auto modelpos = YdrFile->GetMat4();
-		DepthTexture->setMat4("model", modelpos);
+		DepthTexture->setMat4(ModelUniformLoc, modelpos);
 		YdrFile->Draw();
 	}
 

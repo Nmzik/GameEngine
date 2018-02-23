@@ -126,7 +126,7 @@ YtdFile::YtdFile(memstream& file, uint32_t hash) : Hash(hash)
 
 		Texture.DataPointer += 8192;
 
-		file.seekg(Texture.DataPointer);
+		//file.seekg(Texture.DataPointer);
 
 		int fullLength = 0;
 		int length = Texture.Stride * Texture.Height;
@@ -138,10 +138,6 @@ YtdFile::YtdFile(memstream& file, uint32_t hash) : Hash(hash)
 
 		//uint64_t positbe = file.tellg();
 		//printf("%zd\n",positbe);
-
-		std::vector<uint8_t> TextureData;
-		TextureData.resize(fullLength);
-		file.read((char*)&TextureData[0], fullLength);
 
 		/*nv_dds::CDDSImage image;
 		image.load("C:\\Users\\nmzik\\Desktop\\cs_rsl_aa_dirttrack3.dds");
@@ -184,7 +180,7 @@ YtdFile::YtdFile(memstream& file, uint32_t hash) : Hash(hash)
 				{
 					unsigned int size = ((Texture.Width + 3) / 4)*((Texture.Height + 3) / 4)*blockSize;
 
-					glCompressedTexImage2D(GL_TEXTURE_2D, level, format, Texture.Width, Texture.Height, 0, size, &TextureData[0] + offset);
+					glCompressedTexImage2D(GL_TEXTURE_2D, level, format, Texture.Width, Texture.Height, 0, size, &file._buffer.p[Texture.DataPointer] + offset);
 
 					offset += size;
 					Texture.Width /= 2;

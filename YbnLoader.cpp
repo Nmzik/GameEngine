@@ -2,15 +2,10 @@
 
 YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world, memstream& file, uint32_t hash) : Hash(hash), CollisionWorld(world)
 {
-	/*std::ifstream file("C:\\Users\\nmzik\\Desktop\\sm_smugdlc_int_01.ybn", std::ios::binary);
-
-	if (!file.is_open()) {
-		printf("NOT FOUND!");
-	}*/
 
 	compound = new btCompoundShape();
-	std::vector<glm::vec3> FinalVertices;
-	std::vector<glm::vec3> FinalNormals;
+	//std::vector<glm::vec3> FinalVertices;
+	//std::vector<glm::vec3> FinalNormals;
 
 	struct {
 		uint32_t FileVFT;
@@ -111,7 +106,7 @@ YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world, memstream& file, uint32_t h
 		std::vector<glm::vec3> Vertices;
 	};
 
-	struct Vertex_HalfType{
+	struct Vertex_HalfType {
 		int16_t x;
 		int16_t y;
 		int16_t z;
@@ -154,10 +149,10 @@ YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world, memstream& file, uint32_t h
 		file.read((char*)&ResourceFileBase, sizeof(ResourceFileBase));
 
 		file.read((char*)&Bounds, sizeof(Bounds));
-		printf("TYPE %d\n", Bounds.Type);
+		//printf("TYPE %d\n", Bounds.Type);
 
 		BoundGeometry geom;
-		file.read((char*)&geom, sizeof(BoundGeometry) -24);
+		file.read((char*)&geom, sizeof(BoundGeometry) - 24);
 
 		/////////////////READ POLYGONS
 		enum BoundPolygonType
@@ -194,9 +189,6 @@ YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world, memstream& file, uint32_t h
 
 		file.seekg(geom.PolygonsPointer);
 
-		//uint8_t* PolygonsData = new uint8_t[geom.PolygonsCount * 16];
-		//file.read((char*)&PolygonsData[0], geom.PolygonsCount * 16);
-
 		for (int i = 0; i < geom.PolygonsCount; i++)  //PERFORMANCE IMPROVEMENT???
 		{
 			uint8_t type;
@@ -218,85 +210,52 @@ YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world, memstream& file, uint32_t h
 				//printf("ERROR NOT IMPLEMENTED!");
 				break;
 			}
-
-			/*BoundPolygonType type = (BoundPolygonType)(PolygonsData[i * 16] & 7);
-
-			switch (type)
-			{
-			case Triangle:
-				BoundPolygonTriangle triangle;
-				file.read((char*)&triangle, sizeof(BoundPolygonTriangle));
-				PolygonTriangles.push_back(triangle);
-				break;
-			default:
-				printf("UNDEFINED NEEDS FIX!");
-				break;
-			}*/
 		}
 
 		///////////////////
+		if (PolygonTriangles.size() != 0) {
+			if ((geom.VerticesPointer & SYSTEM_BASE) == SYSTEM_BASE) {
+				geom.VerticesPointer = geom.VerticesPointer & ~0x50000000;
+			}
+			if ((geom.VerticesPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
+				geom.VerticesPointer = geom.VerticesPointer & ~0x60000000;
+			}
 
-		if ((geom.VerticesPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-			geom.VerticesPointer = geom.VerticesPointer & ~0x50000000;
-		}
-		if ((geom.VerticesPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-			geom.VerticesPointer = geom.VerticesPointer & ~0x60000000;
-		}
+			file.seekg(geom.VerticesPointer);
 
-		file.seekg(geom.VerticesPointer);
+			Vertex_HalfType *vertices = new Vertex_HalfType[geom.VerticesCount];
+			file.read((char*)&vertices[0], sizeof(Vertex_HalfType) * geom.VerticesCount);
 
-		Vertex_HalfType *vertices = new Vertex_HalfType[geom.VerticesCount];
-		file.read((char*)&vertices[0], sizeof(Vertex_HalfType) * geom.VerticesCount);
+			geom.Vertices.resize(geom.VerticesCount);
 
-		geom.Vertices.resize(geom.VerticesCount);
+			for (int i = 0; i < geom.VerticesCount; i++)
+			{
+				geom.Vertices[i] = glm::vec3(vertices[i].x, vertices[i].y, vertices[i].z) * geom.Quantum;
+			}
 
-		for (int i = 0; i < geom.VerticesCount; i++)
-		{
-			geom.Vertices[i] = glm::vec3(vertices[i].x, vertices[i].y, vertices[i].z) * geom.Quantum;
-		}
+			delete[] vertices;
+			btTriangleMesh* TriMesh = new btTriangleMesh();
+			btMeshes.push_back(TriMesh);
 
-		delete [] vertices;
-		btTriangleMesh* TriMesh = new btTriangleMesh();
-		btMeshes.push_back(TriMesh);
+			for (int i = 0; i < PolygonTriangles.size(); i++)
+			{
+				glm::vec3 Vertex1 = geom.Vertices[PolygonTriangles[i].vertIndex1];
+				glm::vec3 Vertex2 = geom.Vertices[PolygonTriangles[i].vertIndex2];
+				glm::vec3 Vertex3 = geom.Vertices[PolygonTriangles[i].vertIndex3];
+				TriMesh->addTriangle(btVector3(Vertex1.x, Vertex1.y, Vertex1.z), btVector3(Vertex2.x, Vertex2.y, Vertex2.z), btVector3(Vertex3.x, Vertex3.y, Vertex3.z));
+			}
 
-		for (int i = 0; i < PolygonTriangles.size(); i++)
-		{
-			glm::vec3 Vertex1 = geom.Vertices[PolygonTriangles[i].vertIndex1];
-			FinalVertices.push_back(Vertex1);
-			glm::vec3 Vertex2 = geom.Vertices[PolygonTriangles[i].vertIndex2];
-			FinalVertices.push_back(Vertex2);
-			glm::vec3 Vertex3 = geom.Vertices[PolygonTriangles[i].vertIndex3];
-			FinalVertices.push_back(Vertex3);
-			TriMesh->addTriangle(btVector3(Vertex1.x, Vertex1.y, Vertex1.z), btVector3(Vertex2.x, Vertex2.y, Vertex2.z), btVector3(Vertex3.x, Vertex3.y, Vertex3.z));
-			glm::vec3 normal = glm::normalize(glm::cross(Vertex2 - Vertex1, Vertex3 - Vertex1));
-			FinalNormals.push_back(normal);
-			FinalNormals.push_back(normal);
-			FinalNormals.push_back(normal);
-		}
-		if (TriMesh->getNumTriangles() != 0) {
-			btBvhTriangleMeshShape* trishape =
-				new btBvhTriangleMeshShape(TriMesh, false);
+			btBvhTriangleMeshShape* trishape = new btBvhTriangleMeshShape(TriMesh, false);
 			btTriangleMeshes.push_back(trishape);
 
-			if (FinalVertices.size() != 0) {
-				btTransform localTrans;
-				localTrans.setIdentity();
-				//localTrans effectively shifts the center of mass with respect to the chassis
-				localTrans.setOrigin(btVector3(geom.CenterGeom.x, geom.CenterGeom.y, geom.CenterGeom.z));
-				compound->addChildShape(localTrans, trishape);
-			}
+			btTransform localTrans;
+			localTrans.setIdentity();
+			//localTrans effectively shifts the center of mass with respect to the chassis
+			localTrans.setOrigin(btVector3(geom.CenterGeom.x, geom.CenterGeom.y, geom.CenterGeom.z));
+			compound->addChildShape(localTrans, trishape);
+
+			BoundGeometries.push_back(geom);
 		}
-
-		//meshes.emplace_back(new Mesh(FinalVertices, FinalNormals));
-
-		FinalVertices.clear();
-		FinalVertices.shrink_to_fit();
-
-		FinalNormals.clear();
-		FinalNormals.shrink_to_fit();
-
-		BoundGeometries.push_back(geom);
-
 		file.seekg(BoundsPointer);
 	}
 
@@ -309,11 +268,6 @@ YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world, memstream& file, uint32_t h
 
 YbnLoader::~YbnLoader()
 {
-	for (auto& mesh : meshes)
-	{
-		delete mesh;
-	}
-
 	for (int i = 0; i < btMeshes.size(); i++)
 	{
 		delete btMeshes[i];
@@ -329,11 +283,4 @@ glm::mat4 YbnLoader::GetMat4()
 {
 	glm::mat4 model = glm::translate(glm::mat4(), glm::vec3(25.8109264, -8.294803, 9.779061));
 	return model;
-}
-
-void YbnLoader::Draw()
-{
-	for (int i = 0; i < 1; i++) {
-		meshes[i]->DrawCollision();
-	}
 }

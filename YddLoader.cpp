@@ -47,7 +47,6 @@ YddLoader::YddLoader(memstream& file, glm::vec3 position, glm::quat rotation, ui
 		uint32_t Unknown_74h; // 0x00000000
 		uint32_t Unknown_78h; // 0x00000000
 		uint32_t Unknown_7Ch; // 0x00000000
-		std::vector<uint8_t> VertexData;
 	};
 
 	struct IndexBuffer {
@@ -74,7 +73,6 @@ YddLoader::YddLoader(memstream& file, glm::vec3 position, glm::quat rotation, ui
 		uint32_t Unknown_54h; // 0x00000000
 		uint32_t Unknown_58h; // 0x00000000
 		uint32_t Unknown_5Ch; // 0x00000000
-		std::vector<uint16_t> Indices;
 	};
 
 	struct DrawableGeometry {
@@ -310,7 +308,7 @@ YddLoader::YddLoader(memstream& file, glm::vec3 position, glm::quat rotation, ui
 				file.seekg(drawGeom->VertexBufferPointer);
 
 				drawGeom->vertexBuffer = new VertexBuffer();
-				file.read((char*)drawGeom->vertexBuffer, sizeof(VertexBuffer) - 24);
+				file.read((char*)drawGeom->vertexBuffer, sizeof(VertexBuffer));
 
 				if ((drawGeom->vertexBuffer->DataPointer1 & SYSTEM_BASE) == SYSTEM_BASE) {
 					drawGeom->vertexBuffer->DataPointer1 = drawGeom->vertexBuffer->DataPointer1 & ~0x50000000;
@@ -318,20 +316,6 @@ YddLoader::YddLoader(memstream& file, glm::vec3 position, glm::quat rotation, ui
 				if ((drawGeom->vertexBuffer->DataPointer1 & GRAPHICS_BASE) == GRAPHICS_BASE) {
 					drawGeom->vertexBuffer->DataPointer1 = drawGeom->vertexBuffer->DataPointer1 & ~0x60000000;
 				}
-
-				/*struct Meshdata {
-				glm::vec3 vertices;
-				glm::vec3 normals;
-				uint8_t textcoord1[4];
-				glm::vec2 idk;
-				glm::vec3 idk2;
-				float idk3;
-				};*/
-
-				file.seekg(drawGeom->vertexBuffer->DataPointer1);
-
-				drawGeom->vertexBuffer->VertexData.resize(drawGeom->vertexBuffer->VertexCount * drawGeom->vertexBuffer->VertexStride);
-				file.read((char*)&drawGeom->vertexBuffer->VertexData[0], drawGeom->vertexBuffer->VertexCount * drawGeom->vertexBuffer->VertexStride);
 
 				if ((drawGeom->IndexBufferPointer & SYSTEM_BASE) == SYSTEM_BASE) {
 					drawGeom->IndexBufferPointer = drawGeom->IndexBufferPointer & ~0x50000000;
@@ -343,9 +327,7 @@ YddLoader::YddLoader(memstream& file, glm::vec3 position, glm::quat rotation, ui
 				file.seekg(drawGeom->IndexBufferPointer);
 
 				drawGeom->indexBuffer = new IndexBuffer();
-				file.read((char*)drawGeom->indexBuffer, sizeof(IndexBuffer) - 24);
-
-				//drawGeom->indexBuffer->Indices = new uint16_t[drawGeom->indexBuffer->IndicesCount];
+				file.read((char*)drawGeom->indexBuffer, sizeof(IndexBuffer));
 
 				//INDICES READING
 				if ((drawGeom->indexBuffer->IndicesPointer & SYSTEM_BASE) == SYSTEM_BASE) {
@@ -354,11 +336,6 @@ YddLoader::YddLoader(memstream& file, glm::vec3 position, glm::quat rotation, ui
 				if ((drawGeom->indexBuffer->IndicesPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
 					drawGeom->indexBuffer->IndicesPointer = drawGeom->indexBuffer->IndicesPointer & ~0x60000000;
 				}
-
-				file.seekg(drawGeom->indexBuffer->IndicesPointer);
-
-				drawGeom->indexBuffer->Indices.resize(drawGeom->indexBuffer->IndicesCount * sizeof(uint16_t));
-				file.read((char*)&drawGeom->indexBuffer->Indices[0], sizeof(uint16_t) * drawGeom->indexBuffer->IndicesCount);
 
 				DrawModel.Geometries.push_back(drawGeom);
 
@@ -383,7 +360,7 @@ YddLoader::YddLoader(memstream& file, glm::vec3 position, glm::quat rotation, ui
 			{
 				for (int k = 0; k < DrawableDictionary.DrawableBases[i].DrawableModels[j].Geometries.size(); k++)
 				{
-					//meshes.emplace_back(new Mesh(DrawableDictionary.DrawableBases[i].DrawableModels[j].Geometries[k]->vertexBuffer->VertexData, DrawableDictionary.DrawableBases[i].DrawableModels[j].Geometries[k]->indexBuffer->Indices, DrawableDictionary.DrawableBases[i].DrawableModels[j].Geometries[k]->vertexBuffer->VertexStride, 0));
+					meshes.emplace_back(new Mesh(file._buffer.p, DrawableDictionary.DrawableBases[i].DrawableModels[j].Geometries[k]->vertexBuffer->DataPointer1, DrawableDictionary.DrawableBases[i].DrawableModels[j].Geometries[k]->vertexBuffer->VertexCount * DrawableDictionary.DrawableBases[i].DrawableModels[j].Geometries[k]->vertexBuffer->VertexStride, DrawableDictionary.DrawableBases[i].DrawableModels[j].Geometries[k]->indexBuffer->IndicesPointer, DrawableDictionary.DrawableBases[i].DrawableModels[j].Geometries[k]->indexBuffer->IndicesCount, DrawableDictionary.DrawableBases[i].DrawableModels[j].Geometries[k]->vertexBuffer->VertexStride, 0));
 				}
 			}
 		}
