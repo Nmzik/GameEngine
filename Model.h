@@ -13,7 +13,6 @@
 #include "BulletCollision/CollisionDispatch/btGhostObject.h"
 #include "BulletDynamics/Character/btKinematicCharacterController.h"
 #include <btBulletDynamicsCommon.h>
-#include "tiny_obj_loader.h"
 
 typedef struct
 {
@@ -27,8 +26,8 @@ class Model
 {
 	std::vector<Mesh> meshes;
 
-	std::vector<tinyobj::shape_t> shapes;
-	std::vector<tinyobj::material_t> materials;
+	//std::vector<tinyobj::shape_t> shapes;
+	//std::vector<tinyobj::material_t> materials;
 
 	btDiscreteDynamicsWorld* world;
 	btRigidBody* rigidBody;

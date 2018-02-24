@@ -234,6 +234,9 @@ YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, ui
 
 	file.read((char*)&DrawableBase, sizeof(DrawableBase));
 
+	BBCenter = position + DrawableBase.BoundingCenter;
+	BBRadius = DrawableBase.BoundingSphereRadius;
+
 	//Shader stuff
 	if ((DrawableBase.ShaderGroupPointer & SYSTEM_BASE) == SYSTEM_BASE) {
 		DrawableBase.ShaderGroupPointer = DrawableBase.ShaderGroupPointer & ~0x50000000;

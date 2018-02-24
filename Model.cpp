@@ -53,41 +53,13 @@ void Model::Load()
 		mtlPath.erase(pos+1);
 	}
 
-	tinyobj::LoadObj(shapes, materials, err, ModelPath, mtlPath.c_str(), tinyobj::triangulation | tinyobj::calculate_normals);
+	//tinyobj::LoadObj(shapes, materials, err, ModelPath, mtlPath.c_str(), tinyobj::triangulation | tinyobj::calculate_normals);
 
 	if (GenerateCollision) {
 
 		btConvexHullShape *shape = new btConvexHullShape();
 
-		for (int i = 0; i < shapes.size(); i++) {
-			for (size_t j = 0; j < shapes[i].mesh.indices.size() / 3; ++j) {
-				// index 1
-				auto idx1 = shapes[i].mesh.indices[j * 3];
-				btVector3 v0(
-					shapes[i].mesh.positions[(idx1 * 3)],
-					shapes[i].mesh.positions[(idx1 * 3) + 1],
-					shapes[i].mesh.positions[(idx1 * 3) + 2]
-				);
-				// index 2
-				auto idx2 = shapes[i].mesh.indices[(j * 3) + 1];
-				btVector3 v1(
-					shapes[i].mesh.positions[(idx2 * 3)],
-					shapes[i].mesh.positions[(idx2 * 3) + 1],
-					shapes[i].mesh.positions[(idx2 * 3) + 2]
-				);
-				// index 3
-				auto idx3 = shapes[i].mesh.indices[(j * 3) + 2];
-				btVector3 v2(
-					shapes[i].mesh.positions[(idx3 * 3)],
-					shapes[i].mesh.positions[(idx3 * 3) + 1],
-					shapes[i].mesh.positions[(idx3 * 3) + 2]
-				);
-
-				shape->addPoint(v0);
-				shape->addPoint(v1);
-				shape->addPoint(v2);
-			}
-		}
+		
 		/*for (int i = 0; i < vertices.size() / 8; i++)
 		{
 		btVector3 newVector(vertices[i * 8], vertices[i * 8 + 1], vertices[i * 8 + 2]);
@@ -125,16 +97,13 @@ void Model::Load()
 		world->addRigidBody(rigidBody);
 	}
 
-	meshes.reserve(shapes.size());
+	//meshes.reserve(shapes.size());
 
 }
 
 void Model::UploadToBuffers()
 {
-	for (auto& shape : shapes)
-	{
-		//meshes.emplace_back(shape.mesh.positions, shape.mesh.indices, shape.mesh.normals, shape.mesh.texcoords, pathTexture, specTexture);
-	}
+	
 	isLoaded = true;
 }
 

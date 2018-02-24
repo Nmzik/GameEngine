@@ -339,7 +339,7 @@ void RenderingSystem::render(GameWorld* world)
 	gbuffer->setMat4(ProjUniformLoc, projection);
 	gbuffer->setMat4(ViewUniformLoc, view);
 
-	//camera->UpdateFrustum(view * projection);
+	camera->UpdateFrustum(view * projection);
 
 	//light position object
 	/*static glm::mat4 model(1.0f);
@@ -377,9 +377,11 @@ void RenderingSystem::render(GameWorld* world)
 	//glEnable(GL_CULL_FACE);
 	for (auto& YdrFile : world->ydrLoader)
 	{
-		auto modelpos = YdrFile->GetMat4();
-		gbuffer->setMat4(ModelUniformLoc, modelpos);
-		YdrFile->Draw();
+		if (camera->intersects(YdrFile->BBCenter, YdrFile->BBRadius)) {
+			auto modelpos = YdrFile->GetMat4();
+			gbuffer->setMat4(ModelUniformLoc, modelpos);
+			YdrFile->Draw();
+		}
 	}
 	//glDisable(GL_CULL_FACE);
 
@@ -533,51 +535,3 @@ void RenderingSystem::skyboxPass()
 	//FORWARD RENDERING
 	//skybox->Draw();
 }
-
-/*void ForwardRendering() {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glClearColor(0.0, 1.0, 0.0, 1.0);
-
-	ourShader->use();
-
-	static glm::vec3 lightdirection(0.2f, 0.0f, -0.3f);
-	lightdirection.x = 1.0f + sin((SDL_GetTicks() / 1000)) * 2.0f;
-	lightdirection.y = sin((SDL_GetTicks() / 1000) / 2.0f) * 1.0f;
-
-	//for all cameras
-	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)1024 / (float)768, 0.1f, 1000.0f);
-
-	glm::mat4 view = camera->GetViewMatrix();
-	// pass transformation matrices to the shader
-	ourShader->setMat4("projection", projection); // note: currently we set the projection matrix each frame, but since the projection matrix rarely changes it's often best practice to set it outside the main loop only once.
-	ourShader->setMat4("view", view);
-	ourShader->setVec3("objectColor", 1.0f, 0.5f, 0.31f);
-	ourShader->setVec3("lightColor", 1.0f, 1.0f, 1.0f);
-	ourShader->setVec3("lightDirection", lightdirection);
-	ourShader->setVec3("viewPos", camera->Position);
-
-	//light position object
-	//glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(1.2f, 1.0f, 2.0f));
-	//ourShader->setMat4("model", model);
-	//models[0].Draw();
-
-	// render boxes
-	for (int i = 0; i < world->models.size(); i++)
-	{
-		//auto pos = models[i].GetPosition();
-
-		//glm::mat4 model = glm::translate(glm::mat4(1.0f), pos);
-		//float angle = 20.0f * i;
-		//model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-		auto model = world->models[i].GetMat4();
-		ourShader->setMat4("model", model);
-
-		world->models[i].Draw();
-	}
-
-	skybox->Draw();
-
-	//renderAllLights
-
-	SDL_GL_SwapWindow(window);
-}*/

@@ -20,6 +20,7 @@ void main()
     
     mat3 normalMatrix = transpose(inverse(mat3(view * model)));
     Normal = normalMatrix * aNormal;
+	//Normal = mat3(transpose(inverse(view * model))) * aNormal;
     
     gl_Position = projection * viewPos;
 }

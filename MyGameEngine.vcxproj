@@ -111,7 +111,6 @@
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="TextureManager.cpp" />
     <ClCompile Include="tinyxml2.cpp" />
-    <ClCompile Include="tiny_obj_loader.cc" />
     <ClCompile Include="Vehicle.cpp" />
     <ClCompile Include="YbnLoader.cpp" />
     <ClCompile Include="YddLoader.cpp" />
@@ -157,7 +156,6 @@
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TextureManager.h" />
     <ClInclude Include="tinyxml2.h" />
-    <ClInclude Include="tiny_obj_loader.h" />
     <ClInclude Include="Vehicle.h" />
     <ClInclude Include="YbnLoader.h" />
     <ClInclude Include="YddLoader.h" />

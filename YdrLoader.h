@@ -23,6 +23,8 @@ class YdrLoader
 	//glm::vec3 Position;
 	//glm::quat Rotation;
 public:
+	glm::vec3 BBCenter;
+	float BBRadius;
 	uint32_t time;
 	bool Loaded = false;
 	uint32_t Hash;
