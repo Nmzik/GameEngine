@@ -40,6 +40,7 @@ GameWorld::GameWorld()
 	dynamicsWorld->setDebugDrawer(&debug);
 
 	LoadYTD(539222631);
+	LoadYDR(3225204062, glm::vec3(), glm::quat());
 	/*for (int i = 0; i < 500; i++) {
 		Model model(glm::vec3(0.f, 200.f, 0.f), glm::quat(0.f, 0.f, 0.f, 1.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\cube.obj", "container.jpg", "container2_specular.png", true, true);
 		model.Load();

@@ -303,39 +303,44 @@ YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, ui
 
 			if (param.DataType == 0) {
 
-				uint64_t Pos = file.tellg();
-
-				if ((param.DataPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-					param.DataPointer = param.DataPointer & ~0x50000000;
+				if (param.DataPointer == 0) {
+					TexturesHashes.push_back(0);
 				}
-				if ((param.DataPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-					param.DataPointer = param.DataPointer & ~0x60000000;
+				else {
+
+					uint64_t Pos = file.tellg();
+
+					if ((param.DataPointer & SYSTEM_BASE) == SYSTEM_BASE) {
+						param.DataPointer = param.DataPointer & ~0x50000000;
+					}
+					if ((param.DataPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
+						param.DataPointer = param.DataPointer & ~0x60000000;
+					}
+
+					file.seekg(param.DataPointer);
+
+					TextureBase texBase;
+					file.read((char*)&texBase, sizeof(TextureBase));
+
+					if ((texBase.NamePointer & SYSTEM_BASE) == SYSTEM_BASE) {
+						texBase.NamePointer = texBase.NamePointer & ~0x50000000;
+					}
+					if ((texBase.NamePointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
+						texBase.NamePointer = texBase.NamePointer & ~0x60000000;
+					}
+
+					file.seekg(texBase.NamePointer);
+
+					std::string Name;
+					std::getline(file, Name, '\0');
+
+					std::transform(Name.begin(), Name.end(), Name.begin(), tolower);
+					uint32_t NameHash = GenHash(Name);
+
+					TexturesHashes.push_back(NameHash);
+
+					file.seekg(Pos);
 				}
-
-				file.seekg(param.DataPointer);
-
-				TextureBase texBase;
-				file.read((char*)&texBase, sizeof(TextureBase));
-
-				if ((texBase.NamePointer & SYSTEM_BASE) == SYSTEM_BASE) {
-					texBase.NamePointer = texBase.NamePointer & ~0x50000000;
-				}
-				if ((texBase.NamePointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-					texBase.NamePointer = texBase.NamePointer & ~0x60000000;
-				}
-
-				file.seekg(texBase.NamePointer);
-
-				std::string Name;
-				std::getline(file, Name, '\0');
-
-				std::transform(Name.begin(), Name.end(), Name.begin(), tolower);
-				uint32_t NameHash = GenHash(Name);
-
-				TexturesHashes.push_back(NameHash);
-
-				file.seekg(Pos);
-
 			}
 		}
 
