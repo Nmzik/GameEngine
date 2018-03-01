@@ -1,6 +1,6 @@
-#include "YdrLoader.h"
+#include "YftLoader.h"
 
-YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, uint32_t hash, btDiscreteDynamicsWorld* world) : Hash(hash)
+YftLoader::YftLoader(memstream& file, glm::vec3 position, glm::quat rotation, uint32_t hash) : Hash(hash)
 {
 	ModelMatrix = glm::translate(glm::mat4(), position);
 	ModelMatrix *= glm::toMat4(rotation);
@@ -16,65 +16,92 @@ YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, ui
 
 	uint64_t SYSTEM_BASE = 0x50000000;
 	uint64_t GRAPHICS_BASE = 0x60000000;
-	/*uint64_t pos = file.tellg();
-	//seek to pointer and then
-	if ((ResourceFileBase.FilePagesInfoPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-		ResourceFileBase.FilePagesInfoPointer = ResourceFileBase.FilePagesInfoPointer & ~0x50000000;
+
+	struct ResourcePointerList64 {
+		uint64_t EntriesPointer;
+		uint16_t EntriesCount;
+		uint16_t EntriesCapacity;
+	};
+
+	struct {
+		uint32_t Unknown_10h; // 0x00000000
+		uint32_t Unknown_14h; // 0x00000000
+		uint32_t Unknown_18h; // 0x00000000
+		uint32_t Unknown_1Ch; // 0x00000000
+		uint32_t Unknown_20h;
+		uint32_t Unknown_24h;
+		uint32_t Unknown_28h;
+		uint32_t Unknown_2Ch;
+		uint64_t DrawablePointer;
+		uint64_t Unknown_28h_Pointer;
+		uint64_t Unknown_30h_Pointer;
+		uint32_t Count0;
+		uint32_t Unknown_4Ch;
+		uint32_t Unknown_50h; // 0x00000000
+		uint32_t Unknown_54h; // 0x00000000
+		uint64_t NamePointer;
+		ResourcePointerList64 Clothes;
+		uint32_t Unknown_70h; // 0x00000000
+		uint32_t Unknown_74h; // 0x00000000
+		uint32_t Unknown_78h; // 0x00000000
+		uint32_t Unknown_7Ch; // 0x00000000
+		uint32_t Unknown_80h; // 0x00000000
+		uint32_t Unknown_84h; // 0x00000000
+		uint32_t Unknown_88h; // 0x00000000
+		uint32_t Unknown_8Ch; // 0x00000000
+		uint32_t Unknown_90h; // 0x00000000
+		uint32_t Unknown_94h; // 0x00000000
+		uint32_t Unknown_98h; // 0x00000000
+		uint32_t Unknown_9Ch; // 0x00000000
+		uint32_t Unknown_A0h; // 0x00000000
+		uint32_t Unknown_A4h; // 0x00000000
+		uint64_t Unknown_A8h_Pointer;
+		uint32_t Unknown_B0h; // 0x00000000
+		uint32_t Unknown_B4h; // 0x00000000
+		uint32_t Unknown_B8h;
+		uint32_t Unknown_BCh;
+		uint32_t Unknown_C0h;
+		uint32_t Unknown_C4h;
+		uint32_t Unknown_C8h;
+		uint32_t Unknown_CCh;
+		uint32_t Unknown_D0h;
+		uint32_t Unknown_D4h;
+		uint8_t Unknown_D8h;
+		uint8_t Count3;
+		uint16_t Unknown_DAh;
+		uint32_t Unknown_DCh; // 0x00000000
+		uint64_t Unknown_E0h_Pointer;
+		uint32_t Unknown_E8h; // 0x00000000
+		uint32_t Unknown_ECh; // 0x00000000
+		uint64_t PhysicsLODGroupPointer;
+		uint64_t Unknown_F8h_Pointer;
+		uint32_t Unknown_100h; // 0x00000000
+		uint32_t Unknown_104h; // 0x00000000
+		uint32_t Unknown_108h; // 0x00000000
+		uint32_t Unknown_10Ch; // 0x00000000
+		ResourceSimpleList64Ptr LightAttributesPtr;
+		//public LightAttributes_s[] LightAttributes;
+		uint64_t Unknown_120h_Pointer;
+		uint32_t Unknown_128h; // 0x00000000
+		uint32_t Unknown_12Ch; // 0x00000000
+	} FragType;
+
+	file.read((char*)&FragType, sizeof(FragType));
+
+	if ((FragType.DrawablePointer & SYSTEM_BASE) == SYSTEM_BASE) {
+		FragType.DrawablePointer = FragType.DrawablePointer & ~0x50000000;
 	}
-	if ((ResourceFileBase.FilePagesInfoPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-		ResourceFileBase.FilePagesInfoPointer = ResourceFileBase.FilePagesInfoPointer & ~0x60000000;
+	if ((FragType.DrawablePointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
+		FragType.DrawablePointer = FragType.DrawablePointer & ~0x60000000;
 	}
-	printf("%d\n", ResourceFileBase.FilePagesInfoPointer);
-	file.seekg(ResourceFileBase.FilePagesInfoPointer);
 
-	uint32_t Unknown_0h;
-	uint32_t Unknown_4h;
-	uint8_t SystemPagesCount;
-	uint8_t GraphicsPagesCount;
-	uint16_t Unknown_Ah;
-	uint32_t Unknown_Ch;
-	uint32_t Unknown_10h;
+	file.seekg(FragType.DrawablePointer);
 
-	file.read((char*)&Unknown_0h, sizeof(Unknown_0h));
-	file.read((char*)&Unknown_4h, sizeof(Unknown_4h));
-	file.read((char*)&SystemPagesCount, sizeof(SystemPagesCount));
-	file.read((char*)&GraphicsPagesCount, sizeof(GraphicsPagesCount));
-	file.read((char*)&Unknown_Ah, sizeof(Unknown_Ah));
-	file.read((char*)&Unknown_Ch, sizeof(Unknown_Ch));
-	file.read((char*)&Unknown_10h, sizeof(Unknown_10h));
-
-	file.seekg(pos);*/
-
-	//std::vector<VertexBuffer> vertexBuffer;
-	//std::vector<IndexBuffer> indexBuffer;
-
-	std::vector<DrawableGeometry> Geometries;
+	file.read((char*)&ResourceFileBase, sizeof(ResourceFileBase));
 
 	DrawableBase drawBase;
 
 	file.read((char*)&drawBase, sizeof(drawBase));
-
-	struct {
-		uint64_t NamePointer;
-		uint64_t LightAttributesPointer;
-		uint16_t LightAttributesCount1;
-		uint16_t LightAttributesCount2;
-		uint32_t Unknown_BCh; // 0x00000000
-		uint32_t Unknown_C0h; // 0x00000000
-		uint32_t Unknown_C4h; // 0x00000000
-		uint64_t BoundPointer;
-	} Drawable;
-
-	//READ COLLISION DATA FROM YDR
-	file.read((char*)&Drawable, sizeof(Drawable));
-
-	if (Drawable.BoundPointer != 0) {
-		printf("YBN INSIDE YDR\n");
-		YbnLoader* loader = new YbnLoader(world, file, hash);
-	}
-
-	BBCenter = position + drawBase.BoundingCenter;
-	BBRadius = drawBase.BoundingSphereRadius;
 
 	//Shader stuff
 	if ((drawBase.ShaderGroupPointer & SYSTEM_BASE) == SYSTEM_BASE) {
@@ -86,32 +113,20 @@ YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, ui
 
 	file.seekg(drawBase.ShaderGroupPointer);
 
-	ShaderGroup _ShaderGroup;
+	ShaderGroup shaderGroup;
 
-	file.read((char*)&_ShaderGroup, sizeof(ShaderGroup));
+	file.read((char*)&shaderGroup, sizeof(ShaderGroup));
 
-	/*if ((_ShaderGroup.TextureDictionaryPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-		_ShaderGroup.TextureDictionaryPointer = _ShaderGroup.TextureDictionaryPointer & ~0x50000000;
+	if ((shaderGroup.ShadersPointer & SYSTEM_BASE) == SYSTEM_BASE) {
+		shaderGroup.ShadersPointer = shaderGroup.ShadersPointer & ~0x50000000;
 	}
-	if ((_ShaderGroup.TextureDictionaryPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-		_ShaderGroup.TextureDictionaryPointer = _ShaderGroup.TextureDictionaryPointer & ~0x60000000;
-	}
-
-	file.seekg(_ShaderGroup.TextureDictionaryPointer);
-
-	TextureDictionary texDictionary;
-	file.read((char*)&texDictionary, sizeof(TextureDictionary));*/
-
-	if ((_ShaderGroup.ShadersPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-		_ShaderGroup.ShadersPointer = _ShaderGroup.ShadersPointer & ~0x50000000;
-	}
-	if ((_ShaderGroup.ShadersPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-		_ShaderGroup.ShadersPointer = _ShaderGroup.ShadersPointer & ~0x60000000;
+	if ((shaderGroup.ShadersPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
+		shaderGroup.ShadersPointer = shaderGroup.ShadersPointer & ~0x60000000;
 	}
 
-	file.seekg(_ShaderGroup.ShadersPointer);
+	file.seekg(shaderGroup.ShadersPointer);
 
-	for (int i = 0; i < _ShaderGroup.ShadersCount1; i++)
+	for (int i = 0; i < shaderGroup.ShadersCount1; i++)
 	{
 		uint64_t data_pointer;
 		file.read((char*)&data_pointer, sizeof(data_pointer));
@@ -128,7 +143,7 @@ YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, ui
 
 		ShaderFX shaderFX;
 
-		file.read((char*)&shaderFX, sizeof(shaderFX));
+		file.read((char*)&shaderFX, sizeof(ShaderFX));
 
 		if ((shaderFX.ParametersPointer & SYSTEM_BASE) == SYSTEM_BASE) {
 			shaderFX.ParametersPointer = shaderFX.ParametersPointer & ~0x50000000;
@@ -298,11 +313,6 @@ YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, ui
 				vertbuffer.DataPointer1 = vertbuffer.DataPointer1 & ~0x60000000;
 			}
 
-			//file.seekg(vertbuffer.DataPointer1);
-
-			//vertbuffer.VertexData.resize(vertbuffer.VertexCount * vertbuffer.VertexStride);
-			//file.read((char*)&vertbuffer.VertexData[0], vertbuffer.VertexCount * vertbuffer.VertexStride);
-
 			if ((drawGeom.IndexBufferPointer & SYSTEM_BASE) == SYSTEM_BASE) {
 				drawGeom.IndexBufferPointer = drawGeom.IndexBufferPointer & ~0x50000000;
 			}
@@ -315,8 +325,6 @@ YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, ui
 			IndexBuffer indexbuffer;
 			file.read((char*)&indexbuffer, sizeof(IndexBuffer));
 
-			//drawGeom->indexBuffer->Indices = new uint16_t[drawGeom->indexBuffer->IndicesCount];
-
 			//INDICES READING
 			if ((indexbuffer.IndicesPointer & SYSTEM_BASE) == SYSTEM_BASE) {
 				indexbuffer.IndicesPointer = indexbuffer.IndicesPointer & ~0x50000000;
@@ -324,11 +332,6 @@ YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, ui
 			if ((indexbuffer.IndicesPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
 				indexbuffer.IndicesPointer = indexbuffer.IndicesPointer & ~0x60000000;
 			}
-
-			//file.seekg(indexbuffer.IndicesPointer);
-
-			//indexbuffer.Indices.resize(indexbuffer.IndicesCount * sizeof(uint16_t));
-			//file.read((char*)&indexbuffer.Indices[0], sizeof(uint16_t) * indexbuffer.IndicesCount);
 
 			//printf("%d\n",sizeof(Mesh));
 			//TexturesID[ShaderMapping[i]];
@@ -350,71 +353,46 @@ YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, ui
 		}
 		file.seekg(posOriginal);
 	}
-
-	//file.close();
-	/*for (int i = 0; i < Geometries.size(); i++)
-	{
-		sizeVertex  += Geometries[i].vertexBuffer->VertexData.size() * sizeof(uint8_t);
-		sizeIndex += Geometries[i].indexBuffer->Indices.size() * sizeof(uint16_t);
-	}*/
-
-	//printf("SIZE %d\n", (sizeVertex + sizeIndex)/1024/1024);
-
-	/*for (int i = 0; i < Geometries.size(); i++)
-	{
-		//Mesh mesh(Geometries[i].vertexBuffer->VertexData, Geometries[i].indexBuffer->Indices, Geometries[i].vertexBuffer->VertexStride);
-		meshes.emplace_back(Geometries[i].vertexBuffer->VertexData, Geometries[i].indexBuffer->Indices, Geometries[i].vertexBuffer->VertexStride);
-	}*/
-
-	/*for (int i = 0; i < vertexBuffer.size(); i++)
-	{
-		Mesh mesh(vertexBuffer[i].VertexData, indexBuffer[i].Indices, vertexBuffer[i].VertexStride);
-		meshes.push_back(mesh); //CAREFULL
-	}*/
+	/*struct {
+		uint32_t Unknown_0A8h;
+		uint32_t Unknown_0ACh;
+		public SharpDX.Matrix Unknown_0B0h;
+		uint64_t BoundPointer;
+		uint64_t Unknown_0F8h_Pointer;
+		uint16_t Count1;
+		uint16_t Count2;
+		uint32_t Unknown_104h; // 0x00000000
+		uint64_t Unknown_108h_Pointer;
+		uint16_t Count3;
+		uint16_t Count4;
+		uint32_t Unknown_114h; // 0x00000000
+		uint32_t Unknown_118h; // 0x00000000
+		uint32_t Unknown_11Ch; // 0x00000000
+		uint32_t Unknown_120h; // 0x00000000
+		uint32_t Unknown_124h; // 0x00000000
+		uint32_t Unknown_128h; // 0x00000000
+		uint32_t Unknown_12Ch; // 0x00000000
+		uint64_t NamePointer;
+		uint32_t Unknown_138h; // 0x00000000
+		uint32_t Unknown_13Ch; // 0x00000000
+		uint32_t Unknown_140h; // 0x00000000
+		uint32_t Unknown_144h; // 0x00000000
+		uint32_t Unknown_148h; // 0x00000000
+		uint32_t Unknown_14Ch; // 0x00000000
+	} FragDrawable;*/
 }
 
 
-YdrLoader::~YdrLoader()
+YftLoader::~YftLoader()
 {
-	for (auto& mesh : meshes)
-	{
-		delete mesh;
-	}
 }
 
-void YdrLoader::UploadMeshes()
-{
-	for (auto& mesh : meshes)
-	{
-		//mesh->Upload();
-	}
-	Loaded = true;
-}
-
-glm::mat4& YdrLoader::GetMat4()
+glm::mat4 & YftLoader::GetMat4()
 {
 	return ModelMatrix;
-	//glm::mat4 model(1.0);
-	//glm::mat4 model = glm::translate(glm::mat4(), Position);
-	//model *= glm::toMat4(Rotation);
-	/*glm::vec3 scale;
-	glm::quat rotation;
-	glm::vec3 translation;
-	glm::vec3 skew;
-	glm::vec4 perspective;
-	rotation = glm::conjugate(rotation);
-
-	glm::decompose(model, scale, rotation, translation, skew, perspective);
-
-	printf("RETURNED %s ORIGINAL %s\n", glm::to_string(rotation).c_str(), glm::to_string(Rotation).c_str());*/
-	//model = glm::rotate(model, glm::degrees(x), glm::vec3(1.0, 0.0, 0.0f));
-	//model = glm::scale(model, glm::vec3(1.0f));
-	//glm::quat test1 = glm::quat_cast(model);
-	//printf("%f %f %f %f\n",test1.x,test1.y,test1.z,test1,w);
-	//return model;
 }
 
-void YdrLoader::Draw()
+void YftLoader::Draw()
 {
 	for (auto& mesh : meshes) {
 		mesh->Draw();

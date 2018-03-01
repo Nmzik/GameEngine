@@ -126,7 +126,7 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 	projection = glm::perspective(glm::radians(45.0f), (float)1280 / (float)720, 0.1f, 10000.0f);
 }
 
-RenderingSystem::~RenderingSystem() 
+RenderingSystem::~RenderingSystem()
 {
 
 }
@@ -298,7 +298,7 @@ void RenderingSystem::renderQuad()
 #define ViewUniformLoc 4
 #define ProjUniformLoc 5
 
-void RenderingSystem::render(GameWorld* world) 
+void RenderingSystem::render(GameWorld* world)
 {
 	//float tod = world->gameHour + world->gameMinute / 60.f;
 	double SUNRISE = 5.47f;		// % of Day
@@ -323,7 +323,7 @@ void RenderingSystem::render(GameWorld* world)
 		MoonDirection = glm::normalize(glm::vec3(-glm::sin(phi)*glm::cos(theta), glm::cos(phi), glm::sin(phi)*glm::sin(theta)));
 	}*/
 
-	if (test == true) world->GetVisibleYmaps(camera->Position);
+	world->GetVisibleYmaps(camera->Position);
 
 	//glClearColor(0.0, 0.0, 0.0, 0.0);
 	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -367,6 +367,12 @@ void RenderingSystem::render(GameWorld* world)
 	world->GetResourceManager()->mainLock.unlock();*/
 	//printf("=========================\n");
 	//TEST YDD
+	for (auto& yftFile : world->yftLoader)
+	{
+		auto modelpos = yftFile->GetMat4();
+		gbuffer->setMat4(ModelUniformLoc, modelpos);
+		yftFile->Draw();
+	}
 	for (auto& yddFile : world->yddLoader)
 	{
 		auto modelpos = yddFile->GetMat4();
@@ -377,11 +383,11 @@ void RenderingSystem::render(GameWorld* world)
 	//glEnable(GL_CULL_FACE);
 	for (auto& YdrFile : world->ydrLoader)
 	{
-		if (camera->intersects(YdrFile->BBCenter, YdrFile->BBRadius)) {
-			auto modelpos = YdrFile->GetMat4();
-			gbuffer->setMat4(ModelUniformLoc, modelpos);
-			YdrFile->Draw();
-		}
+		//if (camera->intersects(YdrFile->BBCenter, YdrFile->BBRadius)) {
+		auto modelpos = YdrFile->GetMat4();
+		gbuffer->setMat4(ModelUniformLoc, modelpos);
+		YdrFile->Draw();
+		//}
 	}
 	//glDisable(GL_CULL_FACE);
 
@@ -424,14 +430,14 @@ void RenderingSystem::render(GameWorld* world)
 	// render scene from light's point of view
 	DepthTexture->use();
 	DepthTexture->setMat4("lightSpaceMatrix", lightSpaceMatrix);
-
+	//glCullFace(GL_BACK);
 	for (auto& YdrFile : world->ydrLoader)
 	{
 		auto modelpos = YdrFile->GetMat4();
 		DepthTexture->setMat4(ModelUniformLoc, modelpos);
 		YdrFile->Draw();
 	}
-
+	//glCullFace(GL_FRONT);
 	//printf("SUN %s\n",glm::to_string(sunDirection).c_str());
 
 	/*glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -471,7 +477,7 @@ void RenderingSystem::render(GameWorld* world)
 
 	gbufferLighting->setVec3("light.direction", dirLight.direction);
 	gbufferLighting->setVec3("viewPos", camera->Position);
-	gbufferLighting->setInt("type",type);
+	//gbufferLighting->setInt("type", type);
 	gbufferLighting->setMat4("lightSpaceMatrix", lightSpaceMatrix);
 	renderQuad();
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -481,7 +487,7 @@ void RenderingSystem::render(GameWorld* world)
 	hdrShader->use();
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, colorBuffer);
-	float exposure = 5.0f;
+	float exposure = 1.0f;
 	hdrShader->setInt("hdr", hdrEnabled);
 	hdrShader->setInt("UseBlur", 0);
 	hdrShader->setFloat("exposure", exposure);

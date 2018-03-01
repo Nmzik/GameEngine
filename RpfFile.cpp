@@ -2,27 +2,26 @@
 
 RpfFile::RpfFile(std::istream& rpf, std::string& FileName_)
 {
-	FileName = FileName_;
-	FullPath = FileName_;
 	rpf.seekg(0, std::ios::end);
-	FileSize = rpf.tellg();
+	uint32_t FileSize = (uint32_t)rpf.tellg();
 	rpf.seekg(0, std::ios::beg);
 
-	LoadRpf(rpf);
+	LoadRpf(rpf, FileName_, FileSize, FileName_);
 }
 RpfFile::RpfFile(std::istream& rpf, std::string& FullPath_, std::string& FileName_, uint32_t FileSize_, uint64_t FileOffset)
 {
-	FileName = FileName_;
-	FullPath = FullPath_;
-	FileSize = FileSize_;
-
 	rpf.seekg(FileOffset);
 
-	LoadRpf(rpf);
+	LoadRpf(rpf, FileName_, FileSize_, FullPath_);
 }
-void RpfFile::LoadRpf(std::istream& rpf)
+void RpfFile::LoadRpf(std::istream& rpf, std::string& FileName, uint32_t FileSize, std::string& FullPath)
 {
 	startPos = rpf.tellg();
+
+	uint32_t Version;
+	uint32_t EntryCount;
+	uint32_t NamesLength;
+	uint32_t Encryption;
 
 	rpf.read((char*)&Version, sizeof(uint32_t));
 	rpf.read((char*)&EntryCount, sizeof(uint32_t));
@@ -51,8 +50,8 @@ void RpfFile::LoadRpf(std::istream& rpf)
 		break;
 	case 0x0FEFFFFF:
 		//printf("NG\n");
-		entriesData = GTAEncryption::DecryptNG(entriesData, EntryCount * 16, FileName, (uint32_t)FileSize);
-		namesData = GTAEncryption::DecryptNG(namesData, NamesLength, FileName, (uint32_t)FileSize);
+		entriesData = GTAEncryption::DecryptNG(entriesData, EntryCount * 16, FileName, FileSize);
+		namesData = GTAEncryption::DecryptNG(namesData, NamesLength, FileName, FileSize);
 		break;
 	default:
 		printf("ERROR");

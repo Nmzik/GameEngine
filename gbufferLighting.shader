@@ -94,8 +94,8 @@ void main()
     float AmbientOcclusion = texture(ssao, TexCoords).r;
 	vec4 FragPosLightSpace = lightSpaceMatrix * vec4(FragPos, 1.0);
 	vec3 ambient;
-	if (type == 0) ambient  = light.ambient * Diffuse * AmbientOcclusion;
-	if (type == 1) ambient  = light.ambient * Diffuse;
+	ambient  = light.ambient * Diffuse * AmbientOcclusion;
+	//if (type == 1) ambient  = light.ambient * Diffuse;
     // diffuse
     vec3 lightDir = normalize(-light.direction);
     float diff = max(dot(Normal, lightDir), 0.0);

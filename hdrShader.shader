@@ -87,10 +87,11 @@ void main()
     vec3 hdrColor = texture(hdrBuffer, TexCoords).rgb;
     if(hdr)
     {
+		const float gamma = 2.2;
 		vec3 result = computeFxaa();
-		///FragColor = vec4(result, 1.0);
 
 		vec3 mapped = vec3(1.0) - exp(-result * exposure);
+		mapped = pow(mapped, vec3(1.0 / gamma));
 		if (UseBlur) mapped += blur();
 
 		FragColor = vec4(mapped, 1.0);

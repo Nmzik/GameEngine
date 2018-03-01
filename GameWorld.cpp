@@ -40,7 +40,7 @@ GameWorld::GameWorld()
 	dynamicsWorld->setDebugDrawer(&debug);
 
 	LoadYTD(539222631);
-	LoadYDR(3225204062, glm::vec3(), glm::quat());
+	//LoadYDR(3225204062, glm::vec3(), glm::quat());
 	/*for (int i = 0; i < 500; i++) {
 		Model model(glm::vec3(0.f, 200.f, 0.f), glm::quat(0.f, 0.f, 0.f, 1.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\cube.obj", "container.jpg", "container2_specular.png", true, true);
 		model.Load();
@@ -72,7 +72,8 @@ void GameWorld::LoadYmap(uint32_t hash, glm::vec3 cameraPosition)
 					if (glm::distance(cameraPosition, map->CEntityDefs[i].position) <= map->CEntityDefs[i].lodDist) {
 						LoadYTD(map->CEntityDefs[i].archetypeName);
 						if (!LoadYDR(map->CEntityDefs[i].archetypeName, map->CEntityDefs[i].position, glm::quat(-map->CEntityDefs[i].rotation.w, map->CEntityDefs[i].rotation.x, map->CEntityDefs[i].rotation.y, map->CEntityDefs[i].rotation.z)))
-							LoadYDD(map->CEntityDefs[i].archetypeName, map->CEntityDefs[i].position, glm::quat(-map->CEntityDefs[i].rotation.w, map->CEntityDefs[i].rotation.x, map->CEntityDefs[i].rotation.y, map->CEntityDefs[i].rotation.z));
+							if (!LoadYDD(map->CEntityDefs[i].archetypeName, map->CEntityDefs[i].position, glm::quat(-map->CEntityDefs[i].rotation.w, map->CEntityDefs[i].rotation.x, map->CEntityDefs[i].rotation.y, map->CEntityDefs[i].rotation.z)))
+								LoadYFT(map->CEntityDefs[i].archetypeName, map->CEntityDefs[i].position, glm::quat(-map->CEntityDefs[i].rotation.w, map->CEntityDefs[i].rotation.x, map->CEntityDefs[i].rotation.y, map->CEntityDefs[i].rotation.z));
 					}
 				}
 			}
@@ -104,7 +105,8 @@ void GameWorld::LoadYmap(uint32_t hash, glm::vec3 cameraPosition)
 							LoadYTD(ymap->CEntityDefs[i].archetypeName);
 
 							if (!LoadYDR(ymap->CEntityDefs[i].archetypeName, ymap->CEntityDefs[i].position, glm::quat(-ymap->CEntityDefs[i].rotation.w, ymap->CEntityDefs[i].rotation.x, ymap->CEntityDefs[i].rotation.y, ymap->CEntityDefs[i].rotation.z)))
-								LoadYDD(ymap->CEntityDefs[i].archetypeName, ymap->CEntityDefs[i].position, glm::quat(-ymap->CEntityDefs[i].rotation.w, ymap->CEntityDefs[i].rotation.x, ymap->CEntityDefs[i].rotation.y, ymap->CEntityDefs[i].rotation.z));
+								if(!LoadYDD(ymap->CEntityDefs[i].archetypeName, ymap->CEntityDefs[i].position, glm::quat(-ymap->CEntityDefs[i].rotation.w, ymap->CEntityDefs[i].rotation.x, ymap->CEntityDefs[i].rotation.y, ymap->CEntityDefs[i].rotation.z)))
+									LoadYFT(ymap->CEntityDefs[i].archetypeName, ymap->CEntityDefs[i].position, glm::quat(-ymap->CEntityDefs[i].rotation.w, ymap->CEntityDefs[i].rotation.x, ymap->CEntityDefs[i].rotation.y, ymap->CEntityDefs[i].rotation.z));
 						}
 					}
 				}
@@ -223,9 +225,40 @@ bool GameWorld::LoadYDR(uint32_t hash, glm::vec3 position, glm::quat rotation)
 
 		memstream stream(outputBuffer.data(), outputBuffer.size());
 
-		YdrLoader *newYdr = new YdrLoader(stream, position, rotation, hash);
+		YdrLoader *newYdr = new YdrLoader(stream, position, rotation, hash, dynamicsWorld);
 		newYdr->time = SDL_GetTicks() / 1000;
 		ydrLoader.emplace_back(newYdr);
+
+		return true;
+	}
+	else
+	{
+		//std::cout << "Element Not Found" << std::endl;
+		return false;
+	}
+}
+
+bool GameWorld::LoadYFT(uint32_t hash, glm::vec3 position, glm::quat rotation)
+{
+	for (auto& yftFile : yftLoader)
+	{
+		if (yftFile->Hash == hash) {
+			//yftFile->time = SDL_GetTicks() / 1000;
+			return true;
+		}
+	}
+	std::unordered_map<uint32_t, RpfResourceFileEntry*>::iterator it;
+	it = data.YftEntries.find(hash);
+	if (it != data.YftEntries.end())
+	{
+		std::cout << "YFT Found " << it->second->Name << std::endl;
+		auto& element = *(it->second);
+		std::vector<uint8_t> outputBuffer;
+		data.ExtractFileResource(element, outputBuffer);
+
+		memstream stream(outputBuffer.data(), outputBuffer.size());
+
+		yftLoader.emplace_back(new YftLoader(stream, position, rotation, hash));
 
 		return true;
 	}

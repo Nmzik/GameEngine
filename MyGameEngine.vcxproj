@@ -115,6 +115,7 @@
     <ClCompile Include="YbnLoader.cpp" />
     <ClCompile Include="YddLoader.cpp" />
     <ClCompile Include="YdrLoader.cpp" />
+    <ClCompile Include="YftLoader.cpp" />
     <ClCompile Include="YmapLoader.cpp" />
     <ClCompile Include="YndLoader.cpp" />
     <ClCompile Include="YtdLoader.cpp" />
@@ -160,6 +161,7 @@
     <ClInclude Include="YbnLoader.h" />
     <ClInclude Include="YddLoader.h" />
     <ClInclude Include="YdrLoader.h" />
+    <ClInclude Include="YftLoader.h" />
     <ClInclude Include="YmapLoader.h" />
     <ClInclude Include="YndLoader.h" />
     <ClInclude Include="YtdLoader.h" />

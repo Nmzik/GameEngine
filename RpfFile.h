@@ -8,14 +8,6 @@
 
 class RpfFile
 {
-	std::string FileName;
-	std::streampos FileSize;
-
-	uint32_t Version;
-	uint32_t EntryCount;
-	uint32_t NamesLength;
-	uint32_t Encryption;
-	std::string FullPath;
 public:
 	uint64_t startPos;
 
@@ -26,7 +18,7 @@ public:
 
 	RpfFile(std::istream& rpf, std::string& FullPath_, std::string& FileName_, uint32_t FileSize_, uint64_t FileOffset);
 
-	void LoadRpf(std::istream& rpf);
+	void LoadRpf(std::istream& rpf, std::string& FileName, uint32_t FileSize, std::string& FullPath);
 
 	~RpfFile();
 };

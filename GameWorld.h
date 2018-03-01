@@ -7,6 +7,7 @@
 #include "PhysicsDebugDrawer.h"
 #include "YdrLoader.h"
 #include "YddLoader.h"
+#include "YftLoader.h"
 #include "YmapLoader.h"
 #include "YtypLoader.h"
 #include "YndLoader.h"
@@ -40,6 +41,7 @@ class GameWorld
 public:
 	std::vector<YdrLoader*> ydrLoader;
 	std::vector<YddLoader*> yddLoader;
+	std::vector<YftLoader*> yftLoader;
 	std::vector<YtdFile*> ytdLoader;
 	std::vector<YndLoader> yndLoader;
 	std::vector<YbnLoader*> ybnLoader;
@@ -64,6 +66,8 @@ public:
 	bool LoadYDD(uint32_t hash, glm::vec3 position, glm::quat rotation);
 
 	bool LoadYDR(uint32_t hash, glm::vec3 position, glm::quat rotation);
+
+	bool LoadYFT(uint32_t hash, glm::vec3 position, glm::quat rotation);
 
 	bool LoadYBN(uint32_t hash);
 
