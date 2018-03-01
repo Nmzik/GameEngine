@@ -1,20 +1,31 @@
 #include "RpfFile.h"
 
-RpfFile::RpfFile(std::istream& rpf, std::string& FileName_)
+RpfFile::RpfFile(std::string& FileName_)
 {
-	rpf.seekg(0, std::ios::end);
-	uint32_t FileSize = (uint32_t)rpf.tellg();
-	rpf.seekg(0, std::ios::beg);
+	std::string Path("C:\\Program Files\\Rockstar Games\\Grand Theft Auto V\\");
 
-	LoadRpf(rpf, FileName_, FileSize, FileName_);
+	rpf = new std::ifstream(Path + FileName_, std::ios::binary);
+
+	if (!rpf->is_open()) {
+		printf("NOT FOUND RPF!\n");
+		return;
+	}
+
+	rpf->seekg(0, std::ios::end);
+	uint32_t FileSize = (uint32_t)rpf->tellg();
+	rpf->seekg(0, std::ios::beg);
+
+	LoadRpf(*rpf, FileName_, FileSize, FileName_);
 }
-RpfFile::RpfFile(std::istream& rpf, std::string& FullPath_, std::string& FileName_, uint32_t FileSize_, uint64_t FileOffset)
+RpfFile::RpfFile(std::ifstream& rpf, std::string& FullPath_, std::string& FileName_, uint32_t FileSize_, uint64_t FileOffset)
 {
+	this->rpf = &rpf;
+
 	rpf.seekg(FileOffset);
 
 	LoadRpf(rpf, FileName_, FileSize_, FullPath_);
 }
-void RpfFile::LoadRpf(std::istream& rpf, std::string& FileName, uint32_t FileSize, std::string& FullPath)
+void RpfFile::LoadRpf(std::ifstream& rpf, std::string& FileName, uint32_t FileSize, std::string& FullPath)
 {
 	startPos = rpf.tellg();
 

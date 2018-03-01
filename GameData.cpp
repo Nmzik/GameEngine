@@ -199,16 +199,7 @@ void GameData::LoadWaterQuads()
 
 void GameData::LoadRpf(std::string& RpfPath)
 {
-	std::string Path("C:\\Program Files\\Rockstar Games\\Grand Theft Auto V\\");
-
-	std::ifstream rpf(Path + RpfPath, std::ios::binary);
-	if (!rpf.is_open()) {
-		printf("NOT FOUND RPF!\n");
-		return;
-	}
-
-	std::istream& fileStream(rpf);
-	RpfFile* file = new RpfFile(fileStream, RpfPath);
+	RpfFile* file = new RpfFile(RpfPath);
 	RpfFiles.push_back(file);
 
 	for (auto& BinaryFileEntry : file->BinaryEntries)
@@ -216,12 +207,12 @@ void GameData::LoadRpf(std::string& RpfPath)
 		if (BinaryFileEntry.Name.substr(BinaryFileEntry.Name.length() - 4) == ".rpf")
 		{
 			uint32_t RealFileSize = (BinaryFileEntry.FileSize == 0) ? BinaryFileEntry.FileUncompressedSize : BinaryFileEntry.FileSize;
-			LoadRpf(fileStream, RpfPath, BinaryFileEntry.Name, RealFileSize, file->startPos + ((uint64_t)BinaryFileEntry.FileOffset * 512));
+			LoadRpf(*file->rpf, RpfPath, BinaryFileEntry.Name, RealFileSize, file->startPos + ((uint64_t)BinaryFileEntry.FileOffset * 512));
 		}
 	}
 }
 
-void GameData::LoadRpf(std::istream& rpf, std::string& FullPath_, std::string FileName_, uint32_t FileSize_, uint64_t FileOffset)
+void GameData::LoadRpf(std::ifstream& rpf, std::string& FullPath_, std::string FileName_, uint32_t FileSize_, uint64_t FileOffset)
 {
 	RpfFile* file = new RpfFile(rpf, FullPath_, FileName_, FileSize_, FileOffset);
 	RpfFiles.push_back(file);
@@ -237,10 +228,9 @@ void GameData::LoadRpf(std::istream& rpf, std::string& FullPath_, std::string Fi
 
 void GameData::ExtractFileResource(RpfResourceFileEntry entry, std::vector<uint8_t>& output)
 {
-	std::string Path("C:\\Program Files\\Rockstar Games\\Grand Theft Auto V\\");
-	std::ifstream rpf(Path + entry.Path, std::ios::binary);
+	auto& rpf = entry.File->rpf;
 
-	rpf.seekg(entry.File->startPos + ((long)entry.FileOffset * 512));
+	rpf->seekg(entry.File->startPos + ((long)entry.FileOffset * 512));
 
 	if (entry.FileSize > 0) {
 		uint32_t offset = 0x10;
@@ -248,8 +238,8 @@ void GameData::ExtractFileResource(RpfResourceFileEntry entry, std::vector<uint8
 
 		uint8_t* tbytes = new uint8_t[totlen];
 
-		rpf.seekg(offset, std::ios::cur);
-		rpf.read((char*)&tbytes[0], (int)totlen);
+		rpf->seekg(offset, std::ios::cur);
+		rpf->read((char*)&tbytes[0], (int)totlen);
 
 		//uint8_t* decr = tbytes;
 		//if (entry.IsEncrypted)
