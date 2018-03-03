@@ -14,6 +14,7 @@ public:
 	static void ChangeBool();
 	static GLuint GetTexture(uint32_t textureHash);
 	static void LoadTexture(uint32_t Hash, GLuint TextureID);
+	static void RemoveTexture(uint32_t Hash);
 	static GLuint loadTexture(std::string path);
 };
 

@@ -61,7 +61,6 @@ YtdFile::YtdFile(memstream& file, uint32_t hash) : Hash(hash)
 
 	file.read((char*)&texDictionary, sizeof(TextureDictionary));
 
-	std::vector<uint32_t> TextureNameHashes;
 	TextureNameHashes.resize(texDictionary.TextureNameHashesPtr.EntriesCount);
 
 	if ((texDictionary.TextureNameHashesPtr.EntriesPointer & SYSTEM_BASE) == SYSTEM_BASE) {
@@ -200,4 +199,8 @@ YtdFile::YtdFile(memstream& file, uint32_t hash) : Hash(hash)
 
 YtdFile::~YtdFile()
 {
+	for (int i = 0; i < TextureNameHashes.size(); i++)
+	{
+		TextureManager::RemoveTexture(TextureNameHashes[i]);
+	}
 }

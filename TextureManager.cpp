@@ -27,7 +27,19 @@ GLuint TextureManager::GetTexture(uint32_t textureHash)
 
 void TextureManager::LoadTexture(uint32_t Hash, GLuint TextureID)
 {
+
 	TexturesMap[Hash] = TextureID;
+}
+
+void TextureManager::RemoveTexture(uint32_t Hash)
+{
+	std::unordered_map<uint32_t, GLuint>::iterator it;
+	it = TexturesMap.find(Hash);
+	if (it != TexturesMap.end())
+	{
+		glDeleteTextures(1, &it->second);
+		TexturesMap.erase(it);
+	}
 }
 
 GLuint TextureManager::loadTexture(std::string path)

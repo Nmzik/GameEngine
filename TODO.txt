@@ -1,7 +1,7 @@
 Implement LIGHTS MANAGER
 FIX SKYBOX ON INTEL
 GUI
-HDR + all toher effects DEFERRED RENDERING
+HDR + all other effects DEFERRED RENDERING
 IMPLEMENT SHADOWS
 
 STATIC OBJECT
@@ -12,5 +12,6 @@ Threading:
 3)audio
 4)script manager
 
-OBJECT "hw1_17_ground1.ydr"
-"ch1_11_bridgeshadprox.ydr"
+remove strings rpf in release build
+
+LOAD FILES IN GAMEDATA CLASS

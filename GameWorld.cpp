@@ -39,7 +39,8 @@ GameWorld::GameWorld()
 		btIDebugDraw::DBG_DrawConstraintLimits);
 	dynamicsWorld->setDebugDrawer(&debug);
 
-	LoadYTD(539222631);
+	//LoadYTD(539222631);
+
 	//LoadYDR(3225204062, glm::vec3(), glm::quat());
 	/*for (int i = 0; i < 500; i++) {
 		Model model(glm::vec3(0.f, 200.f, 0.f), glm::quat(0.f, 0.f, 0.f, 1.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\cube.obj", "container.jpg", "container2_specular.png", true, true);
@@ -148,7 +149,10 @@ bool GameWorld::LoadYTD(uint32_t hash)
 {
 	for (auto& ytdFile : ytdLoader)
 	{
-		if (ytdFile->Hash == hash) return true;
+		if (ytdFile->Hash == hash) {
+			ytdFile->time = SDL_GetTicks() / 1000;
+			return true;
+		}
 	}
 	std::unordered_map<uint32_t, uint32_t>::iterator it; //FOUND ARCH ->TEXTURES FILE
 	it = data.TextureDictionary.find(hash);
@@ -167,6 +171,7 @@ bool GameWorld::LoadYTD(uint32_t hash)
 			memstream stream(outputBuffer.data(), outputBuffer.size());
 
 			YtdFile* file = new YtdFile(stream, hash);
+			file->time = SDL_GetTicks() / 1000;
 			ytdLoader.push_back(file);
 			//TextureManager::LoadTexture(file->textures[0]);
 			//delete file;
@@ -258,7 +263,7 @@ bool GameWorld::LoadYFT(uint32_t hash, glm::vec3 position, glm::quat rotation)
 
 		memstream stream(outputBuffer.data(), outputBuffer.size());
 
-		yftLoader.emplace_back(new YftLoader(stream, position, rotation, hash));
+		yftLoader.emplace_back(new YftLoader(stream, position, rotation, hash, dynamicsWorld));
 
 		return true;
 	}
@@ -340,6 +345,13 @@ void GameWorld::GetVisibleYmaps(glm::vec3 Position)
 		if ((curTime - ydrLoader[i]->time) > 5) {
 			delete ydrLoader[i];
 			ydrLoader.erase(ydrLoader.begin() + i);
+		}
+	}
+
+	for (int i = 0; i < ytdLoader.size(); i++) {
+		if ((curTime - ytdLoader[i]->time) > 5) {
+			delete ytdLoader[i];
+			ytdLoader.erase(ytdLoader.begin() + i);
 		}
 	}
 

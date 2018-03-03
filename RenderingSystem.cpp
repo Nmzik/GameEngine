@@ -409,6 +409,9 @@ void RenderingSystem::render(GameWorld* world)
 		world->getDebugDrawer()->render();
 	}
 
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
 	auto modelMatrix = world->player->getPosition();
 	gbuffer->setMat4(ModelUniformLoc, modelMatrix);
 	world->player->Draw();

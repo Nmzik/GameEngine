@@ -90,17 +90,18 @@ YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, ui
 
 	file.read((char*)&_ShaderGroup, sizeof(ShaderGroup));
 
-	/*if ((_ShaderGroup.TextureDictionaryPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-		_ShaderGroup.TextureDictionaryPointer = _ShaderGroup.TextureDictionaryPointer & ~0x50000000;
-	}
-	if ((_ShaderGroup.TextureDictionaryPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-		_ShaderGroup.TextureDictionaryPointer = _ShaderGroup.TextureDictionaryPointer & ~0x60000000;
-	}
+	if (_ShaderGroup.TextureDictionaryPointer != 0) {
+		if ((_ShaderGroup.TextureDictionaryPointer & SYSTEM_BASE) == SYSTEM_BASE) {
+			_ShaderGroup.TextureDictionaryPointer = _ShaderGroup.TextureDictionaryPointer & ~0x50000000;
+		}
+		if ((_ShaderGroup.TextureDictionaryPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
+			_ShaderGroup.TextureDictionaryPointer = _ShaderGroup.TextureDictionaryPointer & ~0x60000000;
+		}
 
-	file.seekg(_ShaderGroup.TextureDictionaryPointer);
-
-	TextureDictionary texDictionary;
-	file.read((char*)&texDictionary, sizeof(TextureDictionary));*/
+		file.seekg(_ShaderGroup.TextureDictionaryPointer);
+		printf("YTD INSIDE YDR\n");
+		YtdFile* loader = new YtdFile(file, hash);
+	}
 
 	if ((_ShaderGroup.ShadersPointer & SYSTEM_BASE) == SYSTEM_BASE) {
 		_ShaderGroup.ShadersPointer = _ShaderGroup.ShadersPointer & ~0x50000000;
@@ -350,27 +351,6 @@ YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, ui
 		}
 		file.seekg(posOriginal);
 	}
-
-	//file.close();
-	/*for (int i = 0; i < Geometries.size(); i++)
-	{
-		sizeVertex  += Geometries[i].vertexBuffer->VertexData.size() * sizeof(uint8_t);
-		sizeIndex += Geometries[i].indexBuffer->Indices.size() * sizeof(uint16_t);
-	}*/
-
-	//printf("SIZE %d\n", (sizeVertex + sizeIndex)/1024/1024);
-
-	/*for (int i = 0; i < Geometries.size(); i++)
-	{
-		//Mesh mesh(Geometries[i].vertexBuffer->VertexData, Geometries[i].indexBuffer->Indices, Geometries[i].vertexBuffer->VertexStride);
-		meshes.emplace_back(Geometries[i].vertexBuffer->VertexData, Geometries[i].indexBuffer->Indices, Geometries[i].vertexBuffer->VertexStride);
-	}*/
-
-	/*for (int i = 0; i < vertexBuffer.size(); i++)
-	{
-		Mesh mesh(vertexBuffer[i].VertexData, indexBuffer[i].Indices, vertexBuffer[i].VertexStride);
-		meshes.push_back(mesh); //CAREFULL
-	}*/
 }
 
 

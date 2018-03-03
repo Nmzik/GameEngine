@@ -1,6 +1,6 @@
 #include "YftLoader.h"
 
-YftLoader::YftLoader(memstream& file, glm::vec3 position, glm::quat rotation, uint32_t hash) : Hash(hash)
+YftLoader::YftLoader(memstream& file, glm::vec3 position, glm::quat rotation, uint32_t hash, btDiscreteDynamicsWorld* world) : Hash(hash)
 {
 	ModelMatrix = glm::translate(glm::mat4(), position);
 	ModelMatrix *= glm::toMat4(rotation);
@@ -103,6 +103,25 @@ YftLoader::YftLoader(memstream& file, glm::vec3 position, glm::quat rotation, ui
 
 	file.read((char*)&drawBase, sizeof(drawBase));
 
+	struct {
+		uint64_t NamePointer;
+		uint64_t LightAttributesPointer;
+		uint16_t LightAttributesCount1;
+		uint16_t LightAttributesCount2;
+		uint32_t Unknown_BCh; // 0x00000000
+		uint32_t Unknown_C0h; // 0x00000000
+		uint32_t Unknown_C4h; // 0x00000000
+		uint64_t BoundPointer;
+	} Drawable;
+
+	//READ COLLISION DATA FROM YDR
+	file.read((char*)&Drawable, sizeof(Drawable));
+
+	if (Drawable.BoundPointer != 0) {
+		printf("YBN INSIDE YFT\n");
+		YbnLoader* loader = new YbnLoader(world, file, hash);
+	}
+
 	//Shader stuff
 	if ((drawBase.ShaderGroupPointer & SYSTEM_BASE) == SYSTEM_BASE) {
 		drawBase.ShaderGroupPointer = drawBase.ShaderGroupPointer & ~0x50000000;
@@ -116,6 +135,19 @@ YftLoader::YftLoader(memstream& file, glm::vec3 position, glm::quat rotation, ui
 	ShaderGroup shaderGroup;
 
 	file.read((char*)&shaderGroup, sizeof(ShaderGroup));
+
+	if (shaderGroup.TextureDictionaryPointer != 0) {
+		if ((shaderGroup.TextureDictionaryPointer & SYSTEM_BASE) == SYSTEM_BASE) {
+			shaderGroup.TextureDictionaryPointer = shaderGroup.TextureDictionaryPointer & ~0x50000000;
+		}
+		if ((shaderGroup.TextureDictionaryPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
+			shaderGroup.TextureDictionaryPointer = shaderGroup.TextureDictionaryPointer & ~0x60000000;
+		}
+
+		file.seekg(shaderGroup.TextureDictionaryPointer);
+		printf("YTD INSIDE YFT\n");
+		YtdFile* loader = new YtdFile(file, hash);
+	}
 
 	if ((shaderGroup.ShadersPointer & SYSTEM_BASE) == SYSTEM_BASE) {
 		shaderGroup.ShadersPointer = shaderGroup.ShadersPointer & ~0x50000000;

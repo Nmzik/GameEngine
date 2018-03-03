@@ -53,7 +53,8 @@ class YtdFile
 {
 public:
 	uint32_t Hash;
-	std::vector<GLuint> textures;
+	uint32_t time;
+	std::vector<uint32_t> TextureNameHashes;
 
 	YtdFile(memstream& file, uint32_t hash);
 	~YtdFile();
