@@ -63,11 +63,11 @@ public:
 
 	bool LoadYTD(uint32_t hash);
 
-	bool LoadYDD(uint32_t hash, glm::vec3 position, glm::quat rotation);
+	bool LoadYDD(uint32_t hash, glm::vec3 position, glm::quat rotation, glm::vec3 scale);
 
-	bool LoadYDR(uint32_t hash, glm::vec3 position, glm::quat rotation);
+	bool LoadYDR(uint32_t hash, glm::vec3 position, glm::quat rotation, glm::vec3 scale);
 
-	bool LoadYFT(uint32_t hash, glm::vec3 position, glm::quat rotation);
+	bool LoadYFT(uint32_t hash, glm::vec3 position, glm::quat rotation, glm::vec3 scale);
 
 	bool LoadYBN(uint32_t hash);
 

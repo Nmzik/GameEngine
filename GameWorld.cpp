@@ -72,9 +72,9 @@ void GameWorld::LoadYmap(uint32_t hash, glm::vec3 cameraPosition)
 				if (map->CEntityDefs[i].lodLevel == 0 || map->CEntityDefs[i].lodLevel == 4 || map->CEntityDefs[i].lodLevel == 5) {
 					if (glm::distance(cameraPosition, map->CEntityDefs[i].position) <= map->CEntityDefs[i].lodDist) {
 						LoadYTD(map->CEntityDefs[i].archetypeName);
-						if (!LoadYDR(map->CEntityDefs[i].archetypeName, map->CEntityDefs[i].position, glm::quat(-map->CEntityDefs[i].rotation.w, map->CEntityDefs[i].rotation.x, map->CEntityDefs[i].rotation.y, map->CEntityDefs[i].rotation.z)))
-							if (!LoadYDD(map->CEntityDefs[i].archetypeName, map->CEntityDefs[i].position, glm::quat(-map->CEntityDefs[i].rotation.w, map->CEntityDefs[i].rotation.x, map->CEntityDefs[i].rotation.y, map->CEntityDefs[i].rotation.z)))
-								LoadYFT(map->CEntityDefs[i].archetypeName, map->CEntityDefs[i].position, glm::quat(-map->CEntityDefs[i].rotation.w, map->CEntityDefs[i].rotation.x, map->CEntityDefs[i].rotation.y, map->CEntityDefs[i].rotation.z));
+						if (!LoadYDR(map->CEntityDefs[i].archetypeName, map->CEntityDefs[i].position, glm::quat(-map->CEntityDefs[i].rotation.w, map->CEntityDefs[i].rotation.x, map->CEntityDefs[i].rotation.y, map->CEntityDefs[i].rotation.z), glm::vec3(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ)))
+							if (!LoadYDD(map->CEntityDefs[i].archetypeName, map->CEntityDefs[i].position, glm::quat(-map->CEntityDefs[i].rotation.w, map->CEntityDefs[i].rotation.x, map->CEntityDefs[i].rotation.y, map->CEntityDefs[i].rotation.z), glm::vec3(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ)))
+								LoadYFT(map->CEntityDefs[i].archetypeName, map->CEntityDefs[i].position, glm::quat(-map->CEntityDefs[i].rotation.w, map->CEntityDefs[i].rotation.x, map->CEntityDefs[i].rotation.y, map->CEntityDefs[i].rotation.z), glm::vec3(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ));
 					}
 				}
 			}
@@ -105,9 +105,9 @@ void GameWorld::LoadYmap(uint32_t hash, glm::vec3 cameraPosition)
 						if (glm::distance(cameraPosition, ymap->CEntityDefs[i].position) <= ymap->CEntityDefs[i].lodDist) {
 							LoadYTD(ymap->CEntityDefs[i].archetypeName);
 
-							if (!LoadYDR(ymap->CEntityDefs[i].archetypeName, ymap->CEntityDefs[i].position, glm::quat(-ymap->CEntityDefs[i].rotation.w, ymap->CEntityDefs[i].rotation.x, ymap->CEntityDefs[i].rotation.y, ymap->CEntityDefs[i].rotation.z)))
-								if(!LoadYDD(ymap->CEntityDefs[i].archetypeName, ymap->CEntityDefs[i].position, glm::quat(-ymap->CEntityDefs[i].rotation.w, ymap->CEntityDefs[i].rotation.x, ymap->CEntityDefs[i].rotation.y, ymap->CEntityDefs[i].rotation.z)))
-									LoadYFT(ymap->CEntityDefs[i].archetypeName, ymap->CEntityDefs[i].position, glm::quat(-ymap->CEntityDefs[i].rotation.w, ymap->CEntityDefs[i].rotation.x, ymap->CEntityDefs[i].rotation.y, ymap->CEntityDefs[i].rotation.z));
+							if (!LoadYDR(ymap->CEntityDefs[i].archetypeName, ymap->CEntityDefs[i].position, glm::quat(-ymap->CEntityDefs[i].rotation.w, ymap->CEntityDefs[i].rotation.x, ymap->CEntityDefs[i].rotation.y, ymap->CEntityDefs[i].rotation.z), glm::vec3(ymap->CEntityDefs[i].scaleXY, ymap->CEntityDefs[i].scaleXY, ymap->CEntityDefs[i].scaleZ)))
+								if(!LoadYDD(ymap->CEntityDefs[i].archetypeName, ymap->CEntityDefs[i].position, glm::quat(-ymap->CEntityDefs[i].rotation.w, ymap->CEntityDefs[i].rotation.x, ymap->CEntityDefs[i].rotation.y, ymap->CEntityDefs[i].rotation.z), glm::vec3(ymap->CEntityDefs[i].scaleXY, ymap->CEntityDefs[i].scaleXY, ymap->CEntityDefs[i].scaleZ)))
+									LoadYFT(ymap->CEntityDefs[i].archetypeName, ymap->CEntityDefs[i].position, glm::quat(-ymap->CEntityDefs[i].rotation.w, ymap->CEntityDefs[i].rotation.x, ymap->CEntityDefs[i].rotation.y, ymap->CEntityDefs[i].rotation.z), glm::vec3(ymap->CEntityDefs[i].scaleXY, ymap->CEntityDefs[i].scaleXY, ymap->CEntityDefs[i].scaleZ));
 						}
 					}
 				}
@@ -181,7 +181,7 @@ bool GameWorld::LoadYTD(uint32_t hash)
 	}
 }
 
-bool GameWorld::LoadYDD(uint32_t hash, glm::vec3 position, glm::quat rotation)
+bool GameWorld::LoadYDD(uint32_t hash, glm::vec3 position, glm::quat rotation, glm::vec3 scale)
 {
 	for (auto& yddFile : yddLoader)
 	{
@@ -198,7 +198,7 @@ bool GameWorld::LoadYDD(uint32_t hash, glm::vec3 position, glm::quat rotation)
 
 		memstream stream(outputBuffer.data(), outputBuffer.size());
 		//YddLoader test(stream, position, rotation, hash);
-		yddLoader.emplace_back(new YddLoader(stream, position, rotation, hash));
+		yddLoader.emplace_back(new YddLoader(stream, position, rotation, scale, hash));
 
 		return true;
 	}
@@ -209,7 +209,7 @@ bool GameWorld::LoadYDD(uint32_t hash, glm::vec3 position, glm::quat rotation)
 	}
 }
 
-bool GameWorld::LoadYDR(uint32_t hash, glm::vec3 position, glm::quat rotation)
+bool GameWorld::LoadYDR(uint32_t hash, glm::vec3 position, glm::quat rotation, glm::vec3 scale)
 {
 	for (auto& ydrFile : ydrLoader)
 	{
@@ -230,7 +230,7 @@ bool GameWorld::LoadYDR(uint32_t hash, glm::vec3 position, glm::quat rotation)
 
 		memstream stream(outputBuffer.data(), outputBuffer.size());
 
-		YdrLoader *newYdr = new YdrLoader(stream, position, rotation, hash, dynamicsWorld);
+		YdrLoader *newYdr = new YdrLoader(stream, position, rotation, scale, hash, dynamicsWorld);
 		newYdr->time = SDL_GetTicks() / 1000;
 		ydrLoader.emplace_back(newYdr);
 
@@ -243,7 +243,7 @@ bool GameWorld::LoadYDR(uint32_t hash, glm::vec3 position, glm::quat rotation)
 	}
 }
 
-bool GameWorld::LoadYFT(uint32_t hash, glm::vec3 position, glm::quat rotation)
+bool GameWorld::LoadYFT(uint32_t hash, glm::vec3 position, glm::quat rotation, glm::vec3 scale)
 {
 	for (auto& yftFile : yftLoader)
 	{
@@ -263,7 +263,7 @@ bool GameWorld::LoadYFT(uint32_t hash, glm::vec3 position, glm::quat rotation)
 
 		memstream stream(outputBuffer.data(), outputBuffer.size());
 
-		yftLoader.emplace_back(new YftLoader(stream, position, rotation, hash, dynamicsWorld));
+		yftLoader.emplace_back(new YftLoader(stream, position, rotation, scale, hash, dynamicsWorld));
 
 		return true;
 	}

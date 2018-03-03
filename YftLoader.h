@@ -22,7 +22,7 @@ public:
 	std::vector<Mesh*> meshes;
 	uint32_t Hash;
 
-	YftLoader(memstream& file, glm::vec3 position, glm::quat rotation, uint32_t hash, btDiscreteDynamicsWorld* world);
+	YftLoader(memstream& file, glm::vec3 position, glm::quat rotation, glm::vec3 scale, uint32_t hash, btDiscreteDynamicsWorld* world);
 	~YftLoader();
 
 	glm::mat4& GetMat4();
