@@ -52,6 +52,26 @@ void SpaceGrid::AddMapNode(MapDataStoreNode* node)
 	}
 }
 
+void SpaceGrid::AddCInteriorProxy(CInteriorProxy * proxy)
+{
+	glm::vec2 min = GetCellPos(proxy->BBMin);
+	glm::vec2 max = GetCellPos(proxy->BBMax);
+
+	for (int x = min.x; x <= max.x; x++)
+	{
+		for (int y = min.y; y <= max.y; y++)
+		{
+			if (!((x < 0) || (y < 0) || (x >= CellCount) || (y >= CellCount)))
+				Grid[x * 500 + y].AddCInteriorProxy(proxy);
+			/*SpaceGridCell* cell = GetCell(glm::vec2(x, y));
+			if (cell != nullptr)
+			{
+			cell->AddNode(node);
+			}*/
+		}
+	}
+}
+
 SpaceGridCell& SpaceGrid::GetCell(glm::vec3 P)
 {
 	return GetCell(GetCellPos(P));

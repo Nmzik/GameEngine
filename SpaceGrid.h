@@ -25,6 +25,10 @@ public:
 	void AddBoundsItem(BoundsStoreItem* item) {
 		BoundsStoreItems.emplace_back(item);
 	}
+
+	void AddCInteriorProxy(CInteriorProxy* proxy) {
+		CInteriorProxies.emplace_back(proxy);
+	}
 };
 
 class SpaceGrid
@@ -44,6 +48,7 @@ public:
 
 	void AddBoundsItem(BoundsStoreItem* item);
 	void AddMapNode(MapDataStoreNode* node);
+	void AddCInteriorProxy(CInteriorProxy* proxy);
 	SpaceGridCell &GetCell(glm::vec3 P);
 	SpaceGridCell &GetCell(glm::i32vec2 g);
 	glm::i32vec2 GetCellPos(glm::vec3 p);

@@ -25,8 +25,8 @@ struct CInteriorProxy {
 	uint32_t Unk01;
 	uint32_t Unk02;
 	uint32_t Unk03;
-	uint32_t Name;
-	uint32_t Parent;
+	uint32_t Name; //YBN FILE NAME
+	uint32_t Parent; //YMAP FILE NAME
 	glm::vec3 Position;
 	glm::vec4 Orientation;
 	glm::vec3 BBMin;

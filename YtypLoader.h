@@ -42,10 +42,30 @@ struct CBaseArchetypeDef //144 bytes, Key:2411387556
 	uint32_t Unused10;//140
 };
 
+struct CMloArchetypeDefData
+{
+	uint32_t mloFlags; //144   144: UnsignedInt: 0: mloFlags//3590839912
+	uint32_t Unused11;//148
+	Array_StructurePointer entities; //152   152: Array: 0: entities  {0: StructurePointer: 0: 256}
+	Array_Structure rooms; //168   168: Array: 0: rooms  {0: Structure: CMloRoomDef: 256}
+	Array_Structure portals; //184   184: Array: 0: portals//2314725778  {0: Structure: CMloPortalDef: 256}
+	Array_Structure entitySets; //200   200: Array: 0: entitySets//1169996080  {0: Structure: CMloEntitySet: 256}
+	Array_Structure timeCycleModifiers; //216   216: Array: 0: timeCycleModifiers  {0: Structure: CMloTimeCycleModifier: 256}
+	uint32_t Unused12;//232
+	uint32_t Unused13;//236
+};
+
+struct CMloArchetypeDef {
+	CBaseArchetypeDef _BaseArchetypeDef;
+	CMloArchetypeDefData _MloArchetypeDefData;
+};
+
 class YtypLoader
 {
 public:
 	std::vector<CBaseArchetypeDef> CBaseArchetypeDefs;
+	std::vector<CMloArchetypeDef> CMloArchetypeDefs;
+	std::vector<CEntityDef> CEntityDefs;
 	YtypLoader(memstream& file);
 	~YtypLoader();
 };

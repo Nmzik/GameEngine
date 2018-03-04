@@ -29,6 +29,11 @@ GameWorld::GameWorld()
 		spaceGrid.AddBoundsItem(&BoundsItem);
 	}
 
+	for (auto& CInteriorProxy : cacheFile.AllCInteriorProxies)
+	{
+		spaceGrid.AddCInteriorProxy(&CInteriorProxy);
+	}
+
 	player = new Player(glm::vec3(0, 0, 20), dynamicsWorld);
 
 	gameHour = 10;
@@ -39,8 +44,24 @@ GameWorld::GameWorld()
 		btIDebugDraw::DBG_DrawConstraintLimits);
 	dynamicsWorld->setDebugDrawer(&debug);
 
-	//LoadYTD(539222631);
+	/*std::unordered_map<uint32_t, CMloArchetypeDef>::iterator it;
+	it = data.MloDictionary.find(210892389);
+	if (it != data.MloDictionary.end())
+	{
+		printf("");
+	}
+	else {
+		printf("");
+	}
 
+	it = data.MloDictionary.find(1681413451);
+	if (it != data.MloDictionary.end())
+	{
+		printf("");
+	}
+	else {
+		printf("");
+	}*/
 	//LoadYDR(3225204062, glm::vec3(), glm::quat());
 	/*for (int i = 0; i < 500; i++) {
 		Model model(glm::vec3(0.f, 200.f, 0.f), glm::quat(0.f, 0.f, 0.f, 1.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\cube.obj", "container.jpg", "container2_specular.png", true, true);
@@ -322,6 +343,12 @@ void GameWorld::GetVisibleYmaps(glm::vec3 Position)
 	for (auto& mapNode : cell.MapNodes)
 	{
 		LoadYmap(mapNode->Name, Position);
+	}
+
+	for (auto& Proxy : cell.CInteriorProxies)
+	{
+		LoadYBN(Proxy->Name);
+		LoadYmap(Proxy->Parent, Position);
 	}
 
 	uint32_t curTime = SDL_GetTicks() / 1000;

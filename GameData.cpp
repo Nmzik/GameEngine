@@ -118,6 +118,14 @@ GameData::GameData()
 					{
 						TextureDictionary[def.assetName] = def.textureDictionary;
 					}
+
+					if (file->CMloArchetypeDefs.size() != 0)
+					{
+						for (auto& def : file->CEntityDefs)
+						{
+							//MloDictionary[file->CMloArchetypeDefs[0]._BaseArchetypeDef.assetName] = def;
+						}
+					}
 					delete file;
 
 				}

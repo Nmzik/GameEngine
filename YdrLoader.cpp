@@ -300,11 +300,6 @@ YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, gl
 				vertbuffer.DataPointer1 = vertbuffer.DataPointer1 & ~0x60000000;
 			}
 
-			//file.seekg(vertbuffer.DataPointer1);
-
-			//vertbuffer.VertexData.resize(vertbuffer.VertexCount * vertbuffer.VertexStride);
-			//file.read((char*)&vertbuffer.VertexData[0], vertbuffer.VertexCount * vertbuffer.VertexStride);
-
 			if ((drawGeom.IndexBufferPointer & SYSTEM_BASE) == SYSTEM_BASE) {
 				drawGeom.IndexBufferPointer = drawGeom.IndexBufferPointer & ~0x50000000;
 			}
@@ -317,8 +312,6 @@ YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, gl
 			IndexBuffer indexbuffer;
 			file.read((char*)&indexbuffer, sizeof(IndexBuffer));
 
-			//drawGeom->indexBuffer->Indices = new uint16_t[drawGeom->indexBuffer->IndicesCount];
-
 			//INDICES READING
 			if ((indexbuffer.IndicesPointer & SYSTEM_BASE) == SYSTEM_BASE) {
 				indexbuffer.IndicesPointer = indexbuffer.IndicesPointer & ~0x50000000;
@@ -326,11 +319,6 @@ YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, gl
 			if ((indexbuffer.IndicesPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
 				indexbuffer.IndicesPointer = indexbuffer.IndicesPointer & ~0x60000000;
 			}
-
-			//file.seekg(indexbuffer.IndicesPointer);
-
-			//indexbuffer.Indices.resize(indexbuffer.IndicesCount * sizeof(uint16_t));
-			//file.read((char*)&indexbuffer.Indices[0], sizeof(uint16_t) * indexbuffer.IndicesCount);
 
 			//printf("%d\n",sizeof(Mesh));
 			//TexturesID[ShaderMapping[i]];

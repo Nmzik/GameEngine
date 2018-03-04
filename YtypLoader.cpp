@@ -35,7 +35,7 @@ YtypLoader::YtypLoader(memstream& file)
 
 	for (auto& Block : meta.MetaBlocks)
 	{
-		if (Block.MetaDataBlock_struct.StructureNameHash == 2195127427)
+		if (Block.MetaDataBlock_struct.StructureNameHash == 2195127427) //CBaseArchetypeDef
 		{
 			for (int i = 0; i < Block.MetaDataBlock_struct.DataLength / sizeof(CBaseArchetypeDef); i++)
 			{
@@ -44,6 +44,32 @@ YtypLoader::YtypLoader(memstream& file)
 				CBaseArchetypeDefs.push_back(def);
 			}
 		}
+
+		if (Block.MetaDataBlock_struct.StructureNameHash == 273704021) //CMloArchetypeDef
+		{
+			for (int i = 0; i < Block.MetaDataBlock_struct.DataLength / sizeof(CMloArchetypeDef); i++)
+			{
+				CMloArchetypeDef def;
+				std::memcpy(&def, &Block.Data[i * sizeof(CMloArchetypeDef)], sizeof(CMloArchetypeDef));
+				CMloArchetypeDefs.push_back(def);
+			}
+		}
+
+		if (CMloArchetypeDefs.size() != 0) {
+			for (auto& Block : meta.MetaBlocks)
+			{
+				if (Block.MetaDataBlock_struct.StructureNameHash == 3461354627)
+				{
+					for (int i = 0; i < Block.MetaDataBlock_struct.DataLength / sizeof(CEntityDef); i++)
+					{
+						CEntityDef def;
+						std::memcpy(&def, &Block.Data[i * sizeof(CEntityDef)], sizeof(CEntityDef));
+						CEntityDefs.push_back(def);
+					}
+				}
+			}
+		}
+
 	}
 	//CELANING
 	for (auto& Block : meta.MetaBlocks) {

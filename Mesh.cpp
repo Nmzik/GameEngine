@@ -36,20 +36,28 @@ Mesh::Mesh(const uint8_t* meshData, uint64_t VertexPointer, uint32_t VertexSize,
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, VertexStride, nullptr);
 	glEnableVertexAttribArray(1); //NORMALS
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, VertexStride, (GLvoid*)12);
-	//printf("VERTEX %d\n", VertexStride);
+	printf("VERTEX %d\n", VertexStride);
 	glEnableVertexAttribArray(2); //TEXTCOORD
-	//if (VertexStride == 36) 
+	if (VertexStride == 24)
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, VertexStride, (GLvoid*)16);
+	if (VertexStride == 32)
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, VertexStride, (GLvoid*)16);
+	if (VertexStride == 36)
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, VertexStride, (GLvoid*)28);
+	if (VertexStride == 44)
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, VertexStride, (GLvoid*)28);
 	if (VertexStride == 52) 
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, VertexStride, (GLvoid*)36);
 	if (VertexStride == 56)
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, VertexStride, (GLvoid*)32);
-	/*if (VertexStride == 68)
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, VertexStride, (GLvoid*)36);
+	if (VertexStride == 60)
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, VertexStride, (GLvoid*)28);
 	if (VertexStride == 64)
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, VertexStride, (GLvoid*)32);
+	if (VertexStride == 68)
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, VertexStride, (GLvoid*)28);
 	if (VertexStride == 72)
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, VertexStride, (GLvoid*)40);*/
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, VertexStride, (GLvoid*)40);
 
 	num_indices = IndicesSize;
 
