@@ -2,9 +2,7 @@
 
 YftLoader::YftLoader(memstream& file, glm::vec3 position, glm::quat rotation, glm::vec3 scale, uint32_t hash, btDiscreteDynamicsWorld* world) : Hash(hash)
 {
-	ModelMatrix = glm::scale(glm::mat4(), scale);
-	ModelMatrix *= glm::toMat4(rotation);
-	ModelMatrix = glm::translate(ModelMatrix, position);
+	ModelMatrix = glm::translate(glm::mat4(), position) * glm::toMat4(rotation) * glm::scale(glm::mat4(), scale);
 
 	std::vector<uint32_t> TexturesHashes;
 
