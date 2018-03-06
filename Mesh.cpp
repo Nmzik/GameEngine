@@ -23,7 +23,7 @@ Mesh::Mesh(std::vector<glm::vec3>& vertices, std::vector<glm::vec3>& normals)
 	material = new Material(0);
 }
 
-Mesh::Mesh(const uint8_t* meshData, uint64_t VertexPointer, uint32_t VertexSize, uint64_t IndicesPointer, uint32_t IndicesSize, uint16_t VertexStride, uint32_t textureHash)
+Mesh::Mesh(const uint8_t* meshData, uint64_t VertexPointer, uint32_t VertexSize, uint64_t IndicesPointer, uint32_t IndicesSize, VertexType type, uint32_t textureHash)
 {
 	glGenVertexArrays(1, &VAO);
 
@@ -32,32 +32,158 @@ Mesh::Mesh(const uint8_t* meshData, uint64_t VertexPointer, uint32_t VertexSize,
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, VertexSize, &meshData[VertexPointer], GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, VertexStride, nullptr);
+
+	glEnableVertexAttribArray(0); //Positions
 	glEnableVertexAttribArray(1); //NORMALS
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, VertexStride, (GLvoid*)12);
-	printf("VERTEX %d\n", VertexStride);
 	glEnableVertexAttribArray(2); //TEXTCOORD
-	if (VertexStride == 24)
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, VertexStride, (GLvoid*)16);
-	if (VertexStride == 32)
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, VertexStride, (GLvoid*)16);
-	if (VertexStride == 36)
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, VertexStride, (GLvoid*)28);
-	if (VertexStride == 44)
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, VertexStride, (GLvoid*)28);
-	if (VertexStride == 52) 
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, VertexStride, (GLvoid*)36);
-	if (VertexStride == 56)
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, VertexStride, (GLvoid*)36);
-	if (VertexStride == 60)
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, VertexStride, (GLvoid*)28);
-	if (VertexStride == 64)
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, VertexStride, (GLvoid*)32);
-	if (VertexStride == 68)
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, VertexStride, (GLvoid*)28);
-	if (VertexStride == 72)
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, VertexStride, (GLvoid*)40);
+
+	switch (type)
+	{
+	case Default:
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 36, nullptr);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 36, (GLvoid*)12);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 36, (GLvoid*)28);
+		break;
+	case DefaultEx:
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 52, nullptr);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 52, (GLvoid*)12);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 52, (GLvoid*)28);
+		break;
+	case PNCCT:
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 40, nullptr);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 40, (GLvoid*)12);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 40, (GLvoid*)32);
+		break;
+	case PNCCTTTT:
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 64, nullptr);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 64, (GLvoid*)12);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 64, (GLvoid*)32);
+		break;
+	case PCCNCCTTX:
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 72, nullptr);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 72, (GLvoid*)20);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 72, (GLvoid*)40);
+		break;
+	case PCCNCCT:
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 48, nullptr);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 48, (GLvoid*)20);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 48, (GLvoid*)40);
+		break;
+	case PNCTTTX:
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 68, nullptr);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 68, (GLvoid*)12);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 68, (GLvoid*)28);
+		break;
+	case PNCTTX:
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 60, nullptr);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 60, (GLvoid*)12);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 60, (GLvoid*)28);
+		break;
+	case PNCTTTX_2:
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 68, nullptr);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 68, (GLvoid*)12);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 68, (GLvoid*)28);
+		break;
+	case PNCTTTX_3:
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 68, nullptr);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 68, (GLvoid*)12);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 68, (GLvoid*)28);
+		break;
+	case PNCCTTX:
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 64, nullptr);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 64, (GLvoid*)12);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 64, (GLvoid*)32);
+		break;
+	case PNCCTTX_2:
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 64, nullptr);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 64, (GLvoid*)12);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 64, (GLvoid*)32);
+		break;
+	case PNCCTTTX:
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 72, nullptr);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 72, (GLvoid*)12);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 72, (GLvoid*)32);
+		break;
+	case PCCNCCTX:
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 64, nullptr);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 64, (GLvoid*)20);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 64, (GLvoid*)40);
+		break;
+	case PCCNCTX:
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 60, nullptr);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 60, (GLvoid*)20);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 60, (GLvoid*)36);
+		break;
+	case PCCNCT:
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 44, nullptr);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 44, (GLvoid*)20);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 44, (GLvoid*)36);
+		break;
+	case PNCCTT:
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 48, nullptr);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 48, (GLvoid*)12);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 48, (GLvoid*)32);
+		break;
+	case PNCCTX:
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 56, nullptr);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 56, (GLvoid*)12);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 56, (GLvoid*)32);
+		break;
+	case PCT:
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 24, nullptr);
+		//glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 24, (GLvoid*)12);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 24, (GLvoid*)16);
+		break;
+	case PT:
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 20, nullptr);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 20, (GLvoid*)12);
+		break;
+	case PTT:
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 28, nullptr);
+		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 28, (GLvoid*)12);
+		//glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 28, (GLvoid*)16);
+		break;
+	case PNC:
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 28, nullptr);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 28, (GLvoid*)12);
+		//glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 28, (GLvoid*)24);
+		break;
+	case PC:
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 16, nullptr);
+		break;
+	case PCC:
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 20, nullptr);
+		break;
+	/*case PCCH2H4:
+		break;
+	case PNCH2:
+		break;
+	case PNCTTTTX:
+		break;
+	case PNCTTTT:
+		break;
+	case PCCNCCTT:
+		break;
+	case PCTT:
+		break;
+	case PCCCCT:
+		break;
+	case PCCNC:
+		break;
+	case PCCNCTT:
+		break;
+	case PCCNCTTX:
+		break;
+	case PCCNCTTT:
+		break;
+	case PNCTT:
+		break;
+	case PNCTTT:
+		break;*/
+	default:
+		printf("VERTEX\n");
+		break;
+	}
 
 	num_indices = IndicesSize;
 

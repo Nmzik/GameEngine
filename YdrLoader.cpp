@@ -298,6 +298,18 @@ YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, gl
 				vertbuffer.DataPointer1 = vertbuffer.DataPointer1 & ~0x60000000;
 			}
 
+			if ((vertbuffer.InfoPointer & SYSTEM_BASE) == SYSTEM_BASE) {
+				vertbuffer.InfoPointer = vertbuffer.InfoPointer & ~0x50000000;
+			}
+			if ((vertbuffer.InfoPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
+				vertbuffer.InfoPointer = vertbuffer.InfoPointer & ~0x60000000;
+			}
+
+			file.seekg(vertbuffer.InfoPointer);
+
+			VertexDeclaration decl;
+			file.read((char*)&decl, sizeof(VertexDeclaration));
+
 			if ((drawGeom.IndexBufferPointer & SYSTEM_BASE) == SYSTEM_BASE) {
 				drawGeom.IndexBufferPointer = drawGeom.IndexBufferPointer & ~0x50000000;
 			}
@@ -318,8 +330,6 @@ YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, gl
 				indexbuffer.IndicesPointer = indexbuffer.IndicesPointer & ~0x60000000;
 			}
 
-			//printf("%d\n",sizeof(Mesh));
-			//TexturesID[ShaderMapping[i]];
 			uint32_t test;
 			if (TexturesHashes.size() == 0) {
 				test = 0;
@@ -327,7 +337,7 @@ YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, gl
 			else {
 				test = TexturesHashes[ShaderMapping[i]];
 			}
-			Mesh* newMesh = new Mesh(file._buffer.p, vertbuffer.DataPointer1, vertbuffer.VertexCount * vertbuffer.VertexStride, indexbuffer.IndicesPointer, indexbuffer.IndicesCount, vertbuffer.VertexStride, test);
+			Mesh* newMesh = new Mesh(file._buffer.p, vertbuffer.DataPointer1, vertbuffer.VertexCount * vertbuffer.VertexStride, indexbuffer.IndicesPointer, indexbuffer.IndicesCount, (VertexType)decl.Flags, test);
 			meshes.push_back(newMesh);
 
 			//Geometries.push_back(drawGeom);

@@ -360,7 +360,7 @@ YddLoader::YddLoader(memstream& file, glm::vec3 position, glm::quat rotation, gl
 			{
 				for (int k = 0; k < DrawableDictionary.DrawableBases[i].DrawableModels[j].Geometries.size(); k++)
 				{
-					meshes.emplace_back(new Mesh(file._buffer.p, DrawableDictionary.DrawableBases[i].DrawableModels[j].Geometries[k]->vertexBuffer->DataPointer1, DrawableDictionary.DrawableBases[i].DrawableModels[j].Geometries[k]->vertexBuffer->VertexCount * DrawableDictionary.DrawableBases[i].DrawableModels[j].Geometries[k]->vertexBuffer->VertexStride, DrawableDictionary.DrawableBases[i].DrawableModels[j].Geometries[k]->indexBuffer->IndicesPointer, DrawableDictionary.DrawableBases[i].DrawableModels[j].Geometries[k]->indexBuffer->IndicesCount, DrawableDictionary.DrawableBases[i].DrawableModels[j].Geometries[k]->vertexBuffer->VertexStride, 0));
+					//meshes.emplace_back(new Mesh(file._buffer.p, DrawableDictionary.DrawableBases[i].DrawableModels[j].Geometries[k]->vertexBuffer->DataPointer1, DrawableDictionary.DrawableBases[i].DrawableModels[j].Geometries[k]->vertexBuffer->VertexCount * DrawableDictionary.DrawableBases[i].DrawableModels[j].Geometries[k]->vertexBuffer->VertexStride, DrawableDictionary.DrawableBases[i].DrawableModels[j].Geometries[k]->indexBuffer->IndicesPointer, DrawableDictionary.DrawableBases[i].DrawableModels[j].Geometries[k]->indexBuffer->IndicesCount, DrawableDictionary.DrawableBases[i].DrawableModels[j].Geometries[k]->vertexBuffer->VertexStride, 0));
 				}
 			}
 		}

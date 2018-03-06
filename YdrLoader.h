@@ -146,6 +146,14 @@ struct IndexBuffer {
 	uint32_t Unknown_5Ch; // 0x00000000
 };
 
+struct VertexDeclaration {
+	uint32_t Flags;
+	uint16_t Stride;
+	uint8_t Unknown_6h;
+	uint8_t Count;
+	uint64_t Types;
+};
+
 struct DrawableGeometry {
 	uint32_t VFT;
 	uint32_t Unknown_4h; // 0x00000001

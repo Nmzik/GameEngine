@@ -491,7 +491,7 @@ void RenderingSystem::render(GameWorld* world)
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, colorBuffer);
 	float exposure = 1.0f;
-	hdrShader->setInt("hdr", hdrEnabled);
+	hdrShader->setBool("hdr", hdrEnabled);
 	hdrShader->setInt("UseBlur", 0);
 	hdrShader->setFloat("exposure", exposure);
 	renderQuad();

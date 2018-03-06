@@ -88,13 +88,25 @@ void main()
     if(hdr)
     {
 		const float gamma = 2.2;
-		vec3 result = computeFxaa();
+		vec3 color = computeFxaa();
 
-		vec3 mapped = vec3(1.0) - exp(-result * exposure);
-		mapped = pow(mapped, vec3(1.0 / gamma));
-		if (UseBlur) mapped += blur();
+		float A = 0.15;
+		float B = 0.50;
+		float C = 0.10;
+		float D = 0.20;
+		float E = 0.02;
+		float F = 0.30;
+		float W = 11.2;
+		float exposure = 2.;
+		color *= exposure;
+		color = ((color * (A * color + C * B) + D * E) / (color * (A * color + B) + D * F)) - E / F;
+		float white = ((W * (A * W + C * B) + D * E) / (W * (A * W + B) + D * F)) - E / F;
+		color /= white;
 
-		FragColor = vec4(mapped, 1.0);
+		color = pow(color, vec3(1.0 / gamma));
+		if (UseBlur) color += blur();
+
+		FragColor = vec4(color, 1.0);
     }
     else
     {

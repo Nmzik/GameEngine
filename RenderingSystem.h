@@ -74,7 +74,7 @@ public:
 	bool DrawCollision = false;
 	bool test = true;
 	bool RenderDebugWorld = false;
-	int hdrEnabled = 1;
+	bool hdrEnabled = true;
 	float x = 50.f;
 	Camera& getCamera();
 	void createGBuffer();

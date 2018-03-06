@@ -43,12 +43,12 @@ void InGameState::tick(float delta_time)
 	static bool DebugPressed = true;
 	//KEYBOARD
 
-	if (game->getInput()->IsKeyPressed(SDL_SCANCODE_Q)) {
-		game->getRenderer()->setType(1);
+	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_Q)) {
+		game->getRenderer()->hdrEnabled = !game->getRenderer()->hdrEnabled;
 	}
 
 	if (game->getInput()->IsKeyPressed(SDL_SCANCODE_E)) {
-		game->getRenderer()->setType(0);
+		//game->getRenderer()->setType(0);
 	}
 
 	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_Z)) {
