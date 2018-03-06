@@ -58,9 +58,8 @@ private:
 	unsigned int colorBuffer;
 	//G-BUFFER
 	unsigned int gBuffer;
-	unsigned int gPosition, gNormal, gAlbedoSpec;
+	unsigned int gNormal, gAlbedoSpec, gDepthMap;
 
-	void ssaoPass();
 	void skyboxPass();
 
 	SDL_Window* window;

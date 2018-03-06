@@ -17,10 +17,11 @@ out float FragColor;
 
 in vec2 TexCoords;
 
-uniform sampler2D gPosition;
 uniform sampler2D gNormal;
 uniform sampler2D texNoise;
+uniform sampler2D gDepth;
 
+uniform mat4 InverseProjectionMatrix;
 uniform vec3 samples[64];
 
 // parameters (you'd probably want to use them as uniforms to more easily tweak the effect)
@@ -33,10 +34,18 @@ const vec2 noiseScale = vec2(1280.0/4.0, 720.0/4.0);
 
 uniform mat4 projection;
 
+vec3 getPos()
+{
+	vec4 p = InverseProjectionMatrix * vec4(TexCoords * 2.0 - 1.0, texture(gDepth, TexCoords).r* 2.0 - 1.0, 1);
+	vec3 viewspace_position = p.xyz / p.w;
+
+	return viewspace_position;
+}
+
 void main()
 {
     // get input for SSAO algorithm
-    vec3 fragPos = texture(gPosition, TexCoords).xyz;
+    vec3 fragPos = getPos();
     vec3 normal = normalize(texture(gNormal, TexCoords).rgb);
     vec3 randomVec = normalize(texture(texNoise, TexCoords * noiseScale).xyz);
     // create TBN change-of-basis matrix: from tangent-space to view-space
@@ -58,7 +67,7 @@ void main()
         offset.xyz = offset.xyz * 0.5 + 0.5; // transform to range 0.0 - 1.0
         
         // get sample depth
-        float sampleDepth = texture(gPosition, offset.xy).z; // get depth value of kernel sample
+        float sampleDepth = texture(gDepth, offset.xy).z; // get depth value of kernel sample
         occlusion += (sampleDepth >= sample.z + bias ? 1.0 : 0.0);  
         // range check & accumulate
         float rangeCheck = smoothstep(0.0, 1.0, radius / abs(fragPos.z - sampleDepth));

@@ -17,12 +17,13 @@ out vec4 FragColor;
 
 in vec2 TexCoords;
 
-uniform sampler2D gPosition;
 uniform sampler2D gNormal;
 uniform sampler2D gAlbedoSpec;
+uniform sampler2D gDepth;
 uniform sampler2D shadowMap;
 uniform sampler2D ssao;
 
+uniform mat4 InverseProjectionMatrix;
 uniform mat4 lightSpaceMatrix;
 uniform vec3 viewPos;
 uniform int type;
@@ -47,6 +48,14 @@ struct PointLight {
     vec3 diffuse;
     vec3 specular;
 };  
+
+vec3 getPos()
+{
+	vec4 p = InverseProjectionMatrix * vec4(TexCoords * 2.0 - 1.0, texture(gDepth, TexCoords).r* 2.0 - 1.0, 1);
+	vec3 viewspace_position = p.xyz / p.w;
+
+	return viewspace_position;
+}
 
 float ShadowCalculation(vec4 fragPosLightSpace, vec3 Normal, vec3 lightDir)
 {
@@ -87,7 +96,7 @@ float ShadowCalculation(vec4 fragPosLightSpace, vec3 Normal, vec3 lightDir)
 void main()
 {             
     // retrieve data from gbuffer
-    vec3 FragPos = texture(gPosition, TexCoords).rgb;
+    vec3 FragPos = getPos();
     vec3 Normal = texture(gNormal, TexCoords).rgb;
     vec3 Diffuse = texture(gAlbedoSpec, TexCoords).rgb;
     float Specular = texture(gAlbedoSpec, TexCoords).a;
