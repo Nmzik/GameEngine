@@ -11,6 +11,7 @@
 #include "gtc/type_ptr.hpp"
 #include "glm/gtc/quaternion.hpp"
 #include "glm/gtx/matrix_decompose.hpp"
+#include "YdrLoader.h"
 
 class YddLoader
 {

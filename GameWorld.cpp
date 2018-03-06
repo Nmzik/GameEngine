@@ -218,7 +218,6 @@ bool GameWorld::LoadYDD(uint32_t hash, glm::vec3 position, glm::quat rotation, g
 		data.ExtractFileResource(element, outputBuffer);
 
 		memstream stream(outputBuffer.data(), outputBuffer.size());
-		//YddLoader test(stream, position, rotation, hash);
 		yddLoader.emplace_back(new YddLoader(stream, position, rotation, scale, hash));
 
 		return true;

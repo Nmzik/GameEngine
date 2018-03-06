@@ -366,7 +366,6 @@ void RenderingSystem::render(GameWorld* world)
 	}
 	world->GetResourceManager()->mainLock.unlock();*/
 	//printf("=========================\n");
-	//TEST YDD
 	for (auto& yftFile : world->yftLoader)
 	{
 		auto modelpos = yftFile->GetMat4();
