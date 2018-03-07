@@ -376,8 +376,6 @@ YftLoader::YftLoader(memstream& file, glm::vec3 position, glm::quat rotation, gl
 				indexbuffer.IndicesPointer = indexbuffer.IndicesPointer & ~0x60000000;
 			}
 
-			//printf("%d\n",sizeof(Mesh));
-			//TexturesID[ShaderMapping[i]];
 			uint32_t test;
 			if (TexturesHashes.size() == 0) {
 				test = 0;
@@ -387,10 +385,6 @@ YftLoader::YftLoader(memstream& file, glm::vec3 position, glm::quat rotation, gl
 			}
 			Mesh* newMesh = new Mesh(file._buffer.p, vertbuffer.DataPointer1, vertbuffer.VertexCount * vertbuffer.VertexStride, indexbuffer.IndicesPointer, indexbuffer.IndicesCount, (VertexType)decl.Flags, test);
 			meshes.push_back(newMesh);
-
-			//Geometries.push_back(drawGeom);
-			//vertexBuffer.push_back(vertbuffer);
-			//indexBuffer.push_back(indexbuffer);
 
 			file.seekg(pos);
 		}

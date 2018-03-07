@@ -4,8 +4,6 @@ YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world, memstream& file, uint32_t h
 {
 
 	compound = new btCompoundShape();
-	//std::vector<glm::vec3> FinalVertices;
-	//std::vector<glm::vec3> FinalNormals;
 
 	struct {
 		uint32_t FileVFT;
@@ -106,7 +104,6 @@ YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world, memstream& file, uint32_t h
 		uint32_t Unknown_124h; // 0x00000000
 		uint32_t Unknown_128h; // 0x00000000
 		uint32_t Unknown_12Ch; // 0x00000000
-		std::vector<glm::vec3> Vertices;
 	};
 
 	struct Vertex_HalfType {
@@ -144,18 +141,12 @@ YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world, memstream& file, uint32_t h
 
 		file.seekg(DataPointer);
 
-		struct {
-			uint32_t FileVFT;
-			uint32_t FileUnknown;
-			uint64_t FilePagesInfoPointer;
-		} ResourceFileBase;
 		file.read((char*)&ResourceFileBase, sizeof(ResourceFileBase));
 
 		file.read((char*)&Bounds, sizeof(Bounds));
-		//printf("TYPE %d\n", Bounds.Type);
 
 		BoundGeometry geom;
-		file.read((char*)&geom, sizeof(BoundGeometry) - 24);
+		file.read((char*)&geom, sizeof(BoundGeometry));
 
 		/////////////////READ POLYGONS
 		enum BoundPolygonType
@@ -229,11 +220,12 @@ YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world, memstream& file, uint32_t h
 			Vertex_HalfType *vertices = new Vertex_HalfType[geom.VerticesCount];
 			file.read((char*)&vertices[0], sizeof(Vertex_HalfType) * geom.VerticesCount);
 
-			geom.Vertices.resize(geom.VerticesCount);
+			std::vector<glm::vec3> Vertices;
+			Vertices.resize(geom.VerticesCount);
 
 			for (int i = 0; i < geom.VerticesCount; i++)
 			{
-				geom.Vertices[i] = glm::vec3(vertices[i].x, vertices[i].y, vertices[i].z) * geom.Quantum;
+				Vertices[i] = glm::vec3(vertices[i].x, vertices[i].y, vertices[i].z) * geom.Quantum;
 			}
 
 			delete[] vertices;
@@ -242,9 +234,9 @@ YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world, memstream& file, uint32_t h
 
 			for (int i = 0; i < PolygonTriangles.size(); i++)
 			{
-				glm::vec3 Vertex1 = geom.Vertices[PolygonTriangles[i].vertIndex1];
-				glm::vec3 Vertex2 = geom.Vertices[PolygonTriangles[i].vertIndex2];
-				glm::vec3 Vertex3 = geom.Vertices[PolygonTriangles[i].vertIndex3];
+				glm::vec3 Vertex1 = Vertices[PolygonTriangles[i].vertIndex1];
+				glm::vec3 Vertex2 = Vertices[PolygonTriangles[i].vertIndex2];
+				glm::vec3 Vertex3 = Vertices[PolygonTriangles[i].vertIndex3];
 				TriMesh->addTriangle(btVector3(Vertex1.x, Vertex1.y, Vertex1.z), btVector3(Vertex2.x, Vertex2.y, Vertex2.z), btVector3(Vertex3.x, Vertex3.y, Vertex3.z));
 			}
 

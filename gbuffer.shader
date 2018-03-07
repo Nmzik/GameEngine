@@ -6,10 +6,13 @@ layout (location = 2) in vec2 aTexCoords;
 
 out vec2 TexCoords;
 out vec3 Normal;
+//out float flogz;
 
 layout(location = 3) uniform mat4 model;
 layout(location = 4) uniform mat4 view;
 layout(location = 5) uniform mat4 projection;
+
+//const float Fcoef = 2.0 / log2(10000 + 1.0);
 
 void main()
 {
@@ -21,6 +24,8 @@ void main()
 	//Normal = mat3(transpose(inverse(view * model))) * aNormal;
     
     gl_Position = projection * viewPos;
+	//gl_Position.z = log2(max(1e-6, 1.0 + gl_Position.w)) * Fcoef - 1.0;
+	//flogz = 1.0 + gl_Position.w;
 }
 
 #shader fragment
@@ -30,6 +35,7 @@ layout (location = 1) out vec4 gAlbedoSpec;
 
 in vec2 TexCoords;
 in vec3 Normal;
+//in float flogz;
 
 struct Material {
 	sampler2D diffuse;
@@ -39,6 +45,8 @@ struct Material {
 
 uniform Material material;
 
+//const float Fcoef = 2.0 / log2(10000 + 1.0);
+
 void main()
 {    
     // also store the per-fragment normals into the gbuffer
@@ -47,4 +55,5 @@ void main()
     gAlbedoSpec.rgb = texture(material.diffuse, TexCoords).rgb;
     // store specular intensity in gAlbedoSpec's alpha component
     gAlbedoSpec.a = texture(material.specular, TexCoords).r;
+	//gl_FragDepth = log2(flogz) * (Fcoef / 2.0);
 }

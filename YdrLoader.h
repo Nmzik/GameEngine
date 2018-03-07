@@ -208,11 +208,11 @@ struct DrawableModel {
 
 class YdrLoader
 {
-	glm::mat4 ModelMatrix;
 	std::vector<Mesh*> meshes;
 	//glm::vec3 Position;
 	//glm::quat Rotation;
 public:
+	glm::mat4 ModelMatrix;
 	glm::vec3 BBCenter;
 	float BBRadius;
 	uint32_t time;

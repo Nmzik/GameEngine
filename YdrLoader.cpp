@@ -44,9 +44,6 @@ YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, gl
 
 	file.seekg(pos);*/
 
-	//std::vector<VertexBuffer> vertexBuffer;
-	//std::vector<IndexBuffer> indexBuffer;
-
 	std::vector<DrawableGeometry> Geometries;
 
 	DrawableBase drawBase;

@@ -166,13 +166,11 @@ void RenderingSystem::createGBuffer()
 	// create and attach depth buffer (renderbuffer)
 	glGenTextures(1, &gDepthMap);
 	glBindTexture(GL_TEXTURE_2D, gDepthMap);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, ScreenResWidth, ScreenResHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	// attach depth texture as FBO's depth buffer
-	glBindRenderbuffer(GL_RENDERBUFFER, gDepthMap);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, ScreenResWidth, ScreenResHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, gDepthMap, 0);
 
 	// finally check if framebuffer is complete
@@ -376,6 +374,7 @@ void RenderingSystem::render(GameWorld* world)
 		yddFile->Draw();
 	}
 
+	//std::sort(std::begin(world->ydrLoader), std::end(world->ydrLoader), [](YdrLoader* a, YdrLoader* b) {return a->ModelMatrix[3][1] < b->ModelMatrix[3][1]; }); //by y axis
 	//glEnable(GL_CULL_FACE);
 	for (auto& YdrFile : world->ydrLoader)
 	{

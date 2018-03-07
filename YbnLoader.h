@@ -27,6 +27,5 @@ public:
 	YbnLoader(btDiscreteDynamicsWorld* world, memstream& file, uint32_t hash);
 	~YbnLoader();
 	glm::mat4 GetMat4();
-	void Draw();
 };
 
