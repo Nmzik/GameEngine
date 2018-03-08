@@ -272,13 +272,14 @@ struct DrawableModel {
 	uint32_t Unknown_2Ch;
 };
 
+class YtdFile;
+
 class YdrLoader
 {
-	std::vector<Mesh*> meshes;
-	//glm::vec3 Position;
-	//glm::quat Rotation;
-public:
 	glm::mat4 ModelMatrix;
+	std::vector<Mesh*> meshes;
+	YtdFile* ytdFile;
+public:
 	glm::vec3 BBCenter;
 	float BBRadius;
 	uint32_t time;

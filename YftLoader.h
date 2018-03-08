@@ -17,9 +17,11 @@
 class YftLoader
 {
 	glm::mat4 ModelMatrix;
-public:
 	std::vector<Mesh*> meshes;
+	YtdFile* ytdFile;
+public:
 	uint32_t Hash;
+	uint32_t time;
 
 	YftLoader(memstream& file, glm::vec3 position, glm::quat rotation, glm::vec3 scale, uint32_t hash, btDiscreteDynamicsWorld* world);
 	~YftLoader();

@@ -267,7 +267,13 @@ YbnLoader::~YbnLoader()
 	{
 		delete btTriangleMeshes[i];
 	}
+
+	delete rigidBody->getMotionState();
+
 	CollisionWorld->removeRigidBody(rigidBody);
+
+	delete rigidBody;
+	delete compound;
 }
 
 glm::mat4 YbnLoader::GetMat4()

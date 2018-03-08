@@ -141,7 +141,7 @@ YftLoader::YftLoader(memstream& file, glm::vec3 position, glm::quat rotation, gl
 
 		file.seekg(shaderGroup.TextureDictionaryPointer);
 		printf("YTD INSIDE YFT\n");
-		YtdFile* loader = new YtdFile(file, hash);
+		ytdFile = new YtdFile(file, hash);
 	}
 
 	if ((shaderGroup.ShadersPointer & SYSTEM_BASE) == SYSTEM_BASE) {
@@ -418,6 +418,11 @@ YftLoader::YftLoader(memstream& file, glm::vec3 position, glm::quat rotation, gl
 
 YftLoader::~YftLoader()
 {
+	delete ytdFile;
+	for (auto& mesh : meshes)
+	{
+		delete mesh;
+	}
 }
 
 glm::mat4 & YftLoader::GetMat4()

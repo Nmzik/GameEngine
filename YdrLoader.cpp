@@ -82,8 +82,8 @@ YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, gl
 	}
 
 	if (Drawable.BoundPointer != 0) {
-		printf("YBN INSIDE YDR\n");
-		YbnLoader* loader = new YbnLoader(world, file, hash);
+		//printf("YBN INSIDE YDR\n");
+		//YbnLoader* loader = new YbnLoader(world, file, hash);
 	}
 
 	BBCenter = position + drawBase.BoundingCenter;
@@ -113,7 +113,7 @@ YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, gl
 
 		file.seekg(_ShaderGroup.TextureDictionaryPointer);
 		printf("YTD INSIDE YDR\n");
-		YtdFile* loader = new YtdFile(file, hash);
+		ytdFile = new YtdFile(file, hash);
 	}
 
 	if ((_ShaderGroup.ShadersPointer & SYSTEM_BASE) == SYSTEM_BASE) {
@@ -367,6 +367,7 @@ YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, gl
 
 YdrLoader::~YdrLoader()
 {
+	delete ytdFile;
 	for (auto& mesh : meshes)
 	{
 		delete mesh;
