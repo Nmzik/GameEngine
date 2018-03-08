@@ -11,6 +11,7 @@
 #include "gtc/type_ptr.hpp"
 #include "glm/gtc/quaternion.hpp"
 #include <btBulletDynamicsCommon.h>
+#include "YdrLoader.h"
 
 class YbnLoader
 {

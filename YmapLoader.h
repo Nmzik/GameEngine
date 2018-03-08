@@ -5,6 +5,7 @@
 #include "zlib.h"
 #include "glm.hpp"
 #include "RpfEntry.h"
+#include "YdrLoader.h"
 
 #define SYSTEM_BASE 0x50000000
 #define GRAPHICS_BASE 0x60000000

@@ -17,6 +17,12 @@
 #include "YtdLoader.h"
 #include "YbnLoader.h"
 
+struct ResourceFileBase {
+	uint32_t FileVFT;
+	uint32_t FileUnknown;
+	uint64_t FilePagesInfoPointer;
+};
+
 struct ShaderGroup {
 	uint32_t VFT;
 	uint32_t Unknown_4h; // 0x00000001
@@ -60,6 +66,66 @@ struct ShaderParameter
 	uint16_t Unknown_2h;
 	uint32_t Unknown_4h;
 	uint64_t DataPointer;
+};
+
+struct LightAttributes_s
+{
+	// structure data
+	uint32_t Unknown_0h; // 0x00000000
+	uint32_t Unknown_4h; // 0x00000000
+	float PositionX;
+	float PositionY;
+	float PositionZ;
+	uint32_t Unknown_14h; // 0x00000000
+	uint8_t ColorR;
+	uint8_t ColorG;
+	uint8_t ColorB;
+	uint8_t Flashiness;
+	float Intensity;
+	uint32_t Flags;
+	uint16_t BoneId;
+	uint8_t Type;
+	uint8_t GroupId;
+	uint32_t TimeFlags;
+	float Falloff;
+	float FalloffExponent;
+	float CullingPlaneNormalX;
+	float CullingPlaneNormalY;
+	float CullingPlaneNormalZ;
+	float CullingPlaneOffset;
+	uint8_t ShadowBlur;
+	uint8_t Unknown_45h;
+	uint16_t Unknown_46h;
+	uint32_t Unknown_48h; // 0x00000000
+	float VolumeIntensity;
+	float VolumeSizeScale;
+	uint8_t VolumeOuterColorR;
+	uint8_t VolumeOuterColorG;
+	uint8_t VolumeOuterColorB;
+	uint8_t LightHash;
+	float VolumeOuterIntensity;
+	float CoronaSize;
+	float VolumeOuterExponent;
+	uint8_t LightFadeDistance;
+	uint8_t ShadowFadeDistance;
+	uint8_t SpecularFadeDistance;
+	uint8_t VolumetricFadeDistance;
+	float ShadowNearClip;
+	float CoronaIntensity;
+	float CoronaZBias;
+	float DirectionX;
+	float DirectionY;
+	float DirectionZ;
+	float TangentX;
+	float TangentY;
+	float TangentZ;
+	float ConeInnerAngle;
+	float ConeOuterAngle;
+	float ExtentX;
+	float ExtentY;
+	float ExtentZ;
+	uint32_t ProjectedTextureHash;
+	uint32_t Unknown_A4h; // 0x00000000
 };
 
 struct DrawableBase {

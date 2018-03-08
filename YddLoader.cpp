@@ -6,12 +6,8 @@ YddLoader::YddLoader(memstream& file, glm::vec3 position, glm::quat rotation, gl
 {
 	ModelMatrix = glm::translate(glm::mat4(), position) * glm::toMat4(rotation) * glm::scale(glm::mat4(), scale);
 
-	struct {
-		uint32_t FileVFT;
-		uint32_t FileUnknown;
-		uint64_t FilePagesInfoPointer;
-	} ResourceFileBase;
-	file.read((char*)&ResourceFileBase, sizeof(ResourceFileBase));
+	ResourceFileBase resourceFileBase;
+	file.read((char*)&resourceFileBase, sizeof(ResourceFileBase));
 
 	uint64_t SYSTEM_BASE = 0x50000000;
 	uint64_t GRAPHICS_BASE = 0x60000000;
@@ -71,7 +67,7 @@ YddLoader::YddLoader(memstream& file, glm::vec3 position, glm::quat rotation, gl
 
 		file.seekg(DataPointer);
 
-		file.read((char*)&ResourceFileBase, sizeof(ResourceFileBase));
+		file.read((char*)&resourceFileBase, sizeof(ResourceFileBase));
 
 		DrawableBase DrawBase;
 		file.read((char*)&DrawBase, sizeof(DrawableBase));

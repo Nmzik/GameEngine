@@ -98,7 +98,6 @@
     <ClCompile Include="MenuState.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
-    <ClCompile Include="nv_dds.cpp" />
     <ClCompile Include="PauseState.cpp" />
     <ClCompile Include="PhysicsDebugDrawer.cpp" />
     <ClCompile Include="Player.cpp" />
@@ -112,6 +111,7 @@
     <ClCompile Include="TextureManager.cpp" />
     <ClCompile Include="tinyxml2.cpp" />
     <ClCompile Include="Vehicle.cpp" />
+    <ClCompile Include="Water.cpp" />
     <ClCompile Include="YbnLoader.cpp" />
     <ClCompile Include="YddLoader.cpp" />
     <ClCompile Include="YdrLoader.cpp" />
@@ -137,7 +137,6 @@
     <ClInclude Include="Material.h" />
     <ClInclude Include="membuf.h" />
     <ClInclude Include="MenuState.h" />
-    <ClInclude Include="nv_dds.h" />
     <ClInclude Include="PauseState.h" />
     <ClInclude Include="PhysicsDebugDrawer.h" />
     <ClInclude Include="Player.h" />
@@ -158,6 +157,7 @@
     <ClInclude Include="TextureManager.h" />
     <ClInclude Include="tinyxml2.h" />
     <ClInclude Include="Vehicle.h" />
+    <ClInclude Include="Water.h" />
     <ClInclude Include="YbnLoader.h" />
     <ClInclude Include="YddLoader.h" />
     <ClInclude Include="YdrLoader.h" />
@@ -180,6 +180,7 @@
     <None Include="forward.shader" />
     <None Include="ssao.shader" />
     <None Include="ssao_blur.shader" />
+    <None Include="water.shader" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="skybox_textures\back.jpg" />

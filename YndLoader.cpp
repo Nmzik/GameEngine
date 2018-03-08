@@ -8,12 +8,8 @@ YndLoader::YndLoader(std::string FileName)
 		printf("NOT FOUND!");
 	}
 
-	struct {
-		uint32_t FileVFT;
-		uint32_t FileUnknown;
-		uint64_t FilePagesInfoPointer;
-	} ResourceFileBase;
-	file.read((char*)&ResourceFileBase, sizeof(ResourceFileBase));
+	ResourceFileBase resourceFileBase;
+	file.read((char*)&resourceFileBase, sizeof(ResourceFileBase));
 
 	///////////////////
 	uint64_t SYSTEM_BASE = 0x50000000;

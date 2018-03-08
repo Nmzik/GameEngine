@@ -6,12 +6,8 @@ YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, gl
 
 	std::vector<uint32_t> TexturesHashes;
 
-	struct {
-		uint32_t FileVFT;
-		uint32_t FileUnknown;
-		uint64_t FilePagesInfoPointer;
-	} ResourceFileBase;
-	file.read((char*)&ResourceFileBase, sizeof(ResourceFileBase));
+	ResourceFileBase resourceFileBase;
+	file.read((char*)&resourceFileBase, sizeof(ResourceFileBase));
 
 	uint64_t SYSTEM_BASE = 0x50000000;
 	uint64_t GRAPHICS_BASE = 0x60000000;
@@ -63,6 +59,27 @@ YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, gl
 
 	//READ COLLISION DATA FROM YDR
 	file.read((char*)&Drawable, sizeof(Drawable));
+
+	if (Drawable.LightAttributesPointer != 0) {
+		if ((Drawable.LightAttributesPointer & SYSTEM_BASE) == SYSTEM_BASE) {
+			Drawable.LightAttributesPointer = Drawable.LightAttributesPointer & ~0x50000000;
+		}
+		if ((Drawable.LightAttributesPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
+			Drawable.LightAttributesPointer = Drawable.LightAttributesPointer & ~0x60000000;
+		}
+
+		file.seekg(Drawable.LightAttributesPointer);
+
+		std::vector<LightAttributes_s> lightAttributes_s;
+		lightAttributes_s.resize(Drawable.LightAttributesCount1);
+
+		for (int i = 0; i < Drawable.LightAttributesCount1; i++)
+		{
+			LightAttributes_s light;
+			file.read((char*)&light, sizeof(LightAttributes_s));
+			lightAttributes_s.push_back(light);
+		}
+	}
 
 	if (Drawable.BoundPointer != 0) {
 		printf("YBN INSIDE YDR\n");

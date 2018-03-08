@@ -13,7 +13,6 @@
 #include "glm/gtx/matrix_decompose.hpp"
 #include "membuf.h"
 #include "YtdLoader.h"
-#include "YdrLoader.h"
 
 class YftLoader
 {

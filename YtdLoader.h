@@ -11,7 +11,7 @@
 #include "glm/gtc/quaternion.hpp"
 #include "glm/gtx/matrix_decompose.hpp"
 #include "membuf.h"
-#include "nv_dds.h"
+#include "YdrLoader.h"
 
 struct ResourceSimpleList64Ptr
 {

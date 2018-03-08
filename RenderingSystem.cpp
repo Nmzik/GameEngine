@@ -321,7 +321,6 @@ void RenderingSystem::render(GameWorld* world)
 	world->GetVisibleYmaps(camera->Position);
 
 	//glClearColor(0.0, 0.0, 0.0, 0.0);
-	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	///geometry to gbuffer->shadowmaps(directional light)->shadowmaps(point light)->ssao->lighting(Final)->skybox
 	// --------------------------------GeometryPass Deferred Rendering----------------------------------
@@ -385,6 +384,12 @@ void RenderingSystem::render(GameWorld* world)
 		//}
 	}
 	//glDisable(GL_CULL_FACE);
+
+	/*for (auto& waterMesh : world->WaterMeshes)
+	{
+		gbuffer->setMat4(ModelUniformLoc, glm::mat4(1.0));
+		waterMesh.Draw();
+	}*/
 
 	for (int i = 0; i < world->pedestrians.size(); i++) {
 		auto model = world->pedestrians[i]->getPosition();

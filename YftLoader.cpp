@@ -6,12 +6,8 @@ YftLoader::YftLoader(memstream& file, glm::vec3 position, glm::quat rotation, gl
 
 	std::vector<uint32_t> TexturesHashes;
 
-	struct {
-		uint32_t FileVFT;
-		uint32_t FileUnknown;
-		uint64_t FilePagesInfoPointer;
-	} ResourceFileBase;
-	file.read((char*)&ResourceFileBase, sizeof(ResourceFileBase));
+	ResourceFileBase resourceFileBase;
+	file.read((char*)&resourceFileBase, sizeof(ResourceFileBase));
 
 	uint64_t SYSTEM_BASE = 0x50000000;
 	uint64_t GRAPHICS_BASE = 0x60000000;
@@ -96,7 +92,7 @@ YftLoader::YftLoader(memstream& file, glm::vec3 position, glm::quat rotation, gl
 
 	file.seekg(FragType.DrawablePointer);
 
-	file.read((char*)&ResourceFileBase, sizeof(ResourceFileBase));
+	file.read((char*)&resourceFileBase, sizeof(ResourceFileBase));
 
 	DrawableBase drawBase;
 

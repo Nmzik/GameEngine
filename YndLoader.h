@@ -10,6 +10,7 @@
 #include "gtx/rotate_vector.hpp"
 #include "gtc/type_ptr.hpp"
 #include "glm/gtc/quaternion.hpp"
+#include "YdrLoader.h"
 
 class YndLoader
 {

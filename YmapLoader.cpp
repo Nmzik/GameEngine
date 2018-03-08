@@ -16,12 +16,8 @@ YmapLoader::YmapLoader(memstream& file, uint32_t hash) : Hash(hash)
 		printf("HERE");
 	}*/
 
-	struct {
-		uint32_t FileVFT;
-		uint32_t FileUnknown;
-		uint64_t FilePagesInfoPointer;
-	} ResourceFileBase;
-	file.read((char*)&ResourceFileBase, sizeof(ResourceFileBase));
+	ResourceFileBase resourceFileBase;
+	file.read((char*)&resourceFileBase, sizeof(ResourceFileBase));
 
 	///YMAP REAL DATA
 

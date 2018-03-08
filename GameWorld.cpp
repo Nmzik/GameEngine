@@ -17,7 +17,7 @@ GameWorld::GameWorld()
 	TextureManager::LoadTexture(0, TextureManager::loadTexture("blank.jpg"));
 	//////////////////////////////////////////////////////////////////////////////
 
-	_ResourceManager = new ResourceManager(this);
+	//_ResourceManager = new ResourceManager(this);
 
 	for (auto& mapNode : cacheFile.AllMapNodes)
 	{
@@ -33,6 +33,29 @@ GameWorld::GameWorld()
 	{
 		spaceGrid.AddCInteriorProxy(&CInteriorProxy);
 	}
+
+	/*{
+			//std::cout << "YTD Found " << std::endl;
+			std::unordered_map<uint32_t, RpfResourceFileEntry*>::iterator iter;
+			iter = data.YtdEntries.find(3523992128);
+			if (iter != data.YtdEntries.end())
+			{
+				std::cout << "YTD Found " << iter->second->Name << std::endl;
+				auto& element = *(iter->second);
+				std::vector<uint8_t> outputBuffer;
+				data.ExtractFileResource(element, outputBuffer);
+
+				memstream stream(outputBuffer.data(), outputBuffer.size());
+
+				YtdFile* file = new YtdFile(stream, 3523992128);
+			}
+	}*/
+	/*LoadYTD(3523992128); //water.ytd
+	for (auto& WaterQuad : data.WaterQuads)
+	{
+		Water water(WaterQuad);
+		WaterMeshes.push_back(water);
+	}*/
 
 	player = new Player(glm::vec3(0, 0, 20), dynamicsWorld);
 
@@ -61,14 +84,6 @@ GameWorld::GameWorld()
 	}
 	else {
 		printf("");
-	}*/
-	//LoadYDR(3225204062, glm::vec3(), glm::quat());
-	/*for (int i = 0; i < 500; i++) {
-		Model model(glm::vec3(0.f, 200.f, 0.f), glm::quat(0.f, 0.f, 0.f, 1.f), glm::vec3(1.0f), "C:\\Users\\nmzik\\Desktop\\cube.obj", "container.jpg", "container2_specular.png", true, true);
-		model.Load();
-		model.UploadToBuffers();
-		models.push_back(model);
-		dynamicsWorld->addRigidBody(models[i].getBody());
 	}*/
 
 	
@@ -118,21 +133,6 @@ void GameWorld::LoadYmap(uint32_t hash, glm::vec3 cameraPosition)
 			YmapLoader *ymap = new YmapLoader(stream, hash);
 			ymap->time = SDL_GetTicks() / 1000;
 			ymapLoader.push_back(ymap);
-
-			if (!(ymap->flags & 1) > 0) { //DONT LOAD SCRIPTED MAPS
-				for (int i = 0; i < ymap->CEntityDefs.size(); i++)
-				{
-					if (ymap->CEntityDefs[i].lodLevel == 0 || ymap->CEntityDefs[i].lodLevel == 4 || ymap->CEntityDefs[i].lodLevel == 5) {
-						if (glm::distance(cameraPosition, ymap->CEntityDefs[i].position) <= ymap->CEntityDefs[i].lodDist) {
-							LoadYTD(ymap->CEntityDefs[i].archetypeName);
-
-							if (!LoadYDR(ymap->CEntityDefs[i].archetypeName, ymap->CEntityDefs[i].position, glm::quat(-ymap->CEntityDefs[i].rotation.w, ymap->CEntityDefs[i].rotation.x, ymap->CEntityDefs[i].rotation.y, ymap->CEntityDefs[i].rotation.z), glm::vec3(ymap->CEntityDefs[i].scaleXY, ymap->CEntityDefs[i].scaleXY, ymap->CEntityDefs[i].scaleZ)))
-								if(!LoadYDD(ymap->CEntityDefs[i].archetypeName, ymap->CEntityDefs[i].position, glm::quat(-ymap->CEntityDefs[i].rotation.w, ymap->CEntityDefs[i].rotation.x, ymap->CEntityDefs[i].rotation.y, ymap->CEntityDefs[i].rotation.z), glm::vec3(ymap->CEntityDefs[i].scaleXY, ymap->CEntityDefs[i].scaleXY, ymap->CEntityDefs[i].scaleZ)))
-									LoadYFT(ymap->CEntityDefs[i].archetypeName, ymap->CEntityDefs[i].position, glm::quat(-ymap->CEntityDefs[i].rotation.w, ymap->CEntityDefs[i].rotation.x, ymap->CEntityDefs[i].rotation.y, ymap->CEntityDefs[i].rotation.z), glm::vec3(ymap->CEntityDefs[i].scaleXY, ymap->CEntityDefs[i].scaleXY, ymap->CEntityDefs[i].scaleZ));
-						}
-					}
-				}
-			}
 		}
 		else
 		{
@@ -352,91 +352,58 @@ void GameWorld::GetVisibleYmaps(glm::vec3 Position)
 
 	uint32_t curTime = SDL_GetTicks() / 1000;
 
-	for (int i = 0; i < ybnLoader.size(); i++) {
-		if ((curTime - ybnLoader[i]->time) > 5) {
-			delete ybnLoader[i];
-			ybnLoader.erase(ybnLoader.begin() + i);
-		}
-	}
-
-	//CLEARING
-	for (int i = 0; i < ymapLoader.size(); i++) {
-		if ((curTime - ymapLoader[i]->time) > 5) {
-			delete ymapLoader[i];
-			ymapLoader.erase(ymapLoader.begin() + i);
-		}
-	}
-
-	for (int i = 0; i < ydrLoader.size(); i++) {
-		if ((curTime - ydrLoader[i]->time) > 5) {
-			delete ydrLoader[i];
-			ydrLoader.erase(ydrLoader.begin() + i);
-		}
-	}
-
-	for (int i = 0; i < ytdLoader.size(); i++) {
-		if ((curTime - ytdLoader[i]->time) > 5) {
-			delete ytdLoader[i];
-			ytdLoader.erase(ytdLoader.begin() + i);
-		}
-	}
-
-	/*for (int i = 0; i < ymapLoader.size(); i++)
+	for (std::vector<YbnLoader*>::iterator it = ybnLoader.begin(); it != ybnLoader.end(); /*increment in body*/)
 	{
-		auto it = std::find_if(cell.MapNodes.begin(), cell.MapNodes.end(), [this , &i](MapDataStoreNode* node) -> bool { return this->ymapLoader[i]->Hash == node->Name; });
-		if (it != cell.MapNodes.end()) {
-
+		if (!(*it)->time > 5) //isActive returns a bool
+		{
+			delete *it;
+			it = ybnLoader.erase(it);
 		}
-		else {
-			//printf("DELETED!\n");
-
-			for (auto& MapFile : ymapLoader[i]->CEntityDefs)
-			{
-				auto it2 = std::find_if(ydrLoader.begin(), ydrLoader.end(), [&MapFile](YdrLoader* loader) -> bool { return MapFile.archetypeName == loader->Hash; });
-				if (it2 != ydrLoader.end()) {
-					delete *it2;
-					it2 = ydrLoader.erase(it2);
-				}
-				else {
-					it2++;
-				}
-
-				auto it3 = std::find_if(yddLoader.begin(), yddLoader.end(), [&MapFile](YddLoader* loader) -> bool { return MapFile.archetypeName == loader->Hash; });
-				if (it3 != yddLoader.end()) {
-					delete *it3;
-					it3 = yddLoader.erase(it3);
-				}
-				else {
-					it3++;
-				}
-			}
-			delete ymapLoader[i];
-			ymapLoader.erase(ymapLoader.begin() + i);
-		}
-	}*/
-
-	/*for (auto& BoundsItem : cell.BoundsStoreItems)
-	{
-		auto it = std::find_if(ybnLoader.begin(), ybnLoader.end(), [BoundsItem](YbnLoader* m) -> bool { return BoundsItem->Name == m->Hash; });
-		if (it != ybnLoader.end()) {
-
-		} else{
-			LoadYBN(BoundsItem->Name);
+		else
+		{
+			++it;
 		}
 	}
 
-	for (int i = 0; i < ybnLoader.size(); i++)
+	for (std::vector<YmapLoader*>::iterator it = ymapLoader.begin(); it != ymapLoader.end(); /*increment in body*/)
 	{
-		auto it = std::find_if(cell.BoundsStoreItems.begin(), cell.BoundsStoreItems.end(), [this, &i](BoundsStoreItem* item) -> bool { return this->ybnLoader[i]->Hash == item->Name; });
-		if (it != cell.BoundsStoreItems.end()) {
+		if (!(*it)->time > 5) //isActive returns a bool
+		{
+			delete *it;
+			it = ymapLoader.erase(it);
+		}
+		else
+		{
+			++it;
+		}
+	}
 
+	for (std::vector<YdrLoader*>::iterator it = ydrLoader.begin(); it != ydrLoader.end(); /*increment in body*/)
+	{
+		if (!(*it)->time > 5) //isActive returns a bool
+		{
+			delete *it;
+			it = ydrLoader.erase(it);
 		}
-		else {
-			//printf("NEED TO DELETE");
-			delete ybnLoader[i];
-			ybnLoader.erase(ybnLoader.begin() + i);
+		else
+		{
+			++it;
 		}
-	}*/
+	}
+
+	for (std::vector<YtdFile*>::iterator it = ytdLoader.begin(); it != ytdLoader.end(); /*increment in body*/)
+	{
+		if (!(*it)->time > 5) //isActive returns a bool
+		{
+			delete *it;
+			it = ytdLoader.erase(it);
+		}
+		else
+		{
+			++it;
+		}
+	}
+
 }
 
 void GameWorld::createPedestrian()

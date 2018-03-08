@@ -17,6 +17,7 @@
 #include "Material.h"
 #include "CacheDatFile.h"
 #include "SpaceGrid.h"
+#include "Water.h"
 #include <windows.h>
 #include "SDL.h"
 
@@ -39,6 +40,7 @@ class GameWorld
 	std::vector<uint32_t> Hashes;
 
 public:
+	std::vector<Water> WaterMeshes;
 	std::vector<YdrLoader*> ydrLoader;
 	std::vector<YddLoader*> yddLoader;
 	std::vector<YftLoader*> yftLoader;
