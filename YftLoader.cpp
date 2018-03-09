@@ -9,15 +9,6 @@ YftLoader::YftLoader(memstream& file, glm::vec3 position, glm::quat rotation, gl
 	ResourceFileBase resourceFileBase;
 	file.read((char*)&resourceFileBase, sizeof(ResourceFileBase));
 
-	uint64_t SYSTEM_BASE = 0x50000000;
-	uint64_t GRAPHICS_BASE = 0x60000000;
-
-	struct ResourcePointerList64 {
-		uint64_t EntriesPointer;
-		uint16_t EntriesCount;
-		uint16_t EntriesCapacity;
-	};
-
 	struct {
 		uint32_t Unknown_10h; // 0x00000000
 		uint32_t Unknown_14h; // 0x00000000
@@ -244,24 +235,20 @@ YftLoader::YftLoader(memstream& file, glm::vec3 position, glm::quat rotation, gl
 
 	file.seekg(drawBase.DrawableModelsXPointer);
 
-	struct {
-		uint64_t EntriesPointer;
-		uint16_t EntriesCount;
-		uint16_t EntriesCapacity;
-	} ResourcePointerList64;
+	ResourcePointerList64 resourcePointerList;
 
-	file.read((char*)&ResourcePointerList64, sizeof(ResourcePointerList64));
+	file.read((char*)&resourcePointerList, sizeof(ResourcePointerList64));
 
-	if ((ResourcePointerList64.EntriesPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-		ResourcePointerList64.EntriesPointer = ResourcePointerList64.EntriesPointer & ~0x50000000;
+	if ((resourcePointerList.EntriesPointer & SYSTEM_BASE) == SYSTEM_BASE) {
+		resourcePointerList.EntriesPointer = resourcePointerList.EntriesPointer & ~0x50000000;
 	}
-	if ((ResourcePointerList64.EntriesPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-		ResourcePointerList64.EntriesPointer = ResourcePointerList64.EntriesPointer & ~0x60000000;
+	if ((resourcePointerList.EntriesPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
+		resourcePointerList.EntriesPointer = resourcePointerList.EntriesPointer & ~0x60000000;
 	}
 
-	file.seekg(ResourcePointerList64.EntriesPointer);
+	file.seekg(resourcePointerList.EntriesPointer);
 
-	for (int i = 0; i < ResourcePointerList64.EntriesCount; i++)
+	for (int i = 0; i < resourcePointerList.EntriesCount; i++)
 	{
 		uint64_t data_pointer;
 		file.read((char*)&data_pointer, sizeof(data_pointer));

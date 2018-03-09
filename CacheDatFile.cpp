@@ -52,7 +52,6 @@ CacheDatFile::CacheDatFile()
 				}
 
 				i += (int)(modlen + 4);
-				printf("HERE");
 			}
 			else if (line[0] == 0x43 && line[1] == 0x49) { //LocalLine == "CInteriorProxy"
 				stream.read((char*)&modlen, sizeof(uint32_t));

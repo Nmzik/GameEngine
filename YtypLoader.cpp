@@ -1,7 +1,5 @@
 #include "YtypLoader.h"
 
-
-
 YtypLoader::YtypLoader(memstream& file)
 {
 	ResourceFileBase resourceFileBase;

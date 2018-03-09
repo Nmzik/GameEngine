@@ -46,6 +46,7 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 
 	if (!GLEW_ARB_texture_compression_bptc) printf("NOT INITALIZED BPTC\n");
 	if (!GLEW_EXT_texture_compression_s3tc) printf("NOT INITALIZED s3tc\n");
+	if (!GLEW_EXT_texture_compression_rgtc) printf("NOT INITALIZED rgtc\n");
 
 	glEnable(GL_DEBUG_OUTPUT);
 	glDebugMessageCallback(myDebugCallback, nullptr);
@@ -418,10 +419,10 @@ void RenderingSystem::render(GameWorld* world)
 
 	//glDisable(GL_CULL_FACE);
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	dirLight.direction = glm::rotateX(dirLight.direction, -0.005f);
 	// --------------------------------ShadowPass----------------------------------
-	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+	/*glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 	glViewport(0, 0, 1024, 1024);
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glm::mat4 lightProjection, lightView;
@@ -453,8 +454,8 @@ void RenderingSystem::render(GameWorld* world)
 	glBindTexture(GL_TEXTURE_2D, depthMap);
 	renderQuad();*/
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glViewport(0, 0, ScreenResWidth, ScreenResHeight);
+	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	//glViewport(0, 0, ScreenResWidth, ScreenResHeight);
 
 	glm::mat4 InverseViewMatrix = glm::inverse(view);
 
@@ -506,7 +507,7 @@ void RenderingSystem::render(GameWorld* world)
 	gbufferLighting->setVec3("light.direction", dirLight.direction);
 	gbufferLighting->setVec3("viewPos", camera->Position);
 	gbufferLighting->setMat4("InverseProjectionMatrix", InverseViewMatrix);
-	gbufferLighting->setMat4("lightSpaceMatrix", lightSpaceMatrix);
+	//gbufferLighting->setMat4("lightSpaceMatrix", lightSpaceMatrix);
 	renderQuad();
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 

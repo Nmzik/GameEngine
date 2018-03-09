@@ -73,10 +73,7 @@ GameData::GameData()
 									for (uint32_t i = 1; i <= maxi; i++)
 									{
 										std::string str3 = str2 + "_" + std::to_string(i);
-										if (i < 10)
-											str3.insert(str3.length() - 1, "0");
-										//printf("%s\n", str3.c_str());
-										//std::string str3 = str2 + "_" + i.ToString().PadLeft(2, '0');
+										if (i < 10) str3.insert(str3.length() - 1, "0");
 										YddEntries[GenHash(str3 + "_lod")] = &entry;
 									}
 								}

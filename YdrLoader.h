@@ -17,6 +17,15 @@
 #include "YtdLoader.h"
 #include "YbnLoader.h"
 
+#define SYSTEM_BASE 0x50000000
+#define GRAPHICS_BASE 0x60000000
+
+struct ResourcePointerList64 {
+	uint64_t EntriesPointer;
+	uint16_t EntriesCount;
+	uint16_t EntriesCapacity;
+};
+
 struct ResourceFileBase {
 	uint32_t FileVFT;
 	uint32_t FileUnknown;

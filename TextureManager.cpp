@@ -27,7 +27,6 @@ GLuint TextureManager::GetTexture(uint32_t textureHash)
 
 void TextureManager::LoadTexture(uint32_t Hash, GLuint TextureID)
 {
-
 	TexturesMap[Hash] = TextureID;
 }
 

@@ -1,5 +1,7 @@
 #include "GameWorld.h"
 
+#define UnloadTime 2
+
 GameWorld::GameWorld()
 {
 	broadphase = new btDbvtBroadphase();
@@ -108,11 +110,15 @@ void GameWorld::LoadYmap(uint32_t hash, glm::vec3 cameraPosition)
 		if (!(map->flags & 1) > 0) { //DONT LOAD SCRIPTED MAPS
 			for (int i = 0; i < map->CEntityDefs.size(); i++)
 			{
-				if (map->CEntityDefs[i].lodLevel == 0) {
-					if (glm::distance(cameraPosition, map->CEntityDefs[i].position) <= map->CEntityDefs[i].lodDist) {
-						//LoadYTD(map->CEntityDefs[i].archetypeName);
+				if (map->CEntityDefs[i].lodDist < 0 || map->CEntityDefs[i].childLodDist < 0) {
+					//printf("HERE");
+				} else {
+					bool IsVisible = glm::distance(cameraPosition, map->CEntityDefs[i].position) <= map->CEntityDefs[i].lodDist;
+					bool childrenVisible = (glm::distance(cameraPosition, map->CEntityDefs[i].position) <= map->CEntityDefs[i].childLodDist) && (map->CEntityDefs[i].numChildren > 0);
+					if (IsVisible && !childrenVisible) {
+						LoadYTD(map->CEntityDefs[i].archetypeName);
 						if (!LoadYDR(map->CEntityDefs[i].archetypeName, map->CEntityDefs[i].position, glm::quat(-map->CEntityDefs[i].rotation.w, map->CEntityDefs[i].rotation.x, map->CEntityDefs[i].rotation.y, map->CEntityDefs[i].rotation.z), glm::vec3(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ)))
-							if (!LoadYDD(map->CEntityDefs[i].archetypeName, map->CEntityDefs[i].position, glm::quat(-map->CEntityDefs[i].rotation.w, map->CEntityDefs[i].rotation.x, map->CEntityDefs[i].rotation.y, map->CEntityDefs[i].rotation.z), glm::vec3(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ)))
+							//if (!LoadYDD(map->CEntityDefs[i].archetypeName, map->CEntityDefs[i].position, glm::quat(-map->CEntityDefs[i].rotation.w, map->CEntityDefs[i].rotation.x, map->CEntityDefs[i].rotation.y, map->CEntityDefs[i].rotation.z), glm::vec3(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ)))
 								LoadYFT(map->CEntityDefs[i].archetypeName, map->CEntityDefs[i].position, glm::quat(-map->CEntityDefs[i].rotation.w, map->CEntityDefs[i].rotation.x, map->CEntityDefs[i].rotation.y, map->CEntityDefs[i].rotation.z), glm::vec3(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ));
 					}
 				}
@@ -171,17 +177,17 @@ bool GameWorld::LoadYTYP(uint32_t hash)
 
 bool GameWorld::LoadYTD(uint32_t hash)
 {
-	for (auto& ytdFile : ytdLoader)
-	{
-		if (ytdFile->Hash == hash) {
-			ytdFile->time = SDL_GetTicks() / 1000;
-			return true;
-		}
-	}
 	std::unordered_map<uint32_t, uint32_t>::iterator it; //FOUND ARCH ->TEXTURES FILE
 	it = data.TextureDictionary.find(hash);
 	if (it != data.TextureDictionary.end())
 	{
+		for (auto& ytdFile : ytdLoader)
+		{
+			if (ytdFile->Hash == it->second) {
+				ytdFile->time = SDL_GetTicks() / 1000;
+				return true;
+			}
+		}
 		//std::cout << "YTD Found " << std::endl;
 		std::unordered_map<uint32_t, RpfResourceFileEntry*>::iterator iter;
 		iter = data.YtdEntries.find(it->second);
@@ -194,7 +200,7 @@ bool GameWorld::LoadYTD(uint32_t hash)
 
 			memstream stream(outputBuffer.data(), outputBuffer.size());
 
-			YtdFile* file = new YtdFile(stream, hash);
+			YtdFile* file = new YtdFile(stream, it->second);
 			file->time = SDL_GetTicks() / 1000;
 			ytdLoader.push_back(file);
 			//TextureManager::LoadTexture(file->textures[0]);
@@ -357,7 +363,7 @@ void GameWorld::GetVisibleYmaps(glm::vec3 Position)
 
 	for (std::vector<YbnLoader*>::iterator it = ybnLoader.begin(); it != ybnLoader.end(); /*increment in body*/)
 	{
-		if (curTime - (*it)->time > 5)
+		if (curTime - (*it)->time > UnloadTime)
 		{
 			delete *it;
 			it = ybnLoader.erase(it);
@@ -370,7 +376,7 @@ void GameWorld::GetVisibleYmaps(glm::vec3 Position)
 
 	for (std::vector<YmapLoader*>::iterator it = ymapLoader.begin(); it != ymapLoader.end(); /*increment in body*/)
 	{
-		if (curTime - (*it)->time > 5)
+		if (curTime - (*it)->time > UnloadTime)
 		{
 			delete *it;
 			it = ymapLoader.erase(it);
@@ -383,7 +389,7 @@ void GameWorld::GetVisibleYmaps(glm::vec3 Position)
 
 	for (std::vector<YdrLoader*>::iterator it = ydrLoader.begin(); it != ydrLoader.end(); /*increment in body*/)
 	{
-		if (curTime - (*it)->time > 5)
+		if (curTime - (*it)->time > UnloadTime)
 		{
 			delete *it;
 			it = ydrLoader.erase(it);
@@ -396,7 +402,7 @@ void GameWorld::GetVisibleYmaps(glm::vec3 Position)
 
 	for (std::vector<YftLoader*>::iterator it = yftLoader.begin(); it != yftLoader.end(); /*increment in body*/)
 	{
-		if (curTime - (*it)->time > 5)
+		if (curTime - (*it)->time > UnloadTime)
 		{
 			delete *it;
 			it = yftLoader.erase(it);
@@ -409,7 +415,7 @@ void GameWorld::GetVisibleYmaps(glm::vec3 Position)
 
 	for (std::vector<YtdFile*>::iterator it = ytdLoader.begin(); it != ytdLoader.end(); /*increment in body*/)
 	{
-		if (curTime - (*it)->time > 5)
+		if (curTime - (*it)->time > UnloadTime)
 		{
 			delete *it;
 			it = ytdLoader.erase(it);

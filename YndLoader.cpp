@@ -11,10 +11,6 @@ YndLoader::YndLoader(std::string FileName)
 	ResourceFileBase resourceFileBase;
 	file.read((char*)&resourceFileBase, sizeof(ResourceFileBase));
 
-	///////////////////
-	uint64_t SYSTEM_BASE = 0x50000000;
-	uint64_t GRAPHICS_BASE = 0x60000000;
-
 	file.read((char*)&NodeDictionary, sizeof(NodeDictionary));
 
 	if ((NodeDictionary.NodesPointer & SYSTEM_BASE) == SYSTEM_BASE) {

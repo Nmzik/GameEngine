@@ -9,37 +9,6 @@ YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, gl
 	ResourceFileBase resourceFileBase;
 	file.read((char*)&resourceFileBase, sizeof(ResourceFileBase));
 
-	uint64_t SYSTEM_BASE = 0x50000000;
-	uint64_t GRAPHICS_BASE = 0x60000000;
-	/*uint64_t pos = file.tellg();
-	//seek to pointer and then
-	if ((ResourceFileBase.FilePagesInfoPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-		ResourceFileBase.FilePagesInfoPointer = ResourceFileBase.FilePagesInfoPointer & ~0x50000000;
-	}
-	if ((ResourceFileBase.FilePagesInfoPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-		ResourceFileBase.FilePagesInfoPointer = ResourceFileBase.FilePagesInfoPointer & ~0x60000000;
-	}
-	printf("%d\n", ResourceFileBase.FilePagesInfoPointer);
-	file.seekg(ResourceFileBase.FilePagesInfoPointer);
-
-	uint32_t Unknown_0h;
-	uint32_t Unknown_4h;
-	uint8_t SystemPagesCount;
-	uint8_t GraphicsPagesCount;
-	uint16_t Unknown_Ah;
-	uint32_t Unknown_Ch;
-	uint32_t Unknown_10h;
-
-	file.read((char*)&Unknown_0h, sizeof(Unknown_0h));
-	file.read((char*)&Unknown_4h, sizeof(Unknown_4h));
-	file.read((char*)&SystemPagesCount, sizeof(SystemPagesCount));
-	file.read((char*)&GraphicsPagesCount, sizeof(GraphicsPagesCount));
-	file.read((char*)&Unknown_Ah, sizeof(Unknown_Ah));
-	file.read((char*)&Unknown_Ch, sizeof(Unknown_Ch));
-	file.read((char*)&Unknown_10h, sizeof(Unknown_10h));
-
-	file.seekg(pos);*/
-
 	std::vector<DrawableGeometry> Geometries;
 
 	DrawableBase drawBase;
@@ -216,24 +185,20 @@ YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, gl
 
 	file.seekg(drawBase.DrawableModelsXPointer);
 
-	struct {
-		uint64_t EntriesPointer;
-		uint16_t EntriesCount;
-		uint16_t EntriesCapacity;
-	} ResourcePointerList64;
+	ResourcePointerList64 resourcePointerList;
 
-	file.read((char*)&ResourcePointerList64, sizeof(ResourcePointerList64));
+	file.read((char*)&resourcePointerList, sizeof(ResourcePointerList64));
 
-	if ((ResourcePointerList64.EntriesPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-		ResourcePointerList64.EntriesPointer = ResourcePointerList64.EntriesPointer & ~0x50000000;
+	if ((resourcePointerList.EntriesPointer & SYSTEM_BASE) == SYSTEM_BASE) {
+		resourcePointerList.EntriesPointer = resourcePointerList.EntriesPointer & ~0x50000000;
 	}
-	if ((ResourcePointerList64.EntriesPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-		ResourcePointerList64.EntriesPointer = ResourcePointerList64.EntriesPointer & ~0x60000000;
+	if ((resourcePointerList.EntriesPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
+		resourcePointerList.EntriesPointer = resourcePointerList.EntriesPointer & ~0x60000000;
 	}
 
-	file.seekg(ResourcePointerList64.EntriesPointer);
+	file.seekg(resourcePointerList.EntriesPointer);
 
-	for (int i = 0; i < ResourcePointerList64.EntriesCount; i++)
+	for (int i = 0; i < resourcePointerList.EntriesCount; i++)
 	{
 		uint64_t data_pointer;
 		file.read((char*)&data_pointer, sizeof(data_pointer));

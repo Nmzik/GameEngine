@@ -51,9 +51,6 @@ YtdFile::YtdFile(memstream& file, uint32_t hash) : Hash(hash)
 
 	file.read((char*)&resourceFileBase, sizeof(ResourceFileBase));
 
-	uint64_t SYSTEM_BASE = 0x50000000;
-	uint64_t GRAPHICS_BASE = 0x60000000;
-
 	TextureDictionary texDictionary;
 
 	file.read((char*)&texDictionary, sizeof(TextureDictionary));
@@ -75,24 +72,20 @@ YtdFile::YtdFile(memstream& file, uint32_t hash) : Hash(hash)
 
 	file.seekg(pos);
 
-	struct {
-		uint64_t EntriesPointer;
-		uint16_t EntriesCount;
-		uint16_t EntriesCapacity;
-	} ResourcePointerList64;
+	ResourcePointerList64 resourcePointerList;
 
-	file.read((char*)&ResourcePointerList64, sizeof(ResourcePointerList64));
+	file.read((char*)&resourcePointerList, sizeof(ResourcePointerList64));
 
-	if ((ResourcePointerList64.EntriesPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-		ResourcePointerList64.EntriesPointer = ResourcePointerList64.EntriesPointer & ~0x50000000;
+	if ((resourcePointerList.EntriesPointer & SYSTEM_BASE) == SYSTEM_BASE) {
+		resourcePointerList.EntriesPointer = resourcePointerList.EntriesPointer & ~0x50000000;
 	}
-	if ((ResourcePointerList64.EntriesPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-		ResourcePointerList64.EntriesPointer = ResourcePointerList64.EntriesPointer & ~0x60000000;
+	if ((resourcePointerList.EntriesPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
+		resourcePointerList.EntriesPointer = resourcePointerList.EntriesPointer & ~0x60000000;
 	}
 
-	file.seekg(ResourcePointerList64.EntriesPointer);
+	file.seekg(resourcePointerList.EntriesPointer);
 
-	for (int i = 0; i < ResourcePointerList64.EntriesCount; i++)
+	for (int i = 0; i < resourcePointerList.EntriesCount; i++)
 	{
 		uint64_t data_pointer;
 		file.read((char*)&data_pointer, sizeof(data_pointer));
@@ -122,8 +115,6 @@ YtdFile::YtdFile(memstream& file, uint32_t hash) : Hash(hash)
 
 		Texture.DataPointer += 8192;
 
-		//file.seekg(Texture.DataPointer);
-
 		int fullLength = 0;
 		int length = Texture.Stride * Texture.Height;
 		for (int i = 0; i < Texture.Levels; i++)
@@ -131,13 +122,6 @@ YtdFile::YtdFile(memstream& file, uint32_t hash) : Hash(hash)
 			fullLength += length;
 			length /= 4;
 		}
-
-		//uint64_t positbe = file.tellg();
-		//printf("%zd\n",positbe);
-
-		/*nv_dds::CDDSImage image;
-		image.load("C:\\Users\\nmzik\\Desktop\\cs_rsl_aa_dirttrack3.dds");
-		*/
 
 		unsigned int format;
 		switch (Texture.Format)
@@ -151,25 +135,46 @@ YtdFile::YtdFile(memstream& file, uint32_t hash) : Hash(hash)
 		case D3DFMT_DXT5:
 			format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
 			break;
+		case D3DFMT_BC7:
+			format = GL_COMPRESSED_RGBA_BPTC_UNORM;
+		case D3DFMT_ATI1:
+			format = GL_COMPRESSED_RED_RGTC1;
+		case D3DFMT_ATI2:
+			format = GL_COMPRESSED_RG_RGTC2;
+		/*case D3DFMT_A8R8G8B8:
+			format = GL_UNSIGNED_INT_8_8_8_8_REV;
+		case D3DFMT_A1R5G5B5:
+			format = GL_UNSIGNED_SHORT_1_5_5_5_REV;
+		case D3DFMT_A8:
+			format = GL_COMPRESSED_RED_GREEN_RGTC2_EXT;
+		case D3DFMT_A8B8G8R8:
+			format = GL_COMPRESSED_RED_GREEN_RGTC2_EXT;
+		case D3DFMT_L8:
+			format = GL_COMPRESSED_RED_GREEN_RGTC2_EXT;*/
 		default:
 			printf("UNSUPPORTED FORMAT\n");
 			break;
 		}
 
-		if (Texture.Format == D3DFMT_DXT1 || Texture.Format == D3DFMT_DXT3 || Texture.Format == D3DFMT_DXT5)
+		if ( Texture.Format == D3DFMT_DXT1 || Texture.Format == D3DFMT_DXT3 || Texture.Format == D3DFMT_DXT5 || Texture.Format == D3DFMT_BC7 || Texture.Format == D3DFMT_ATI1 || Texture.Format == D3DFMT_ATI2)
 		{
 				GLuint textureID;
 
 				glGenTextures(1, &textureID);
 
 				glBindTexture(GL_TEXTURE_2D, textureID);
-				glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, Texture.Levels - 1);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, Texture.Levels <= 1 ? GL_LINEAR : GL_LINEAR_MIPMAP_NEAREST);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+				/*glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 				glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 				glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
 				glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-				//glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+				//glPixelStorei(GL_UNPACK_ALIGNMENT, 1);*/
 
-				unsigned int blockSize = (format == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT) ? 8 : 16;
+				unsigned int blockSize = (format == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT || format == GL_COMPRESSED_RED_RGTC1) ? 8 : 16;
 				unsigned int offset = 0;
 
 				for (unsigned int level = 0; level < Texture.Levels; ++level)

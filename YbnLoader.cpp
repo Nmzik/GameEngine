@@ -2,14 +2,10 @@
 
 YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world, memstream& file, uint32_t hash) : Hash(hash), CollisionWorld(world)
 {
-
 	compound = new btCompoundShape();
 
 	ResourceFileBase resourceFileBase;
 	file.read((char*)&resourceFileBase, sizeof(ResourceFileBase));
-
-	uint64_t SYSTEM_BASE = 0x50000000;
-	uint64_t GRAPHICS_BASE = 0x60000000;
 
 	struct {
 		uint8_t Type;
