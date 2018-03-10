@@ -53,53 +53,54 @@ YddLoader::YddLoader(memstream& file, glm::vec3 position, glm::quat rotation, gl
 		uint64_t DataPointer;
 		file.read((char*)&DataPointer, sizeof(uint64_t));
 
-		uint64_t DrawablePointer = file.tellg();
+		//LOAD YDR FROM YDD BY HASH //Load specific YDR from YDD through hash
+		if (Hashes[i] == Hash) {
+			uint64_t DrawablePointer = file.tellg();
 
-		if ((DataPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-			DataPointer = DataPointer & ~0x50000000;
-		}
-		if ((DataPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-			DataPointer = DataPointer & ~0x60000000;
-		}
+			if ((DataPointer & SYSTEM_BASE) == SYSTEM_BASE) {
+				DataPointer = DataPointer & ~0x50000000;
+			}
+			if ((DataPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
+				DataPointer = DataPointer & ~0x60000000;
+			}
 
-		file.seekg(DataPointer);
+			file.seekg(DataPointer);
 
-		file.read((char*)&resourceFileBase, sizeof(ResourceFileBase));
+			file.read((char*)&resourceFileBase, sizeof(ResourceFileBase));
 
-		DrawableBase DrawBase;
-		file.read((char*)&DrawBase, sizeof(DrawableBase));
+			DrawableBase DrawBase;
+			file.read((char*)&DrawBase, sizeof(DrawableBase));
 
-		uint64_t pos1 = file.tellg();
+			uint64_t pos1 = file.tellg();
 
-		if ((DrawBase.DrawableModelsXPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-			DrawBase.DrawableModelsXPointer = DrawBase.DrawableModelsXPointer & ~0x50000000;
-		}
-		if ((DrawBase.DrawableModelsXPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-			DrawBase.DrawableModelsXPointer = DrawBase.DrawableModelsXPointer & ~0x60000000;
-		}
+			if ((DrawBase.DrawableModelsXPointer & SYSTEM_BASE) == SYSTEM_BASE) {
+				DrawBase.DrawableModelsXPointer = DrawBase.DrawableModelsXPointer & ~0x50000000;
+			}
+			if ((DrawBase.DrawableModelsXPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
+				DrawBase.DrawableModelsXPointer = DrawBase.DrawableModelsXPointer & ~0x60000000;
+			}
 
-		file.seekg(DrawBase.DrawableModelsXPointer);
+			file.seekg(DrawBase.DrawableModelsXPointer);
 
-		ResourcePointerList64 resourcePointerList;
+			ResourcePointerList64 resourcePointerList;
 
-		file.read((char*)&resourcePointerList, sizeof(ResourcePointerList64));
+			file.read((char*)&resourcePointerList, sizeof(ResourcePointerList64));
 
-		if ((resourcePointerList.EntriesPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-			resourcePointerList.EntriesPointer = resourcePointerList.EntriesPointer & ~0x50000000;
-		}
-		if ((resourcePointerList.EntriesPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-			resourcePointerList.EntriesPointer = resourcePointerList.EntriesPointer & ~0x60000000;
-		}
+			if ((resourcePointerList.EntriesPointer & SYSTEM_BASE) == SYSTEM_BASE) {
+				resourcePointerList.EntriesPointer = resourcePointerList.EntriesPointer & ~0x50000000;
+			}
+			if ((resourcePointerList.EntriesPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
+				resourcePointerList.EntriesPointer = resourcePointerList.EntriesPointer & ~0x60000000;
+			}
 
-		file.seekg(resourcePointerList.EntriesPointer);
+			file.seekg(resourcePointerList.EntriesPointer);
 
-		for (int i = 0; i < resourcePointerList.EntriesCount; i++)
-		{
-			uint64_t data_pointer;
-			file.read((char*)&data_pointer, sizeof(data_pointer));
+			for (int i = 0; i < resourcePointerList.EntriesCount; i++)
+			{
+				uint64_t data_pointer;
+				file.read((char*)&data_pointer, sizeof(data_pointer));
 
-			//LOAD YDR FROM YDD BY HASH //Load specific YDR from YDD through hash
-			if (Hashes[i] == Hash) {
+
 				uint64_t posOriginal = file.tellg();
 
 				if ((data_pointer & SYSTEM_BASE) == SYSTEM_BASE) {
@@ -201,8 +202,8 @@ YddLoader::YddLoader(memstream& file, glm::vec3 position, glm::quat rotation, gl
 
 				file.seekg(posOriginal);
 			}
+			file.seekg(DrawablePointer);
 		}
-		file.seekg(DrawablePointer);
 	}
 }
 

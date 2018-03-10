@@ -20,6 +20,7 @@ class YddLoader
 	glm::mat4 ModelMatrix;
 public:
 	uint32_t Hash;
+	uint32_t time;
 	YddLoader(memstream& file, glm::vec3 position, glm::quat rotation, glm::vec3 scale, uint32_t hash);
 	~YddLoader();
 

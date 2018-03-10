@@ -214,10 +214,3 @@ void Mesh::Draw()
 	material->bind();
 	glDrawElements(GL_TRIANGLES, num_indices, GL_UNSIGNED_SHORT, 0);
 }
-
-void Mesh::DrawCollision()
-{
-	glBindVertexArray(VAO);
-	material->bind();
-	glDrawArrays(GL_TRIANGLES, 0, num_vertices);
-}

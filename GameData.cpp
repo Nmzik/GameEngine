@@ -48,7 +48,7 @@ GameData::GameData()
 				entry.ShortNameHash = (index > 0) ? GenHash(entry.Name.substr(0, index)) : entry.NameHash;
 
 				if (extension == ".ydr") {
-					YdrEntries[GenHash(entry.Name.substr(0, entry.Name.length() - 4) + "_lod")] = &entry;
+					//YdrEntries[GenHash(entry.Name.substr(0, entry.Name.length() - 4) + "_lod")] = &entry; //WHY????
 					YdrEntries[entry.NameHash] = &entry;
 					YdrEntries[entry.ShortNameHash] = &entry;
 				}
@@ -57,7 +57,6 @@ GameData::GameData()
 						if (entry.Name.substr(entry.Name.length() - 13) == "_children.ydd") {
 							
 							//YddEntries[GenHash(entry.Name.substr(0, entry.Name.length() - 13) + "_lod")] = entry;
-							YddEntries[GenHash(entry.Name.substr(0, entry.Name.length() - 13))] = &entry;
 							YddEntries[GenHash(entry.Name.substr(0, entry.Name.length() - 13))] = &entry;
 
 							size_t index1 = entry.Name.find_last_of('_');
@@ -73,7 +72,7 @@ GameData::GameData()
 									for (uint32_t i = 1; i <= maxi; i++)
 									{
 										std::string str3 = str2 + "_" + std::to_string(i);
-										if (i < 10) str3.insert(str3.length() - 1, "0");
+										if (i < 10)		str3.insert(str3.length() - 1, "0");
 										YddEntries[GenHash(str3 + "_lod")] = &entry;
 									}
 								}
@@ -113,7 +112,7 @@ GameData::GameData()
 					YtypLoader* file = new YtypLoader(stream);
 					for (auto&  def : file->CBaseArchetypeDefs)
 					{
-						TextureDictionary[def.assetName] = def.textureDictionary;
+						TextureDictionary[def.assetName] = def;
 					}
 
 					if (file->CMloArchetypeDefs.size() != 0)

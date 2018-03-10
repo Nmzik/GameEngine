@@ -91,7 +91,7 @@ GameWorld::GameWorld()
 		printf("");
 	}*/
 
-	
+
 }
 
 GameWorld::~GameWorld()
@@ -112,14 +112,15 @@ void GameWorld::LoadYmap(uint32_t hash, glm::vec3 cameraPosition)
 			{
 				if (map->CEntityDefs[i].lodDist < 0 || map->CEntityDefs[i].childLodDist < 0) {
 					//printf("HERE");
-				} else {
+				}
+				else {
 					bool IsVisible = glm::distance(cameraPosition, map->CEntityDefs[i].position) <= map->CEntityDefs[i].lodDist;
 					bool childrenVisible = (glm::distance(cameraPosition, map->CEntityDefs[i].position) <= map->CEntityDefs[i].childLodDist) && (map->CEntityDefs[i].numChildren > 0);
 					if (IsVisible && !childrenVisible) {
 						LoadYTD(map->CEntityDefs[i].archetypeName);
-						if (!LoadYDR(map->CEntityDefs[i].archetypeName, map->CEntityDefs[i].position, glm::quat(-map->CEntityDefs[i].rotation.w, map->CEntityDefs[i].rotation.x, map->CEntityDefs[i].rotation.y, map->CEntityDefs[i].rotation.z), glm::vec3(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ)))
-							//if (!LoadYDD(map->CEntityDefs[i].archetypeName, map->CEntityDefs[i].position, glm::quat(-map->CEntityDefs[i].rotation.w, map->CEntityDefs[i].rotation.x, map->CEntityDefs[i].rotation.y, map->CEntityDefs[i].rotation.z), glm::vec3(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ)))
-								LoadYFT(map->CEntityDefs[i].archetypeName, map->CEntityDefs[i].position, glm::quat(-map->CEntityDefs[i].rotation.w, map->CEntityDefs[i].rotation.x, map->CEntityDefs[i].rotation.y, map->CEntityDefs[i].rotation.z), glm::vec3(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ));
+							if (!LoadYDR(map->CEntityDefs[i].archetypeName, map->CEntityDefs[i].position, glm::quat(-map->CEntityDefs[i].rotation.w, map->CEntityDefs[i].rotation.x, map->CEntityDefs[i].rotation.y, map->CEntityDefs[i].rotation.z), glm::vec3(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ)))
+								if (!LoadYDD(map->CEntityDefs[i].archetypeName, map->CEntityDefs[i].position, glm::quat(-map->CEntityDefs[i].rotation.w, map->CEntityDefs[i].rotation.x, map->CEntityDefs[i].rotation.y, map->CEntityDefs[i].rotation.z), glm::vec3(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ)))
+									LoadYFT(map->CEntityDefs[i].archetypeName, map->CEntityDefs[i].position, glm::quat(-map->CEntityDefs[i].rotation.w, map->CEntityDefs[i].rotation.x, map->CEntityDefs[i].rotation.y, map->CEntityDefs[i].rotation.z), glm::vec3(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ));
 					}
 				}
 			}
@@ -177,20 +178,20 @@ bool GameWorld::LoadYTYP(uint32_t hash)
 
 bool GameWorld::LoadYTD(uint32_t hash)
 {
-	std::unordered_map<uint32_t, uint32_t>::iterator it; //FOUND ARCH ->TEXTURES FILE
+	std::unordered_map<uint32_t, CBaseArchetypeDef>::iterator it; //FOUND ARCH ->TEXTURES FILE
 	it = data.TextureDictionary.find(hash);
 	if (it != data.TextureDictionary.end())
 	{
 		for (auto& ytdFile : ytdLoader)
 		{
-			if (ytdFile->Hash == it->second) {
+			if (ytdFile->Hash == it->second.textureDictionary) {
 				ytdFile->time = SDL_GetTicks() / 1000;
 				return true;
 			}
 		}
 		//std::cout << "YTD Found " << std::endl;
 		std::unordered_map<uint32_t, RpfResourceFileEntry*>::iterator iter;
-		iter = data.YtdEntries.find(it->second);
+		iter = data.YtdEntries.find(it->second.textureDictionary);
 		if (iter != data.YtdEntries.end())
 		{
 			std::cout << "YTD Found " << iter->second->Name << std::endl;
@@ -200,7 +201,7 @@ bool GameWorld::LoadYTD(uint32_t hash)
 
 			memstream stream(outputBuffer.data(), outputBuffer.size());
 
-			YtdFile* file = new YtdFile(stream, it->second);
+			YtdFile* file = new YtdFile(stream, it->second.textureDictionary);
 			file->time = SDL_GetTicks() / 1000;
 			ytdLoader.push_back(file);
 			//TextureManager::LoadTexture(file->textures[0]);
@@ -215,8 +216,35 @@ bool GameWorld::LoadYDD(uint32_t hash, glm::vec3 position, glm::quat rotation, g
 {
 	for (auto& yddFile : yddLoader)
 	{
-		if (yddFile->Hash == hash) return true;
+		if (yddFile->Hash == hash) {
+			yddFile->time = SDL_GetTicks() / 1000;
+			return true;
+		}
 	}
+
+	std::unordered_map<uint32_t, CBaseArchetypeDef>::iterator iter;
+	iter = data.TextureDictionary.find(hash);
+	if (iter != data.TextureDictionary.end())
+	{
+
+		std::unordered_map<uint32_t, RpfResourceFileEntry*>::iterator it;
+		it = data.YddEntries.find(iter->second.drawableDictionary);
+		if (it != data.YddEntries.end())
+		{
+			std::cout << "YDD Found " << it->second->Name << std::endl;
+			auto& element = *(it->second);
+			std::vector<uint8_t> outputBuffer;
+			data.ExtractFileResource(element, outputBuffer);
+
+			memstream stream(outputBuffer.data(), outputBuffer.size());
+			YddLoader* newYdd = new YddLoader(stream, position, rotation, scale, hash);
+			newYdd->time = SDL_GetTicks() / 1000;
+			yddLoader.emplace_back(newYdd);
+
+			return true;
+		}
+	}
+
 	std::unordered_map<uint32_t, RpfResourceFileEntry*>::iterator it;
 	it = data.YddEntries.find(hash);
 	if (it != data.YddEntries.end())
@@ -227,7 +255,9 @@ bool GameWorld::LoadYDD(uint32_t hash, glm::vec3 position, glm::quat rotation, g
 		data.ExtractFileResource(element, outputBuffer);
 
 		memstream stream(outputBuffer.data(), outputBuffer.size());
-		yddLoader.emplace_back(new YddLoader(stream, position, rotation, scale, hash));
+		YddLoader* newYdd = new YddLoader(stream, position, rotation, scale, hash);
+		newYdd->time = SDL_GetTicks() / 1000;
+		yddLoader.emplace_back(newYdd);
 
 		return true;
 	}
@@ -313,28 +343,28 @@ bool GameWorld::LoadYBN(uint32_t hash)
 			return true;
 		}
 	}
-		std::unordered_map<uint32_t, RpfResourceFileEntry*>::iterator it;
-		it = data.YbnEntries.find(hash);
-		if (it != data.YbnEntries.end())
-		{
-			std::cout << "YBN Found " << it->second->Name << std::endl;
-			auto& element = *(it->second);
-			std::vector<uint8_t> outputBuffer;
-			data.ExtractFileResource(element, outputBuffer);
+	std::unordered_map<uint32_t, RpfResourceFileEntry*>::iterator it;
+	it = data.YbnEntries.find(hash);
+	if (it != data.YbnEntries.end())
+	{
+		std::cout << "YBN Found " << it->second->Name << std::endl;
+		auto& element = *(it->second);
+		std::vector<uint8_t> outputBuffer;
+		data.ExtractFileResource(element, outputBuffer);
 
-			memstream stream(outputBuffer.data(), outputBuffer.size());
+		memstream stream(outputBuffer.data(), outputBuffer.size());
 
-			YbnLoader *newYbn = new YbnLoader(dynamicsWorld, stream, hash);
-			newYbn->time = SDL_GetTicks() / 1000;
-			ybnLoader.emplace_back(newYbn);
+		YbnLoader *newYbn = new YbnLoader(dynamicsWorld, stream, hash);
+		newYbn->time = SDL_GetTicks() / 1000;
+		ybnLoader.emplace_back(newYbn);
 
-			return true;
-		}
-		else
-		{
-			//std::cout << "Element Not Found" << std::endl;
-			return false;
-		}
+		return true;
+	}
+	else
+	{
+		//std::cout << "Element Not Found" << std::endl;
+		return false;
+	}
 }
 
 void GameWorld::GetVisibleYmaps(glm::vec3 Position)
@@ -391,8 +421,23 @@ void GameWorld::GetVisibleYmaps(glm::vec3 Position)
 	{
 		if (curTime - (*it)->time > UnloadTime)
 		{
+			//printf("DELETED %ld", (*it)->Hash);
 			delete *it;
 			it = ydrLoader.erase(it);
+		}
+		else
+		{
+			++it;
+		}
+	}
+
+	for (std::vector<YddLoader*>::iterator it = yddLoader.begin(); it != yddLoader.end(); /*increment in body*/)
+	{
+		if (curTime - (*it)->time > UnloadTime)
+		{
+			//printf("DELETED %ld", (*it)->Hash);
+			delete *it;
+			it = yddLoader.erase(it);
 		}
 		else
 		{
@@ -430,13 +475,13 @@ void GameWorld::GetVisibleYmaps(glm::vec3 Position)
 
 void GameWorld::createPedestrian()
 {
-	Player *newPlayer = new Player(glm::vec3(0,20,0), dynamicsWorld);
+	Player *newPlayer = new Player(glm::vec3(0, 20, 0), dynamicsWorld);
 	pedestrians.push_back(newPlayer);
 }
 
 void GameWorld::createVehicle()
 {
-	Vehicle *newVehicle = new Vehicle(glm::vec3(-20,0,0), dynamicsWorld);
+	Vehicle *newVehicle = new Vehicle(glm::vec3(-20, 0, 0), dynamicsWorld);
 	vehicles.push_back(newVehicle);
 }
 
@@ -495,7 +540,7 @@ void GameWorld::UpdateTraffic(glm::vec3 cameraPosition)
 		for (int i = 0; i < MaximumAvailableVehicles; i++) {
 			float xRandom = RandomFloat(cameraPosition.x - radiusTraffic, cameraPosition.x + radiusTraffic);
 			float yRandom = RandomFloat(cameraPosition.y - radiusTraffic, cameraPosition.y + radiusTraffic);
-			Vehicle* newVehicle= new Vehicle(glm::vec3(xRandom, yRandom, cameraPosition.z + 5.0f), dynamicsWorld);
+			Vehicle* newVehicle = new Vehicle(glm::vec3(xRandom, yRandom, cameraPosition.z + 5.0f), dynamicsWorld);
 			vehicles.push_back(newVehicle);
 		}
 	}
@@ -507,7 +552,7 @@ Vehicle* GameWorld::FindNearestVehicle()
 
 	Vehicle* nearestVehicle = nullptr;
 
-	for (auto& vehicle: vehicles)
+	for (auto& vehicle : vehicles)
 	{
 		glm::vec3 PlayerPosition(player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getX(), player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getY(), player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getZ());
 		glm::vec3 VehiclePosition(vehicle->m_carChassis->getWorldTransform().getOrigin().getX(), vehicle->m_carChassis->getWorldTransform().getOrigin().getY(), vehicle->m_carChassis->getWorldTransform().getOrigin().getZ());
@@ -531,7 +576,7 @@ void GameWorld::DetectWeaponHit(glm::vec3 CameraPosition, glm::vec3 lookDirectio
 	dynamicsWorld->rayTest(from, to, cb);
 
 	if (cb.hasHit()) {
-		
+
 		Player* player = static_cast<Player*>(cb.m_collisionObject->getUserPointer());
 		//printf("player pointer %p\n", (void*)&player);
 		if (player != nullptr) {
