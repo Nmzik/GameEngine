@@ -237,7 +237,7 @@ bool GameWorld::LoadYDD(uint32_t hash, glm::vec3 position, glm::quat rotation, g
 			data.ExtractFileResource(element, outputBuffer);
 
 			memstream stream(outputBuffer.data(), outputBuffer.size());
-			YddLoader* newYdd = new YddLoader(stream, position, rotation, scale, hash);
+			YddLoader* newYdd = new YddLoader(stream, position, rotation, scale, hash, dynamicsWorld);
 			newYdd->time = SDL_GetTicks() / 1000;
 			yddLoader.emplace_back(newYdd);
 
@@ -255,7 +255,7 @@ bool GameWorld::LoadYDD(uint32_t hash, glm::vec3 position, glm::quat rotation, g
 		data.ExtractFileResource(element, outputBuffer);
 
 		memstream stream(outputBuffer.data(), outputBuffer.size());
-		YddLoader* newYdd = new YddLoader(stream, position, rotation, scale, hash);
+		YddLoader* newYdd = new YddLoader(stream, position, rotation, scale, hash, dynamicsWorld);
 		newYdd->time = SDL_GetTicks() / 1000;
 		yddLoader.emplace_back(newYdd);
 

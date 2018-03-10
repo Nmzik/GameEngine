@@ -16,9 +16,7 @@
 
 class YftLoader
 {
-	glm::mat4 ModelMatrix;
-	std::vector<Mesh*> meshes;
-	YtdFile* ytdFile;
+	YdrLoader* YdrFile;
 public:
 	uint32_t Hash;
 	uint32_t time;

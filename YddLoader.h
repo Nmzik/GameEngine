@@ -16,12 +16,11 @@
 class YddLoader
 {
 	std::vector<uint32_t> Hashes;
-	std::vector<Mesh*> meshes;
-	glm::mat4 ModelMatrix;
 public:
+	YdrLoader * YdrFile;
 	uint32_t Hash;
 	uint32_t time;
-	YddLoader(memstream& file, glm::vec3 position, glm::quat rotation, glm::vec3 scale, uint32_t hash);
+	YddLoader(memstream& file, glm::vec3 position, glm::quat rotation, glm::vec3 scale, uint32_t hash, btDiscreteDynamicsWorld* world);
 	~YddLoader();
 
 	glm::mat4& GetMat4();

@@ -9,10 +9,7 @@ YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, gl
 	ResourceFileBase resourceFileBase;
 	file.read((char*)&resourceFileBase, sizeof(ResourceFileBase));
 
-	std::vector<DrawableGeometry> Geometries;
-
 	DrawableBase drawBase;
-
 	file.read((char*)&drawBase, sizeof(drawBase));
 
 	struct {
@@ -318,10 +315,6 @@ YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, gl
 			}
 			Mesh* newMesh = new Mesh(file._buffer.p, vertbuffer.DataPointer1, vertbuffer.VertexCount * vertbuffer.VertexStride, indexbuffer.IndicesPointer, indexbuffer.IndicesCount, (VertexType)decl.Flags, test);
 			meshes.push_back(newMesh);
-
-			//Geometries.push_back(drawGeom);
-			//vertexBuffer.push_back(vertbuffer);
-			//indexBuffer.push_back(indexbuffer);
 
 			file.seekg(pos);
 		}

@@ -1,11 +1,7 @@
 #include "YddLoader.h"
 
-
-
-YddLoader::YddLoader(memstream& file, glm::vec3 position, glm::quat rotation, glm::vec3 scale, uint32_t hash) : Hash(hash)
+YddLoader::YddLoader(memstream& file, glm::vec3 position, glm::quat rotation, glm::vec3 scale, uint32_t hash, btDiscreteDynamicsWorld* world) : Hash(hash)
 {
-	ModelMatrix = glm::translate(glm::mat4(), position) * glm::toMat4(rotation) * glm::scale(glm::mat4(), scale);
-
 	ResourceFileBase resourceFileBase;
 	file.read((char*)&resourceFileBase, sizeof(ResourceFileBase));
 
@@ -48,6 +44,11 @@ YddLoader::YddLoader(memstream& file, glm::vec3 position, glm::quat rotation, gl
 
 	file.seekg(DrawableDictionary.DrawablesPointer);
 
+	for (int i = 0; i < Hashes.size(); i++)
+	{
+
+	}
+
 	for (int i = 0; i < DrawableDictionary.DrawablesCount1; i++)
 	{
 		uint64_t DataPointer;
@@ -66,142 +67,8 @@ YddLoader::YddLoader(memstream& file, glm::vec3 position, glm::quat rotation, gl
 
 			file.seekg(DataPointer);
 
-			file.read((char*)&resourceFileBase, sizeof(ResourceFileBase));
+			YdrFile = new YdrLoader(file, position, rotation, scale, hash, world);
 
-			DrawableBase DrawBase;
-			file.read((char*)&DrawBase, sizeof(DrawableBase));
-
-			uint64_t pos1 = file.tellg();
-
-			if ((DrawBase.DrawableModelsXPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-				DrawBase.DrawableModelsXPointer = DrawBase.DrawableModelsXPointer & ~0x50000000;
-			}
-			if ((DrawBase.DrawableModelsXPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-				DrawBase.DrawableModelsXPointer = DrawBase.DrawableModelsXPointer & ~0x60000000;
-			}
-
-			file.seekg(DrawBase.DrawableModelsXPointer);
-
-			ResourcePointerList64 resourcePointerList;
-
-			file.read((char*)&resourcePointerList, sizeof(ResourcePointerList64));
-
-			if ((resourcePointerList.EntriesPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-				resourcePointerList.EntriesPointer = resourcePointerList.EntriesPointer & ~0x50000000;
-			}
-			if ((resourcePointerList.EntriesPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-				resourcePointerList.EntriesPointer = resourcePointerList.EntriesPointer & ~0x60000000;
-			}
-
-			file.seekg(resourcePointerList.EntriesPointer);
-
-			for (int i = 0; i < resourcePointerList.EntriesCount; i++)
-			{
-				uint64_t data_pointer;
-				file.read((char*)&data_pointer, sizeof(data_pointer));
-
-
-				uint64_t posOriginal = file.tellg();
-
-				if ((data_pointer & SYSTEM_BASE) == SYSTEM_BASE) {
-					data_pointer = data_pointer & ~0x50000000;
-				}
-				if ((data_pointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-					data_pointer = data_pointer & ~0x60000000;
-				}
-
-				file.seekg(data_pointer);
-
-				DrawableModel DrawModel;
-				file.read((char*)&DrawModel, sizeof(DrawableModel));
-
-				if ((DrawModel.GeometriesPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-					DrawModel.GeometriesPointer = DrawModel.GeometriesPointer & ~0x50000000;
-				}
-				if ((DrawModel.GeometriesPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-					DrawModel.GeometriesPointer = DrawModel.GeometriesPointer & ~0x60000000;
-				}
-
-				file.seekg(DrawModel.GeometriesPointer);
-
-				for (int i = 0; i < DrawModel.GeometriesCount1; i++) //no difference btween geometriescount1 and 2
-				{
-					uint64_t data_pointer;
-					file.read((char*)&data_pointer, sizeof(data_pointer));
-					uint64_t pos = file.tellg();
-
-					if ((data_pointer & SYSTEM_BASE) == SYSTEM_BASE) {
-						data_pointer = data_pointer & ~0x50000000;
-					}
-					if ((data_pointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-						data_pointer = data_pointer & ~0x60000000;
-					}
-
-					file.seekg(data_pointer);
-
-					DrawableGeometry drawGeom;
-
-					file.read((char*)&drawGeom, sizeof(DrawableGeometry));
-
-					if ((drawGeom.VertexBufferPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-						drawGeom.VertexBufferPointer = drawGeom.VertexBufferPointer & ~0x50000000;
-					}
-					if ((drawGeom.VertexBufferPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-						drawGeom.VertexBufferPointer = drawGeom.VertexBufferPointer & ~0x60000000;
-					}
-
-					file.seekg(drawGeom.VertexBufferPointer);
-
-					VertexBuffer vertbuffer;
-					file.read((char*)&vertbuffer, sizeof(VertexBuffer));
-
-					if ((vertbuffer.DataPointer1 & SYSTEM_BASE) == SYSTEM_BASE) {
-						vertbuffer.DataPointer1 = vertbuffer.DataPointer1 & ~0x50000000;
-					}
-					if ((vertbuffer.DataPointer1 & GRAPHICS_BASE) == GRAPHICS_BASE) {
-						vertbuffer.DataPointer1 = vertbuffer.DataPointer1 & ~0x60000000;
-					}
-
-					if ((vertbuffer.InfoPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-						vertbuffer.InfoPointer = vertbuffer.InfoPointer & ~0x50000000;
-					}
-					if ((vertbuffer.InfoPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-						vertbuffer.InfoPointer = vertbuffer.InfoPointer & ~0x60000000;
-					}
-
-					file.seekg(vertbuffer.InfoPointer);
-
-					VertexDeclaration decl;
-					file.read((char*)&decl, sizeof(VertexDeclaration));
-
-					if ((drawGeom.IndexBufferPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-						drawGeom.IndexBufferPointer = drawGeom.IndexBufferPointer & ~0x50000000;
-					}
-					if ((drawGeom.IndexBufferPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-						drawGeom.IndexBufferPointer = drawGeom.IndexBufferPointer & ~0x60000000;
-					}
-
-					file.seekg(drawGeom.IndexBufferPointer);
-
-					IndexBuffer indexbuffer;
-					file.read((char*)&indexbuffer, sizeof(IndexBuffer));
-
-					//INDICES READING
-					if ((indexbuffer.IndicesPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-						indexbuffer.IndicesPointer = indexbuffer.IndicesPointer & ~0x50000000;
-					}
-					if ((indexbuffer.IndicesPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-						indexbuffer.IndicesPointer = indexbuffer.IndicesPointer & ~0x60000000;
-					}
-
-					Mesh* newMesh = new Mesh(file._buffer.p, vertbuffer.DataPointer1, vertbuffer.VertexCount * vertbuffer.VertexStride, indexbuffer.IndicesPointer, indexbuffer.IndicesCount, (VertexType)decl.Flags, 0);
-					meshes.push_back(newMesh);
-
-					file.seekg(pos);
-				}
-
-				file.seekg(posOriginal);
-			}
 			file.seekg(DrawablePointer);
 		}
 	}
@@ -209,20 +76,15 @@ YddLoader::YddLoader(memstream& file, glm::vec3 position, glm::quat rotation, gl
 
 glm::mat4& YddLoader::GetMat4()
 {
-	return ModelMatrix;
+	return YdrFile->GetMat4();
 }
 
 YddLoader::~YddLoader()
 {
-	for (auto& mesh : meshes)
-	{
-		delete mesh;
-	}
+	delete YdrFile;
 }
 
 void YddLoader::Draw()
 {
-	for (int i = 0; i < meshes.size(); i++) {
-		meshes[i]->Draw();
-	}
+	YdrFile->Draw();
 }

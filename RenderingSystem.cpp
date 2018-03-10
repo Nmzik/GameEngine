@@ -369,9 +369,11 @@ void RenderingSystem::render(GameWorld* world)
 	}
 	for (auto& yddFile : world->yddLoader)
 	{
-		auto modelpos = yddFile->GetMat4();
-		gbuffer->setMat4(ModelUniformLoc, modelpos);
-		yddFile->Draw();
+		if (yddFile->YdrFile != nullptr) {
+			auto modelpos = yddFile->GetMat4();
+			gbuffer->setMat4(ModelUniformLoc, modelpos);
+			yddFile->Draw();
+		}
 	}
 
 	//std::sort(std::begin(world->ydrLoader), std::end(world->ydrLoader), [](YdrLoader* a, YdrLoader* b) {return a->ModelMatrix[3][1] < b->ModelMatrix[3][1]; }); //by y axis
