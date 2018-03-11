@@ -319,8 +319,6 @@ void RenderingSystem::render(GameWorld* world)
 		MoonDirection = glm::normalize(glm::vec3(-glm::sin(phi)*glm::cos(theta), glm::cos(phi), glm::sin(phi)*glm::sin(theta)));
 	}*/
 
-	world->GetVisibleYmaps(camera->Position);
-
 	//glClearColor(0.0, 0.0, 0.0, 0.0);
 
 	///geometry to gbuffer->shadowmaps(directional light)->shadowmaps(point light)->ssao->lighting(Final)->skybox
@@ -361,7 +359,7 @@ void RenderingSystem::render(GameWorld* world)
 	}
 	world->GetResourceManager()->mainLock.unlock();*/
 	//printf("=========================\n");
-	for (auto& yftFile : world->yftLoader)
+	/*for (auto& yftFile : world->yftLoader)
 	{
 		auto modelpos = yftFile->GetMat4();
 		gbuffer->setMat4(ModelUniformLoc, modelpos);
@@ -393,6 +391,8 @@ void RenderingSystem::render(GameWorld* world)
 		gbuffer->setMat4(ModelUniformLoc, glm::mat4(1.0));
 		waterMesh.Draw();
 	}*/
+
+	world->GetVisibleYmaps(gbuffer, camera->Position);
 
 	for (int i = 0; i < world->pedestrians.size(); i++) {
 		auto model = world->pedestrians[i]->getPosition();

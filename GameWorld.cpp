@@ -99,7 +99,7 @@ GameWorld::~GameWorld()
 	delete dynamicsWorld;
 }
 
-void GameWorld::LoadYmap(uint32_t hash, glm::vec3 cameraPosition)
+void GameWorld::LoadYmap(Shader* shader, uint32_t hash, glm::vec3 cameraPosition)
 {
 	auto it = std::find_if(ymapLoader.begin(), ymapLoader.end(), [hash](YmapLoader* item) -> bool { return item->Hash == hash; });
 	if (it != ymapLoader.end()) {
@@ -118,9 +118,9 @@ void GameWorld::LoadYmap(uint32_t hash, glm::vec3 cameraPosition)
 					bool childrenVisible = (glm::distance(cameraPosition, map->CEntityDefs[i].position) <= map->CEntityDefs[i].childLodDist) && (map->CEntityDefs[i].numChildren > 0);
 					if (IsVisible && !childrenVisible) {
 						LoadYTD(map->CEntityDefs[i].archetypeName);
-							if (!LoadYDR(map->CEntityDefs[i].archetypeName, map->CEntityDefs[i].position, glm::quat(-map->CEntityDefs[i].rotation.w, map->CEntityDefs[i].rotation.x, map->CEntityDefs[i].rotation.y, map->CEntityDefs[i].rotation.z), glm::vec3(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ)))
-								if (!LoadYDD(map->CEntityDefs[i].archetypeName, map->CEntityDefs[i].position, glm::quat(-map->CEntityDefs[i].rotation.w, map->CEntityDefs[i].rotation.x, map->CEntityDefs[i].rotation.y, map->CEntityDefs[i].rotation.z), glm::vec3(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ)))
-									LoadYFT(map->CEntityDefs[i].archetypeName, map->CEntityDefs[i].position, glm::quat(-map->CEntityDefs[i].rotation.w, map->CEntityDefs[i].rotation.x, map->CEntityDefs[i].rotation.y, map->CEntityDefs[i].rotation.z), glm::vec3(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ));
+							if (!LoadYDR(shader, map->CEntityDefs[i].archetypeName, map->CEntityDefs[i].position, glm::quat(-map->CEntityDefs[i].rotation.w, map->CEntityDefs[i].rotation.x, map->CEntityDefs[i].rotation.y, map->CEntityDefs[i].rotation.z), glm::vec3(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ)))
+								if (!LoadYDD(shader, map->CEntityDefs[i].archetypeName, map->CEntityDefs[i].position, glm::quat(-map->CEntityDefs[i].rotation.w, map->CEntityDefs[i].rotation.x, map->CEntityDefs[i].rotation.y, map->CEntityDefs[i].rotation.z), glm::vec3(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ)))
+									LoadYFT(shader, map->CEntityDefs[i].archetypeName, map->CEntityDefs[i].position, glm::quat(-map->CEntityDefs[i].rotation.w, map->CEntityDefs[i].rotation.x, map->CEntityDefs[i].rotation.y, map->CEntityDefs[i].rotation.z), glm::vec3(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ));
 					}
 				}
 			}
@@ -212,12 +212,18 @@ bool GameWorld::LoadYTD(uint32_t hash)
 	}
 }
 
-bool GameWorld::LoadYDD(uint32_t hash, glm::vec3 position, glm::quat rotation, glm::vec3 scale)
+bool GameWorld::LoadYDD(Shader* shader, uint32_t hash, glm::vec3 position, glm::quat rotation, glm::vec3 scale)
 {
 	for (auto& yddFile : yddLoader)
 	{
 		if (yddFile->Hash == hash) {
 			yddFile->time = SDL_GetTicks() / 1000;
+
+			if (yddFile->YdrFile != nullptr) {
+				auto modelpos = yddFile->GetMat4();
+				shader->setMat4(3, modelpos);
+				yddFile->Draw();
+			}
 			return true;
 		}
 	}
@@ -268,12 +274,17 @@ bool GameWorld::LoadYDD(uint32_t hash, glm::vec3 position, glm::quat rotation, g
 	}
 }
 
-bool GameWorld::LoadYDR(uint32_t hash, glm::vec3 position, glm::quat rotation, glm::vec3 scale)
+bool GameWorld::LoadYDR(Shader* shader, uint32_t hash, glm::vec3 position, glm::quat rotation, glm::vec3 scale)
 {
 	for (auto& ydrFile : ydrLoader)
 	{
 		if (ydrFile->Hash == hash) {
 			ydrFile->time = SDL_GetTicks() / 1000;
+
+			auto modelpos = ydrFile->GetMat4();
+			shader->setMat4(3, modelpos);
+			ydrFile->Draw();
+
 			return true;
 		}
 	}
@@ -302,12 +313,17 @@ bool GameWorld::LoadYDR(uint32_t hash, glm::vec3 position, glm::quat rotation, g
 	}
 }
 
-bool GameWorld::LoadYFT(uint32_t hash, glm::vec3 position, glm::quat rotation, glm::vec3 scale)
+bool GameWorld::LoadYFT(Shader* shader, uint32_t hash, glm::vec3 position, glm::quat rotation, glm::vec3 scale)
 {
 	for (auto& yftFile : yftLoader)
 	{
 		if (yftFile->Hash == hash) {
 			yftFile->time = SDL_GetTicks() / 1000;
+
+			auto modelpos = yftFile->GetMat4();
+			shader->setMat4(3, modelpos);
+			yftFile->Draw();
+
 			return true;
 		}
 	}
@@ -367,7 +383,7 @@ bool GameWorld::LoadYBN(uint32_t hash)
 	}
 }
 
-void GameWorld::GetVisibleYmaps(glm::vec3 Position)
+void GameWorld::GetVisibleYmaps(Shader* shader, glm::vec3 Position)
 {
 	SpaceGridCell& cell = spaceGrid.GetCell(Position);
 
@@ -380,7 +396,7 @@ void GameWorld::GetVisibleYmaps(glm::vec3 Position)
 
 	for (auto& mapNode : cell.MapNodes)
 	{
-		LoadYmap(mapNode->Name, Position);
+		LoadYmap(shader, mapNode->Name, Position);
 	}
 
 	/*for (auto& Proxy : cell.CInteriorProxies)
@@ -623,20 +639,15 @@ bool GameWorld::DetectInWater(glm::vec3 Position) {
 
 void GameWorld::ClearTestFunction()
 {
-	for (std::vector<YdrLoader*>::iterator it = ydrLoader.begin(); it != ydrLoader.end(); /*increment in body*/)
+	ybnLoader.resize(300);
+	for (int i = 0; i < 100; i++)
+	{
+		LoadYBN(2081927167);
+	}
+
+	for (std::vector<YbnLoader*>::iterator it = ybnLoader.begin(); it != ybnLoader.end(); /*increment in body*/)
 	{
 		delete *it;
-		it = ydrLoader.erase(it);
+		it = ybnLoader.erase(it);
 	}
-
-	//CLEARING
-	/*for (int i = 0; i < ymapLoader.size(); i++) {
-			delete ymapLoader[i];
-			ymapLoader.erase(ymapLoader.begin() + i);
-	}
-
-	for (int i = 0; i < ydrLoader.size(); i++) {
-		delete ydrLoader[i];
-		ydrLoader.erase(ydrLoader.begin() + i);
-	}*/
 }

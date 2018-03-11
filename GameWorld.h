@@ -18,6 +18,7 @@
 #include "CacheDatFile.h"
 #include "SpaceGrid.h"
 #include "Water.h"
+#include "Shader.h"
 #include <windows.h>
 #include "SDL.h"
 
@@ -59,21 +60,21 @@ public:
 	GameWorld();
 	~GameWorld();
 
-	void LoadYmap(uint32_t hash, glm::vec3 cameraPosition);
+	void LoadYmap(Shader* shader, uint32_t hash, glm::vec3 cameraPosition);
 
 	bool LoadYTYP(uint32_t hash);
 
 	bool LoadYTD(uint32_t hash);
 
-	bool LoadYDD(uint32_t hash, glm::vec3 position, glm::quat rotation, glm::vec3 scale);
+	bool LoadYDD(Shader* shader, uint32_t hash, glm::vec3 position, glm::quat rotation, glm::vec3 scale);
 
-	bool LoadYDR(uint32_t hash, glm::vec3 position, glm::quat rotation, glm::vec3 scale);
+	bool LoadYDR(Shader* shader, uint32_t hash, glm::vec3 position, glm::quat rotation, glm::vec3 scale);
 
-	bool LoadYFT(uint32_t hash, glm::vec3 position, glm::quat rotation, glm::vec3 scale);
+	bool LoadYFT(Shader* shader, uint32_t hash, glm::vec3 position, glm::quat rotation, glm::vec3 scale);
 
 	bool LoadYBN(uint32_t hash);
 
-	void GetVisibleYmaps(glm::vec3 Position);
+	void GetVisibleYmaps(Shader* shader, glm::vec3 Position);
 
 	ResourceManager* GetResourceManager() {
 		return _ResourceManager;
