@@ -24,8 +24,6 @@ public:
 	YftLoader(memstream& file, glm::vec3 position, glm::quat rotation, glm::vec3 scale, uint32_t hash, btDiscreteDynamicsWorld* world);
 	~YftLoader();
 
-	glm::mat4& GetMat4();
-
 	void Draw();
 };
 

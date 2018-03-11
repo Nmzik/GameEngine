@@ -285,7 +285,6 @@ class YtdFile;
 
 class YdrLoader
 {
-	glm::mat4 ModelMatrix;
 	std::vector<Mesh*> meshes;
 	YtdFile* ytdFile;
 public:
@@ -298,7 +297,6 @@ public:
 	~YdrLoader();
 
 	void UploadMeshes();
-	glm::mat4& GetMat4();
 
 	void Draw();
 };

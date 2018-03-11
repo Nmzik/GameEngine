@@ -74,11 +74,6 @@ YddLoader::YddLoader(memstream& file, glm::vec3 position, glm::quat rotation, gl
 	}
 }
 
-glm::mat4& YddLoader::GetMat4()
-{
-	return YdrFile->GetMat4();
-}
-
 YddLoader::~YddLoader()
 {
 	delete YdrFile;

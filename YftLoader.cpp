@@ -87,11 +87,6 @@ YftLoader::~YftLoader()
 	delete YdrFile;
 }
 
-glm::mat4 & YftLoader::GetMat4()
-{
-	return YdrFile->GetMat4();
-}
-
 void YftLoader::Draw()
 {
 	YdrFile->Draw();

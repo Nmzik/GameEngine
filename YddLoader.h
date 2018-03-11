@@ -23,8 +23,6 @@ public:
 	YddLoader(memstream& file, glm::vec3 position, glm::quat rotation, glm::vec3 scale, uint32_t hash, btDiscreteDynamicsWorld* world);
 	~YddLoader();
 
-	glm::mat4& GetMat4();
-
 	void Draw();
 };
 

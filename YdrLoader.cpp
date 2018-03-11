@@ -2,8 +2,6 @@
 
 YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, glm::vec3 scale, uint32_t hash, btDiscreteDynamicsWorld* world) : Hash(hash)
 {
-	ModelMatrix = glm::translate(glm::mat4(), position) * glm::toMat4(rotation) * glm::scale(glm::mat4(), scale);
-
 	std::vector<uint32_t> TexturesHashes;
 
 	ResourceFileBase resourceFileBase;
@@ -339,29 +337,6 @@ void YdrLoader::UploadMeshes()
 		//mesh->Upload();
 	}
 	Loaded = true;
-}
-
-glm::mat4& YdrLoader::GetMat4()
-{
-	return ModelMatrix;
-	//glm::mat4 model(1.0);
-	//glm::mat4 model = glm::translate(glm::mat4(), Position);
-	//model *= glm::toMat4(Rotation);
-	/*glm::vec3 scale;
-	glm::quat rotation;
-	glm::vec3 translation;
-	glm::vec3 skew;
-	glm::vec4 perspective;
-	rotation = glm::conjugate(rotation);
-
-	glm::decompose(model, scale, rotation, translation, skew, perspective);
-
-	printf("RETURNED %s ORIGINAL %s\n", glm::to_string(rotation).c_str(), glm::to_string(Rotation).c_str());*/
-	//model = glm::rotate(model, glm::degrees(x), glm::vec3(1.0, 0.0, 0.0f));
-	//model = glm::scale(model, glm::vec3(1.0f));
-	//glm::quat test1 = glm::quat_cast(model);
-	//printf("%f %f %f %f\n",test1.x,test1.y,test1.z,test1,w);
-	//return model;
 }
 
 void YdrLoader::Draw()

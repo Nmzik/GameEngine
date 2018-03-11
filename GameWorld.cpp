@@ -220,8 +220,7 @@ bool GameWorld::LoadYDD(Shader* shader, uint32_t hash, glm::vec3 position, glm::
 			yddFile->time = SDL_GetTicks() / 1000;
 
 			if (yddFile->YdrFile != nullptr) {
-				auto modelpos = yddFile->GetMat4();
-				shader->setMat4(3, modelpos);
+				shader->setMat4(3, glm::translate(glm::mat4(), position) * glm::toMat4(rotation) * glm::scale(glm::mat4(), scale));
 				yddFile->Draw();
 			}
 			return true;
@@ -281,8 +280,7 @@ bool GameWorld::LoadYDR(Shader* shader, uint32_t hash, glm::vec3 position, glm::
 		if (ydrFile->Hash == hash) {
 			ydrFile->time = SDL_GetTicks() / 1000;
 
-			auto modelpos = ydrFile->GetMat4();
-			shader->setMat4(3, modelpos);
+			shader->setMat4(3, glm::translate(glm::mat4(), position) * glm::toMat4(rotation) * glm::scale(glm::mat4(), scale));
 			ydrFile->Draw();
 
 			return true;
@@ -320,8 +318,7 @@ bool GameWorld::LoadYFT(Shader* shader, uint32_t hash, glm::vec3 position, glm::
 		if (yftFile->Hash == hash) {
 			yftFile->time = SDL_GetTicks() / 1000;
 
-			auto modelpos = yftFile->GetMat4();
-			shader->setMat4(3, modelpos);
+			shader->setMat4(3, glm::translate(glm::mat4(), position) * glm::toMat4(rotation) * glm::scale(glm::mat4(), scale));
 			yftFile->Draw();
 
 			return true;
