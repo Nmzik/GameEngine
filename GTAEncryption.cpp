@@ -272,8 +272,6 @@ void GTAEncryption::DecompressBytes(uint8_t * data, uint32_t dataLength, std::ve
 
 	std::vector<uint8_t> buf(1024 * 1024);
 
-	output.resize(0);
-
 	do {
 		strm.avail_out = buf.size();
 		strm.next_out = &buf[0];
