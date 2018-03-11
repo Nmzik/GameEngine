@@ -288,6 +288,7 @@ class YdrLoader
 	std::vector<Mesh*> meshes;
 	YtdFile* ytdFile;
 public:
+	bool isVisible = false;
 	glm::vec3 BBCenter;
 	float BBRadius;
 	uint32_t time;

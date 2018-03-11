@@ -110,12 +110,26 @@ void GameWorld::LoadYmap(Shader* shader, uint32_t hash, glm::vec3 cameraPosition
 		if (!(map->flags & 1) > 0) { //DONT LOAD SCRIPTED MAPS
 			for (int i = 0; i < map->CEntityDefs.size(); i++)
 			{
+				/*bool isreflproxy = false;
+				switch (map->CEntityDefs[i].flags)
+				{
+				case 135790592: //001000000110000000000000000000    prewater proxy (golf course)
+				case 135790593: //001000000110000000000000000001    water refl proxy? (mike house)
+				case 672661504: //101000000110000000000000000000    vb_ca_prop_tree_reflprox_2
+				case 536870912: //100000000000000000000000000000    vb_05_emissive_mirroronly
+				case 35127296:  //000010000110000000000000000000    tunnel refl proxy?
+				case 39321602:  //000010010110000000000000000010    mlo reflection?
+					isreflproxy = true; break;
+				}
+				if (isreflproxy) {
+					continue;
+				}*/
 				if (map->CEntityDefs[i].lodDist < 0 || map->CEntityDefs[i].childLodDist < 0) {
 					//printf("HERE");
 				}
 				else {
-					bool IsVisible = glm::distance(cameraPosition, map->CEntityDefs[i].position) <= map->CEntityDefs[i].lodDist;
-					bool childrenVisible = (glm::distance(cameraPosition, map->CEntityDefs[i].position) <= map->CEntityDefs[i].childLodDist) && (map->CEntityDefs[i].numChildren > 0);
+					bool IsVisible = glm::distance(cameraPosition, map->CEntityDefs[i].position) <= map->CEntityDefs[i].lodDist * LODMultiplier;
+					bool childrenVisible = (glm::distance(cameraPosition, map->CEntityDefs[i].position) <= map->CEntityDefs[i].childLodDist * LODMultiplier) && (map->CEntityDefs[i].numChildren > 0);
 					if (IsVisible && !childrenVisible) {
 						LoadYTD(map->CEntityDefs[i].archetypeName);
 							if (!LoadYDR(shader, map->CEntityDefs[i].archetypeName, map->CEntityDefs[i].position, glm::quat(-map->CEntityDefs[i].rotation.w, map->CEntityDefs[i].rotation.x, map->CEntityDefs[i].rotation.y, map->CEntityDefs[i].rotation.z), glm::vec3(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ)))
@@ -216,14 +230,19 @@ bool GameWorld::LoadYDD(Shader* shader, uint32_t hash, glm::vec3 position, glm::
 {
 	for (auto& yddFile : yddLoader)
 	{
-		if (yddFile->Hash == hash) {
-			yddFile->time = SDL_GetTicks() / 1000;
-
-			if (yddFile->YdrFile != nullptr) {
-				shader->setMat4(3, glm::translate(glm::mat4(), position) * glm::toMat4(rotation) * glm::scale(glm::mat4(), scale));
-				yddFile->Draw();
-			}
+		if (yddFile->Hash == hash) { //FOUND WHOLE YDD WTF???
+			printf("");
 			return true;
+		}
+		for (auto& ydr : yddFile->YdrFiles)
+		{
+			if (ydr->Hash == hash) {
+				shader->setMat4(3, glm::translate(glm::mat4(), position) * glm::toMat4(rotation) * glm::scale(glm::mat4(), scale));
+				ydr->Draw();
+
+				yddFile->time = SDL_GetTicks() / 1000;
+				return true;
+			}
 		}
 	}
 
@@ -242,7 +261,7 @@ bool GameWorld::LoadYDD(Shader* shader, uint32_t hash, glm::vec3 position, glm::
 			data.ExtractFileResource(element, outputBuffer);
 
 			memstream stream(outputBuffer.data(), outputBuffer.size());
-			YddLoader* newYdd = new YddLoader(stream, position, rotation, scale, hash, dynamicsWorld);
+			YddLoader* newYdd = new YddLoader(stream, position, rotation, scale, iter->second.drawableDictionary, dynamicsWorld);
 			newYdd->time = SDL_GetTicks() / 1000;
 			yddLoader.emplace_back(newYdd);
 
@@ -250,7 +269,7 @@ bool GameWorld::LoadYDD(Shader* shader, uint32_t hash, glm::vec3 position, glm::
 		}
 	}
 
-	std::unordered_map<uint32_t, RpfResourceFileEntry*>::iterator it;
+	/*std::unordered_map<uint32_t, RpfResourceFileEntry*>::iterator it;
 	it = data.YddEntries.find(hash);
 	if (it != data.YddEntries.end())
 	{
@@ -270,7 +289,7 @@ bool GameWorld::LoadYDD(Shader* shader, uint32_t hash, glm::vec3 position, glm::
 	{
 		//std::cout << "Element Not Found" << std::endl;
 		return false;
-	}
+	}*/
 }
 
 bool GameWorld::LoadYDR(Shader* shader, uint32_t hash, glm::vec3 position, glm::quat rotation, glm::vec3 scale)

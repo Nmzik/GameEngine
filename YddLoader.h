@@ -15,12 +15,12 @@
 
 class YddLoader
 {
-	std::vector<uint32_t> Hashes;
 public:
-	YdrLoader * YdrFile;
+	std::vector<YdrLoader *> YdrFiles;
 	uint32_t Hash;
 	uint32_t time;
 	YddLoader(memstream& file, glm::vec3 position, glm::quat rotation, glm::vec3 scale, uint32_t hash, btDiscreteDynamicsWorld* world);
+	void LoadYdr(uint32_t Hash);
 	~YddLoader();
 
 	void Draw();

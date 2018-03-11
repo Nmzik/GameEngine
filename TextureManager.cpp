@@ -14,7 +14,7 @@ GLuint TextureManager::GetTexture(uint32_t textureHash)
 	it = TexturesMap.find(textureHash);
 	if (it != TexturesMap.end())
 	{
-		std::cout << "FOUND Texture " << it->first << std::endl;
+		//std::cout << "FOUND Texture " << it->first << std::endl;
 		auto& element = it->second;
 
 		return element;

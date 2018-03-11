@@ -22,6 +22,8 @@ YddLoader::YddLoader(memstream& file, glm::vec3 position, glm::quat rotation, gl
 
 	file.read((char*)&DrawableDictionary, sizeof(DrawableDictionary));
 
+	YdrFiles.reserve(DrawableDictionary.DrawablesCount1);
+
 	if ((DrawableDictionary.HashesPointer & SYSTEM_BASE) == SYSTEM_BASE) {
 		DrawableDictionary.HashesPointer = DrawableDictionary.HashesPointer & ~0x50000000;
 	}
@@ -31,6 +33,7 @@ YddLoader::YddLoader(memstream& file, glm::vec3 position, glm::quat rotation, gl
 
 	file.seekg(DrawableDictionary.HashesPointer);
 
+	std::vector<uint32_t> Hashes;
 	Hashes.resize(DrawableDictionary.HashesCount1);
 
 	file.read((char*)&Hashes[0], sizeof(uint32_t) * DrawableDictionary.HashesCount1);
@@ -44,42 +47,42 @@ YddLoader::YddLoader(memstream& file, glm::vec3 position, glm::quat rotation, gl
 
 	file.seekg(DrawableDictionary.DrawablesPointer);
 
-	for (int i = 0; i < Hashes.size(); i++)
-	{
-
-	}
-
 	for (int i = 0; i < DrawableDictionary.DrawablesCount1; i++)
 	{
 		uint64_t DataPointer;
 		file.read((char*)&DataPointer, sizeof(uint64_t));
 
-		//LOAD YDR FROM YDD BY HASH //Load specific YDR from YDD through hash
-		if (Hashes[i] == Hash) {
-			uint64_t DrawablePointer = file.tellg();
+		uint64_t DrawablePointer = file.tellg();
 
-			if ((DataPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-				DataPointer = DataPointer & ~0x50000000;
-			}
-			if ((DataPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-				DataPointer = DataPointer & ~0x60000000;
-			}
-
-			file.seekg(DataPointer);
-
-			YdrFile = new YdrLoader(file, position, rotation, scale, hash, world);
-
-			file.seekg(DrawablePointer);
+		if ((DataPointer & SYSTEM_BASE) == SYSTEM_BASE) {
+			DataPointer = DataPointer & ~0x50000000;
 		}
+		if ((DataPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
+			DataPointer = DataPointer & ~0x60000000;
+		}
+
+		file.seekg(DataPointer);
+
+		YdrLoader* YdrFile = new YdrLoader(file, position, rotation, scale, Hashes[i], world);
+		YdrFiles.push_back(YdrFile);
+
+		file.seekg(DrawablePointer);
 	}
 }
 
 YddLoader::~YddLoader()
 {
-	delete YdrFile;
+	for (std::vector<YdrLoader*>::iterator it = YdrFiles.begin(); it != YdrFiles.end(); /*increment in body*/)
+	{
+		delete *it;
+		it = YdrFiles.erase(it);
+	}
 }
 
 void YddLoader::Draw()
 {
-	YdrFile->Draw();
+	for (auto& YdrFile : YdrFiles)
+	{
+		if (YdrFile->isVisible) YdrFile->Draw();
+	}
 }

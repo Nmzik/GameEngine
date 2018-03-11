@@ -52,11 +52,11 @@ void InGameState::tick(float delta_time)
 	}
 
 	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_Z)) {
-		game->getWorld()->models[0]->xpos += 1.0f;
+		game->getWorld()->LODMultiplier += 0.1f;
 	}
 
 	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_X)) {
-		game->getRenderer()->DrawCollision = !game->getRenderer()->DrawCollision;
+		game->getWorld()->LODMultiplier -= 0.1f;
 	}
 
 	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_V)) {

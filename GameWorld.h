@@ -38,9 +38,9 @@ class GameWorld
 	ResourceManager* _ResourceManager;
 	SoundManager sound;
 	PhysicsDebugDrawer debug;
-	std::vector<uint32_t> Hashes;
 
 public:
+	float LODMultiplier = 1.0f;
 	std::vector<Water> WaterMeshes;
 	std::vector<YdrLoader*> ydrLoader;
 	std::vector<YddLoader*> yddLoader;
