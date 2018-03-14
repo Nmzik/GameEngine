@@ -132,9 +132,9 @@ void GameWorld::LoadYmap(Shader* shader, uint32_t hash, glm::vec3 cameraPosition
 					bool childrenVisible = (glm::distance(cameraPosition, map->CEntityDefs[i].position) <= map->CEntityDefs[i].childLodDist * LODMultiplier) && (map->CEntityDefs[i].numChildren > 0);
 					if (IsVisible && !childrenVisible) {
 						LoadYTD(map->CEntityDefs[i].archetypeName);
-						if (!LoadYDR(shader, map->CEntityDefs[i].archetypeName, map->CEntityDefs[i].position, glm::quat(-map->CEntityDefs[i].rotation.w, map->CEntityDefs[i].rotation.x, map->CEntityDefs[i].rotation.y, map->CEntityDefs[i].rotation.z), glm::vec3(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ)))
-							//if (!LoadYDD(shader, map->CEntityDefs[i].archetypeName, map->CEntityDefs[i].position, glm::quat(-map->CEntityDefs[i].rotation.w, map->CEntityDefs[i].rotation.x, map->CEntityDefs[i].rotation.y, map->CEntityDefs[i].rotation.z), glm::vec3(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ)))
-							LoadYFT(shader, map->CEntityDefs[i].archetypeName, map->CEntityDefs[i].position, glm::quat(-map->CEntityDefs[i].rotation.w, map->CEntityDefs[i].rotation.x, map->CEntityDefs[i].rotation.y, map->CEntityDefs[i].rotation.z), glm::vec3(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ));
+							if (!LoadYDR(shader, map->CEntityDefs[i].archetypeName, map->CEntityDefs[i].position, glm::quat(-map->CEntityDefs[i].rotation.w, map->CEntityDefs[i].rotation.x, map->CEntityDefs[i].rotation.y, map->CEntityDefs[i].rotation.z), glm::vec3(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ)))
+								if (!LoadYDD(shader, map->CEntityDefs[i].archetypeName, map->CEntityDefs[i].position, glm::quat(-map->CEntityDefs[i].rotation.w, map->CEntityDefs[i].rotation.x, map->CEntityDefs[i].rotation.y, map->CEntityDefs[i].rotation.z), glm::vec3(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ)))
+									LoadYFT(shader, map->CEntityDefs[i].archetypeName, map->CEntityDefs[i].position, glm::quat(-map->CEntityDefs[i].rotation.w, map->CEntityDefs[i].rotation.x, map->CEntityDefs[i].rotation.y, map->CEntityDefs[i].rotation.z), glm::vec3(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ));
 					}
 				}
 			}
@@ -228,6 +228,24 @@ bool GameWorld::LoadYTD(uint32_t hash)
 
 bool GameWorld::LoadYDD(Shader* shader, uint32_t hash, glm::vec3 position, glm::quat rotation, glm::vec3 scale)
 {
+	for (auto& yddFile : yddLoader)
+	{
+		if (yddFile->Hash == hash) { //FOUND WHOLE YDD WTF???
+			printf("");
+			return true;
+		}
+		for (auto& ydr : yddFile->YdrFiles)
+		{
+			if (ydr->Hash == hash) {
+				shader->setMat4(3, glm::translate(glm::mat4(), position) * glm::toMat4(rotation) * glm::scale(glm::mat4(), scale));
+				ydr->Draw();
+
+				yddFile->time = SDL_GetTicks() / 1000;
+				return true;
+			}
+		}
+	}
+
 	std::unordered_map<uint32_t, CBaseArchetypeDef>::iterator iter;
 	iter = data.TextureDictionary.find(hash);
 	if (iter != data.TextureDictionary.end())
@@ -250,32 +268,43 @@ bool GameWorld::LoadYDD(Shader* shader, uint32_t hash, glm::vec3 position, glm::
 			return true;
 		}
 	}
+
+	/*std::unordered_map<uint32_t, RpfResourceFileEntry*>::iterator it;
+	it = data.YddEntries.find(hash);
+	if (it != data.YddEntries.end())
+	{
+		std::cout << "YDD Found " << it->second->Name << std::endl;
+		auto& element = *(it->second);
+		std::vector<uint8_t> outputBuffer;
+		data.ExtractFileResource(element, outputBuffer);
+
+		memstream stream(outputBuffer.data(), outputBuffer.size());
+		YddLoader* newYdd = new YddLoader(stream, position, rotation, scale, hash, dynamicsWorld);
+		newYdd->time = SDL_GetTicks() / 1000;
+		yddLoader.emplace_back(newYdd);
+
+		return true;
+	}
+	else
+	{
+		//std::cout << "Element Not Found" << std::endl;
+		return false;
+	}*/
 }
 
 bool GameWorld::LoadYDR(Shader* shader, uint32_t hash, glm::vec3 position, glm::quat rotation, glm::vec3 scale)
 {
-	std::unordered_map<uint32_t, YdrLoader*>::iterator YdrIt = ydrLoaded.find(hash);
-	if (YdrIt != ydrLoaded.end())
+	for (auto& ydrFile : ydrLoader)
 	{
-		shader->setMat4(3, glm::translate(glm::mat4(), position) * glm::toMat4(rotation) * glm::scale(glm::mat4(), scale));
-		YdrIt->second->Draw();
+		if (ydrFile->Hash == hash) {
+			ydrFile->time = SDL_GetTicks() / 1000;
 
-		//YdrIt->second.time = SDL_GetTicks() / 1000;
+			shader->setMat4(3, glm::translate(glm::mat4(), position) * glm::toMat4(rotation) * glm::scale(glm::mat4(), scale));
+			ydrFile->Draw();
 
-		return true;
+			return true;
+		}
 	}
-
-	std::unordered_map<uint32_t, YftLoader*>::iterator YftIt = yftLoaded.find(hash);
-	if (YftIt != yftLoaded.end())
-	{
-		shader->setMat4(3, glm::translate(glm::mat4(), position) * glm::toMat4(rotation) * glm::scale(glm::mat4(), scale));
-		YftIt->second->Draw();
-
-		//YdrIt->second->time = SDL_GetTicks() / 1000;
-
-		return true;
-	}
-
 	std::unordered_map<uint32_t, RpfResourceFileEntry*>::iterator it;
 	it = data.YdrEntries.find(hash);
 	if (it != data.YdrEntries.end())
@@ -288,8 +317,9 @@ bool GameWorld::LoadYDR(Shader* shader, uint32_t hash, glm::vec3 position, glm::
 
 		memstream stream(outputBuffer.data(), outputBuffer.size());
 
-		ydrLoaded.emplace(std::pair<uint32_t, YdrLoader*>(hash, new YdrLoader(stream, hash, dynamicsWorld)));
-		//newYdr->time = SDL_GetTicks() / 1000;
+		YdrLoader *newYdr = new YdrLoader(stream, position, rotation, scale, hash, dynamicsWorld);
+		newYdr->time = SDL_GetTicks() / 1000;
+		ydrLoader.emplace_back(newYdr);
 
 		return true;
 	}
@@ -302,6 +332,17 @@ bool GameWorld::LoadYDR(Shader* shader, uint32_t hash, glm::vec3 position, glm::
 
 bool GameWorld::LoadYFT(Shader* shader, uint32_t hash, glm::vec3 position, glm::quat rotation, glm::vec3 scale)
 {
+	for (auto& yftFile : yftLoader)
+	{
+		if (yftFile->Hash == hash) {
+			yftFile->time = SDL_GetTicks() / 1000;
+
+			shader->setMat4(3, glm::translate(glm::mat4(), position) * glm::toMat4(rotation) * glm::scale(glm::mat4(), scale));
+			yftFile->Draw();
+
+			return true;
+		}
+	}
 	std::unordered_map<uint32_t, RpfResourceFileEntry*>::iterator it;
 	it = data.YftEntries.find(hash);
 	if (it != data.YftEntries.end())
@@ -312,7 +353,9 @@ bool GameWorld::LoadYFT(Shader* shader, uint32_t hash, glm::vec3 position, glm::
 		data.ExtractFileResource(element, outputBuffer);
 
 		memstream stream(outputBuffer.data(), outputBuffer.size());
-		yftLoaded.insert(std::pair<uint32_t, YftLoader*>(hash, new YftLoader(stream, hash, dynamicsWorld)));
+		YftLoader *newYft = new YftLoader(stream, position, rotation, scale, hash, dynamicsWorld);
+		newYft->time = SDL_GetTicks() / 1000;
+		yftLoader.emplace_back(newYft);
 
 		return true;
 	}
@@ -406,7 +449,7 @@ void GameWorld::GetVisibleYmaps(Shader* shader, glm::vec3 Position)
 		}
 	}
 
-	/*for (std::vector<YdrLoader*>::iterator it = ydrLoader.begin(); it != ydrLoader.end();)
+	for (std::vector<YdrLoader*>::iterator it = ydrLoader.begin(); it != ydrLoader.end(); /*increment in body*/)
 	{
 		if (curTime - (*it)->time > UnloadTime)
 		{
@@ -420,7 +463,7 @@ void GameWorld::GetVisibleYmaps(Shader* shader, glm::vec3 Position)
 		}
 	}
 
-	for (std::vector<YddLoader*>::iterator it = yddLoader.begin(); it != yddLoader.end(); )
+	for (std::vector<YddLoader*>::iterator it = yddLoader.begin(); it != yddLoader.end(); /*increment in body*/)
 	{
 		if (curTime - (*it)->time > UnloadTime)
 		{
@@ -434,7 +477,7 @@ void GameWorld::GetVisibleYmaps(Shader* shader, glm::vec3 Position)
 		}
 	}
 
-	for (std::vector<YftLoader*>::iterator it = yftLoader.begin(); it != yftLoader.end();)
+	for (std::vector<YftLoader*>::iterator it = yftLoader.begin(); it != yftLoader.end(); /*increment in body*/)
 	{
 		if (curTime - (*it)->time > UnloadTime)
 		{
@@ -445,7 +488,7 @@ void GameWorld::GetVisibleYmaps(Shader* shader, glm::vec3 Position)
 		{
 			++it;
 		}
-	}*/
+	}
 
 	for (std::vector<YtdFile*>::iterator it = ytdLoader.begin(); it != ytdLoader.end(); /*increment in body*/)
 	{

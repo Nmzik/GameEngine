@@ -288,9 +288,13 @@ class YdrLoader
 	std::vector<Mesh*> meshes;
 	YtdFile* ytdFile;
 public:
+	bool isVisible = false;
+	glm::vec3 BBCenter;
+	float BBRadius;
 	uint32_t time;
 	bool Loaded = false;
-	YdrLoader(memstream& file, uint32_t hash, btDiscreteDynamicsWorld* world);
+	uint32_t Hash;
+	YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, glm::vec3 scale, uint32_t hash, btDiscreteDynamicsWorld* world);
 	~YdrLoader();
 
 	void UploadMeshes();
