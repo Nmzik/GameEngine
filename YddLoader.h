@@ -19,7 +19,7 @@ public:
 	std::vector<YdrLoader *> YdrFiles;
 	uint32_t Hash;
 	uint32_t time;
-	YddLoader(memstream& file, glm::vec3 position, glm::quat rotation, glm::vec3 scale, uint32_t hash, btDiscreteDynamicsWorld* world);
+	YddLoader(memstream& file, uint32_t hash, btDiscreteDynamicsWorld* world);
 	void LoadYdr(uint32_t Hash);
 	~YddLoader();
 

@@ -66,11 +66,11 @@ public:
 
 	bool LoadYTD(uint32_t hash);
 
-	bool LoadYDD(Shader* shader, uint32_t hash, glm::vec3 position, glm::quat rotation, glm::vec3 scale);
+	bool LoadYDD(Shader* shader, uint32_t hash, glm::mat4& matrix);
 
-	bool LoadYDR(Shader* shader, uint32_t hash, glm::vec3 position, glm::quat rotation, glm::vec3 scale);
+	bool LoadYDR(Shader* shader, uint32_t hash, glm::mat4& matrix);
 
-	bool LoadYFT(Shader* shader, uint32_t hash, glm::vec3 position, glm::quat rotation, glm::vec3 scale);
+	bool LoadYFT(Shader* shader, uint32_t hash, glm::mat4& matrix);
 
 	bool LoadYBN(uint32_t hash);
 

@@ -315,6 +315,7 @@ struct CEntityDef //128 bytes, Key:1825799514
 class YmapLoader
 {
 public:
+	std::vector<glm::mat4> ModelMatrices;
 	uint32_t time;
 	uint32_t flags;
 	uint32_t Hash;

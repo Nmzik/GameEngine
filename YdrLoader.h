@@ -294,7 +294,7 @@ public:
 	uint32_t time;
 	bool Loaded = false;
 	uint32_t Hash;
-	YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, glm::vec3 scale, uint32_t hash, btDiscreteDynamicsWorld* world);
+	YdrLoader(memstream& file, uint32_t hash, btDiscreteDynamicsWorld* world);
 	~YdrLoader();
 
 	void UploadMeshes();

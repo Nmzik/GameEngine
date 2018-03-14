@@ -1,6 +1,6 @@
 #include "YddLoader.h"
 
-YddLoader::YddLoader(memstream& file, glm::vec3 position, glm::quat rotation, glm::vec3 scale, uint32_t hash, btDiscreteDynamicsWorld* world) : Hash(hash)
+YddLoader::YddLoader(memstream& file, uint32_t hash, btDiscreteDynamicsWorld* world) : Hash(hash)
 {
 	ResourceFileBase resourceFileBase;
 	file.read((char*)&resourceFileBase, sizeof(ResourceFileBase));
@@ -63,7 +63,7 @@ YddLoader::YddLoader(memstream& file, glm::vec3 position, glm::quat rotation, gl
 
 		file.seekg(DataPointer);
 
-		YdrLoader* YdrFile = new YdrLoader(file, position, rotation, scale, Hashes[i], world);
+		YdrLoader* YdrFile = new YdrLoader(file, Hashes[i], world);
 		YdrFiles.push_back(YdrFile);
 
 		file.seekg(DrawablePointer);

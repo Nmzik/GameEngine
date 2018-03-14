@@ -1,6 +1,6 @@
 #include "YdrLoader.h"
 
-YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, glm::vec3 scale, uint32_t hash, btDiscreteDynamicsWorld* world) : Hash(hash)
+YdrLoader::YdrLoader(memstream& file, uint32_t hash, btDiscreteDynamicsWorld* world) : Hash(hash)
 {
 	std::vector<uint32_t> TexturesHashes;
 
@@ -49,9 +49,6 @@ YdrLoader::YdrLoader(memstream& file, glm::vec3 position, glm::quat rotation, gl
 		//printf("YBN INSIDE YDR\n");
 		//YbnLoader* loader = new YbnLoader(world, file, hash);
 	}
-
-	BBCenter = position + drawBase.BoundingCenter;
-	BBRadius = drawBase.BoundingSphereRadius;
 
 	//Shader stuff
 	if ((drawBase.ShaderGroupPointer & SYSTEM_BASE) == SYSTEM_BASE) {

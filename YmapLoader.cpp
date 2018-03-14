@@ -119,6 +119,7 @@ YmapLoader::YmapLoader(memstream& file, uint32_t hash) : Hash(hash)
 				CEntityDef def;
 				std::memcpy(&def, &Block.Data[i * sizeof(CEntityDef)], sizeof(CEntityDef));
 				CEntityDefs.push_back(def);
+				ModelMatrices.emplace_back(glm::translate(glm::mat4(), def.position) * glm::toMat4(glm::quat(-def.rotation.w, def.rotation.x, def.rotation.y, def.rotation.z)) * glm::scale(glm::mat4(), glm::vec3(def.scaleXY, def.scaleXY, def.scaleZ)));
 			}
 		}
 	}
