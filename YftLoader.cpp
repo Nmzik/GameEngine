@@ -1,6 +1,6 @@
 #include "YftLoader.h"
 
-YftLoader::YftLoader(memstream& file, glm::vec3 position, glm::quat rotation, glm::vec3 scale, uint32_t hash, btDiscreteDynamicsWorld* world) : Hash(hash)
+YftLoader::YftLoader(memstream& file, uint32_t hash, btDiscreteDynamicsWorld* world)
 {
 	ResourceFileBase resourceFileBase;
 	file.read((char*)&resourceFileBase, sizeof(ResourceFileBase));
@@ -78,7 +78,7 @@ YftLoader::YftLoader(memstream& file, glm::vec3 position, glm::quat rotation, gl
 
 	file.seekg(FragType.DrawablePointer);
 
-	YdrFile = new YdrLoader(file, position, rotation, scale, hash, world);
+	YdrFile = new YdrLoader(file, hash, world);
 }
 
 

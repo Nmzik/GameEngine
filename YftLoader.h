@@ -18,10 +18,9 @@ class YftLoader
 {
 	YdrLoader* YdrFile;
 public:
-	uint32_t Hash;
 	uint32_t time;
 
-	YftLoader(memstream& file, glm::vec3 position, glm::quat rotation, glm::vec3 scale, uint32_t hash, btDiscreteDynamicsWorld* world);
+	YftLoader(memstream& file, uint32_t hash, btDiscreteDynamicsWorld* world);
 	~YftLoader();
 
 	void Draw();

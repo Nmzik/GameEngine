@@ -40,11 +40,14 @@ class GameWorld
 	PhysicsDebugDrawer debug;
 
 public:
+	std::unordered_map<uint32_t, YdrLoader*> ydrLoaded;
+	std::unordered_map<uint32_t, YftLoader*> yftLoaded;
+	//std::unordered_map<uint32_t, YtdFile> ytdLoader;
 	float LODMultiplier = 1.0f;
 	std::vector<Water> WaterMeshes;
-	std::vector<YdrLoader*> ydrLoader;
+	//std::vector<YdrLoader*> ydrLoader;
 	std::vector<YddLoader*> yddLoader;
-	std::vector<YftLoader*> yftLoader;
+	//std::vector<YftLoader*> yftLoader;
 	std::vector<YtdFile*> ytdLoader;
 	std::vector<YndLoader> yndLoader;
 	std::vector<YbnLoader*> ybnLoader;

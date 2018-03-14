@@ -63,8 +63,8 @@ YddLoader::YddLoader(memstream& file, glm::vec3 position, glm::quat rotation, gl
 
 		file.seekg(DataPointer);
 
-		YdrLoader* YdrFile = new YdrLoader(file, position, rotation, scale, Hashes[i], world);
-		YdrFiles.push_back(YdrFile);
+		//YdrLoader* YdrFile = new YdrLoader(file, position, rotation, scale, Hashes[i], world);
+		//YdrFiles.push_back(YdrFile);
 
 		file.seekg(DrawablePointer);
 	}
@@ -81,8 +81,5 @@ YddLoader::~YddLoader()
 
 void YddLoader::Draw()
 {
-	for (auto& YdrFile : YdrFiles)
-	{
-		if (YdrFile->isVisible) YdrFile->Draw();
-	}
+	
 }
