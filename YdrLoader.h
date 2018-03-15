@@ -20,6 +20,14 @@
 #define SYSTEM_BASE 0x50000000
 #define GRAPHICS_BASE 0x60000000
 
+#define TranslatePTR(NAME)                       \
+if ((NAME & SYSTEM_BASE) == SYSTEM_BASE) { \
+	NAME = NAME & ~0x50000000; \
+}    \
+if ((NAME & GRAPHICS_BASE) == GRAPHICS_BASE) { \
+	NAME = NAME & ~0x60000000; \
+} \
+
 struct ResourcePointerList64 {
 	uint64_t EntriesPointer;
 	uint16_t EntriesCount;

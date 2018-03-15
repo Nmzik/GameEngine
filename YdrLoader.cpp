@@ -25,12 +25,7 @@ YdrLoader::YdrLoader(memstream& file, uint32_t hash, btDiscreteDynamicsWorld* wo
 	file.read((char*)&Drawable, sizeof(Drawable));
 
 	if (Drawable.LightAttributesPointer != 0) {
-		if ((Drawable.LightAttributesPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-			Drawable.LightAttributesPointer = Drawable.LightAttributesPointer & ~0x50000000;
-		}
-		if ((Drawable.LightAttributesPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-			Drawable.LightAttributesPointer = Drawable.LightAttributesPointer & ~0x60000000;
-		}
+		TranslatePTR(Drawable.LightAttributesPointer);
 
 		file.seekg(Drawable.LightAttributesPointer);
 
@@ -51,12 +46,7 @@ YdrLoader::YdrLoader(memstream& file, uint32_t hash, btDiscreteDynamicsWorld* wo
 	}
 
 	//Shader stuff
-	if ((drawBase.ShaderGroupPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-		drawBase.ShaderGroupPointer = drawBase.ShaderGroupPointer & ~0x50000000;
-	}
-	if ((drawBase.ShaderGroupPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-		drawBase.ShaderGroupPointer = drawBase.ShaderGroupPointer & ~0x60000000;
-	}
+	TranslatePTR(drawBase.ShaderGroupPointer);
 
 	file.seekg(drawBase.ShaderGroupPointer);
 
@@ -65,24 +55,14 @@ YdrLoader::YdrLoader(memstream& file, uint32_t hash, btDiscreteDynamicsWorld* wo
 	file.read((char*)&_ShaderGroup, sizeof(ShaderGroup));
 
 	if (_ShaderGroup.TextureDictionaryPointer != 0) {
-		if ((_ShaderGroup.TextureDictionaryPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-			_ShaderGroup.TextureDictionaryPointer = _ShaderGroup.TextureDictionaryPointer & ~0x50000000;
-		}
-		if ((_ShaderGroup.TextureDictionaryPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-			_ShaderGroup.TextureDictionaryPointer = _ShaderGroup.TextureDictionaryPointer & ~0x60000000;
-		}
+		TranslatePTR(_ShaderGroup.TextureDictionaryPointer);
 
 		file.seekg(_ShaderGroup.TextureDictionaryPointer);
 		printf("YTD INSIDE YDR\n");
 		ytdFile = new YtdFile(file, hash);
 	}
 
-	if ((_ShaderGroup.ShadersPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-		_ShaderGroup.ShadersPointer = _ShaderGroup.ShadersPointer & ~0x50000000;
-	}
-	if ((_ShaderGroup.ShadersPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-		_ShaderGroup.ShadersPointer = _ShaderGroup.ShadersPointer & ~0x60000000;
-	}
+	TranslatePTR(_ShaderGroup.ShadersPointer);
 
 	file.seekg(_ShaderGroup.ShadersPointer);
 
@@ -92,12 +72,7 @@ YdrLoader::YdrLoader(memstream& file, uint32_t hash, btDiscreteDynamicsWorld* wo
 		file.read((char*)&data_pointer, sizeof(data_pointer));
 		uint64_t posOriginal = file.tellg();
 
-		if ((data_pointer & SYSTEM_BASE) == SYSTEM_BASE) {
-			data_pointer = data_pointer & ~0x50000000;
-		}
-		if ((data_pointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-			data_pointer = data_pointer & ~0x60000000;
-		}
+		TranslatePTR(data_pointer);
 
 		file.seekg(data_pointer);
 
@@ -105,12 +80,7 @@ YdrLoader::YdrLoader(memstream& file, uint32_t hash, btDiscreteDynamicsWorld* wo
 
 		file.read((char*)&shaderFX, sizeof(shaderFX));
 
-		if ((shaderFX.ParametersPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-			shaderFX.ParametersPointer = shaderFX.ParametersPointer & ~0x50000000;
-		}
-		if ((shaderFX.ParametersPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-			shaderFX.ParametersPointer = shaderFX.ParametersPointer & ~0x60000000;
-		}
+		TranslatePTR(shaderFX.ParametersPointer);
 
 		file.seekg(shaderFX.ParametersPointer);
 
@@ -118,6 +88,10 @@ YdrLoader::YdrLoader(memstream& file, uint32_t hash, btDiscreteDynamicsWorld* wo
 		{
 			ShaderParameter param;
 			file.read((char*)&param, sizeof(ShaderParameter));
+
+			if (param.DataType == 1) { //SOME OTHER SHIT OTHER THAN TEXTURE
+				TexturesHashes.push_back(0);
+			} else
 
 			if (param.DataType == 0) {
 
@@ -128,24 +102,14 @@ YdrLoader::YdrLoader(memstream& file, uint32_t hash, btDiscreteDynamicsWorld* wo
 
 					uint64_t Pos = file.tellg();
 
-					if ((param.DataPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-						param.DataPointer = param.DataPointer & ~0x50000000;
-					}
-					if ((param.DataPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-						param.DataPointer = param.DataPointer & ~0x60000000;
-					}
+					TranslatePTR(param.DataPointer);
 
 					file.seekg(param.DataPointer);
 
 					TextureBase texBase;
 					file.read((char*)&texBase, sizeof(TextureBase));
 
-					if ((texBase.NamePointer & SYSTEM_BASE) == SYSTEM_BASE) {
-						texBase.NamePointer = texBase.NamePointer & ~0x50000000;
-					}
-					if ((texBase.NamePointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-						texBase.NamePointer = texBase.NamePointer & ~0x60000000;
-					}
+					TranslatePTR(texBase.NamePointer);
 
 					file.seekg(texBase.NamePointer);
 
@@ -168,12 +132,7 @@ YdrLoader::YdrLoader(memstream& file, uint32_t hash, btDiscreteDynamicsWorld* wo
 
 	uint64_t pos1 = file.tellg();
 
-	if ((drawBase.DrawableModelsXPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-		drawBase.DrawableModelsXPointer = drawBase.DrawableModelsXPointer & ~0x50000000;
-	}
-	if ((drawBase.DrawableModelsXPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-		drawBase.DrawableModelsXPointer = drawBase.DrawableModelsXPointer & ~0x60000000;
-	}
+	TranslatePTR(drawBase.DrawableModelsXPointer);
 
 	file.seekg(drawBase.DrawableModelsXPointer);
 
@@ -181,12 +140,7 @@ YdrLoader::YdrLoader(memstream& file, uint32_t hash, btDiscreteDynamicsWorld* wo
 
 	file.read((char*)&resourcePointerList, sizeof(ResourcePointerList64));
 
-	if ((resourcePointerList.EntriesPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-		resourcePointerList.EntriesPointer = resourcePointerList.EntriesPointer & ~0x50000000;
-	}
-	if ((resourcePointerList.EntriesPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-		resourcePointerList.EntriesPointer = resourcePointerList.EntriesPointer & ~0x60000000;
-	}
+	TranslatePTR(resourcePointerList.EntriesPointer);
 
 	file.seekg(resourcePointerList.EntriesPointer);
 
@@ -196,12 +150,7 @@ YdrLoader::YdrLoader(memstream& file, uint32_t hash, btDiscreteDynamicsWorld* wo
 		file.read((char*)&data_pointer, sizeof(data_pointer));
 		uint64_t posOriginal = file.tellg();
 
-		if ((data_pointer & SYSTEM_BASE) == SYSTEM_BASE) {
-			data_pointer = data_pointer & ~0x50000000;
-		}
-		if ((data_pointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-			data_pointer = data_pointer & ~0x60000000;
-		}
+		TranslatePTR(data_pointer);
 
 		file.seekg(data_pointer);
 
@@ -209,12 +158,7 @@ YdrLoader::YdrLoader(memstream& file, uint32_t hash, btDiscreteDynamicsWorld* wo
 
 		file.read((char*)&drawModel, sizeof(drawModel));
 
-		if ((drawModel.ShaderMappingPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-			drawModel.ShaderMappingPointer = drawModel.ShaderMappingPointer & ~0x50000000;
-		}
-		if ((drawModel.ShaderMappingPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-			drawModel.ShaderMappingPointer = drawModel.ShaderMappingPointer & ~0x60000000;
-		}
+		TranslatePTR(drawModel.ShaderMappingPointer);
 
 		file.seekg(drawModel.ShaderMappingPointer);
 
@@ -222,12 +166,7 @@ YdrLoader::YdrLoader(memstream& file, uint32_t hash, btDiscreteDynamicsWorld* wo
 		ShaderMapping.resize(sizeof(uint16_t) * drawModel.GeometriesCount1);
 		file.read((char*)&ShaderMapping[0], sizeof(uint16_t) * drawModel.GeometriesCount1);
 
-		if ((drawModel.GeometriesPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-			drawModel.GeometriesPointer = drawModel.GeometriesPointer & ~0x50000000;
-		}
-		if ((drawModel.GeometriesPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-			drawModel.GeometriesPointer = drawModel.GeometriesPointer & ~0x60000000;
-		}
+		TranslatePTR(drawModel.GeometriesPointer);
 
 		file.seekg(drawModel.GeometriesPointer);
 
@@ -237,12 +176,7 @@ YdrLoader::YdrLoader(memstream& file, uint32_t hash, btDiscreteDynamicsWorld* wo
 			file.read((char*)&data_pointer, sizeof(data_pointer));
 			uint64_t pos = file.tellg();
 
-			if ((data_pointer & SYSTEM_BASE) == SYSTEM_BASE) {
-				data_pointer = data_pointer & ~0x50000000;
-			}
-			if ((data_pointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-				data_pointer = data_pointer & ~0x60000000;
-			}
+			TranslatePTR(data_pointer);
 
 			file.seekg(data_pointer);
 
@@ -250,65 +184,32 @@ YdrLoader::YdrLoader(memstream& file, uint32_t hash, btDiscreteDynamicsWorld* wo
 
 			file.read((char*)&drawGeom, sizeof(DrawableGeometry));
 
-			if ((drawGeom.VertexBufferPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-				drawGeom.VertexBufferPointer = drawGeom.VertexBufferPointer & ~0x50000000;
-			}
-			if ((drawGeom.VertexBufferPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-				drawGeom.VertexBufferPointer = drawGeom.VertexBufferPointer & ~0x60000000;
-			}
+			TranslatePTR(drawGeom.VertexBufferPointer);
 
 			file.seekg(drawGeom.VertexBufferPointer);
 
 			VertexBuffer vertbuffer;
 			file.read((char*)&vertbuffer, sizeof(VertexBuffer));
 
-			if ((vertbuffer.DataPointer1 & SYSTEM_BASE) == SYSTEM_BASE) {
-				vertbuffer.DataPointer1 = vertbuffer.DataPointer1 & ~0x50000000;
-			}
-			if ((vertbuffer.DataPointer1 & GRAPHICS_BASE) == GRAPHICS_BASE) {
-				vertbuffer.DataPointer1 = vertbuffer.DataPointer1 & ~0x60000000;
-			}
+			TranslatePTR(vertbuffer.DataPointer1);
 
-			if ((vertbuffer.InfoPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-				vertbuffer.InfoPointer = vertbuffer.InfoPointer & ~0x50000000;
-			}
-			if ((vertbuffer.InfoPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-				vertbuffer.InfoPointer = vertbuffer.InfoPointer & ~0x60000000;
-			}
+			TranslatePTR(vertbuffer.InfoPointer);
 
 			file.seekg(vertbuffer.InfoPointer);
 
 			VertexDeclaration decl;
 			file.read((char*)&decl, sizeof(VertexDeclaration));
 
-			if ((drawGeom.IndexBufferPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-				drawGeom.IndexBufferPointer = drawGeom.IndexBufferPointer & ~0x50000000;
-			}
-			if ((drawGeom.IndexBufferPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-				drawGeom.IndexBufferPointer = drawGeom.IndexBufferPointer & ~0x60000000;
-			}
+			TranslatePTR(drawGeom.IndexBufferPointer);
 
 			file.seekg(drawGeom.IndexBufferPointer);
 
 			IndexBuffer indexbuffer;
 			file.read((char*)&indexbuffer, sizeof(IndexBuffer));
 
-			//INDICES READING
-			if ((indexbuffer.IndicesPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-				indexbuffer.IndicesPointer = indexbuffer.IndicesPointer & ~0x50000000;
-			}
-			if ((indexbuffer.IndicesPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-				indexbuffer.IndicesPointer = indexbuffer.IndicesPointer & ~0x60000000;
-			}
+			TranslatePTR(indexbuffer.IndicesPointer);
 
-			uint32_t test;
-			if (TexturesHashes.size() == 0) {
-				test = 0;
-			}
-			else {
-				test = TexturesHashes[ShaderMapping[i]];
-			}
-			Mesh* newMesh = new Mesh(file._buffer.p, vertbuffer.DataPointer1, vertbuffer.VertexCount * vertbuffer.VertexStride, indexbuffer.IndicesPointer, indexbuffer.IndicesCount, (VertexType)decl.Flags, test);
+			Mesh* newMesh = new Mesh(file._buffer.p, vertbuffer.DataPointer1, vertbuffer.VertexCount * vertbuffer.VertexStride, indexbuffer.IndicesPointer, indexbuffer.IndicesCount, (VertexType)decl.Flags, TexturesHashes[ShaderMapping[i]]);
 			meshes.push_back(newMesh);
 
 			file.seekg(pos);

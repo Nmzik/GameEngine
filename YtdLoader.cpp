@@ -57,12 +57,7 @@ YtdFile::YtdFile(memstream& file, uint32_t hash) : Hash(hash)
 
 	TextureNameHashes.resize(texDictionary.TextureNameHashesPtr.EntriesCount);
 
-	if ((texDictionary.TextureNameHashesPtr.EntriesPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-		texDictionary.TextureNameHashesPtr.EntriesPointer = texDictionary.TextureNameHashesPtr.EntriesPointer & ~0x50000000;
-	}
-	if ((texDictionary.TextureNameHashesPtr.EntriesPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-		texDictionary.TextureNameHashesPtr.EntriesPointer = texDictionary.TextureNameHashesPtr.EntriesPointer & ~0x60000000;
-	}
+	TranslatePTR(texDictionary.TextureNameHashesPtr.EntriesPointer);
 
 	uint64_t pos = file.tellg();
 
@@ -76,12 +71,7 @@ YtdFile::YtdFile(memstream& file, uint32_t hash) : Hash(hash)
 
 	file.read((char*)&resourcePointerList, sizeof(ResourcePointerList64));
 
-	if ((resourcePointerList.EntriesPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-		resourcePointerList.EntriesPointer = resourcePointerList.EntriesPointer & ~0x50000000;
-	}
-	if ((resourcePointerList.EntriesPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-		resourcePointerList.EntriesPointer = resourcePointerList.EntriesPointer & ~0x60000000;
-	}
+	TranslatePTR(resourcePointerList.EntriesPointer);
 
 	file.seekg(resourcePointerList.EntriesPointer);
 
@@ -91,12 +81,7 @@ YtdFile::YtdFile(memstream& file, uint32_t hash) : Hash(hash)
 		file.read((char*)&data_pointer, sizeof(data_pointer));
 		uint64_t posOriginal = file.tellg();
 
-		if ((data_pointer & SYSTEM_BASE) == SYSTEM_BASE) {
-			data_pointer = data_pointer & ~0x50000000;
-		}
-		if ((data_pointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-			data_pointer = data_pointer & ~0x60000000;
-		}
+		TranslatePTR(data_pointer);
 
 		file.seekg(data_pointer);
 
@@ -106,12 +91,7 @@ YtdFile::YtdFile(memstream& file, uint32_t hash) : Hash(hash)
 		file.read((char*)&Texture, sizeof(Texture));
 
 		//READ ACTUAL DATA
-		if ((Texture.DataPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-			Texture.DataPointer = Texture.DataPointer & ~0x50000000;
-		}
-		if ((Texture.DataPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-			Texture.DataPointer = Texture.DataPointer & ~0x60000000;
-		}
+		TranslatePTR(Texture.DataPointer);
 
 		Texture.DataPointer += 8192;
 
@@ -141,7 +121,7 @@ YtdFile::YtdFile(memstream& file, uint32_t hash) : Hash(hash)
 			format = GL_COMPRESSED_RED_RGTC1;
 		case D3DFMT_ATI2:
 			format = GL_COMPRESSED_RG_RGTC2;
-		/*case D3DFMT_A8R8G8B8:
+		case D3DFMT_A8R8G8B8:
 			format = GL_UNSIGNED_INT_8_8_8_8_REV;
 		case D3DFMT_A1R5G5B5:
 			format = GL_UNSIGNED_SHORT_1_5_5_5_REV;
@@ -150,52 +130,65 @@ YtdFile::YtdFile(memstream& file, uint32_t hash) : Hash(hash)
 		case D3DFMT_A8B8G8R8:
 			format = GL_COMPRESSED_RED_GREEN_RGTC2_EXT;
 		case D3DFMT_L8:
-			format = GL_COMPRESSED_RED_GREEN_RGTC2_EXT;*/
+			format = GL_COMPRESSED_RED_GREEN_RGTC2_EXT;
 		default:
 			printf("UNSUPPORTED FORMAT\n");
 			break;
 		}
 
-		if ( Texture.Format == D3DFMT_DXT1 || Texture.Format == D3DFMT_DXT3 || Texture.Format == D3DFMT_DXT5 || Texture.Format == D3DFMT_BC7 || Texture.Format == D3DFMT_ATI1 || Texture.Format == D3DFMT_ATI2)
+		GLuint textureID;
+
+		glGenTextures(1, &textureID);
+
+		glBindTexture(GL_TEXTURE_2D, textureID);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, Texture.Levels - 1);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, Texture.Levels <= 1 ? GL_LINEAR : GL_LINEAR_MIPMAP_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		/*glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+		//glPixelStorei(GL_UNPACK_ALIGNMENT, 1);*/
+
+		if (Texture.Format == D3DFMT_DXT1 || Texture.Format == D3DFMT_DXT3 || Texture.Format == D3DFMT_DXT5 || Texture.Format == D3DFMT_BC7 || Texture.Format == D3DFMT_ATI1 || Texture.Format == D3DFMT_ATI2)
 		{
-				GLuint textureID;
+			unsigned int blockSize = (format == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT || format == GL_COMPRESSED_RED_RGTC1) ? 8 : 16;
+			unsigned int offset = 0;
 
-				glGenTextures(1, &textureID);
+			for (unsigned int level = 0; level < Texture.Levels; ++level)
+			{
+				unsigned int size = ((Texture.Width + 3) / 4)*((Texture.Height + 3) / 4)*blockSize;
 
-				glBindTexture(GL_TEXTURE_2D, textureID);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, Texture.Levels - 1);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, Texture.Levels <= 1 ? GL_LINEAR : GL_LINEAR_MIPMAP_NEAREST);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-				/*glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-				glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-				glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-				glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-				//glPixelStorei(GL_UNPACK_ALIGNMENT, 1);*/
+				glCompressedTexImage2D(GL_TEXTURE_2D, level, format, Texture.Width, Texture.Height, 0, size, &file._buffer.p[Texture.DataPointer] + offset);
 
-				unsigned int blockSize = (format == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT || format == GL_COMPRESSED_RED_RGTC1) ? 8 : 16;
-				unsigned int offset = 0;
+				offset += size;
+				Texture.Width /= 2;
+				Texture.Height /= 2;
+			}
 
-				for (unsigned int level = 0; level < Texture.Levels; ++level)
-				{
-					unsigned int size = ((Texture.Width + 3) / 4)*((Texture.Height + 3) / 4)*blockSize;
-
-					glCompressedTexImage2D(GL_TEXTURE_2D, level, format, Texture.Width, Texture.Height, 0, size, &file._buffer.p[Texture.DataPointer] + offset);
-
-					offset += size;
-					Texture.Width /= 2;
-					Texture.Height /= 2;
-				}
-				TextureManager::LoadTexture(TextureNameHashes[i], textureID);
-				//textures.push_back(textureID);
-			//}
 		}
+		else {
+
+			if (Texture.Format == D3DFMT_A8R8G8B8)
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, Texture.Width, Texture.Height, 0, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, &file._buffer.p[Texture.DataPointer]);
+			if (Texture.Format == D3DFMT_A1R5G5B5)
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, Texture.Width, Texture.Height, 0, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &file._buffer.p[Texture.DataPointer]);
+			if (Texture.Format == D3DFMT_A8) //NO CLUE?????
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, Texture.Width, Texture.Height, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &file._buffer.p[Texture.DataPointer]);
+			if (Texture.Format == D3DFMT_A8B8G8R8)
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, Texture.Width, Texture.Height, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV, &file._buffer.p[Texture.DataPointer]);
+			if (Texture.Format == D3DFMT_L8)
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE8, Texture.Width, Texture.Height, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, &file._buffer.p[Texture.DataPointer]);
+		}
+
+		TextureManager::LoadTexture(TextureNameHashes[i], textureID);
 
 		file.seekg(posOriginal);
 
 	}
-	
+
 }
 
 

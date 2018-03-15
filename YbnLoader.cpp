@@ -108,12 +108,7 @@ YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world, memstream& file, uint32_t h
 
 	file.read((char*)&BoundComposite, sizeof(BoundComposite));
 
-	if ((BoundComposite.ChildrenPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-		BoundComposite.ChildrenPointer = BoundComposite.ChildrenPointer & ~0x50000000;
-	}
-	if ((BoundComposite.ChildrenPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-		BoundComposite.ChildrenPointer = BoundComposite.ChildrenPointer & ~0x60000000;
-	}
+	TranslatePTR(BoundComposite.ChildrenPointer);
 
 	file.seekg(BoundComposite.ChildrenPointer);
 
@@ -124,12 +119,7 @@ YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world, memstream& file, uint32_t h
 
 		uint64_t BoundsPointer = file.tellg();
 
-		if ((DataPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-			DataPointer = DataPointer & ~0x50000000;
-		}
-		if ((DataPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-			DataPointer = DataPointer & ~0x60000000;
-		}
+		TranslatePTR(DataPointer);
 
 		file.seekg(DataPointer);
 
@@ -166,12 +156,7 @@ YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world, memstream& file, uint32_t h
 
 		std::vector<BoundPolygonTriangle> PolygonTriangles;
 		CenterGeometry.push_back(geom.CenterGeom);
-		if ((geom.PolygonsPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-			geom.PolygonsPointer = geom.PolygonsPointer & ~0x50000000;
-		}
-		if ((geom.PolygonsPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-			geom.PolygonsPointer = geom.PolygonsPointer & ~0x60000000;
-		}
+		TranslatePTR(geom.PolygonsPointer);
 
 		file.seekg(geom.PolygonsPointer);
 
@@ -200,12 +185,7 @@ YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world, memstream& file, uint32_t h
 
 		///////////////////
 		if (PolygonTriangles.size() != 0) {
-			if ((geom.VerticesPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-				geom.VerticesPointer = geom.VerticesPointer & ~0x50000000;
-			}
-			if ((geom.VerticesPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-				geom.VerticesPointer = geom.VerticesPointer & ~0x60000000;
-			}
+			TranslatePTR(geom.VerticesPointer);
 
 			file.seekg(geom.VerticesPointer);
 

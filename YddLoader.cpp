@@ -24,12 +24,7 @@ YddLoader::YddLoader(memstream& file, uint32_t hash, btDiscreteDynamicsWorld* wo
 
 	YdrFiles.reserve(DrawableDictionary.DrawablesCount1);
 
-	if ((DrawableDictionary.HashesPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-		DrawableDictionary.HashesPointer = DrawableDictionary.HashesPointer & ~0x50000000;
-	}
-	if ((DrawableDictionary.HashesPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-		DrawableDictionary.HashesPointer = DrawableDictionary.HashesPointer & ~0x60000000;
-	}
+	TranslatePTR(DrawableDictionary.HashesPointer);
 
 	file.seekg(DrawableDictionary.HashesPointer);
 
@@ -38,12 +33,7 @@ YddLoader::YddLoader(memstream& file, uint32_t hash, btDiscreteDynamicsWorld* wo
 
 	file.read((char*)&Hashes[0], sizeof(uint32_t) * DrawableDictionary.HashesCount1);
 
-	if ((DrawableDictionary.DrawablesPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-		DrawableDictionary.DrawablesPointer = DrawableDictionary.DrawablesPointer & ~0x50000000;
-	}
-	if ((DrawableDictionary.DrawablesPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-		DrawableDictionary.DrawablesPointer = DrawableDictionary.DrawablesPointer & ~0x60000000;
-	}
+	TranslatePTR(DrawableDictionary.DrawablesPointer);
 
 	file.seekg(DrawableDictionary.DrawablesPointer);
 
@@ -54,12 +44,7 @@ YddLoader::YddLoader(memstream& file, uint32_t hash, btDiscreteDynamicsWorld* wo
 
 		uint64_t DrawablePointer = file.tellg();
 
-		if ((DataPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-			DataPointer = DataPointer & ~0x50000000;
-		}
-		if ((DataPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-			DataPointer = DataPointer & ~0x60000000;
-		}
+		TranslatePTR(DataPointer);
 
 		file.seekg(DataPointer);
 

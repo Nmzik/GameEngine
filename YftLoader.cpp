@@ -69,12 +69,7 @@ YftLoader::YftLoader(memstream& file, uint32_t hash, btDiscreteDynamicsWorld* wo
 
 	file.read((char*)&FragType, sizeof(FragType));
 
-	if ((FragType.DrawablePointer & SYSTEM_BASE) == SYSTEM_BASE) {
-		FragType.DrawablePointer = FragType.DrawablePointer & ~0x50000000;
-	}
-	if ((FragType.DrawablePointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-		FragType.DrawablePointer = FragType.DrawablePointer & ~0x60000000;
-	}
+	TranslatePTR(FragType.DrawablePointer);
 
 	file.seekg(FragType.DrawablePointer);
 
