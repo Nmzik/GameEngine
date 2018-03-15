@@ -392,7 +392,7 @@ void RenderingSystem::render(GameWorld* world)
 		waterMesh.Draw();
 	}*/
 
-	world->GetVisibleYmaps(gbuffer, camera->Position);
+	world->GetVisibleYmaps(gbuffer, camera);
 
 	for (int i = 0; i < world->pedestrians.size(); i++) {
 		auto model = world->pedestrians[i]->getPosition();

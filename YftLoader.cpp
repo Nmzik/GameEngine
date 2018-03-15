@@ -74,6 +74,79 @@ YftLoader::YftLoader(memstream& file, uint32_t hash, btDiscreteDynamicsWorld* wo
 	file.seekg(FragType.DrawablePointer);
 
 	YdrFile = new YdrLoader(file, hash, world);
+
+	struct {
+		uint32_t VFT;
+		uint32_t Unknown_04h; // 0x00000001
+		uint32_t Unknown_08h; // 0x00000000
+		uint32_t Unknown_0Ch; // 0x00000000
+		uint64_t PhysicsLOD1Pointer;
+		uint64_t PhysicsLOD2Pointer;
+		uint64_t PhysicsLOD3Pointer;
+		uint32_t Unknown_28h; // 0x00000000
+		uint32_t Unknown_2Ch; // 0x00000000
+	} FragPhysicsLODGroup;
+
+	struct {
+		uint32_t VFT;
+		uint32_t Unknown_04h; // 0x00000001
+		uint32_t Unknown_08h; // 0x00000000
+		uint32_t Unknown_0Ch; // 0x00000000
+		uint32_t Unknown_10h; // 0x00000000
+		uint32_t Unknown_14h;
+		uint32_t Unknown_18h;
+		uint32_t Unknown_1Ch;
+		uint64_t ArticulatedBodyTypePointer;
+		uint64_t Unknown_28h_Pointer;
+		glm::vec4 Unknown_30h;
+		glm::vec4 Unknown_40h;
+		glm::vec4 Unknown_50h;
+		glm::vec4 Unknown_60h;
+		glm::vec4 Unknown_70h;
+		glm::vec4 Unknown_80h;
+		glm::vec4 Unknown_90h;
+		glm::vec4 Unknown_A0h;
+		glm::vec4 Unknown_B0h;
+		uint64_t GroupNamesPointer;
+		uint64_t GroupsPointer;
+		uint64_t ChildrenPointer;
+		uint64_t Archetype1Pointer;
+		uint64_t Archetype2Pointer;
+		uint64_t BoundPointer;
+		uint64_t InertiaTensorsPointer;
+		uint64_t Unknown_F8h_Pointer;
+		uint64_t FragTransformsPointer;
+		uint64_t Unknown_108h_Pointer;
+		uint64_t Unknown_110h_Pointer;
+		uint8_t Count1;
+		uint8_t Count2;
+		uint8_t GroupsCount;
+		uint8_t Unknown_11Bh;
+		uint8_t Unknown_11Ch;
+		uint8_t ChildrenCount;
+		uint8_t Count3;
+		uint8_t Unknown_11Fh; // 0x00
+		uint32_t Unknown_120h; // 0x00000000
+		uint32_t Unknown_124h; // 0x00000000
+		uint32_t Unknown_128h; // 0x00000000
+		uint32_t Unknown_12Ch; // 0x00000000
+	} FragPhysicsLOD;
+
+	TranslatePTR(FragType.PhysicsLODGroupPointer);
+
+	file.seekg(FragType.PhysicsLODGroupPointer);
+
+	file.read((char*)&FragPhysicsLODGroup, sizeof(FragPhysicsLODGroup));
+
+	TranslatePTR(FragPhysicsLODGroup.PhysicsLOD1Pointer);
+
+	file.seekg(FragPhysicsLODGroup.PhysicsLOD1Pointer);
+
+	file.read((char*)&FragPhysicsLOD, sizeof(FragPhysicsLOD));
+
+	TranslatePTR(FragPhysicsLOD.BoundPointer);
+
+	YbnLoader* loader = new YbnLoader(world, file, hash);
 }
 
 

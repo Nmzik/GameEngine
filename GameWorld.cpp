@@ -98,7 +98,7 @@ GameWorld::~GameWorld()
 	delete dynamicsWorld;
 }
 
-void GameWorld::LoadYmap(Shader* shader, uint32_t hash, glm::vec3 cameraPosition)
+void GameWorld::LoadYmap(Shader* shader, uint32_t hash, Camera* camera)
 {
 	auto it = std::find_if(ymapLoader.begin(), ymapLoader.end(), [hash](YmapLoader* item) -> bool { return item->Hash == hash; });
 	if (it != ymapLoader.end()) {
@@ -127,10 +127,19 @@ void GameWorld::LoadYmap(Shader* shader, uint32_t hash, glm::vec3 cameraPosition
 					//printf("HERE");
 				}
 				else {
-					bool IsVisible = glm::length(cameraPosition - map->CEntityDefs[i].position) <= map->CEntityDefs[i].lodDist * LODMultiplier;
-					bool childrenVisible = (glm::length(cameraPosition - map->CEntityDefs[i].position) <= map->CEntityDefs[i].childLodDist * LODMultiplier) && (map->CEntityDefs[i].numChildren > 0);
+					bool IsVisible = glm::length(camera->Position - map->CEntityDefs[i].position) <= map->CEntityDefs[i].lodDist * LODMultiplier;
+					bool childrenVisible = (glm::length(camera->Position - map->CEntityDefs[i].position) <= map->CEntityDefs[i].childLodDist * LODMultiplier) && (map->CEntityDefs[i].numChildren > 0);
 					if (IsVisible && !childrenVisible) {
 						LoadYTD(map->CEntityDefs[i].archetypeName);
+						std::unordered_map<uint32_t, CBaseArchetypeDef>::iterator it; //FOUND ARCH ->TEXTURES FILE
+						it = data.TextureDictionary.find(map->CEntityDefs[i].archetypeName);
+						if (it != data.TextureDictionary.end())
+						{
+							if (!camera->intersects(it->second.bsCentre + map->CEntityDefs[i].position - camera->Position, it->second.bsRadius)) {
+								//culled++;
+								continue;
+							}
+						}
 						LoadDrawable(shader, map->CEntityDefs[i].archetypeName, map->ModelMatrices[i]);
 					}
 				}
@@ -372,9 +381,9 @@ bool GameWorld::LoadYBN(uint32_t hash)
 	}
 }
 
-void GameWorld::GetVisibleYmaps(Shader* shader, glm::vec3 Position)
+void GameWorld::GetVisibleYmaps(Shader* shader, Camera* camera)
 {
-	SpaceGridCell& cell = spaceGrid.GetCell(Position);
+	SpaceGridCell& cell = spaceGrid.GetCell(camera->Position);
 
 	//DetectInWater(Position);
 
@@ -385,7 +394,7 @@ void GameWorld::GetVisibleYmaps(Shader* shader, glm::vec3 Position)
 
 	for (auto& mapNode : cell.MapNodes)
 	{
-		LoadYmap(shader, mapNode->Name, Position);
+		LoadYmap(shader, mapNode->Name, camera);
 	}
 
 	/*for (auto& Proxy : cell.CInteriorProxies)
@@ -393,6 +402,9 @@ void GameWorld::GetVisibleYmaps(Shader* shader, glm::vec3 Position)
 		LoadYBN(Proxy->Name);
 		LoadYmap(Proxy->Parent, Position);
 	}*/
+
+	//printf("CULLED :%d\n", culled);
+	//culled = 0;
 
 	uint32_t curTime = SDL_GetTicks() / 1000;
 

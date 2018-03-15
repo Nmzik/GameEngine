@@ -20,6 +20,7 @@
 #include "Water.h"
 #include "Shader.h"
 #include <windows.h>
+#include "Camera.h"
 #include "SDL.h"
 
 class ResourceManager;
@@ -40,6 +41,7 @@ class GameWorld
 	PhysicsDebugDrawer debug;
 
 public:
+	uint32_t culled = 0;
 	float LODMultiplier = 1.0f;
 	std::vector<Water> WaterMeshes;
 	std::vector<YdrLoader*> ydrLoader;
@@ -60,7 +62,7 @@ public:
 	GameWorld();
 	~GameWorld();
 
-	void LoadYmap(Shader* shader, uint32_t hash, glm::vec3 cameraPosition);
+	void LoadYmap(Shader* shader, uint32_t hash, Camera* camera);
 
 	bool LoadYTYP(uint32_t hash);
 
@@ -70,7 +72,7 @@ public:
 
 	bool LoadYBN(uint32_t hash);
 
-	void GetVisibleYmaps(Shader* shader, glm::vec3 Position);
+	void GetVisibleYmaps(Shader* shader, Camera* camera);
 
 	ResourceManager* GetResourceManager() {
 		return _ResourceManager;
