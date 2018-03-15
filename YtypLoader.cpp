@@ -39,6 +39,16 @@ YtypLoader::YtypLoader(memstream& file)
 			}
 		}
 
+		if (Block.MetaDataBlock_struct.StructureNameHash == 1991296364) //CTimeArchetypeDef
+		{
+			for (int i = 0; i < Block.MetaDataBlock_struct.DataLength / sizeof(CTimeArchetypeDef); i++)
+			{
+				CTimeArchetypeDef def;
+				std::memcpy(&def, &Block.Data[i * sizeof(CTimeArchetypeDef)], sizeof(CTimeArchetypeDef));
+				CTimeArchetypeDefs.push_back(def);
+			}
+		}
+
 		if (Block.MetaDataBlock_struct.StructureNameHash == 273704021) //CMloArchetypeDef
 		{
 			for (int i = 0; i < Block.MetaDataBlock_struct.DataLength / sizeof(CMloArchetypeDef); i++)

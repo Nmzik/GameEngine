@@ -109,21 +109,24 @@ GameData::GameData()
 
 					memstream stream(outputBuffer.data(), outputBuffer.size());
 
-					YtypLoader* file = new YtypLoader(stream);
-					for (auto&  def : file->CBaseArchetypeDefs)
+					YtypLoader file(stream);
+					for (auto&  def : file.CBaseArchetypeDefs)
 					{
 						TextureDictionary[def.assetName] = def;
 					}
 
-					if (file->CMloArchetypeDefs.size() != 0)
+					for (auto& def : file.CTimeArchetypeDefs)
 					{
-						for (auto& def : file->CEntityDefs)
+						CTimeArchetypeDefs[def._BaseArchetypeDef.assetName] = def;
+					}
+
+					if (file.CMloArchetypeDefs.size() != 0)
+					{
+						for (auto& def : file.CEntityDefs)
 						{
 							//MloDictionary[file->CMloArchetypeDefs[0]._BaseArchetypeDef.assetName] = def;
 						}
 					}
-					delete file;
-
 				}
 			}
 		}

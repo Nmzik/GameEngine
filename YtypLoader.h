@@ -42,6 +42,20 @@ struct CBaseArchetypeDef //144 bytes, Key:2411387556
 	uint32_t Unused10;//140
 };
 
+struct CTimeArchetypeDefData
+{
+	uint32_t timeFlags; //144   144: UnsignedInt: 0: timeFlags//2248791340
+	uint32_t Unused11;//148
+	uint32_t Unused12;//152
+	uint32_t Unused13;//156
+};
+
+struct CTimeArchetypeDef //160 bytes, Key:2520619910
+{
+	CBaseArchetypeDef _BaseArchetypeDef;
+	CTimeArchetypeDefData _TimeArchetypeDef;
+};
+
 struct CMloArchetypeDefData
 {
 	uint32_t mloFlags; //144   144: UnsignedInt: 0: mloFlags//3590839912
@@ -64,6 +78,7 @@ class YtypLoader
 {
 public:
 	std::vector<CBaseArchetypeDef> CBaseArchetypeDefs;
+	std::vector<CTimeArchetypeDef> CTimeArchetypeDefs;
 	std::vector<CMloArchetypeDef> CMloArchetypeDefs;
 	std::vector<CEntityDef> CEntityDefs;
 	YtypLoader(memstream& file);

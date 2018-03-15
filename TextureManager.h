@@ -6,12 +6,15 @@
 #include <unordered_map>
 #include <string>
 
+struct Texture {
+	GLuint TextureID;
+	uint32_t referenceCount;
+};
+
 class TextureManager
 {
 public:
-	static bool testvar;
-	static std::unordered_map<uint32_t, GLuint> TexturesMap;
-	static void ChangeBool();
+	static std::unordered_map<uint32_t, Texture> TexturesMap;
 	static GLuint GetTexture(uint32_t textureHash);
 	static void LoadTexture(uint32_t Hash, GLuint TextureID);
 	static void RemoveTexture(uint32_t Hash);
