@@ -312,6 +312,16 @@ struct CEntityDef //128 bytes, Key:1825799514
 	uint32_t Unused6;//124
 };
 
+struct CMloInstanceDef //160 bytes, Key:2151576752
+{
+	CEntityDef CEntityDef;
+	uint32_t groupId; //128   128: UnsignedInt: 0: 2501631252
+	uint32_t floorId; //132   132: UnsignedInt: 0: floorId//2187650609
+	Array_uint defaultEntitySets; //136   136: Array: 0: defaultEntitySets//1407157833  {0: Hash: 0: 256}
+	uint32_t numExitPortals; //152   152: UnsignedInt: 0: numExitPortals//528711607
+	uint32_t MLOInstflags; //156   156: UnsignedInt: 0: MLOInstflags//3761966250
+};
+
 class YmapLoader
 {
 public:
@@ -319,6 +329,7 @@ public:
 	uint32_t time;
 	uint32_t flags;
 	uint32_t Hash;
+	std::vector<CMloInstanceDef> CMloInstanceDefs;
 	std::vector<CEntityDef> CEntityDefs;
 
 	YmapLoader(memstream& file, uint32_t hash);

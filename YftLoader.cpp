@@ -132,7 +132,7 @@ YftLoader::YftLoader(memstream& file, uint32_t hash, btDiscreteDynamicsWorld* wo
 		uint32_t Unknown_12Ch; // 0x00000000
 	} FragPhysicsLOD;
 
-	TranslatePTR(FragType.PhysicsLODGroupPointer);
+	/*TranslatePTR(FragType.PhysicsLODGroupPointer);
 
 	file.seekg(FragType.PhysicsLODGroupPointer);
 
@@ -146,7 +146,7 @@ YftLoader::YftLoader(memstream& file, uint32_t hash, btDiscreteDynamicsWorld* wo
 
 	TranslatePTR(FragPhysicsLOD.BoundPointer);
 
-	YbnLoader* loader = new YbnLoader(world, file, hash);
+	YbnLoader* loader = new YbnLoader(world, file, hash);*/
 }
 
 

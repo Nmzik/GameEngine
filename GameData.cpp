@@ -122,10 +122,7 @@ GameData::GameData()
 
 					if (file.CMloArchetypeDefs.size() != 0)
 					{
-						for (auto& def : file.CEntityDefs)
-						{
-							//MloDictionary[file->CMloArchetypeDefs[0]._BaseArchetypeDef.assetName] = def;
-						}
+						MloDictionary[file.CMloArchetypeDefs[0]._BaseArchetypeDef.assetName] = file.CEntityDefs;
 					}
 				}
 			}

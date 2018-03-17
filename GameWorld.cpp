@@ -70,6 +70,38 @@ GameWorld::GameWorld()
 	dynamicsWorld->setDebugDrawer(&debug);
 	//LoadYDR(3186271474, glm::vec3(), glm::quat(), glm::vec3());
 
+	std::unordered_map<uint32_t, RpfResourceFileEntry*>::iterator it;
+	it = data.YddEntries.find(2640562617);
+	if (it != data.YddEntries.end())
+	{
+		std::cout << "SKYDOME Found " << it->second->Name << std::endl;
+		auto& element = *(it->second);
+		std::vector<uint8_t> outputBuffer;
+		data.ExtractFileResource(element, outputBuffer);
+
+		memstream stream(outputBuffer.data(), outputBuffer.size());
+		skydome = new YddLoader(stream, 2640562617, dynamicsWorld);
+
+		std::unordered_map<uint32_t, RpfResourceFileEntry*>::iterator iter;
+		iter = data.YtdEntries.find(2640562617);
+		if (iter != data.YtdEntries.end())
+		{
+			std::cout << "YTD Found " << iter->second->Name << std::endl;
+			auto& element = *(iter->second);
+			std::vector<uint8_t> outputBuffer;
+			data.ExtractFileResource(element, outputBuffer);
+
+			memstream stream(outputBuffer.data(), outputBuffer.size());
+
+			YtdFile* file = new YtdFile(stream, 2640562617);
+		}
+
+		//skydome->YdrFiles[0]->meshes[0]->material->diffuseTextureID = TextureManager::GetTexture(1064311147);
+		return;
+	}
+
+
+
 	//ClearTestFunction();
 	/*std::unordered_map<uint32_t, CMloArchetypeDef>::iterator it;
 	it = data.MloDictionary.find(210892389);
@@ -399,8 +431,29 @@ void GameWorld::GetVisibleYmaps(Shader* shader, Camera* camera)
 
 	/*for (auto& Proxy : cell.CInteriorProxies)
 	{
-		LoadYBN(Proxy->Name);
-		LoadYmap(Proxy->Parent, Position);
+		LoadYmap(shader, Proxy->Parent, camera);
+		for (auto& ymapFile : ymapLoader)
+		{
+			if (ymapFile->Hash == Proxy->Parent) {
+				for (int i = 0; i < ymapFile->CMloInstanceDefs.size(); i++)
+				{
+					std::unordered_map<uint32_t, std::vector<CEntityDef>>::iterator it = data.MloDictionary.find(ymapFile->CMloInstanceDefs[i].CEntityDef.archetypeName);
+					if (it != data.MloDictionary.end())
+					{
+						for (auto& EntityDef : it->second)
+						{
+							LoadYTD(EntityDef.archetypeName);
+							glm::mat4 matrix = glm::translate(glm::mat4(), ymapFile->CMloInstanceDefs[i].CEntityDef.position + EntityDef.position) * glm::toMat4(glm::quat(-ymapFile->CMloInstanceDefs[i].CEntityDef.rotation.w, ymapFile->CMloInstanceDefs[i].CEntityDef.rotation.x, ymapFile->CMloInstanceDefs[i].CEntityDef.rotation.y, ymapFile->CMloInstanceDefs[i].CEntityDef.rotation.z) * glm::quat(-EntityDef.rotation.w, EntityDef.rotation.x, EntityDef.rotation.y, EntityDef.rotation.z)) * glm::scale(glm::mat4(), glm::vec3(EntityDef.scaleXY, EntityDef.scaleXY, EntityDef.scaleZ));
+							LoadDrawable(shader, EntityDef.archetypeName, matrix);
+						}
+
+					}
+				}
+			}
+		}
+
+		//LoadYBN(Proxy->Name);
+		//LoadYmap(Proxy->Parent, Position);
 	}*/
 
 	//printf("CULLED :%d\n", culled);

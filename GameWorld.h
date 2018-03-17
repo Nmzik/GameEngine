@@ -41,6 +41,7 @@ class GameWorld
 	PhysicsDebugDrawer debug;
 
 public:
+	YddLoader* skydome;
 	uint32_t culled = 0;
 	float LODMultiplier = 1.0f;
 	std::vector<Water> WaterMeshes;

@@ -392,6 +392,12 @@ void RenderingSystem::render(GameWorld* world)
 		waterMesh.Draw();
 	}*/
 
+	glDepthMask(GL_FALSE);
+	glm::mat4 SkydomeMatrix = glm::translate(glm::mat4(), camera->Position) * glm::toMat4(glm::quat(-1, 0, 0, 0)) * glm::scale(glm::mat4(), glm::vec3(10, 10, 10));
+	gbuffer->setMat4(3, SkydomeMatrix);
+	world->skydome->YdrFiles[0]->Draw();
+	glDepthMask(GL_TRUE);
+
 	world->GetVisibleYmaps(gbuffer, camera);
 
 	for (int i = 0; i < world->pedestrians.size(); i++) {
@@ -418,6 +424,8 @@ void RenderingSystem::render(GameWorld* world)
 	auto modelMatrix = world->player->getPosition();
 	gbuffer->setMat4(ModelUniformLoc, modelMatrix);
 	world->player->Draw();
+
+	//world->LoadDrawable(gbuffer, 2640562617, SkydomeMatrix);
 
 	//glDisable(GL_CULL_FACE);
 

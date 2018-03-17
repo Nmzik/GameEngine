@@ -113,13 +113,22 @@ YmapLoader::YmapLoader(memstream& file, uint32_t hash) : Hash(hash)
 	{
 		if (Block.MetaDataBlock_struct.StructureNameHash == 3461354627)
 		{
-			//printf("WWTF\n");
 			for (int i = 0; i < Block.MetaDataBlock_struct.DataLength / sizeof(CEntityDef); i++)
 			{
 				CEntityDef def;
 				std::memcpy(&def, &Block.Data[i * sizeof(CEntityDef)], sizeof(CEntityDef));
 				CEntityDefs.push_back(def);
 				ModelMatrices.emplace_back(glm::translate(glm::mat4(), def.position) * glm::toMat4(glm::quat(-def.rotation.w, def.rotation.x, def.rotation.y, def.rotation.z)) * glm::scale(glm::mat4(), glm::vec3(def.scaleXY, def.scaleXY, def.scaleZ)));
+			}
+		}
+
+		if (Block.MetaDataBlock_struct.StructureNameHash == 164374718) //CMloInstanceDef
+		{
+			for (int i = 0; i < Block.MetaDataBlock_struct.DataLength / sizeof(CMloInstanceDef); i++)
+			{
+				CMloInstanceDef def;
+				std::memcpy(&def, &Block.Data[i * sizeof(CMloInstanceDef)], sizeof(CMloInstanceDef));
+				CMloInstanceDefs.push_back(def);
 			}
 		}
 	}

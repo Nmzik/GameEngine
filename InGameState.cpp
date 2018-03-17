@@ -38,7 +38,7 @@ void InGameState::tick(float delta_time)
 		clockAccumulator -= 1.f;
 	}
 
-	//printf("Time %d %d\n", game->getWorld()->gameHour, game->getWorld()->gameMinute);
+	//	printf("Time %d %d\n", game->getWorld()->gameHour, game->getWorld()->gameMinute);
 
 	static bool DebugPressed = true;
 	//KEYBOARD
@@ -52,11 +52,13 @@ void InGameState::tick(float delta_time)
 	}
 
 	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_Z)) {
-		game->getWorld()->LODMultiplier += 0.1f;
+		//game->getWorld()->testvalue += 0.1f;
+		//game->getWorld()->LODMultiplier += 0.1f;
 	}
 
 	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_X)) {
-		game->getWorld()->LODMultiplier -= 0.1f;
+		//game->getWorld()->testvalue -= 0.1f;
+		//game->getWorld()->LODMultiplier -= 0.1f;
 	}
 
 	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_V)) {
