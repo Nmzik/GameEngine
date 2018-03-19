@@ -1,6 +1,6 @@
 #include "Player.h"
 
-Player::Player(glm::vec3 position, btDiscreteDynamicsWorld* world)
+Player::Player(glm::vec3 position, YddLoader* ydd, btDiscreteDynamicsWorld* world) : player(ydd)
 {
 	btPairCachingGhostObject* physObject = new btPairCachingGhostObject();
 	physShape = new btCapsuleShapeZ(0.45f, 1.2f);
@@ -14,77 +14,14 @@ Player::Player(glm::vec3 position, btDiscreteDynamicsWorld* world)
 	//physCharacter->setVelocityForTimeInterval(btVector3(1.f, 1.f, 1.f), 1.f);
 	physCharacter->setGravity(world->getGravity());
 	world->addCollisionObject(physObject, btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter);
-	world->addAction(physCharacter);
-
-	std::vector <float> vertices = {
-			-0.4f, -0.4f, -0.4f,  0.0f,  0.0f, -0.4f, 0.0f, 0.0f, // bottom-left
-             0.4f,  0.4f, -0.4f,  0.0f,  0.0f, -0.4f, 0.4f, 0.4f, // top-right
-             0.4f, -0.4f, -0.4f,  0.0f,  0.0f, -0.4f, 0.4f, 0.0f, // bottom-right         
-             0.4f,  0.4f, -0.4f,  0.0f,  0.0f, -0.4f, 0.4f, 0.4f, // top-right
-            -0.4f, -0.4f, -0.4f,  0.0f,  0.0f, -0.4f, 0.0f, 0.0f, // bottom-left
-            -0.4f,  0.4f, -0.4f,  0.0f,  0.0f, -0.4f, 0.0f, 0.4f, // top-left
-            // front face
-            -0.4f, -0.4f,  0.4f,  0.0f,  0.0f,  0.4f, 0.0f, 0.0f, // bottom-left
-             0.4f, -0.4f,  0.4f,  0.0f,  0.0f,  0.4f, 0.4f, 0.0f, // bottom-right
-             0.4f,  0.4f,  0.4f,  0.0f,  0.0f,  0.4f, 0.4f, 0.4f, // top-right
-             0.4f,  0.4f,  0.4f,  0.0f,  0.0f,  0.4f, 0.4f, 0.4f, // top-right
-            -0.4f,  0.4f,  0.4f,  0.0f,  0.0f,  0.4f, 0.0f, 0.4f, // top-left
-            -0.4f, -0.4f,  0.4f,  0.0f,  0.0f,  0.4f, 0.0f, 0.0f, // bottom-left
-            // left face
-            -0.4f,  0.4f,  0.4f, -0.4f,  0.0f,  0.0f, 0.4f, 0.0f, // top-right
-            -0.4f,  0.4f, -0.4f, -0.4f,  0.0f,  0.0f, 0.4f, 0.4f, // top-left
-            -0.4f, -0.4f, -0.4f, -0.4f,  0.0f,  0.0f, 0.0f, 0.4f, // bottom-left
-            -0.4f, -0.4f, -0.4f, -0.4f,  0.0f,  0.0f, 0.0f, 0.4f, // bottom-left
-            -0.4f, -0.4f,  0.4f, -0.4f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-right
-            -0.4f,  0.4f,  0.4f, -0.4f,  0.0f,  0.0f, 0.4f, 0.0f, // top-right
-            // right face
-             0.4f,  0.4f,  0.4f,  0.4f,  0.0f,  0.0f, 0.4f, 0.0f, // top-left
-             0.4f, -0.4f, -0.4f,  0.4f,  0.0f,  0.0f, 0.0f, 0.4f, // bottom-right
-             0.4f,  0.4f, -0.4f,  0.4f,  0.0f,  0.0f, 0.4f, 0.4f, // top-right         
-             0.4f, -0.4f, -0.4f,  0.4f,  0.0f,  0.0f, 0.0f, 0.4f, // bottom-right
-             0.4f,  0.4f,  0.4f,  0.4f,  0.0f,  0.0f, 0.4f, 0.0f, // top-left
-             0.4f, -0.4f,  0.4f,  0.4f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-left     
-            // bottom face
-            -0.4f, -0.4f, -0.4f,  0.0f, -0.4f,  0.0f, 0.0f, 0.4f, // top-right
-             0.4f, -0.4f, -0.4f,  0.0f, -0.4f,  0.0f, 0.4f, 0.4f, // top-left
-             0.4f, -0.4f,  0.4f,  0.0f, -0.4f,  0.0f, 0.4f, 0.0f, // bottom-left
-             0.4f, -0.4f,  0.4f,  0.0f, -0.4f,  0.0f, 0.4f, 0.0f, // bottom-left
-            -0.4f, -0.4f,  0.4f,  0.0f, -0.4f,  0.0f, 0.0f, 0.0f, // bottom-right
-            -0.4f, -0.4f, -0.4f,  0.0f, -0.4f,  0.0f, 0.0f, 0.4f, // top-right
-            // top face
-            -0.4f,  0.4f, -0.4f,  0.0f,  0.4f,  0.0f, 0.0f, 0.4f, // top-left
-             0.4f,  0.4f , 0.4f,  0.0f,  0.4f,  0.0f, 0.4f, 0.0f, // bottom-right
-             0.4f,  0.4f, -0.4f,  0.0f,  0.4f,  0.0f, 0.4f, 0.4f, // top-right     
-             0.4f,  0.4f,  0.4f,  0.0f,  0.4f,  0.0f, 0.4f, 0.0f, // bottom-right
-            -0.4f,  0.4f, -0.4f,  0.0f,  0.4f,  0.0f, 0.0f, 0.4f, // top-left
-            -0.4f,  0.4f,  0.4f,  0.0f,  0.4f,  0.0f, 0.0f, 0.0f  // bottom-left  
-};
-
-	glGenVertexArrays(1, &VAO);
-
-	glBindVertexArray(VAO);
-
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW);
-
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-
-	//glEnableVertexAttribArray(2);
-	//glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+	world->addAction(physCharacter);	
 
 	playerDirection = glm::vec3(0.0f, 0.0f, 0.0f);
 }
 
 Player::~Player()
 {
-	glDeleteBuffers(1, &EBO);
-	glDeleteBuffers(1, &VBO);
-	glDeleteVertexArrays(1, &VAO);
+	delete player;
 	//printf("DESTRUCTOR \n");
 }
 
@@ -142,7 +79,5 @@ void Player::Jump()
 
 void Player::Draw()
 {
-	glBindVertexArray(VAO);
-
-	glDrawArrays(GL_TRIANGLES, 0, 36);
+	player->Draw();
 }

@@ -37,6 +37,11 @@ YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world, memstream& file, uint32_t h
 
 	//file.seekg(16, std::ios::cur);
 
+	if (Bounds.Type == 4) {
+		printf("NEED FIX YBN! TYPE %d", Bounds.Type);
+		return;
+	}
+
 	if (Bounds.Type != 10) {
 		//printf("NEED FIX YBN! TYPE %d", Bounds.Type);
 		return;

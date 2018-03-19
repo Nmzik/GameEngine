@@ -68,6 +68,6 @@ void YddLoader::Draw()
 {
 	for (auto& YdrFile : YdrFiles)
 	{
-		if (YdrFile->isVisible) YdrFile->Draw();
+		YdrFile->Draw();
 	}
 }

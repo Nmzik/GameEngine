@@ -160,6 +160,23 @@ void InGameState::tick(float delta_time)
 		}
 	}
 
+	/*auto rayEnd = game->getRenderer()->getCamera().Position;
+	auto rayStart = glm::vec3(game->getWorld()->player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getX(), game->getWorld()->player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getY() - 5, game->getWorld()->player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getZ());
+	auto to = btVector3(rayEnd.x, rayEnd.y, rayEnd.z);
+	auto from = btVector3(rayStart.x, rayStart.y, rayStart.z);
+	btCollisionWorld::ClosestRayResultCallback cb(from, to);
+
+	game->getWorld()->GetDynamicsWorld()->rayTest(from, to, cb);
+	if (cb.hasHit() && cb.m_closestHitFraction < 1.f) {
+		game->getRenderer()->getCamera().Position =
+			glm::vec3(cb.m_hitPointWorld.x(), cb.m_hitPointWorld.y(),
+				cb.m_hitPointWorld.z());
+		game->getRenderer()->getCamera().Position +=
+			glm::vec3(cb.m_hitNormalWorld.x(), cb.m_hitNormalWorld.y(),
+				cb.m_hitNormalWorld.z()) *
+			0.1f;
+	}*/
+
 	//MOUSE
 	int x;
 	int y;

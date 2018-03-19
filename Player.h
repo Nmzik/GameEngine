@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Vehicle.h"
+#include "YddLoader.h"
 //#include "GameWorld.h"
 
 //class GameWorld;
@@ -13,9 +14,9 @@ class Player
 	bool inWater = false;
 	glm::vec3 playerDirection;
 	Vehicle* vehicle;
-	unsigned int VBO, EBO, VAO;
+	YddLoader* player;
 public:
-	Player(glm::vec3 position, btDiscreteDynamicsWorld* world);
+	Player(glm::vec3 position, YddLoader* ydd, btDiscreteDynamicsWorld* world);
 	~Player();
 
 	bool isAlive() {
