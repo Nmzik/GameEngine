@@ -36,6 +36,15 @@ GameWorld::GameWorld()
 		spaceGrid.AddCInteriorProxy(&cacheFile.AllCInteriorProxies[i], i);
 	}
 
+	ydrLoader.reserve(500);
+	yddLoader.reserve(500);;
+	yftLoader.reserve(500);
+	ytdLoader.reserve(500);
+	yndLoader.reserve(500);
+	ybnLoader.reserve(500);
+	ytypLoader.reserve(500);
+	ymapLoader.reserve(500);
+
 	/*{
 			//std::cout << "YTD Found " << std::endl;
 			std::unordered_map<uint32_t, RpfResourceFileEntry*>::iterator iter;
