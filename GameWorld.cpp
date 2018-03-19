@@ -21,19 +21,19 @@ GameWorld::GameWorld()
 
 	//_ResourceManager = new ResourceManager(this);
 
-	for (auto& mapNode : cacheFile.AllMapNodes)
+	for (int i = 0; i < cacheFile.AllMapNodes.size(); i++)
 	{
-		spaceGrid.AddMapNode(&mapNode);
+		spaceGrid.AddMapNode(&cacheFile.AllMapNodes[i], i);
 	}
 
-	for (auto& BoundsItem : cacheFile.AllBoundsStoreItems)
+	for (int i = 0; i < cacheFile.AllBoundsStoreItems.size(); i++)
 	{
-		spaceGrid.AddBoundsItem(&BoundsItem);
+		spaceGrid.AddBoundsItem(&cacheFile.AllBoundsStoreItems[i], i);
 	}
 
-	for (auto& CInteriorProxy : cacheFile.AllCInteriorProxies)
+	for (int i = 0; i < cacheFile.AllCInteriorProxies.size(); i++)
 	{
-		spaceGrid.AddCInteriorProxy(&CInteriorProxy);
+		spaceGrid.AddCInteriorProxy(&cacheFile.AllCInteriorProxies[i], i);
 	}
 
 	/*{
@@ -414,12 +414,12 @@ void GameWorld::GetVisibleYmaps(Shader* shader, Camera* camera)
 
 	for (auto& BoundsItem : cell.BoundsStoreItems)
 	{
-		LoadYBN(BoundsItem->Name);
+		LoadYBN(cacheFile.AllBoundsStoreItems[BoundsItem].Name);
 	}
 
 	for (auto& mapNode : cell.MapNodes)
 	{
-		LoadYmap(shader, mapNode->Name, camera);
+		LoadYmap(shader, cacheFile.AllMapNodes[mapNode].Name, camera);
 	}
 
 	/*for (auto& Proxy : cell.CInteriorProxies)

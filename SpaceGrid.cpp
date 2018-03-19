@@ -1,7 +1,5 @@
 #include "SpaceGrid.h"
 
-
-
 SpaceGrid::SpaceGrid()
 {
 	//Grid = new SpaceGridCell[500*500];
@@ -12,7 +10,7 @@ SpaceGrid::~SpaceGrid()
 {
 }
 
-void SpaceGrid::AddBoundsItem(BoundsStoreItem* item)
+void SpaceGrid::AddBoundsItem(BoundsStoreItem* item, uint16_t id)
 {
 	glm::vec2 min = GetCellPos(item->Min);
 	glm::vec2 max = GetCellPos(item->Max);
@@ -22,7 +20,7 @@ void SpaceGrid::AddBoundsItem(BoundsStoreItem* item)
 		for (int y = min.y; y <= max.y; y++)
 		{
 			if (!((x < 0) || (y < 0) || (x >= CellCount) || (y >= CellCount)))
-				Grid[x * 500 + y].AddBoundsItem(item);
+				Grid[x * 500 + y].AddBoundsItem(id);
 			/*SpaceGridCell* cell = GetCell(glm::vec2(x, y));
 			if (cell != nullptr)
 			{
@@ -32,7 +30,7 @@ void SpaceGrid::AddBoundsItem(BoundsStoreItem* item)
 	}
 }
 
-void SpaceGrid::AddMapNode(MapDataStoreNode* node)
+void SpaceGrid::AddMapNode(MapDataStoreNode* node, uint16_t id)
 {
 	glm::vec2 min = GetCellPos(node->streamingExtentsMin); //NOT entitiesExtents !!!! GIVES WEIRD RESULTS 
 	glm::vec2 max = GetCellPos(node->streamingExtentsMax);
@@ -42,7 +40,7 @@ void SpaceGrid::AddMapNode(MapDataStoreNode* node)
 		for (int y = min.y; y <= max.y; y++)
 		{
 			if (!((x < 0) || (y < 0) || (x >= CellCount) || (y >= CellCount)))
-				Grid[x * 500 + y].AddNode(node);
+				Grid[x * 500 + y].AddNode(id);
 			/*SpaceGridCell* cell = GetCell(glm::vec2(x, y));
 			if (cell != nullptr)
 			{
@@ -52,7 +50,7 @@ void SpaceGrid::AddMapNode(MapDataStoreNode* node)
 	}
 }
 
-void SpaceGrid::AddCInteriorProxy(CInteriorProxy * proxy)
+void SpaceGrid::AddCInteriorProxy(CInteriorProxy * proxy, uint16_t id)
 {
 	glm::vec2 min = GetCellPos(proxy->BBMin);
 	glm::vec2 max = GetCellPos(proxy->BBMax);
@@ -62,7 +60,7 @@ void SpaceGrid::AddCInteriorProxy(CInteriorProxy * proxy)
 		for (int y = min.y; y <= max.y; y++)
 		{
 			if (!((x < 0) || (y < 0) || (x >= CellCount) || (y >= CellCount)))
-				Grid[x * 500 + y].AddCInteriorProxy(proxy);
+				Grid[x * 500 + y].AddCInteriorProxy(id);
 			/*SpaceGridCell* cell = GetCell(glm::vec2(x, y));
 			if (cell != nullptr)
 			{

@@ -11,22 +11,22 @@
 class SpaceGridCell
 {
 public:
-	std::vector<MapDataStoreNode*> MapNodes;
-	std::vector<CInteriorProxy*> CInteriorProxies;
-	std::vector<BoundsStoreItem*> BoundsStoreItems;
+	std::vector<uint16_t> MapNodes;
+	std::vector<uint16_t> CInteriorProxies;
+	std::vector<uint16_t> BoundsStoreItems;
 
 	SpaceGridCell();
 	~SpaceGridCell();
 
-	void AddNode(MapDataStoreNode* node) {
+	void AddNode(uint16_t node) {
 		MapNodes.emplace_back(node);
 	}
 
-	void AddBoundsItem(BoundsStoreItem* item) {
+	void AddBoundsItem(uint16_t item) {
 		BoundsStoreItems.emplace_back(item);
 	}
 
-	void AddCInteriorProxy(CInteriorProxy* proxy) {
+	void AddCInteriorProxy(uint16_t proxy) {
 		CInteriorProxies.emplace_back(proxy);
 	}
 };
@@ -41,14 +41,13 @@ public:
 	const float CellSizeInv = 1.0f / CellSize; //inverse of the cell size.
 	const float CellSizeHalf = CellSize * 0.5f;
 	SpaceGridCell Grid[500 * 500];
-	//std::array<
 
 	SpaceGrid();
 	~SpaceGrid();
 
-	void AddBoundsItem(BoundsStoreItem* item);
-	void AddMapNode(MapDataStoreNode* node);
-	void AddCInteriorProxy(CInteriorProxy* proxy);
+	void AddBoundsItem(BoundsStoreItem* item, uint16_t id);
+	void AddMapNode(MapDataStoreNode* node, uint16_t id);
+	void AddCInteriorProxy(CInteriorProxy* proxy, uint16_t id);
 	SpaceGridCell &GetCell(glm::vec3 P);
 	SpaceGridCell &GetCell(glm::i32vec2 g);
 	glm::i32vec2 GetCellPos(glm::vec3 p);
