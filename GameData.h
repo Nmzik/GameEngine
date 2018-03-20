@@ -29,7 +29,7 @@ class GameData
 public:
 	std::vector<WaterQuad> WaterQuads;
 
-	std::unordered_map<uint32_t, CBaseArchetypeDef> TextureDictionary;
+	std::unordered_map<uint32_t, CBaseArchetypeDef> CBaseArchetypeDefs;
 	std::unordered_map<uint32_t, CTimeArchetypeDef> CTimeArchetypeDefs;
 	std::unordered_map<uint32_t, std::vector<CEntityDef>> MloDictionary;
 	std::unordered_map<uint32_t, RpfResourceFileEntry*> YdrEntries;

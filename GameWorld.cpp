@@ -184,9 +184,8 @@ void GameWorld::LoadYmap(Shader* shader, uint32_t hash, Camera* camera)
 					bool childrenVisible = (glm::length(camera->Position - map->CEntityDefs[i].position) <= map->CEntityDefs[i].childLodDist * LODMultiplier) && (map->CEntityDefs[i].numChildren > 0);
 					if (IsVisible && !childrenVisible) {
 						LoadYTD(map->CEntityDefs[i].archetypeName);
-						std::unordered_map<uint32_t, CBaseArchetypeDef>::iterator it; //FOUND ARCH ->TEXTURES FILE
-						it = data.TextureDictionary.find(map->CEntityDefs[i].archetypeName);
-						if (it != data.TextureDictionary.end())
+						std::unordered_map<uint32_t, CBaseArchetypeDef>::iterator it = data.CBaseArchetypeDefs.find(map->CEntityDefs[i].archetypeName);
+						if (it != data.CBaseArchetypeDefs.end())
 						{
 							if (!camera->intersects(it->second.bsCentre + map->CEntityDefs[i].position - camera->Position, it->second.bsRadius)) {
 								//culled++;
@@ -241,8 +240,8 @@ bool GameWorld::LoadYTYP(uint32_t hash)
 
 bool GameWorld::LoadYTD(uint32_t hash)
 {
-	std::unordered_map<uint32_t, CBaseArchetypeDef>::iterator it = data.TextureDictionary.find(hash);
-	if (it != data.TextureDictionary.end())
+	std::unordered_map<uint32_t, CBaseArchetypeDef>::iterator it = data.CBaseArchetypeDefs.find(hash);
+	if (it != data.CBaseArchetypeDefs.end())
 	{
 		for (auto& ytdFile : ytdLoader)
 		{
@@ -346,8 +345,8 @@ void GameWorld::LoadDrawable(Shader * shader, uint32_t hash, glm::mat4 & matrix)
 
 	{
 		//Load YDD
-		std::unordered_map<uint32_t, CBaseArchetypeDef>::iterator iter = data.TextureDictionary.find(hash);
-		if (iter != data.TextureDictionary.end())
+		std::unordered_map<uint32_t, CBaseArchetypeDef>::iterator iter = data.CBaseArchetypeDefs.find(hash);
+		if (iter != data.CBaseArchetypeDefs.end())
 		{
 
 			std::unordered_map<uint32_t, RpfResourceFileEntry*>::iterator it = data.YddEntries.find(iter->second.drawableDictionary);

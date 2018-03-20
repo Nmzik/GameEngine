@@ -112,7 +112,7 @@ GameData::GameData()
 					YtypLoader file(stream);
 					for (auto&  def : file.CBaseArchetypeDefs)
 					{
-						TextureDictionary[def.assetName] = def;
+						CBaseArchetypeDefs[def.assetName] = def;
 					}
 
 					for (auto& def : file.CTimeArchetypeDefs)
