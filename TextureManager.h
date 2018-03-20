@@ -14,7 +14,7 @@ struct Texture {
 class TextureManager
 {
 public:
-	static std::unordered_map<uint32_t, Texture> TexturesMap;
+	static std::unordered_map<uint32_t, GLuint> TexturesMap;
 	static GLuint GetTexture(uint32_t textureHash);
 	static void LoadTexture(uint32_t Hash, GLuint TextureID);
 	static void RemoveTexture(uint32_t Hash);

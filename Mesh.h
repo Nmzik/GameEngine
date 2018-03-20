@@ -48,7 +48,7 @@ enum VertexType : uint32_t
 
 class Mesh
 {
-	unsigned int VBO, EBO, VAO;
+	GLuint VBO, EBO, VAO;
 
 	Material* material;
 	unsigned int num_indices;

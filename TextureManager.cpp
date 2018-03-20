@@ -1,39 +1,39 @@
 #include "TextureManager.h"
 
-std::unordered_map<uint32_t, Texture> TextureManager::TexturesMap;
+std::unordered_map<uint32_t, GLuint> TextureManager::TexturesMap;
 
 GLuint TextureManager::GetTexture(uint32_t textureHash)
 {
-	std::unordered_map<uint32_t, Texture>::iterator it;
-	it = TexturesMap.find(textureHash);
+	std::unordered_map<uint32_t, GLuint>::iterator it = TexturesMap.find(textureHash);
 	if (it != TexturesMap.end())
 	{
 		//std::cout << "FOUND Texture " << it->first << std::endl;
-		auto& element = it->second;
-		element.referenceCount++;
+		//auto& element = it->second;
+		//element.referenceCount++;
 
-		return element.TextureID;
+		return it->second;
 	}
 	else {
 		it = TexturesMap.find(0);
-		return it->second.TextureID;
+		return it->second;
 	}
 }
 
 void TextureManager::LoadTexture(uint32_t Hash, GLuint TextureID)
 {
-	TexturesMap.insert(std::pair<uint32_t, Texture>(Hash, Texture{ TextureID, 0 }));
+	TexturesMap[Hash] = TextureID;
+	//TexturesMap.insert(std::pair<uint32_t, Texture>(Hash, Texture{ TextureID, 0 }));
+
 }
 
 void TextureManager::RemoveTexture(uint32_t Hash)
 {
-	std::unordered_map<uint32_t, Texture>::iterator it;
-	it = TexturesMap.find(Hash);
+	std::unordered_map<uint32_t, GLuint>::iterator it = TexturesMap.find(Hash);
 	if (it != TexturesMap.end())
 	{
-		it->second.referenceCount--;
+		//it->second.referenceCount--;
 		//if (it->second.referenceCount == 0) {
-			glDeleteTextures(1, &it->second.TextureID);
+			glDeleteTextures(1, &it->second);
 			TexturesMap.erase(it);
 		//}
 	}

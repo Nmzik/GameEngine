@@ -15,3 +15,5 @@ Threading:
 remove strings rpf in release build
 
 LOAD FILES IN GAMEDATA CLASS
+
+YMAP FREE OF LEAKS
