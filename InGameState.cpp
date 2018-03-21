@@ -38,7 +38,7 @@ void InGameState::tick(float delta_time)
 		clockAccumulator -= 1.f;
 	}
 
-	printf("Time %d %d\n", game->getWorld()->gameHour, game->getWorld()->gameMinute);
+	//printf("Time %d %d\n", game->getWorld()->gameHour, game->getWorld()->gameMinute);
 
 	static bool DebugPressed = true;
 	//KEYBOARD

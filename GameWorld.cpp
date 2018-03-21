@@ -159,7 +159,7 @@ void GameWorld::LoadYmap(Shader* shader, uint32_t hash, Camera* camera)
 		//printf("FOUND SAME\n");
 		//FOUND
 		map->time = SDL_GetTicks() / 1000;
-		if (!(map->flags & 1) > 0) { //DONT LOAD SCRIPTED MAPS
+		if (!(map->_CMapData.flags & 1) > 0) { //DONT LOAD SCRIPTED MAPS
 			for (int i = 0; i < map->CEntityDefs.size(); i++)
 			{
 				/*bool isreflproxy = false;
