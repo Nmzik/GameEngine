@@ -69,6 +69,12 @@ public:
 
 	bool LoadYTD(uint32_t hash);
 
+	void LoadYDR(Shader * shader, uint32_t hash, glm::mat4 & matrix);
+
+	void LoadYDD(Shader * shader, uint32_t hash, uint32_t DrawableDictionaryHash, glm::mat4 & matrix);
+
+	void LoadYFT(Shader * shader, uint32_t hash, glm::mat4 & matrix);
+
 	void LoadDrawable(Shader* shader, uint32_t hash, glm::mat4& matrix);
 
 	bool LoadYBN(uint32_t hash);
