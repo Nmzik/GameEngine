@@ -2,10 +2,12 @@
 #version 430 core
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aNormal;
-layout (location = 2) in vec2 aTexCoords;
+layout (location = 2) in vec4 _color;
+layout (location = 3) in vec2 aTexCoords;
 
 out vec2 TexCoords;
 out vec3 Normal;
+out vec4 Color;
 //out float flogz;
 
 layout(location = 3) uniform mat4 model;
@@ -22,7 +24,8 @@ void main()
     mat3 normalMatrix = transpose(inverse(mat3(view * model)));
     Normal = normalMatrix * aNormal;
 	//Normal = mat3(transpose(inverse(view * model))) * aNormal;
-    
+	Color = _color;
+
     gl_Position = projection * viewPos;
 	//gl_Position.z = log2(max(1e-6, 1.0 + gl_Position.w)) * Fcoef - 1.0;
 	//flogz = 1.0 + gl_Position.w;
@@ -35,6 +38,7 @@ layout (location = 1) out vec4 gAlbedoSpec;
 
 in vec2 TexCoords;
 in vec3 Normal;
+in vec4 Color;
 //in float flogz;
 
 struct Material {
@@ -55,8 +59,9 @@ void main()
 	/*vec4 texColor = texture(material.diffuse, TexCoords);
 	if (texColor.a < 0.1)
 		discard;*/
+	//gAlbedoSpec = vec4(Color.b, Color.g, Color.r, Color.a);
     gAlbedoSpec.rgb = texture(material.diffuse, TexCoords).rgb;
     // store specular intensity in gAlbedoSpec's alpha component
-    gAlbedoSpec.a = texture(material.specular, TexCoords).r;
+    //gAlbedoSpec.a *= texture(material.specular, TexCoords).r;
 	//gl_FragDepth = log2(flogz) * (Fcoef / 2.0);
 }

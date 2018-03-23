@@ -21,6 +21,11 @@ GLuint TextureManager::GetTexture(uint32_t textureHash)
 
 void TextureManager::LoadTexture(uint32_t Hash, GLuint TextureID)
 {
+	/*std::unordered_map<uint32_t, GLuint>::iterator it = TexturesMap.find(Hash);
+	if (it != TexturesMap.end())
+	{
+		printf("HERE");
+	}*/
 	TexturesMap[Hash] = TextureID;
 	//TexturesMap.insert(std::pair<uint32_t, Texture>(Hash, Texture{ TextureID, 0 }));
 

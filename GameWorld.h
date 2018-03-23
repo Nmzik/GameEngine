@@ -45,6 +45,12 @@ public:
 	uint32_t culled = 0;
 	float LODMultiplier = 1.0f;
 	std::vector<Water> WaterMeshes;
+	std::unordered_map<uint32_t, YdrLoader*> ydrLoaderTest;
+	std::unordered_map<uint32_t, YddLoader*> yddLoaderTest;
+	std::unordered_map<uint32_t, YftLoader*> yftLoaderTest;
+	std::unordered_map<uint32_t, YtdFile*> ytdLoaderTest;
+	std::unordered_map<uint32_t, YbnLoader*> ybnLoaderTest;
+	std::unordered_map<uint32_t, YmapLoader*> ymapLoaderTest;
 	std::vector<YdrLoader*> ydrLoader;
 	std::vector<YddLoader*> yddLoader;
 	std::vector<YftLoader*> yftLoader;
@@ -74,8 +80,6 @@ public:
 	void LoadYDD(Shader * shader, uint32_t hash, uint32_t DrawableDictionaryHash, glm::mat4 & matrix);
 
 	void LoadYFT(Shader * shader, uint32_t hash, glm::mat4 & matrix);
-
-	void LoadDrawable(Shader* shader, uint32_t hash, glm::mat4& matrix);
 
 	bool LoadYBN(uint32_t hash);
 

@@ -201,17 +201,15 @@ void GameWorld::LoadYmap(Shader* shader, uint32_t hash, Camera* camera)
 							if (it != data.CTimeArchetypeDefs.end())
 							{
 								//TIME FLAGS FOUND
-								if (((it->second._TimeArchetypeDef.timeFlags >> gameHour) & 1) != 1) {
-									//printf("DONT RENDER \n");
-									continue;
+								if ((it->second._TimeArchetypeDef.timeFlags >> gameHour) & 1) {
+									LoadYTD(it->second._BaseArchetypeDef.textureDictionary);
+									if (it->second._BaseArchetypeDef.assetType == ASSET_TYPE_DRAWABLE)
+										LoadYDR(shader, map->CEntityDefs[i].archetypeName, map->ModelMatrices[i]);
+									if (it->second._BaseArchetypeDef.assetType == ASSET_TYPE_DRAWABLEDICTIONARY)
+										LoadYDD(shader, map->CEntityDefs[i].archetypeName, it->second._BaseArchetypeDef.drawableDictionary, map->ModelMatrices[i]);
+									if (it->second._BaseArchetypeDef.assetType == ASSET_TYPE_FRAGMENT)
+										LoadYFT(shader, map->CEntityDefs[i].archetypeName, map->ModelMatrices[i]);
 								}
-								LoadYTD(it->second._BaseArchetypeDef.textureDictionary);
-								if (it->second._BaseArchetypeDef.assetType == ASSET_TYPE_DRAWABLE)
-									LoadYDR(shader, map->CEntityDefs[i].archetypeName, map->ModelMatrices[i]);
-								if (it->second._BaseArchetypeDef.assetType == ASSET_TYPE_DRAWABLEDICTIONARY)
-									LoadYDD(shader, map->CEntityDefs[i].archetypeName, it->second._BaseArchetypeDef.drawableDictionary, map->ModelMatrices[i]);
-								if (it->second._BaseArchetypeDef.assetType == ASSET_TYPE_FRAGMENT)
-									LoadYFT(shader, map->CEntityDefs[i].archetypeName, map->ModelMatrices[i]);
 							}
 							//else {
 								//printf("NOT FOUND");
@@ -225,7 +223,7 @@ void GameWorld::LoadYmap(Shader* shader, uint32_t hash, Camera* camera)
 	}
 	else {
 		std::unordered_map<uint32_t, RpfResourceFileEntry*>::iterator it = data.YmapEntries.find(hash);
-		if (it != data.YmapEntries.end())	
+		if (it != data.YmapEntries.end())
 		{
 			//std::cout << "YMAP Found" << std::endl;
 			auto& element = *(it->second);
@@ -265,32 +263,32 @@ bool GameWorld::LoadYTYP(uint32_t hash)
 
 bool GameWorld::LoadYTD(uint32_t hash)
 {
-		for (auto& ytdFile : ytdLoader)
-		{
-			if (ytdFile->Hash == hash) {
-				ytdFile->time = SDL_GetTicks() / 1000;
-				return true;
-			}
-		}
-		//std::cout << "YTD Found " << std::endl;
-		std::unordered_map<uint32_t, RpfResourceFileEntry*>::iterator iter = data.YtdEntries.find(hash);
-		if (iter != data.YtdEntries.end())
-		{
-			std::cout << "YTD Found " << iter->second->Name << std::endl;
-			auto& element = *(iter->second);
-			std::vector<uint8_t> outputBuffer;
-			data.ExtractFileResource(element, outputBuffer);
-
-			memstream stream(outputBuffer.data(), outputBuffer.size());
-
-			YtdFile* file = new YtdFile(stream, hash);
-			file->time = SDL_GetTicks() / 1000;
-			ytdLoader.push_back(file);
-			//TextureManager::LoadTexture(file->textures[0]);
-			//delete file;
-
+	for (auto& ytdFile : ytdLoader)
+	{
+		if (ytdFile->Hash == hash) {
+			ytdFile->time = SDL_GetTicks() / 1000;
 			return true;
 		}
+	}
+	//std::cout << "YTD Found " << std::endl;
+	std::unordered_map<uint32_t, RpfResourceFileEntry*>::iterator iter = data.YtdEntries.find(hash);
+	if (iter != data.YtdEntries.end())
+	{
+		std::cout << "YTD Found " << iter->second->Name << std::endl;
+		auto& element = *(iter->second);
+		std::vector<uint8_t> outputBuffer;
+		data.ExtractFileResource(element, outputBuffer);
+
+		memstream stream(outputBuffer.data(), outputBuffer.size());
+
+		YtdFile* file = new YtdFile(stream, hash);
+		file->time = SDL_GetTicks() / 1000;
+		ytdLoader.push_back(file);
+		//TextureManager::LoadTexture(file->textures[0]);
+		//delete file;
+
+		return true;
+	}
 }
 
 void GameWorld::LoadYDR(Shader * shader, uint32_t hash, glm::mat4 & matrix)
@@ -342,24 +340,22 @@ void GameWorld::LoadYDD(Shader * shader, uint32_t hash, uint32_t DrawableDiction
 		}
 	}
 
-	
+	std::unordered_map<uint32_t, RpfResourceFileEntry*>::iterator it = data.YddEntries.find(DrawableDictionaryHash);
+	if (it != data.YddEntries.end())
+	{
+		std::cout << "YDD Found " << it->second->Name << std::endl;
+		auto& element = *(it->second);
+		std::vector<uint8_t> outputBuffer;
+		data.ExtractFileResource(element, outputBuffer);
 
-		std::unordered_map<uint32_t, RpfResourceFileEntry*>::iterator it = data.YddEntries.find(DrawableDictionaryHash);
-		if (it != data.YddEntries.end())
-		{
-			std::cout << "YDD Found " << it->second->Name << std::endl;
-			auto& element = *(it->second);
-			std::vector<uint8_t> outputBuffer;
-			data.ExtractFileResource(element, outputBuffer);
+		memstream stream(outputBuffer.data(), outputBuffer.size());
+		YddLoader* newYdd = new YddLoader(stream, DrawableDictionaryHash, dynamicsWorld);
+		newYdd->time = SDL_GetTicks() / 1000;
+		yddLoader.emplace_back(newYdd);
 
-			memstream stream(outputBuffer.data(), outputBuffer.size());
-			YddLoader* newYdd = new YddLoader(stream, DrawableDictionaryHash, dynamicsWorld);
-			newYdd->time = SDL_GetTicks() / 1000;
-			yddLoader.emplace_back(newYdd);
+		return;
+	}
 
-			return;
-		}
-	
 }
 
 void GameWorld::LoadYFT(Shader * shader, uint32_t hash, glm::mat4 & matrix)
@@ -392,120 +388,6 @@ void GameWorld::LoadYFT(Shader * shader, uint32_t hash, glm::mat4 & matrix)
 		return;
 	}
 
-}
-void GameWorld::LoadDrawable(Shader * shader, uint32_t hash, glm::mat4 & matrix)
-{
-	std::unordered_map<uint32_t, CTimeArchetypeDef>::iterator it = data.CTimeArchetypeDefs.find(hash);
-	if (it != data.CTimeArchetypeDefs.end())
-	{
-		//TIME FLAGS FOUND
-		if (((it->second._TimeArchetypeDef.timeFlags >> gameHour) & 1) != 1) {
-			//printf("DONT RENDER \n");
-			return;
-		}
-	}
-
-	for (auto& ydrFile : ydrLoader)
-	{
-		if (ydrFile->Hash == hash) {
-			ydrFile->time = SDL_GetTicks() / 1000;
-
-			shader->setMat4(3, matrix);
-			ydrFile->Draw();
-
-			return;
-		}
-	}
-
-	for (auto& yddFile : yddLoader)
-	{
-		for (auto& ydr : yddFile->YdrFiles)
-		{
-			if (ydr->Hash == hash) {
-				shader->setMat4(3, matrix);
-				ydr->Draw();
-
-				yddFile->time = SDL_GetTicks() / 1000;
-				return;
-			}
-		}
-	}
-
-	for (auto& yftFile : yftLoader)
-	{
-		if (yftFile->Hash == hash) {
-			yftFile->time = SDL_GetTicks() / 1000;
-
-			shader->setMat4(3, matrix);
-			yftFile->Draw();
-
-			return;
-		}
-	}
-
-	{
-		//Load YDR
-		std::unordered_map<uint32_t, RpfResourceFileEntry*>::iterator it = data.YdrEntries.find(hash);
-		if (it != data.YdrEntries.end())
-		{
-			std::cout << "YDR Found " << it->second->Name << std::endl;
-			auto& element = *(it->second);
-			std::vector<uint8_t> outputBuffer;
-			data.ExtractFileResource(element, outputBuffer);
-			//printf(" SIZE BUFFER %d MB\n", outputBuffer.size() * sizeof(uint8_t)/1024/1024);
-
-			memstream stream(outputBuffer.data(), outputBuffer.size());
-
-			YdrLoader *newYdr = new YdrLoader(stream, hash, dynamicsWorld);
-			newYdr->time = SDL_GetTicks() / 1000;
-			ydrLoader.emplace_back(newYdr);
-
-			return;
-		}
-	}
-
-	{
-		//Load YDD
-		std::unordered_map<uint32_t, CBaseArchetypeDef>::iterator iter = data.CBaseArchetypeDefs.find(hash);
-		if (iter != data.CBaseArchetypeDefs.end())
-		{
-
-			std::unordered_map<uint32_t, RpfResourceFileEntry*>::iterator it = data.YddEntries.find(iter->second.drawableDictionary);
-			if (it != data.YddEntries.end())
-			{
-				std::cout << "YDD Found " << it->second->Name << std::endl;
-				auto& element = *(it->second);
-				std::vector<uint8_t> outputBuffer;
-				data.ExtractFileResource(element, outputBuffer);
-
-				memstream stream(outputBuffer.data(), outputBuffer.size());
-				YddLoader* newYdd = new YddLoader(stream, iter->second.drawableDictionary, dynamicsWorld);
-				newYdd->time = SDL_GetTicks() / 1000;
-				yddLoader.emplace_back(newYdd);
-
-				return;
-			}
-		}
-	}
-
-	{
-		//Load YFT
-		std::unordered_map<uint32_t, RpfResourceFileEntry*>::iterator it = data.YftEntries.find(hash);
-		if (it != data.YftEntries.end())
-		{
-			std::cout << "YFT Found " << it->second->Name << std::endl;
-			auto& element = *(it->second);
-			std::vector<uint8_t> outputBuffer;
-			data.ExtractFileResource(element, outputBuffer);
-
-			memstream stream(outputBuffer.data(), outputBuffer.size());
-			YftLoader *newYft = new YftLoader(stream, hash, dynamicsWorld);
-			newYft->time = SDL_GetTicks() / 1000;
-			yftLoader.emplace_back(newYft);
-
-			return;
-		}
-	}
 }
 
 bool GameWorld::LoadYBN(uint32_t hash)
