@@ -52,11 +52,10 @@ struct TextureBase{
 class YtdFile
 {
 public:
-	uint32_t Hash;
 	uint32_t time;
 	std::vector<uint32_t> TextureNameHashes;
 
-	YtdFile(memstream& file, uint32_t hash);
+	YtdFile(memstream& file);
 	~YtdFile();
 };
 

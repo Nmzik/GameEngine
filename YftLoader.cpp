@@ -1,6 +1,6 @@
 #include "YftLoader.h"
 
-YftLoader::YftLoader(memstream& file, uint32_t hash, btDiscreteDynamicsWorld* world) : Hash(hash)
+YftLoader::YftLoader(memstream& file, btDiscreteDynamicsWorld* world)
 {
 	ResourceFileBase resourceFileBase;
 	file.read((char*)&resourceFileBase, sizeof(ResourceFileBase));
@@ -73,7 +73,7 @@ YftLoader::YftLoader(memstream& file, uint32_t hash, btDiscreteDynamicsWorld* wo
 
 	file.seekg(FragType.DrawablePointer);
 
-	YdrFile = new YdrLoader(file, hash, world);
+	YdrFile = new YdrLoader(file, world);
 
 	struct {
 		uint32_t VFT;

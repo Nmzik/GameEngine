@@ -79,7 +79,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Console</SubSystem>
       <AdditionalLibraryDirectories>C:\Users\nmzik\source\repos\MyGameEngine\MyGameEngine\zlib;$(ProjectDir)\bullet\lib;C:\Program Files %28x86%29\OpenAL 1.1 SDK\libs\Win64;C:\Users\nmzik\source\repos\MyGameEngine\MyGameEngine\sdl2\lib\x64;C:\Users\nmzik\source\repos\MyGameEngine\MyGameEngine\glew\lib\Release\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;BulletDynamics.lib;BulletCollision.lib;LinearMath.lib;glew32.lib;OpenAL32.lib;opengl32.lib;zlibwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;BulletDynamics.lib;BulletCollision.lib;LinearMath.lib;glew32.lib;opengl32.lib;zlibwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

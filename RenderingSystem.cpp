@@ -392,11 +392,11 @@ void RenderingSystem::render(GameWorld* world)
 		waterMesh.Draw();
 	}*/
 
-	glDepthMask(GL_FALSE);
+	/*glDepthMask(GL_FALSE);
 	glm::mat4 SkydomeMatrix = glm::translate(glm::mat4(), camera->Position) * glm::toMat4(glm::quat(-1, 0, 0, 0)) * glm::scale(glm::mat4(), glm::vec3(10, 10, 10));
 	gbuffer->setMat4(3, SkydomeMatrix);
 	world->skydome->YdrFiles[0]->Draw();
-	glDepthMask(GL_TRUE);
+	glDepthMask(GL_TRUE);*/
 
 	world->GetVisibleYmaps(gbuffer, camera);
 

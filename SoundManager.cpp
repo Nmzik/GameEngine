@@ -1,4 +1,4 @@
-#include "SoundManager.h"
+/*#include "SoundManager.h"
 
 
 
@@ -37,4 +37,4 @@ void SoundManager::InitializeOpenAL()
 	alSource3f(source, AL_VELOCITY, 0, 0, 0);
 	alSourcei(source, AL_LOOPING, AL_FALSE);
 
-}
+}*/

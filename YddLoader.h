@@ -16,11 +16,9 @@
 class YddLoader
 {
 public:
-	std::vector<YdrLoader *> YdrFiles;
-	uint32_t Hash;
+	std::unordered_map<uint32_t, YdrLoader*> YdrFiles;
 	uint32_t time;
-	YddLoader(memstream& file, uint32_t hash, btDiscreteDynamicsWorld* world);
-	void LoadYdr(uint32_t Hash);
+	YddLoader(memstream& file, btDiscreteDynamicsWorld* world);
 	~YddLoader();
 
 	void Draw();

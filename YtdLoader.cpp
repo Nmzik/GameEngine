@@ -1,6 +1,6 @@
 #include "YtdLoader.h"
 
-YtdFile::YtdFile(memstream& file, uint32_t hash) : Hash(hash)
+YtdFile::YtdFile(memstream& file)
 {
 	enum TextureFormat
 	{

@@ -37,7 +37,7 @@ class GameWorld
 	CacheDatFile cacheFile;
 	SpaceGrid spaceGrid;
 	ResourceManager* _ResourceManager;
-	SoundManager sound;
+	//SoundManager sound;
 	PhysicsDebugDrawer debug;
 
 public:
@@ -45,21 +45,14 @@ public:
 	uint32_t culled = 0;
 	float LODMultiplier = 1.0f;
 	std::vector<Water> WaterMeshes;
-	std::unordered_map<uint32_t, YdrLoader*> ydrLoaderTest;
-	std::unordered_map<uint32_t, YddLoader*> yddLoaderTest;
-	std::unordered_map<uint32_t, YftLoader*> yftLoaderTest;
-	std::unordered_map<uint32_t, YtdFile*> ytdLoaderTest;
-	std::unordered_map<uint32_t, YbnLoader*> ybnLoaderTest;
-	std::unordered_map<uint32_t, YmapLoader*> ymapLoaderTest;
-	std::vector<YdrLoader*> ydrLoader;
-	std::vector<YddLoader*> yddLoader;
-	std::vector<YftLoader*> yftLoader;
-	std::vector<YtdFile*> ytdLoader;
-	std::vector<YndLoader> yndLoader;
-	std::vector<YbnLoader*> ybnLoader;
+	std::unordered_map<uint32_t, YdrLoader*> ydrLoader;
+	std::unordered_map<uint32_t, YddLoader*> yddLoader;
+	std::unordered_map<uint32_t, YftLoader*> yftLoader;
+	std::unordered_map<uint32_t, YtdFile*> ytdLoader;
+	//std::vector<YndLoader> yndLoader;
+	std::unordered_map<uint32_t, YbnLoader*> ybnLoader;
 	std::vector<YtypLoader*> ytypLoader;
-	std::vector<YmapLoader*> ymapLoader;
-	std::vector<Model*> models;
+	std::unordered_map<uint32_t, YmapLoader*> ymapLoader;
 	std::vector<Player*> pedestrians;
 	std::vector<Vehicle*> vehicles;
 	uint8_t gameMinute;
@@ -73,7 +66,7 @@ public:
 
 	bool LoadYTYP(uint32_t hash);
 
-	bool LoadYTD(uint32_t hash);
+	void LoadYTD(uint32_t hash);
 
 	void LoadYDR(Shader * shader, uint32_t hash, glm::mat4 & matrix);
 
@@ -81,7 +74,7 @@ public:
 
 	void LoadYFT(Shader * shader, uint32_t hash, glm::mat4 & matrix);
 
-	bool LoadYBN(uint32_t hash);
+	void LoadYBN(uint32_t hash);
 
 	void GetVisibleYmaps(Shader* shader, Camera* camera);
 

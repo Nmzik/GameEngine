@@ -1,6 +1,6 @@
 #include "YbnLoader.h"
 
-YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world, memstream& file, uint32_t hash) : Hash(hash), CollisionWorld(world)
+YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world, memstream& file) : CollisionWorld(world)
 {
 	compound = new btCompoundShape();
 

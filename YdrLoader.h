@@ -301,8 +301,7 @@ public:
 	float BBRadius;
 	uint32_t time;
 	bool Loaded = false;
-	uint32_t Hash;
-	YdrLoader(memstream& file, uint32_t hash, btDiscreteDynamicsWorld* world);
+	YdrLoader(memstream& file, btDiscreteDynamicsWorld* world);
 	~YdrLoader();
 
 	void UploadMeshes();

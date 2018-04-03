@@ -1,5 +1,5 @@
 #pragma once
-#include <iostream>
+/*#include <iostream>
 
 #include "al.h" 
 #include "alc.h" 
@@ -17,5 +17,5 @@ public:
 	~SoundManager();
 
 	void InitializeOpenAL();
-};
+};*/
 

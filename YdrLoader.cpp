@@ -1,6 +1,6 @@
 #include "YdrLoader.h"
 
-YdrLoader::YdrLoader(memstream& file, uint32_t hash, btDiscreteDynamicsWorld* world) : Hash(hash)
+YdrLoader::YdrLoader(memstream& file, btDiscreteDynamicsWorld* world)
 {
 	std::vector<uint32_t> TexturesHashes;
 
@@ -59,7 +59,7 @@ YdrLoader::YdrLoader(memstream& file, uint32_t hash, btDiscreteDynamicsWorld* wo
 
 		file.seekg(_ShaderGroup.TextureDictionaryPointer);
 		printf("YTD INSIDE YDR\n");
-		ytdFile = new YtdFile(file, hash);
+		ytdFile = new YtdFile(file);
 	}
 
 	TranslatePTR(_ShaderGroup.ShadersPointer);

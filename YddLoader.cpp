@@ -1,6 +1,6 @@
 #include "YddLoader.h"
 
-YddLoader::YddLoader(memstream& file, uint32_t hash, btDiscreteDynamicsWorld* world) : Hash(hash)
+YddLoader::YddLoader(memstream& file, btDiscreteDynamicsWorld* world)
 {
 	ResourceFileBase resourceFileBase;
 	file.read((char*)&resourceFileBase, sizeof(ResourceFileBase));
@@ -48,8 +48,8 @@ YddLoader::YddLoader(memstream& file, uint32_t hash, btDiscreteDynamicsWorld* wo
 
 		file.seekg(DataPointer);
 
-		YdrLoader* YdrFile = new YdrLoader(file, Hashes[i], world);
-		YdrFiles.push_back(YdrFile);
+		YdrLoader* YdrFile = new YdrLoader(file, world);
+		YdrFiles[Hashes[i]] = YdrFile;
 
 		file.seekg(DrawablePointer);
 	}
@@ -57,17 +57,17 @@ YddLoader::YddLoader(memstream& file, uint32_t hash, btDiscreteDynamicsWorld* wo
 
 YddLoader::~YddLoader()
 {
-	for (std::vector<YdrLoader*>::iterator it = YdrFiles.begin(); it != YdrFiles.end(); /*increment in body*/)
+	for (auto it = YdrFiles.begin(); it != YdrFiles.end();)
 	{
-		delete *it;
+		delete it->second;
 		it = YdrFiles.erase(it);
 	}
 }
 
 void YddLoader::Draw()
 {
-	for (auto& YdrFile : YdrFiles)
+	for (auto YdrFile : YdrFiles)
 	{
-		YdrFile->Draw();
+		YdrFile.second->Draw();
 	}
 }

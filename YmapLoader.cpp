@@ -3,7 +3,7 @@
 #define SYSTEM_BASE 0x50000000
 #define GRAPHICS_BASE 0x60000000
 
-YmapLoader::YmapLoader(memstream& file, uint32_t hash) : Hash(hash)
+YmapLoader::YmapLoader(memstream& file)
 {
 /*	//ADD NEED
 	uint32_t rsc7;

@@ -404,11 +404,10 @@ public:
 	std::vector<glm::mat4> ModelMatrices;
 	uint32_t time;
 	CMapData _CMapData;
-	uint32_t Hash;
 	std::vector<CMloInstanceDef> CMloInstanceDefs;
 	std::vector<CEntityDef> CEntityDefs;
 
-	YmapLoader(memstream& file, uint32_t hash);
+	YmapLoader(memstream& file);
 	~YmapLoader();
 };
 

@@ -22,10 +22,9 @@ class YbnLoader
 	std::vector<btBvhTriangleMeshShape*> btTriangleMeshes;
 public:
 	uint32_t time;
-	uint32_t Hash;
 	std::vector<glm::vec3> CenterGeometry;
 
-	YbnLoader(btDiscreteDynamicsWorld* world, memstream& file, uint32_t hash);
+	YbnLoader(btDiscreteDynamicsWorld* world, memstream& file);
 	~YbnLoader();
 	glm::mat4 GetMat4();
 };
