@@ -136,54 +136,59 @@ YtdFile::YtdFile(memstream& file)
 			break;
 		}
 
-		GLuint textureID;
-
-		glGenTextures(1, &textureID);
-
-		glBindTexture(GL_TEXTURE_2D, textureID);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, Texture.Levels - 1);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, Texture.Levels <= 1 ? GL_LINEAR : GL_LINEAR_MIPMAP_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		/*glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-		//glPixelStorei(GL_UNPACK_ALIGNMENT, 1);*/
-
-		if (Texture.Format == D3DFMT_DXT1 || Texture.Format == D3DFMT_DXT3 || Texture.Format == D3DFMT_DXT5 || Texture.Format == D3DFMT_BC7 || Texture.Format == D3DFMT_ATI1 || Texture.Format == D3DFMT_ATI2)
+		std::unordered_map<uint32_t, GLuint>::iterator it = TextureManager::TexturesMap.find(TextureNameHashes[i]);
+		if (it == TextureManager::TexturesMap.end())
 		{
-			unsigned int blockSize = (format == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT || format == GL_COMPRESSED_RED_RGTC1) ? 8 : 16;
-			unsigned int offset = 0;
+			GLuint textureID;
 
-			for (unsigned int level = 0; level < Texture.Levels; ++level)
+			glGenTextures(1, &textureID);
+
+			glBindTexture(GL_TEXTURE_2D, textureID);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, Texture.Levels - 1);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, Texture.Levels <= 1 ? GL_LINEAR : GL_LINEAR_MIPMAP_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			/*glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+			//glPixelStorei(GL_UNPACK_ALIGNMENT, 1);*/
+
+			if (Texture.Format == D3DFMT_DXT1 || Texture.Format == D3DFMT_DXT3 || Texture.Format == D3DFMT_DXT5 || Texture.Format == D3DFMT_BC7 || Texture.Format == D3DFMT_ATI1 || Texture.Format == D3DFMT_ATI2)
 			{
-				unsigned int size = ((Texture.Width + 3) / 4)*((Texture.Height + 3) / 4)*blockSize;
+				unsigned int blockSize = (format == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT || format == GL_COMPRESSED_RED_RGTC1) ? 8 : 16;
+				unsigned int offset = 0;
 
-				glCompressedTexImage2D(GL_TEXTURE_2D, level, format, Texture.Width, Texture.Height, 0, size, &file._buffer.p[Texture.DataPointer] + offset);
+				for (unsigned int level = 0; level < Texture.Levels; ++level)
+				{
+					unsigned int size = ((Texture.Width + 3) / 4)*((Texture.Height + 3) / 4)*blockSize;
 
-				offset += size;
-				Texture.Width /= 2;
-				Texture.Height /= 2;
+					glCompressedTexImage2D(GL_TEXTURE_2D, level, format, Texture.Width, Texture.Height, 0, size, &file._buffer.p[Texture.DataPointer] + offset);
+
+					offset += size;
+					Texture.Width /= 2;
+					Texture.Height /= 2;
+				}
+
+			}
+			else {
+
+				if (Texture.Format == D3DFMT_A8R8G8B8)
+					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, Texture.Width, Texture.Height, 0, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, &file._buffer.p[Texture.DataPointer]);
+				if (Texture.Format == D3DFMT_A1R5G5B5)
+					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, Texture.Width, Texture.Height, 0, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &file._buffer.p[Texture.DataPointer]);
+				if (Texture.Format == D3DFMT_A8) //NO CLUE?????
+					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, Texture.Width, Texture.Height, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &file._buffer.p[Texture.DataPointer]);
+				if (Texture.Format == D3DFMT_A8B8G8R8)
+					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, Texture.Width, Texture.Height, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV, &file._buffer.p[Texture.DataPointer]);
+				if (Texture.Format == D3DFMT_L8)
+					glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE8, Texture.Width, Texture.Height, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, &file._buffer.p[Texture.DataPointer]);
 			}
 
-		}
-		else {
 
-			if (Texture.Format == D3DFMT_A8R8G8B8)
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, Texture.Width, Texture.Height, 0, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, &file._buffer.p[Texture.DataPointer]);
-			if (Texture.Format == D3DFMT_A1R5G5B5)
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, Texture.Width, Texture.Height, 0, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &file._buffer.p[Texture.DataPointer]);
-			if (Texture.Format == D3DFMT_A8) //NO CLUE?????
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, Texture.Width, Texture.Height, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &file._buffer.p[Texture.DataPointer]);
-			if (Texture.Format == D3DFMT_A8B8G8R8)
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, Texture.Width, Texture.Height, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV, &file._buffer.p[Texture.DataPointer]);
-			if (Texture.Format == D3DFMT_L8)
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE8, Texture.Width, Texture.Height, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, &file._buffer.p[Texture.DataPointer]);
+			TextureManager::LoadTexture(TextureNameHashes[i], textureID);
 		}
-
-		TextureManager::LoadTexture(TextureNameHashes[i], textureID);
 
 		file.seekg(posOriginal);
 
