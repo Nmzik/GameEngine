@@ -1,12 +1,14 @@
 #pragma once
 #include <btBulletDynamicsCommon.h>
-#include "Model.h"
+#include "BulletCollision/CollisionDispatch/btGhostObject.h"
+#include "BulletDynamics/Character/btKinematicCharacterController.h"
+#include "YftLoader.h"
 
 class Vehicle
 {
-	unsigned int VBO, EBO, VAO;
+	YftLoader* vehicle;
 public:
-	Vehicle(glm::vec3 position, btDiscreteDynamicsWorld* world);
+	Vehicle(glm::vec3 position, YftLoader* yft, btDiscreteDynamicsWorld* world);
 	~Vehicle();
 
 	float throttle;

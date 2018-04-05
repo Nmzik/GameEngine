@@ -55,10 +55,12 @@ public:
 	std::unordered_map<uint32_t, YmapLoader*> ymapLoader;
 	std::vector<Player*> pedestrians;
 	std::vector<Vehicle*> vehicles;
+	bool testSpawn = true;
 	uint8_t gameMinute;
 	uint8_t gameHour;
 	uint8_t currentPlayerID = 0;
 	Player* player[3];
+	YftLoader* vehicleModel;
 
 	GameWorld();
 	~GameWorld();

@@ -154,14 +154,26 @@ Mesh::Mesh(const uint8_t* meshData, uint64_t VertexPointer, uint32_t VertexSize,
 	case PCCCCT:
 		break;
 	case PCCNC:
-		break;
+		break;*/
 	case PCCNCTT:
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 52, nullptr);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 52, (GLvoid*)20);
+		glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_FALSE, 52, (GLvoid*)12);
+		glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 52, (GLvoid*)36);
 		break;
 	case PCCNCTTX:
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 68, nullptr);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 68, (GLvoid*)20);
+		glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_FALSE, 68, (GLvoid*)12);
+		glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 68, (GLvoid*)36);
 		break;
 	case PCCNCTTT:
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 60, nullptr);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 60, (GLvoid*)20);
+		glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_FALSE, 60, (GLvoid*)12);
+		glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 60, (GLvoid*)36);
 		break;
-	case PNCTT:
+	/*case PNCTT:
 		break;
 	case PNCTTT:
 		break;*/

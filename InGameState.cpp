@@ -48,7 +48,7 @@ void InGameState::tick(float delta_time)
 	}
 
 	if (game->getInput()->IsKeyPressed(SDL_SCANCODE_E)) {
-		//game->getRenderer()->setType(0);
+		game->getWorld()->testSpawn = !game->getWorld()->testSpawn;
 	}
 
 	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_Z)) {

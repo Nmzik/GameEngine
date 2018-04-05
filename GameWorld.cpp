@@ -117,12 +117,19 @@ GameWorld::GameWorld()
 
 			YtdFile* file = new YtdFile(stream);
 		}
-
-		//skydome->YdrFiles[0]->meshes[0]->material->diffuseTextureID = TextureManager::GetTexture(1064311147);
-		return;
 	}
 
+	auto itv = data.YftEntries.find(3728579874);
+	if (itv != data.YftEntries.end())
+	{
+		std::cout << "YFT CAR Found " << itv->second->Name << std::endl;
+		auto& element = *(itv->second);
+		std::vector<uint8_t> outputBuffer;
+		data.ExtractFileResource(element, outputBuffer);
 
+		memstream stream(outputBuffer.data(), outputBuffer.size());
+		vehicleModel = new YftLoader(stream, dynamicsWorld);
+	}
 
 	//ClearTestFunction();
 	/*std::unordered_map<uint32_t, CMloArchetypeDef>::iterator it;
@@ -547,7 +554,7 @@ void GameWorld::createPedestrian()
 
 void GameWorld::createVehicle()
 {
-	Vehicle *newVehicle = new Vehicle(glm::vec3(-20, 0, 0), dynamicsWorld);
+	Vehicle *newVehicle = new Vehicle(glm::vec3(-20, 0, 0), vehicleModel, dynamicsWorld);
 	vehicles.push_back(newVehicle);
 }
 
@@ -600,14 +607,15 @@ void GameWorld::UpdateTraffic(glm::vec3 cameraPosition)
 			vehicles.erase(vehicles.begin() + i);
 		}
 	}
-
-	int MaximumAvailableVehicles = 10 - vehicles.size(); //HARDCODED
-	if (cameraPosition.z < 100.0f) {
-		for (int i = 0; i < MaximumAvailableVehicles; i++) {
-			float xRandom = RandomFloat(cameraPosition.x - radiusTraffic, cameraPosition.x + radiusTraffic);
-			float yRandom = RandomFloat(cameraPosition.y - radiusTraffic, cameraPosition.y + radiusTraffic);
-			Vehicle* newVehicle = new Vehicle(glm::vec3(xRandom, yRandom, cameraPosition.z + 5.0f), dynamicsWorld);
-			vehicles.push_back(newVehicle);
+	if (testSpawn) {
+		int MaximumAvailableVehicles = 10 - vehicles.size(); //HARDCODED
+		if (cameraPosition.z < 100.0f) {
+			for (int i = 0; i < MaximumAvailableVehicles; i++) {
+				float xRandom = RandomFloat(cameraPosition.x - radiusTraffic, cameraPosition.x + radiusTraffic);
+				float yRandom = RandomFloat(cameraPosition.y - radiusTraffic, cameraPosition.y + radiusTraffic);
+				Vehicle* newVehicle = new Vehicle(glm::vec3(xRandom, yRandom, cameraPosition.z + 5.0f), vehicleModel, dynamicsWorld);
+				vehicles.push_back(newVehicle);
+			}
 		}
 	}
 }
@@ -620,7 +628,7 @@ Vehicle* GameWorld::FindNearestVehicle()
 
 	for (auto& vehicle : vehicles)
 	{
-		glm::vec3 PlayerPosition(player[0]->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getX(), player[0]->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getY(), player[0]->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getZ());
+		glm::vec3 PlayerPosition(player[currentPlayerID]->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getX(), player[currentPlayerID]->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getY(), player[currentPlayerID]->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getZ());
 		glm::vec3 VehiclePosition(vehicle->m_carChassis->getWorldTransform().getOrigin().getX(), vehicle->m_carChassis->getWorldTransform().getOrigin().getY(), vehicle->m_carChassis->getWorldTransform().getOrigin().getZ());
 		float vd = glm::length(PlayerPosition - VehiclePosition);
 		if (vd < d) {

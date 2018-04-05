@@ -1,8 +1,5 @@
 #include "Vehicle.h"
 
-int rightIndex = 0;
-int upIndex = 1;
-int forwardIndex = 2;
 #define CUBE_HALF_EXTENTS 1
 btVector3 wheelDirectionCS0(0, 0, -1);
 btVector3 wheelAxleCS(1, 0, 0);
@@ -21,24 +18,23 @@ float	rollInfluence = 0.1f;//1.0f;
 btScalar suspensionRestLength(0.6f);
 btScalar m_defaultContactProcessingThreshold(BT_LARGE_FLOAT);
 
-Vehicle::Vehicle(glm::vec3 position, btDiscreteDynamicsWorld* world) : throttle(0), steeringValue(0)
+Vehicle::Vehicle(glm::vec3 position, YftLoader* yft, btDiscreteDynamicsWorld* world) : throttle(0), steeringValue(0), vehicle(yft)
 {
-	btTransform tr;
-	tr.setIdentity();
-
 	btRaycastVehicle::btVehicleTuning m_tuning;
 	chassisShape = new btBoxShape(btVector3(1.f, 2.f, 0.5f));
 	compound = new btCompoundShape();
 	btTransform localTrans;
 	localTrans.setIdentity();
 	//localTrans effectively shifts the center of mass with respect to the chassis
-	localTrans.setOrigin(btVector3(0, 0, 1));
+	localTrans.setOrigin(btVector3(0, 0, 0.3));
 
 	compound->addChildShape(localTrans, chassisShape);
 
 	btVector3 localInertia(0, 0, 0);
 	compound->calculateLocalInertia(800, localInertia);
 
+	btTransform tr;
+	tr.setIdentity();
 	tr.setOrigin(btVector3(position.x, position.y, position.z));
 
 	btDefaultMotionState* myMotionState = new btDefaultMotionState(tr);
@@ -49,7 +45,6 @@ Vehicle::Vehicle(glm::vec3 position, btDiscreteDynamicsWorld* world) : throttle(
 	m_carChassis->setContactProcessingThreshold(m_defaultContactProcessingThreshold);
 
 	m_carChassis->setWorldTransform(tr);
-	
 	world->addRigidBody(m_carChassis);
 
 	m_wheelShape = new btCylinderShapeX(btVector3(wheelWidth, wheelRadius, wheelRadius));
@@ -60,14 +55,14 @@ Vehicle::Vehicle(glm::vec3 position, btDiscreteDynamicsWorld* world) : throttle(
 	///never deactivate the vehicle
 	m_carChassis->setActivationState(DISABLE_DEACTIVATION);
 
+	//choose coordinate system
+	m_vehicle->setCoordinateSystem(0, 2, 1);
+
 	world->addVehicle(m_vehicle);
 
-	float connectionHeight = 1.2f;
+	float connectionHeight = 0.5f;
 
 	bool isFrontWheel = true;
-
-	//choose coordinate system
-	m_vehicle->setCoordinateSystem(rightIndex, upIndex, forwardIndex);
 
 	btVector3 connectionPointCS0(CUBE_HALF_EXTENTS - (0.3*wheelWidth), 2 * CUBE_HALF_EXTENTS - wheelRadius, connectionHeight);
 
@@ -97,67 +92,6 @@ Vehicle::Vehicle(glm::vec3 position, btDiscreteDynamicsWorld* world) : throttle(
 	}
 
 
-	//GPU PART
-	std::vector <float> vertices = {
-			-1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
-             1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
-             1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 0.0f, // bottom-right         
-             1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
-            -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
-            -1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 1.0f, // top-left
-            // front face
-            -1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
-             1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 0.0f, // bottom-right
-             1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
-             1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
-            -1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f, 1.0f, // top-left
-            -1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
-            // left face
-            -1.0f,  1.0f,  1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
-            -1.0f,  1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-left
-            -1.0f, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-left
-            -1.0f, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-left
-            -1.0f, -1.0f,  1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-right
-            -1.0f,  1.0f,  1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
-            // right face
-             1.0f,  1.0f,  1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
-             1.0f, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-right
-             1.0f,  1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-right         
-             1.0f, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-right
-             1.0f,  1.0f,  1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
-             1.0f, -1.0f,  1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-left     
-            // bottom face
-            -1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
-             1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 1.0f, // top-left
-             1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // bottom-left
-             1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // bottom-left
-            -1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 0.0f, // bottom-right
-            -1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
-            // top face
-            -1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
-             1.0f,  1.0f , 1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
-             1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 1.0f, // top-right     
-             1.0f,  1.0f,  1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
-            -1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
-            -1.0f,  1.0f,  1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f  // bottom-left  
-};
-
-	glGenVertexArrays(1, &VAO);
-
-	glBindVertexArray(VAO);
-
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW);
-
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-
-	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 }
 
 Vehicle::~Vehicle()
@@ -172,9 +106,7 @@ Vehicle::~Vehicle()
 	delete m_vehicle;
 	m_vehicle = NULL;
 
-	//glDeleteBuffers(1, &EBO);
-	glDeleteBuffers(1, &VBO);
-	glDeleteVertexArrays(1, &VAO);
+	delete vehicle;
 }
 
 glm::mat4 Vehicle::GetMat4()
@@ -188,10 +120,10 @@ glm::mat4 Vehicle::GetMat4()
 
 void Vehicle::PhysicsTick()
 {
-	float engineForce = throttle * 1000.0f;
+	float engineForce = throttle * 5000.0f;
 
-	m_vehicle->applyEngineForce(engineForce, 2);
-	m_vehicle->applyEngineForce(engineForce, 3);
+	m_vehicle->applyEngineForce(engineForce, 0);
+	m_vehicle->applyEngineForce(engineForce, 1);
 
 	m_vehicle->setSteeringValue(steeringValue, 0);
 	m_vehicle->setSteeringValue(steeringValue, 1);
@@ -199,6 +131,5 @@ void Vehicle::PhysicsTick()
 
 void Vehicle::Draw() 
 {
-	glBindVertexArray(VAO);
-	glDrawArrays(GL_TRIANGLES, 0, 36);
+	vehicle->Draw();
 }
