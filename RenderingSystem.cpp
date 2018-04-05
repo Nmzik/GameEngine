@@ -421,11 +421,12 @@ void RenderingSystem::render(GameWorld* world)
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-	auto modelMatrix = world->player->getPosition();
-	gbuffer->setMat4(ModelUniformLoc, modelMatrix);
-	world->player->Draw();
-
-	//world->LoadDrawable(gbuffer, 2640562617, SkydomeMatrix);
+	for (int i = 0; i < 3; i++)
+	{
+		auto modelMatrix = world->player[i]->getPosition();
+		gbuffer->setMat4(ModelUniformLoc, modelMatrix);
+		world->player[i]->Draw();
+	}
 
 	//glDisable(GL_CULL_FACE);
 

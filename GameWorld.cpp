@@ -47,7 +47,7 @@ GameWorld::GameWorld()
 
 	/*{
 			//std::cout << "YTD Found " << std::endl;
-			std::unordered_map<uint32_t, RpfResourceFileEntry*>::iterator iter;
+			auto iter;
 			iter = data.YtdEntries.find(3523992128);
 			if (iter != data.YtdEntries.end())
 			{
@@ -77,7 +77,7 @@ GameWorld::GameWorld()
 	dynamicsWorld->setDebugDrawer(&debug);
 	//LoadYDR(3186271474, glm::vec3(), glm::quat(), glm::vec3());
 
-	std::unordered_map<uint32_t, RpfResourceFileEntry*>::iterator itPlayer = data.YddEntries.find(4096714883);
+	auto itPlayer = data.YddEntries.find(4096714883);
 	if (itPlayer != data.YddEntries.end())
 	{
 		std::cout << "PLAYER Found " << itPlayer->second->Name << std::endl;
@@ -88,11 +88,14 @@ GameWorld::GameWorld()
 		memstream stream(outputBuffer.data(), outputBuffer.size());
 		YddLoader* playerYDD = new YddLoader(stream, dynamicsWorld);
 
-		player = new Player(glm::vec3(0, 0, 20), playerYDD, dynamicsWorld);
+		player[0] = new Player(glm::vec3(2137, 3656, 100), playerYDD, dynamicsWorld);
+		player[1] = new Player(glm::vec3(9.66, -1184.98, 75.74), playerYDD, dynamicsWorld);
+		player[1]->getPhysCharacter()->setGravity(btVector3(0,0,0));
+		player[2] = new Player(glm::vec3(1983.69f, 3825.26, 66.38), playerYDD, dynamicsWorld);
+		player[2]->getPhysCharacter()->setGravity(btVector3(0, 0, 0));
 	}
 
-	std::unordered_map<uint32_t, RpfResourceFileEntry*>::iterator it;
-	it = data.YddEntries.find(2640562617);
+	auto it = data.YddEntries.find(2640562617);
 	if (it != data.YddEntries.end())
 	{
 		std::cout << "SKYDOME Found " << it->second->Name << std::endl;
@@ -102,8 +105,7 @@ GameWorld::GameWorld()
 
 		memstream stream(outputBuffer.data(), outputBuffer.size());
 		skydome = new YddLoader(stream, dynamicsWorld);
-		std::unordered_map<uint32_t, RpfResourceFileEntry*>::iterator iter;
-		iter = data.YtdEntries.find(2640562617);
+		auto iter = data.YtdEntries.find(2640562617);
 		if (iter != data.YtdEntries.end())
 		{
 			std::cout << "YTD Found " << iter->second->Name << std::endl;
@@ -214,14 +216,13 @@ void GameWorld::LoadYmap(Shader* shader, uint32_t hash, Camera* camera)
 								//printf("NOT FOUND");
 							//}
 						}
-						//LoadDrawable(shader, map->CEntityDefs[i].archetypeName, map->ModelMatrices[i]);
 					}
 				}
 			}
 		}
 	}
 	else {
-		std::unordered_map<uint32_t, RpfResourceFileEntry*>::iterator it = data.YmapEntries.find(hash);
+		auto it = data.YmapEntries.find(hash);
 		if (it != data.YmapEntries.end())
 		{
 			//std::cout << "YMAP Found" << std::endl;
@@ -242,7 +243,7 @@ void GameWorld::LoadYmap(Shader* shader, uint32_t hash, Camera* camera)
 
 bool GameWorld::LoadYTYP(uint32_t hash)
 {
-	std::unordered_map<uint32_t, RpfResourceFileEntry*>::iterator it = data.YtypEntries.find(hash);
+	auto it = data.YtypEntries.find(hash);
 	if (it != data.YtypEntries.end())
 	{
 		std::cout << "YTYP Found " << it->second->Name << std::endl;
@@ -269,7 +270,7 @@ void GameWorld::LoadYTD(uint32_t hash)
 		return;
 	}
 
-	std::unordered_map<uint32_t, RpfResourceFileEntry*>::iterator iter = data.YtdEntries.find(hash);
+	auto iter = data.YtdEntries.find(hash);
 	if (iter != data.YtdEntries.end())
 	{
 		std::cout << "YTD Found " << iter->second->Name << std::endl;
@@ -300,7 +301,7 @@ void GameWorld::LoadYDR(Shader * shader, uint32_t hash, glm::mat4 & matrix)
 		return;
 	}
 
-	std::unordered_map<uint32_t, RpfResourceFileEntry*>::iterator it = data.YdrEntries.find(hash);
+	auto it = data.YdrEntries.find(hash);
 	if (it != data.YdrEntries.end())
 	{
 		std::cout << "YDR Found " << it->second->Name << std::endl;
@@ -335,7 +336,7 @@ void GameWorld::LoadYDD(Shader * shader, uint32_t hash, uint32_t DrawableDiction
 		}
 	}
 
-	std::unordered_map<uint32_t, RpfResourceFileEntry*>::iterator it = data.YddEntries.find(DrawableDictionaryHash);
+	auto it = data.YddEntries.find(DrawableDictionaryHash);
 	if (it != data.YddEntries.end())
 	{
 		std::cout << "YDD Found " << it->second->Name << std::endl;
@@ -366,7 +367,7 @@ void GameWorld::LoadYFT(Shader * shader, uint32_t hash, glm::mat4 & matrix)
 		return;
 	}
 
-	std::unordered_map<uint32_t, RpfResourceFileEntry*>::iterator it = data.YftEntries.find(hash);
+	auto it = data.YftEntries.find(hash);
 	if (it != data.YftEntries.end())
 	{
 		std::cout << "YFT Found " << it->second->Name << std::endl;
@@ -392,7 +393,7 @@ void GameWorld::LoadYBN(uint32_t hash)
 		iter->second->time = SDL_GetTicks() / 1000;
 		return;
 	}
-	std::unordered_map<uint32_t, RpfResourceFileEntry*>::iterator it = data.YbnEntries.find(hash);
+	auto it = data.YbnEntries.find(hash);
 	if (it != data.YbnEntries.end())
 	{
 		std::cout << "YBN Found " << it->second->Name << std::endl;
@@ -619,7 +620,7 @@ Vehicle* GameWorld::FindNearestVehicle()
 
 	for (auto& vehicle : vehicles)
 	{
-		glm::vec3 PlayerPosition(player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getX(), player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getY(), player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getZ());
+		glm::vec3 PlayerPosition(player[0]->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getX(), player[0]->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getY(), player[0]->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getZ());
 		glm::vec3 VehiclePosition(vehicle->m_carChassis->getWorldTransform().getOrigin().getX(), vehicle->m_carChassis->getWorldTransform().getOrigin().getY(), vehicle->m_carChassis->getWorldTransform().getOrigin().getZ());
 		float vd = glm::length(PlayerPosition - VehiclePosition);
 		if (vd < d) {
@@ -688,6 +689,8 @@ bool GameWorld::DetectInWater(glm::vec3 Position) {
 
 void GameWorld::ClearTestFunction()
 {
+	printf("PRESSED");
+	player[0]->getPhysCharacter()->setGravity(btVector3(0,0,0));
 	/*ybnLoader.resize(300);
 	for (int i = 0; i < 100; i++)
 	{

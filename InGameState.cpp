@@ -65,20 +65,44 @@ void InGameState::tick(float delta_time)
 		game->getWorld()->TestFunction(game->getRenderer()->getCamera().Position);
 	}
 	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_B)) {
-		game->getRenderer()->test = !game->getRenderer()->test;
-		//game->getWorld()->ClearTestFunction();
-		//TextureManager::ChangeBool();
+		game->getWorld()->currentPlayerID = 0;
+		game->getWorld()->player[game->getWorld()->currentPlayerID]->getPhysCharacter()->setGravity(game->getWorld()->GetDynamicsWorld()->getGravity());
+		for (int i = 0; i < 3; i++)
+		{
+			if (game->getWorld()->currentPlayerID != i) {
+				game->getWorld()->player[i]->getPhysCharacter()->setGravity(btVector3(0, 0, 0));
+			}
+		}
+	}
+	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_N)) {
+		game->getWorld()->currentPlayerID = 1;
+		game->getWorld()->player[game->getWorld()->currentPlayerID]->getPhysCharacter()->setGravity(game->getWorld()->GetDynamicsWorld()->getGravity());
+		for (int i = 0; i < 3; i++)
+		{
+			if (game->getWorld()->currentPlayerID != i) {
+				game->getWorld()->player[i]->getPhysCharacter()->setGravity(btVector3(0, 0, 0));
+			}
+		}
 	}
 	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_M)) {
-		game->getRenderer()->test = !game->getRenderer()->test;
+		game->getWorld()->currentPlayerID = 2;
+		game->getWorld()->player[game->getWorld()->currentPlayerID]->getPhysCharacter()->setGravity(game->getWorld()->GetDynamicsWorld()->getGravity());
+		for (int i = 0; i < 3; i++)
+		{
+			if (game->getWorld()->currentPlayerID != i) {
+				game->getWorld()->player[i]->getPhysCharacter()->setGravity(btVector3(0, 0, 0));
+			}
+		}
 	}
 	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_I)) {
 		game->getRenderer()->RenderDebugWorld = !game->getRenderer()->RenderDebugWorld;
 	}
 
+	Player* player = game->getWorld()->player[game->getWorld()->currentPlayerID];
+
 	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_F)) {
 		DebugPressed = !DebugPressed;
-		if (DebugPressed == false) game->getWorld()->player->getPhysCharacter()->warp(btVector3(game->getRenderer()->getCamera().Position.x, game->getRenderer()->getCamera().Position.y, game->getRenderer()->getCamera().Position.z));
+		//if (DebugPressed == false) player->getPhysCharacter()->warp(btVector3(game->getRenderer()->getCamera().Position.x, game->getRenderer()->getCamera().Position.y, game->getRenderer()->getCamera().Position.z));
 	}
 
 	if (DebugPressed) {
@@ -86,22 +110,22 @@ void InGameState::tick(float delta_time)
 		if (game->getInput()->IsKeyPressed(SDL_SCANCODE_S)) game->getRenderer()->getCamera().ProcessKeyboard(BACKWARD, delta_time);
 		if (game->getInput()->IsKeyPressed(SDL_SCANCODE_A)) game->getRenderer()->getCamera().ProcessKeyboard(LEFT, delta_time);
 		if (game->getInput()->IsKeyPressed(SDL_SCANCODE_D)) game->getRenderer()->getCamera().ProcessKeyboard(RIGHT, delta_time);
-		//game->getWorld()->player->getPhysCharacter()->warp(btVector3(game->getRenderer()->getCamera().Position.x, game->getRenderer()->getCamera().Position.y, game->getRenderer()->getCamera().Position.z));
-		//game->getWorld()->player->getPhysCharacter()->setWalkDirection(btVector3(0.f, 0.f, 0.f));
+		//player->getPhysCharacter()->warp(btVector3(game->getRenderer()->getCamera().Position.x, game->getRenderer()->getCamera().Position.y, game->getRenderer()->getCamera().Position.z));
+		//player->getPhysCharacter()->setWalkDirection(btVector3(0.f, 0.f, 0.f));
 	}
 	else {
 
 		//NEED PROPER FIX
 
 		if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_U)) {
-			if (game->getWorld()->player->GetCurrentVehicle()) {
+			if (player->GetCurrentVehicle()) {
 				//in Vehicle
 				printf("EXITING");
-				game->getWorld()->player->getPhysCharacter()->warp(game->getWorld()->player->GetCurrentVehicle()->m_carChassis->getWorldTransform().getOrigin() + btVector3(0.0f, 50.0f, 0.0f));
-				game->getWorld()->player->ExitVehicle();
+				player->getPhysCharacter()->warp(player->GetCurrentVehicle()->m_carChassis->getWorldTransform().getOrigin() + btVector3(0.0f, 50.0f, 0.0f));
+				player->ExitVehicle();
 			} else {
 				printf("ENTERING");
-				game->getWorld()->player->EnterVehicle(game->getWorld()->FindNearestVehicle());
+				player->EnterVehicle(game->getWorld()->FindNearestVehicle());
 			}
 		}
 
@@ -109,13 +133,13 @@ void InGameState::tick(float delta_time)
 		movement.x = game->getInput()->IsKeyPressed(SDL_SCANCODE_W) - game->getInput()->IsKeyPressed(SDL_SCANCODE_S);
 		movement.z = game->getInput()->IsKeyPressed(SDL_SCANCODE_A) - game->getInput()->IsKeyPressed(SDL_SCANCODE_D);
 
-		if (game->getWorld()->player->GetCurrentVehicle()) {
-			game->getRenderer()->getCamera().Position = glm::vec3(game->getWorld()->player->GetCurrentVehicle()->m_carChassis->getWorldTransform().getOrigin().getX(), game->getWorld()->player->GetCurrentVehicle()->m_carChassis->getWorldTransform().getOrigin().getY(), game->getWorld()->player->GetCurrentVehicle()->m_carChassis->getWorldTransform().getOrigin().getZ());
+		if (player->GetCurrentVehicle()) {
+			game->getRenderer()->getCamera().Position = glm::vec3(player->GetCurrentVehicle()->m_carChassis->getWorldTransform().getOrigin().getX(), player->GetCurrentVehicle()->m_carChassis->getWorldTransform().getOrigin().getY(), player->GetCurrentVehicle()->m_carChassis->getWorldTransform().getOrigin().getZ());
 			if (game->getInput()->IsKeyPressed(SDL_SCANCODE_W)) {
-				game->getWorld()->player->GetCurrentVehicle()->SetThrottle(1.0);
+				player->GetCurrentVehicle()->SetThrottle(1.0);
 			}
 			if (game->getInput()->IsKeyPressed(SDL_SCANCODE_S)) {
-				game->getWorld()->player->GetCurrentVehicle()->SetThrottle(-1.0);
+				player->GetCurrentVehicle()->SetThrottle(-1.0);
 			}
 
 			float steering = 0.0f;
@@ -124,24 +148,24 @@ void InGameState::tick(float delta_time)
 				steering = (game->getInput()->IsKeyPressed(SDL_SCANCODE_A) ? 0.3 : -0.3);
 			}
 
-			game->getWorld()->player->GetCurrentVehicle()->steeringValue = steering;
+			player->GetCurrentVehicle()->steeringValue = steering;
 			
-			//printf("%f \n", game->getWorld()->player->GetCurrentVehicle()->steeringValue);
+			//printf("%f \n", player->GetCurrentVehicle()->steeringValue);
 		}
 		else {
-			game->getRenderer()->getCamera().Position = glm::vec3(game->getWorld()->player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getX(), game->getWorld()->player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getY(), game->getWorld()->player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getZ());
+			game->getRenderer()->getCamera().Position = glm::vec3(player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getX(), player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getY(), player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getZ());
 
 			float speed = game->getInput()->IsKeyPressed(SDL_SCANCODE_LSHIFT) ? 2.0f : 1.0f;
 
 			/*bool inWater = false;
-			if (game->getWorld()->DetectInWater(glm::vec3(game->getWorld()->player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getX(), game->getWorld()->player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getY(), game->getWorld()->player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getZ())))
+			if (game->getWorld()->DetectInWater(glm::vec3(player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getX(), player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getY(), player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getZ())))
 			{
-				if (game->getWorld()->player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getZ() < 0 && !inWater) {
-					game->getWorld()->player->getPhysCharacter()->setGravity(btVector3(0.0f, 0.0f, 0.0f));
+				if (player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getZ() < 0 && !inWater) {
+					player->getPhysCharacter()->setGravity(btVector3(0.0f, 0.0f, 0.0f));
 					inWater = true;
 				}
 				else if (inWater == true){
-					game->getWorld()->player->getPhysCharacter()->setGravity(btVector3(0, 0, -10));
+					player->getPhysCharacter()->setGravity(btVector3(0, 0, -10));
 					inWater = false;
 				}
 			}*/
@@ -150,18 +174,18 @@ void InGameState::tick(float delta_time)
 			if (length > 0.1f) {
 				auto move = speed * glm::normalize(movement);
 				//move *= delta_time;
-				game->getWorld()->player->getPhysCharacter()->setWalkDirection(btVector3(move.x, move.z, 0.f));
+				player->getPhysCharacter()->setWalkDirection(btVector3(move.x, move.z, 0.f));
 			}
 			else {
-				game->getWorld()->player->getPhysCharacter()->setWalkDirection(btVector3(0.f, 0.f, 0.f));
+				player->getPhysCharacter()->setWalkDirection(btVector3(0.f, 0.f, 0.f));
 			}
 
-			if (game->getInput()->IsKeyPressed(SDL_SCANCODE_SPACE)) game->getWorld()->player->Jump();
+			if (game->getInput()->IsKeyPressed(SDL_SCANCODE_SPACE)) player->Jump();
 		}
 	}
 
 	/*auto rayEnd = game->getRenderer()->getCamera().Position;
-	auto rayStart = glm::vec3(game->getWorld()->player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getX(), game->getWorld()->player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getY() - 5, game->getWorld()->player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getZ());
+	auto rayStart = glm::vec3(player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getX(), player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getY() - 5, player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getZ());
 	auto to = btVector3(rayEnd.x, rayEnd.y, rayEnd.z);
 	auto from = btVector3(rayStart.x, rayStart.y, rayStart.z);
 	btCollisionWorld::ClosestRayResultCallback cb(from, to);

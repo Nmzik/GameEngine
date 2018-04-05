@@ -37,8 +37,9 @@ void Player::TakeDamage(float dmg)
 
 glm::mat4 Player::getPosition()
 {
-	if (physCharacter->getGhostObject()->getWorldTransform().getOrigin().getY() <= -300) {
-		physCharacter->getGhostObject()->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), btVector3(-50, 100, 0)));
+	if (physCharacter->getGhostObject()->getWorldTransform().getOrigin().getZ() <= -150) {
+		printf("MAYBE A BUG!\n");
+		physCharacter->getGhostObject()->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), physCharacter->getGhostObject()->getWorldTransform().getOrigin() + btVector3(0, 0, 300)));
 	}
 
 	glm::mat4 model;
@@ -49,7 +50,8 @@ glm::mat4 Player::getPosition()
 
 void Player::PhysicsTick()
 {
-	physCharacter->setWalkDirection(btVector3(playerDirection.x, playerDirection.y, playerDirection.z));
+	if (Enabled)
+		physCharacter->setWalkDirection(btVector3(playerDirection.x, playerDirection.y, playerDirection.z));
 }
 
 void Player::ExitVehicle()

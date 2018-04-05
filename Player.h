@@ -16,6 +16,7 @@ class Player
 	Vehicle* vehicle;
 	YddLoader* player;
 public:
+	bool Enabled = true;
 	Player(glm::vec3 position, YddLoader* ydd, btDiscreteDynamicsWorld* world);
 	~Player();
 

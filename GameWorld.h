@@ -57,7 +57,8 @@ public:
 	std::vector<Vehicle*> vehicles;
 	uint8_t gameMinute;
 	uint8_t gameHour;
-	Player* player;
+	uint8_t currentPlayerID = 0;
+	Player* player[3];
 
 	GameWorld();
 	~GameWorld();
