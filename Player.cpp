@@ -50,8 +50,7 @@ glm::mat4 Player::getPosition()
 
 void Player::PhysicsTick()
 {
-	if (Enabled)
-		physCharacter->setWalkDirection(btVector3(playerDirection.x, playerDirection.y, playerDirection.z));
+	physCharacter->setWalkDirection(btVector3(playerDirection.x, playerDirection.y, playerDirection.z));
 }
 
 void Player::ExitVehicle()
@@ -72,6 +71,17 @@ void Player::EnterVehicle(Vehicle* nearestVehicle)
 Vehicle* Player::GetCurrentVehicle()
 {
 	return vehicle;
+}
+
+void Player::addToInventory(uint32_t slot, uint32_t ammo)
+{
+	weapons[slot].weaponId = slot;
+	weapons[slot].bulletsTotal += ammo;
+}
+
+void Player::setActiveWeapon(uint32_t slot)
+{
+	currentWeapon = slot;
 }
 
 void Player::Jump()

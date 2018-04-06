@@ -14,7 +14,6 @@
 #include "glm/gtx/matrix_decompose.hpp"
 
 #include "Shader.h"
-#include "Model.h"
 #include "Skybox.h"
 #include "Camera.h"
 #include "GameWorld.h"
