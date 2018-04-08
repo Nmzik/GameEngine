@@ -91,39 +91,40 @@ YdrLoader::YdrLoader(memstream& file, btDiscreteDynamicsWorld* world)
 
 			if (param.DataType == 1) { //SOME OTHER SHIT OTHER THAN TEXTURE
 				TexturesHashes.push_back(0);
-			} else
-
-			if (param.DataType == 0) {
-
-				if (param.DataPointer == 0) {
-					TexturesHashes.push_back(0);
-				}
-				else {
-
-					uint64_t Pos = file.tellg();
-
-					TranslatePTR(param.DataPointer);
-
-					file.seekg(param.DataPointer);
-
-					TextureBase texBase;
-					file.read((char*)&texBase, sizeof(TextureBase));
-
-					TranslatePTR(texBase.NamePointer);
-
-					file.seekg(texBase.NamePointer);
-
-					std::string Name;
-					std::getline(file, Name, '\0');
-
-					std::transform(Name.begin(), Name.end(), Name.begin(), tolower);
-					uint32_t NameHash = GenHash(Name);
-
-					TexturesHashes.push_back(NameHash);
-
-					file.seekg(Pos);
-				}
 			}
+			else
+
+				if (param.DataType == 0) {
+
+					if (param.DataPointer == 0) {
+						TexturesHashes.push_back(0);
+					}
+					else {
+
+						uint64_t Pos = file.tellg();
+
+						TranslatePTR(param.DataPointer);
+
+						file.seekg(param.DataPointer);
+
+						TextureBase texBase;
+						file.read((char*)&texBase, sizeof(TextureBase));
+
+						TranslatePTR(texBase.NamePointer);
+
+						file.seekg(texBase.NamePointer);
+
+						std::string Name;
+						std::getline(file, Name, '\0');
+
+						std::transform(Name.begin(), Name.end(), Name.begin(), tolower);
+						uint32_t NameHash = GenHash(Name);
+
+						TexturesHashes.push_back(NameHash);
+
+						file.seekg(Pos);
+					}
+				}
 		}
 
 		file.seekg(posOriginal);
@@ -199,6 +200,29 @@ YdrLoader::YdrLoader(memstream& file, btDiscreteDynamicsWorld* world)
 
 			VertexDeclaration decl;
 			file.read((char*)&decl, sizeof(VertexDeclaration));
+
+			//FIX VertexDeclaration
+			switch (decl.Types)
+			{
+				/*case 8598872888530528662: //YDR - 0x7755555555996996
+					break;*/
+			case 216172782140628998:  //YFT - 0x030000000199A006
+				switch (decl.Flags)
+				{
+				case 16473:
+					decl.Flags = VertexType::PCCH2H4;
+					break;  //  PCCH2H4 
+				}
+				break;
+			case 216172782140612614:  //YFT - 0x0300000001996006  PNCH2H4
+				switch (decl.Flags)
+				{
+				case 89: 
+					decl.Flags = VertexType::PNCH2;
+					break;     //  PNCH2
+				}
+				break;
+			}
 
 			TranslatePTR(drawGeom.IndexBufferPointer);
 

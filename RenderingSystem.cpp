@@ -431,7 +431,7 @@ void RenderingSystem::render(GameWorld* world)
 	//glDisable(GL_CULL_FACE);
 
 	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	dirLight.direction = glm::rotateX(dirLight.direction, -0.005f);
+	//dirLight.direction = glm::rotateX(dirLight.direction, -0.005f);
 	// --------------------------------ShadowPass----------------------------------
 	/*glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 	glViewport(0, 0, 1024, 1024);

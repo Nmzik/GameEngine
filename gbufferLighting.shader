@@ -117,6 +117,10 @@ void main()
 
 	float shadow = ShadowCalculation(FragPosLightSpace, Normal, lightDir);
 
+	//vec4 fogColor = vec4(0.0118, 0.0510, 0.1215);
+	//float fogStart = 450.f;
+	//float fogEnd = 10000.f;
+
     FragColor = vec4(ambient + (1.0 - shadow) * (diffuse + specular), 1.0);
 
 

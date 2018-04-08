@@ -95,7 +95,7 @@ public:
 	void createPedestrian();
 	void createVehicle();
 	void Update();
-	void UpdateTraffic(glm::vec3 cameraPosition);
+	void UpdateTraffic(Camera* camera);
 	Vehicle* FindNearestVehicle();
 	void DetectWeaponHit(glm::vec3 CameraPosition, glm::vec3 lookDirection);
 	void update(float delta_time);

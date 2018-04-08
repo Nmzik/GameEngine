@@ -170,20 +170,6 @@ void GameWorld::LoadYmap(Shader* shader, uint32_t hash, Camera* camera)
 		if (!(map->_CMapData.flags & 1) > 0) { //DONT LOAD SCRIPTED MAPS
 			for (int i = 0; i < map->CEntityDefs.size(); i++)
 			{
-				/*bool isreflproxy = false;
-				switch (map->CEntityDefs[i].flags)
-				{
-				case 135790592: //001000000110000000000000000000    prewater proxy (golf course)
-				case 135790593: //001000000110000000000000000001    water refl proxy? (mike house)
-				case 672661504: //101000000110000000000000000000    vb_ca_prop_tree_reflprox_2
-				case 536870912: //100000000000000000000000000000    vb_05_emissive_mirroronly
-				case 35127296:  //000010000110000000000000000000    tunnel refl proxy?
-				case 39321602:  //000010010110000000000000000010    mlo reflection?
-					isreflproxy = true; break;
-				}
-				if (isreflproxy) {
-					continue;
-				}*/
 				if (map->CEntityDefs[i].lodDist < 0 || map->CEntityDefs[i].childLodDist < 0) {
 					//printf("HERE");
 				}
@@ -191,6 +177,7 @@ void GameWorld::LoadYmap(Shader* shader, uint32_t hash, Camera* camera)
 					bool IsVisible = glm::length(camera->Position - map->CEntityDefs[i].position) <= map->CEntityDefs[i].lodDist * LODMultiplier;
 					bool childrenVisible = (glm::length(camera->Position - map->CEntityDefs[i].position) <= map->CEntityDefs[i].childLodDist * LODMultiplier) && (map->CEntityDefs[i].numChildren > 0);
 					if (IsVisible && !childrenVisible) {
+						//if (map->CEntityDefs[i].archetypeName == 4143923005) {
 						std::unordered_map<uint32_t, CBaseArchetypeDef>::iterator it = data.CBaseArchetypeDefs.find(map->CEntityDefs[i].archetypeName);
 						if (it != data.CBaseArchetypeDefs.end())
 						{
@@ -219,6 +206,7 @@ void GameWorld::LoadYmap(Shader* shader, uint32_t hash, Camera* camera)
 										LoadYFT(shader, map->CEntityDefs[i].archetypeName, map->ModelMatrices[i]);
 								}
 							}
+						//}
 							//else {
 								//printf("NOT FOUND");
 							//}
@@ -575,13 +563,13 @@ float RandomFloat(float min, float max) {
 	return  (max - min) * ((((float)rand()) / (float)RAND_MAX)) + min;
 }
 
-void GameWorld::UpdateTraffic(glm::vec3 cameraPosition)
+void GameWorld::UpdateTraffic(Camera* camera)
 {
 	float radiusTraffic = 20.0f;
 	//PEDESTRIANS
 	for (int i = 0; i < pedestrians.size(); i++) {
 		glm::vec3 pedestrianPosition(pedestrians[i]->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getX(), pedestrians[i]->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getY(), pedestrians[i]->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getZ());
-		if (glm::distance(cameraPosition, pedestrianPosition) >= 100.0f) {
+		if (glm::distance(camera->Position, pedestrianPosition) >= 100.0f) {
 			dynamicsWorld->removeCollisionObject(pedestrians[i]->getPhysCharacter()->getGhostObject());
 			dynamicsWorld->removeCharacter(pedestrians[i]->getPhysCharacter());
 			delete pedestrians[i];
@@ -590,10 +578,10 @@ void GameWorld::UpdateTraffic(glm::vec3 cameraPosition)
 	}
 
 	int MaximumAvailablePeds = 20 - pedestrians.size(); //HARDCODED
-	if (cameraPosition.z < 100.0f) {
+	if (camera->Position.z < 100.0f) {
 		for (int i = 0; i < MaximumAvailablePeds; i++) {
-			float xRandom = RandomFloat(cameraPosition.x - radiusTraffic, cameraPosition.x + radiusTraffic);
-			float yRandom = RandomFloat(cameraPosition.y - radiusTraffic, cameraPosition.y + radiusTraffic);
+			float xRandom = RandomFloat(camera->Position.x - radiusTraffic, camera->Position.x + radiusTraffic);
+			float yRandom = RandomFloat(camera->Position.y - radiusTraffic, camera->Position.y + radiusTraffic);
 			//Player *newPlayer = new Player(glm::vec3(xRandom, yRandom, cameraPosition.z + 5.0f), dynamicsWorld);
 			//pedestrians.push_back(newPlayer);
 		}
@@ -601,7 +589,7 @@ void GameWorld::UpdateTraffic(glm::vec3 cameraPosition)
 	//CARS
 	for (int i = 0; i < vehicles.size(); i++) {
 		glm::vec3 vehiclePosition(vehicles[i]->m_carChassis->getWorldTransform().getOrigin().getX(), vehicles[i]->m_carChassis->getWorldTransform().getOrigin().getY(), vehicles[i]->m_carChassis->getWorldTransform().getOrigin().getZ());
-		if (glm::distance(cameraPosition, vehiclePosition) >= 100.0f) {
+		if (glm::distance(camera->Position, vehiclePosition) >= 100.0f) {
 			dynamicsWorld->removeVehicle((vehicles[i]->m_vehicle));
 			dynamicsWorld->removeRigidBody((vehicles[i]->m_carChassis));
 			vehicles.erase(vehicles.begin() + i);
@@ -609,12 +597,14 @@ void GameWorld::UpdateTraffic(glm::vec3 cameraPosition)
 	}
 	if (testSpawn) {
 		int MaximumAvailableVehicles = 10 - vehicles.size(); //HARDCODED
-		if (cameraPosition.z < 100.0f) {
+		if (camera->Position.z < 100.0f) {
 			for (int i = 0; i < MaximumAvailableVehicles; i++) {
-				float xRandom = RandomFloat(cameraPosition.x - radiusTraffic, cameraPosition.x + radiusTraffic);
-				float yRandom = RandomFloat(cameraPosition.y - radiusTraffic, cameraPosition.y + radiusTraffic);
-				Vehicle* newVehicle = new Vehicle(glm::vec3(xRandom, yRandom, cameraPosition.z + 5.0f), vehicleModel, dynamicsWorld);
-				vehicles.push_back(newVehicle);
+				float xRandom = RandomFloat(camera->Position.x - radiusTraffic, camera->Position.x + radiusTraffic);
+				float yRandom = RandomFloat(camera->Position.y - radiusTraffic, camera->Position.y + radiusTraffic);
+				if (!camera->intersects(glm::vec3(xRandom, yRandom, camera->Position.z + 3.0f), 1.0f)) {
+					Vehicle* newVehicle = new Vehicle(glm::vec3(xRandom, yRandom, camera->Position.z + 3.0f), vehicleModel, dynamicsWorld);
+					vehicles.push_back(newVehicle);
+				}
 			}
 		}
 	}

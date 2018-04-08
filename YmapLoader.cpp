@@ -34,6 +34,22 @@ YmapLoader::YmapLoader(memstream& file)
 			{
 				CEntityDef def;
 				std::memcpy(&def, &Block.Data[i * sizeof(CEntityDef)], sizeof(CEntityDef));
+
+				bool isreflproxy = false;
+				switch (def.flags)
+				{
+				case 135790592: //001000000110000000000000000000    prewater proxy (golf course)
+				case 135790593: //001000000110000000000000000001    water refl proxy? (mike house)
+				case 672661504: //101000000110000000000000000000    vb_ca_prop_tree_reflprox_2
+				case 536870912: //100000000000000000000000000000    vb_05_emissive_mirroronly
+				case 35127296:  //000010000110000000000000000000    tunnel refl proxy?
+				case 39321602:  //000010010110000000000000000010    mlo reflection?
+				isreflproxy = true; break;
+				}
+				if (isreflproxy) {
+					continue;
+				}
+
 				CEntityDefs.push_back(def);
 				ModelMatrices.emplace_back(glm::translate(glm::mat4(), def.position) * glm::toMat4(glm::quat(-def.rotation.w, def.rotation.x, def.rotation.y, def.rotation.z)) * glm::scale(glm::mat4(), glm::vec3(def.scaleXY, def.scaleXY, def.scaleZ)));
 			}
