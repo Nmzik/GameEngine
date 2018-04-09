@@ -28,6 +28,10 @@ YmapLoader::YmapLoader(memstream& file)
 			std::memcpy(&_CMapData, Block.Data, sizeof(CMapData));
 		}
 
+		//Optimization
+		CEntityDefs.reserve(_CMapData.entities.Count1);
+		ModelMatrices.reserve(_CMapData.entities.Count1);
+
 		if (Block.MetaDataBlock_struct.StructureNameHash == 3461354627)
 		{
 			for (int i = 0; i < Block.MetaDataBlock_struct.DataLength / sizeof(CEntityDef); i++)
@@ -49,6 +53,11 @@ YmapLoader::YmapLoader(memstream& file)
 				if (isreflproxy) {
 					continue;
 				}
+
+				if (def.lodDist < 0 || def.childLodDist < 0) {
+					continue;
+				}
+
 
 				CEntityDefs.push_back(def);
 				ModelMatrices.emplace_back(glm::translate(glm::mat4(), def.position) * glm::toMat4(glm::quat(-def.rotation.w, def.rotation.x, def.rotation.y, def.rotation.z)) * glm::scale(glm::mat4(), glm::vec3(def.scaleXY, def.scaleXY, def.scaleZ)));

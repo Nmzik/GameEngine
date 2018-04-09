@@ -47,8 +47,9 @@ void InGameState::tick(float delta_time)
 		game->getRenderer()->hdrEnabled = !game->getRenderer()->hdrEnabled;
 	}
 
-	if (game->getInput()->IsKeyPressed(SDL_SCANCODE_E)) {
-		game->getWorld()->testSpawn = !game->getWorld()->testSpawn;
+	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_E)) {
+		game->getWorld()->renderProxies = !game->getWorld()->renderProxies;
+		if (game->getWorld()->renderProxies) printf("SWITCHED");
 	}
 
 	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_Z)) {
@@ -102,7 +103,10 @@ void InGameState::tick(float delta_time)
 
 	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_F)) {
 		DebugPressed = !DebugPressed;
-		//if (DebugPressed == false) player->getPhysCharacter()->warp(btVector3(game->getRenderer()->getCamera().Position.x, game->getRenderer()->getCamera().Position.y, game->getRenderer()->getCamera().Position.z));
+		if (DebugPressed)
+			player->getPhysCharacter()->setGravity(btVector3(0, 0, 0));
+		else 
+			player->getPhysCharacter()->setGravity(game->getWorld()->GetDynamicsWorld()->getGravity());
 	}
 
 	if (DebugPressed) {
