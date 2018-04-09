@@ -171,6 +171,9 @@ YdrLoader::YdrLoader(memstream& file, btDiscreteDynamicsWorld* world)
 
 		file.seekg(drawModel.GeometriesPointer);
 
+		//Optimization
+		meshes.reserve(drawModel.GeometriesCount1);
+
 		for (int i = 0; i < drawModel.GeometriesCount1; i++) //no difference btween geometriescount1 and 2
 		{
 			uint64_t data_pointer;

@@ -37,6 +37,9 @@ YddLoader::YddLoader(memstream& file, btDiscreteDynamicsWorld* world)
 
 	file.seekg(DrawableDictionary.DrawablesPointer);
 
+	//Optimization
+	YdrFiles.reserve(DrawableDictionary.DrawablesCount1);
+
 	for (int i = 0; i < DrawableDictionary.DrawablesCount1; i++)
 	{
 		uint64_t DataPointer;
