@@ -25,10 +25,7 @@ YtypLoader::YtypLoader(memstream& file)
 		{
 			std::memcpy(&_CMapTypes, Block.Data, sizeof(CMapTypes));
 		}
-	}
 
-	for (auto& Block : meta.MetaBlocks)
-	{
 		if (Block.MetaDataBlock_struct.StructureNameHash == 2195127427) //CBaseArchetypeDef
 		{
 			for (int i = 0; i < Block.MetaDataBlock_struct.DataLength / sizeof(CBaseArchetypeDef); i++)
@@ -75,11 +72,6 @@ YtypLoader::YtypLoader(memstream& file)
 		}
 
 	}
-	//CELANING
-	for (auto& Block : meta.MetaBlocks) {
-		delete[] Block.Data;
-	}
-
 }
 
 

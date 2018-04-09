@@ -69,11 +69,6 @@ YmapLoader::YmapLoader(memstream& file)
 			}
 		}
 	}
-
-	//CELANING
-	for (auto& Block : meta.MetaBlocks) {
-		delete[] Block.Data;
-	}
 }
 
 

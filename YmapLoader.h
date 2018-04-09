@@ -211,6 +211,12 @@ public:
 		}
 	}
 
+	~Meta() {
+		for (auto& Block : MetaBlocks) {
+			delete[] Block.Data;
+		}
+	}
+
 };
 
 struct Array_Structure //16 bytes - pointer for a structure array
