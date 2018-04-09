@@ -182,7 +182,8 @@ void GameWorld::LoadYmap(Shader* shader, uint32_t hash, Camera* camera)
 								//if (!renderProxies) continue;
 								continue;
 							}
-							if (camera->intersects(it->second.bsCentre + map->CEntityDefs[i].position - camera->Position, it->second.bsRadius)) {
+
+							if (camera->intersects(it->second.bsCentre + map->CEntityDefs[i].position - camera->Position, it->second.bsRadius * max(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ))) { //COMPILE ERROR ON NON WINDOWS PLATFORM
 								LoadYTD(it->second.textureDictionary);
 								if (it->second.assetType == ASSET_TYPE_DRAWABLE)
 									LoadYDR(shader, map->CEntityDefs[i].archetypeName, map->ModelMatrices[i]);
@@ -232,6 +233,18 @@ void GameWorld::LoadYmap(Shader* shader, uint32_t hash, Camera* camera)
 			YmapLoader *ymap = new YmapLoader(stream);
 			ymap->time = SDL_GetTicks();
 			ymapLoader[hash] = ymap;
+
+			for (auto& entity : ymap->CEntityDefs)
+			{
+				if (entity.lodDist <= 0 || entity.childLodDist <= 0) {
+					std::unordered_map<uint32_t, CBaseArchetypeDef>::iterator it = data.CBaseArchetypeDefs.find(entity.archetypeName);
+					if (it != data.CBaseArchetypeDefs.end())
+					{
+						if (entity.lodDist <= 0) entity.lodDist = it->second.lodDist;
+						if (entity.lodDist <= 0) entity.childLodDist = it->second.lodDist;
+					}
+				}
+			}
 		}
 	}
 }

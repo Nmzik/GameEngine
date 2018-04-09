@@ -54,11 +54,6 @@ YmapLoader::YmapLoader(memstream& file)
 					continue;
 				}
 
-				if (def.lodDist < 0 || def.childLodDist < 0) {
-					continue;
-				}
-
-
 				CEntityDefs.push_back(def);
 				ModelMatrices.emplace_back(glm::translate(glm::mat4(), def.position) * glm::toMat4(glm::quat(-def.rotation.w, def.rotation.x, def.rotation.y, def.rotation.z)) * glm::scale(glm::mat4(), glm::vec3(def.scaleXY, def.scaleXY, def.scaleZ)));
 			}

@@ -398,6 +398,15 @@ struct CMapData //512 bytes, Key:3448101671
 	CBlockDesc block; //440   440: Structure: CBlockDesc//3072355914: block
 };
 
+struct Entity //160 bytes, Key:2520619910
+{
+	CEntityDef def;
+	uint32_t type;
+	glm::mat4 ModelMatrix;
+	//CBaseArchetypeDef _BaseArchetypeDef;
+	//CTimeArchetypeDefData _TimeArchetypeDef;
+};
+
 class YmapLoader
 {
 public:
