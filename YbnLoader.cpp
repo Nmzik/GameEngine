@@ -3,6 +3,7 @@
 YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world, memstream& file) : CollisionWorld(world)
 {
 	compound = new btCompoundShape();
+	std::vector<glm::vec3> CenterGeometry;
 
 	ResourceFileBase resourceFileBase;
 	file.read((char*)&resourceFileBase, sizeof(ResourceFileBase));

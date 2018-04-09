@@ -57,20 +57,16 @@ YtypLoader::YtypLoader(memstream& file)
 		}
 
 		if (CMloArchetypeDefs.size() != 0) {
-			for (auto& Block : meta.MetaBlocks)
+			if (Block.MetaDataBlock_struct.StructureNameHash == 3461354627)
 			{
-				if (Block.MetaDataBlock_struct.StructureNameHash == 3461354627)
+				for (int i = 0; i < Block.MetaDataBlock_struct.DataLength / sizeof(CEntityDef); i++)
 				{
-					for (int i = 0; i < Block.MetaDataBlock_struct.DataLength / sizeof(CEntityDef); i++)
-					{
-						CEntityDef def;
-						std::memcpy(&def, &Block.Data[i * sizeof(CEntityDef)], sizeof(CEntityDef));
-						CEntityDefs.push_back(def);
-					}
+					CEntityDef def;
+					std::memcpy(&def, &Block.Data[i * sizeof(CEntityDef)], sizeof(CEntityDef));
+					CEntityDefs.push_back(def);
 				}
 			}
 		}
-
 	}
 }
 
