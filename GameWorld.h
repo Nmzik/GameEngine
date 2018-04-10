@@ -18,7 +18,6 @@
 #include "SpaceGrid.h"
 #include "Water.h"
 #include "Shader.h"
-#include <windows.h>
 #include "Camera.h"
 #include "SDL.h"
 
@@ -26,6 +25,17 @@ class ResourceManager;
 
 class GameWorld
 {
+	struct RenderInstruction {
+		YdrLoader* ydr;
+		glm::mat4 model;
+
+		RenderInstruction(YdrLoader* modelYdr, glm::mat4 modelMatrix) :ydr(modelYdr), model(modelMatrix) {
+
+		}
+	};
+
+	typedef std::vector<RenderInstruction> RenderList;
+
 	btBroadphaseInterface* broadphase;
 	btDefaultCollisionConfiguration* collisionConfiguration;
 	btCollisionDispatcher* dispatcher;
@@ -54,6 +64,9 @@ public:
 	std::unordered_map<uint32_t, YmapLoader*> ymapLoader;
 	std::vector<Player*> pedestrians;
 	std::vector<Vehicle*> vehicles;
+
+	RenderList renderList;
+
 	bool renderProxies = true;
 	uint8_t gameMinute;
 	uint8_t gameHour;
@@ -64,17 +77,17 @@ public:
 	GameWorld();
 	~GameWorld();
 
-	void LoadYmap(Shader* shader, uint32_t hash, Camera* camera);
+	void LoadYmap(uint32_t hash, Camera* camera);
 
 	bool LoadYTYP(uint32_t hash);
 
 	void LoadYTD(uint32_t hash);
 
-	void LoadYDR(Shader * shader, uint32_t hash, glm::mat4 & matrix);
+	void LoadYDR(uint32_t hash, glm::mat4 & matrix);
 
-	void LoadYDD(Shader * shader, uint32_t hash, uint32_t DrawableDictionaryHash, glm::mat4 & matrix);
+	void LoadYDD(uint32_t hash, uint32_t DrawableDictionaryHash, glm::mat4 & matrix);
 
-	void LoadYFT(Shader * shader, uint32_t hash, glm::mat4 & matrix);
+	void LoadYFT(uint32_t hash, glm::mat4 & matrix);
 
 	void LoadYBN(uint32_t hash);
 

@@ -16,8 +16,8 @@
 
 class YftLoader
 {
-	YdrLoader* YdrFile;
 public:
+	YdrLoader * YdrFile;
 	uint32_t time;
 
 	YftLoader(memstream& file, btDiscreteDynamicsWorld* world);

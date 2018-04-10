@@ -45,6 +45,9 @@ GameWorld::GameWorld()
 	ytypLoader.reserve(500);
 	ymapLoader.reserve(500);
 
+
+	//RenderList
+	renderList.reserve(2000);
 	/*{
 			//std::cout << "YTD Found " << std::endl;
 			auto iter;
@@ -159,7 +162,7 @@ GameWorld::~GameWorld()
 	delete dynamicsWorld;
 }
 
-void GameWorld::LoadYmap(Shader* shader, uint32_t hash, Camera* camera)
+void GameWorld::LoadYmap(uint32_t hash, Camera* camera)
 {
 	auto it = ymapLoader.find(hash);
 	if (it != ymapLoader.end()) {
@@ -173,7 +176,7 @@ void GameWorld::LoadYmap(Shader* shader, uint32_t hash, Camera* camera)
 					bool IsVisible = glm::length(camera->Position - map->CEntityDefs[i].position) <= map->CEntityDefs[i].lodDist * LODMultiplier;
 					bool childrenVisible = (glm::length(camera->Position - map->CEntityDefs[i].position) <= map->CEntityDefs[i].childLodDist * LODMultiplier) && (map->CEntityDefs[i].numChildren > 0);
 					if (IsVisible && !childrenVisible) {
-						//if (map->CEntityDefs[i].archetypeName == 4143923005) {
+						//if (map->CEntityDefs[i].archetypeName == 4143923005) { //714617596 for materials
 						std::unordered_map<uint32_t, CBaseArchetypeDef>::iterator it = data.CBaseArchetypeDefs.find(map->CEntityDefs[i].archetypeName);
 						if (it != data.CBaseArchetypeDefs.end())
 						{
@@ -183,14 +186,14 @@ void GameWorld::LoadYmap(Shader* shader, uint32_t hash, Camera* camera)
 								continue;
 							}
 
-							if (camera->intersects(it->second.bsCentre + map->CEntityDefs[i].position - camera->Position, it->second.bsRadius * max(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ))) { //COMPILE ERROR ON NON WINDOWS PLATFORM
+							if (camera->intersects(it->second.bsCentre + map->CEntityDefs[i].position - camera->Position, it->second.bsRadius * std::max(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ))) {
 								LoadYTD(it->second.textureDictionary);
 								if (it->second.assetType == ASSET_TYPE_DRAWABLE)
-									LoadYDR(shader, map->CEntityDefs[i].archetypeName, map->ModelMatrices[i]);
+									LoadYDR(map->CEntityDefs[i].archetypeName, map->ModelMatrices[i]);
 								if (it->second.assetType == ASSET_TYPE_DRAWABLEDICTIONARY)
-									LoadYDD(shader, map->CEntityDefs[i].archetypeName, it->second.drawableDictionary, map->ModelMatrices[i]);
+									LoadYDD(map->CEntityDefs[i].archetypeName, it->second.drawableDictionary, map->ModelMatrices[i]);
 								if (it->second.assetType == ASSET_TYPE_FRAGMENT)
-									LoadYFT(shader, map->CEntityDefs[i].archetypeName, map->ModelMatrices[i]);
+									LoadYFT(map->CEntityDefs[i].archetypeName, map->ModelMatrices[i]);
 							}
 						}
 						else {
@@ -201,11 +204,11 @@ void GameWorld::LoadYmap(Shader* shader, uint32_t hash, Camera* camera)
 								if ((it->second._TimeArchetypeDef.timeFlags >> gameHour) & 1) {
 									LoadYTD(it->second._BaseArchetypeDef.textureDictionary);
 									if (it->second._BaseArchetypeDef.assetType == ASSET_TYPE_DRAWABLE)
-										LoadYDR(shader, map->CEntityDefs[i].archetypeName, map->ModelMatrices[i]);
+										LoadYDR(map->CEntityDefs[i].archetypeName, map->ModelMatrices[i]);
 									if (it->second._BaseArchetypeDef.assetType == ASSET_TYPE_DRAWABLEDICTIONARY)
-										LoadYDD(shader, map->CEntityDefs[i].archetypeName, it->second._BaseArchetypeDef.drawableDictionary, map->ModelMatrices[i]);
+										LoadYDD(map->CEntityDefs[i].archetypeName, it->second._BaseArchetypeDef.drawableDictionary, map->ModelMatrices[i]);
 									if (it->second._BaseArchetypeDef.assetType == ASSET_TYPE_FRAGMENT)
-										LoadYFT(shader, map->CEntityDefs[i].archetypeName, map->ModelMatrices[i]);
+										LoadYFT(map->CEntityDefs[i].archetypeName, map->ModelMatrices[i]);
 								}
 							}
 							//}
@@ -296,15 +299,14 @@ void GameWorld::LoadYTD(uint32_t hash)
 	}
 }
 
-void GameWorld::LoadYDR(Shader * shader, uint32_t hash, glm::mat4 & matrix)
+void GameWorld::LoadYDR(uint32_t hash, glm::mat4 & matrix)
 {
 	std::unordered_map<uint32_t, YdrLoader*>::iterator iter = ydrLoader.find(hash);
 	if (iter != ydrLoader.end())
 	{
 		iter->second->time = SDL_GetTicks();
-
-		shader->setMat4(3, matrix);
-		iter->second->Draw();
+		
+		renderList.emplace_back(iter->second, matrix);
 
 		return;
 	}
@@ -328,7 +330,7 @@ void GameWorld::LoadYDR(Shader * shader, uint32_t hash, glm::mat4 & matrix)
 	}
 }
 
-void GameWorld::LoadYDD(Shader * shader, uint32_t hash, uint32_t DrawableDictionaryHash, glm::mat4 & matrix)
+void GameWorld::LoadYDD(uint32_t hash, uint32_t DrawableDictionaryHash, glm::mat4 & matrix)
 {
 	std::unordered_map<uint32_t, YddLoader*>::iterator iter = yddLoader.find(DrawableDictionaryHash);
 	if (iter != yddLoader.end())
@@ -336,8 +338,7 @@ void GameWorld::LoadYDD(Shader * shader, uint32_t hash, uint32_t DrawableDiction
 		std::unordered_map<uint32_t, YdrLoader*>::iterator iter2 = iter->second->YdrFiles.find(hash);
 		if (iter2 != iter->second->YdrFiles.end())
 		{
-			shader->setMat4(3, matrix);
-			iter2->second->Draw();
+			renderList.emplace_back(iter2->second, matrix);
 
 			iter->second->time = SDL_GetTicks();
 			return;
@@ -362,15 +363,14 @@ void GameWorld::LoadYDD(Shader * shader, uint32_t hash, uint32_t DrawableDiction
 
 }
 
-void GameWorld::LoadYFT(Shader * shader, uint32_t hash, glm::mat4 & matrix)
+void GameWorld::LoadYFT(uint32_t hash, glm::mat4 & matrix)
 {
 	std::unordered_map<uint32_t, YftLoader*>::iterator iter = yftLoader.find(hash);
 	if (iter != yftLoader.end())
 	{
 		iter->second->time = SDL_GetTicks();
 
-		shader->setMat4(3, matrix);
-		iter->second->Draw();
+		renderList.emplace_back(iter->second->YdrFile, matrix);
 
 		return;
 	}
@@ -432,8 +432,20 @@ void GameWorld::GetVisibleYmaps(Shader* shader, Camera* camera)
 
 	for (auto& mapNode : cell.MapNodes)
 	{
-		LoadYmap(shader, cacheFile.AllMapNodes[mapNode].Name, camera);
+		LoadYmap(cacheFile.AllMapNodes[mapNode].Name, camera);
 	}
+
+	std::sort(renderList.begin(), renderList.end(), [](RenderInstruction& a, RenderInstruction& b) { //FRONT_TO_BACK
+		return a.model[3].y < b.model[3].y;
+	});
+
+	for (auto& model : renderList)
+	{
+		shader->setMat4(3, model.model);
+		model.ydr->Draw();
+	}
+
+	renderList.clear();
 
 	/*for (auto& Proxy : cell.CInteriorProxies)
 	{

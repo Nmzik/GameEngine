@@ -10,10 +10,8 @@ public:
 	~Material();
 
 	GLuint diffuseTextureID;
-	GLuint normalTextureID;
+	GLuint bumpTextureID; //Normal
 	GLuint specularTextureID;
-	GLuint ambientTextureID;
-	GLuint opacityTextureID;
 
 	void bind();
 };
