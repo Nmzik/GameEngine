@@ -332,7 +332,7 @@ void RenderingSystem::render(GameWorld* world)
 	gbuffer->setMat4(ProjUniformLoc, projection);
 	gbuffer->setMat4(ViewUniformLoc, view);
 
-	camera->UpdateFrustum(view * projection);
+	camera->UpdateFrustum(projection * view);
 
 	//light position object
 	/*static glm::mat4 model(1.0f);

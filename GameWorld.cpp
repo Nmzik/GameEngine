@@ -186,7 +186,7 @@ void GameWorld::LoadYmap(uint32_t hash, Camera* camera)
 								continue;
 							}
 
-							if (camera->intersects(it->second.bsCentre + map->CEntityDefs[i].position - camera->Position, it->second.bsRadius * std::max(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ))) {
+							if (camera->intersects(it->second.bsCentre + map->CEntityDefs[i].position, it->second.bsRadius * std::max(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ))) {
 								LoadYTD(it->second.textureDictionary);
 								if (it->second.assetType == ASSET_TYPE_DRAWABLE)
 									LoadYDR(map->CEntityDefs[i].archetypeName, map->ModelMatrices[i]);
