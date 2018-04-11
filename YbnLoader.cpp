@@ -204,7 +204,10 @@ YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world, memstream& file) : Collisio
 			}
 
 			delete[] vertices;
-			btTriangleMesh* TriMesh = new btTriangleMesh();
+
+			btTriangleMesh* TriMesh = new btTriangleMesh(); // (FALSE , FALSE) constructor ACTUALLY!
+			TriMesh->preallocateVertices(PolygonTriangles.size() * 3);
+
 			btMeshes.push_back(TriMesh);
 
 			for (int i = 0; i < PolygonTriangles.size(); i++)
