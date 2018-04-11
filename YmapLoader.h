@@ -87,10 +87,9 @@ public:
 
 		file.seekg(MetaEnumInfo_struct.EntriesPointer);
 
-		for (int i = 0; i < (uint32_t)MetaEnumInfo_struct.EntriesCount; i++)
+		for (uint32_t i = 0; i < (uint32_t)MetaEnumInfo_struct.EntriesCount; i++)
 		{
 			MetaEnumEntryInfo_s info;
-			//printf("POSITION %zd\n", file.tellg());
 			file.read((char*)&info, sizeof(MetaEnumEntryInfo_s));
 			infos.push_back(info);
 		}

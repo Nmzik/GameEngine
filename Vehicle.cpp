@@ -26,7 +26,7 @@ Vehicle::Vehicle(glm::vec3 position, YftLoader* yft, btDiscreteDynamicsWorld* wo
 	btTransform localTrans;
 	localTrans.setIdentity();
 	//localTrans effectively shifts the center of mass with respect to the chassis
-	localTrans.setOrigin(btVector3(0, 0, 0.3));
+	localTrans.setOrigin(btVector3(0.f, 0.f, 0.3f));
 
 	compound->addChildShape(localTrans, chassisShape);
 
@@ -64,20 +64,20 @@ Vehicle::Vehicle(glm::vec3 position, YftLoader* yft, btDiscreteDynamicsWorld* wo
 
 	bool isFrontWheel = true;
 
-	btVector3 connectionPointCS0(CUBE_HALF_EXTENTS - (0.3*wheelWidth), 2 * CUBE_HALF_EXTENTS - wheelRadius, connectionHeight);
+	btVector3 connectionPointCS0(CUBE_HALF_EXTENTS - (0.3f*wheelWidth), 2 * CUBE_HALF_EXTENTS - wheelRadius, connectionHeight);
 
 
 	m_vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, m_tuning, isFrontWheel);
 
-	connectionPointCS0 = btVector3(-CUBE_HALF_EXTENTS + (0.3*wheelWidth), 2 * CUBE_HALF_EXTENTS - wheelRadius, connectionHeight);
+	connectionPointCS0 = btVector3(-CUBE_HALF_EXTENTS + (0.3f*wheelWidth), 2 * CUBE_HALF_EXTENTS - wheelRadius, connectionHeight);
 
 
 	m_vehicle->addWheel(connectionPointCS0,wheelDirectionCS0,wheelAxleCS,suspensionRestLength,wheelRadius,m_tuning,isFrontWheel);
 
-	connectionPointCS0 = btVector3(-CUBE_HALF_EXTENTS + (0.3*wheelWidth), -2 * CUBE_HALF_EXTENTS + wheelRadius, connectionHeight);
+	connectionPointCS0 = btVector3(-CUBE_HALF_EXTENTS + (0.3f*wheelWidth), -2 * CUBE_HALF_EXTENTS + wheelRadius, connectionHeight);
 	isFrontWheel = false;
 	m_vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, m_tuning, isFrontWheel);
-	connectionPointCS0 = btVector3(CUBE_HALF_EXTENTS - (0.3*wheelWidth), -2 * CUBE_HALF_EXTENTS + wheelRadius, connectionHeight);
+	connectionPointCS0 = btVector3(CUBE_HALF_EXTENTS - (0.3f*wheelWidth), -2 * CUBE_HALF_EXTENTS + wheelRadius, connectionHeight);
 
 	m_vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, m_tuning, isFrontWheel);
 

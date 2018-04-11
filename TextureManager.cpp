@@ -76,7 +76,7 @@ GLuint TextureManager::loadTexture(std::string path)
 	}
 	else
 	{
-		printf("Texture failed to load at path : %s", path);
+		printf("Texture failed to load at path : %s", path.c_str());
 		stbi_image_free(data);
 	}
 

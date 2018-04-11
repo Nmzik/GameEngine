@@ -10,7 +10,7 @@ public:
 	virtual pos_type seekoff(off_type off, std::ios_base::seekdir dir, std::ios_base::openmode which = std::ios_base::in) override
 	{
 		if (dir == std::ios_base::cur)
-			gbump(off);
+			gbump((int)off);
 		else if (dir == std::ios_base::end)
 			setg((char*)p, (char*)p + l + off, (char*)p + l);
 		else if (dir == std::ios_base::beg)

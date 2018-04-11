@@ -29,7 +29,7 @@ CacheDatFile::CacheDatFile()
 
 	std::string line;
 	//skip version
-	for (int i = 100; i < FileSize; i++)
+	for (uint32_t i = 100; i < FileSize; i++)
 	{
 		uint8_t b;
 		stream.read((char*)&b, sizeof(uint8_t));
@@ -44,7 +44,7 @@ CacheDatFile::CacheDatFile()
 				stream.read((char*)&modlen, sizeof(uint32_t));
 				structcount = modlen / 64;
 
-				for (int i = 0; i < structcount; i++)
+				for (uint32_t i = 0; i < structcount; i++)
 				{
 					MapDataStoreNode node;
 					stream.read((char*)&node, sizeof(MapDataStoreNode));
@@ -57,7 +57,7 @@ CacheDatFile::CacheDatFile()
 				stream.read((char*)&modlen, sizeof(uint32_t));
 				structcount = modlen / 104;
 
-				for (int i = 0; i < structcount; i++)
+				for (uint32_t i = 0; i < structcount; i++)
 				{
 					CInteriorProxy proxy;
 					stream.read((char*)&proxy, sizeof(CInteriorProxy));
@@ -70,7 +70,7 @@ CacheDatFile::CacheDatFile()
 				stream.read((char*)&modlen, sizeof(uint32_t));
 				structcount = modlen / 32;
 
-				for (int i = 0; i < structcount; i++)
+				for (uint32_t i = 0; i < structcount; i++)
 				{
 					BoundsStoreItem item;
 					stream.read((char*)&item, sizeof(BoundsStoreItem));

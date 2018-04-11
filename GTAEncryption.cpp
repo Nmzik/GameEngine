@@ -77,7 +77,7 @@ uint8_t * GTAEncryption::DecryptAES(uint8_t * data, uint32_t DataLength)
 {
 	struct AES_ctx ctx;
 	AES_init_ctx(&ctx, PC_AES_KEY);
-	for (int i = 0; i < DataLength / 16; i++)
+	for (uint32_t i = 0; i < DataLength / 16; i++)
 	{
 		AES_ECB_decrypt(&ctx, &data[i * 16]);
 	}
@@ -99,7 +99,7 @@ uint8_t* GTAEncryption::DecryptNG(uint8_t* data, uint32_t dataLength, uint8_t* k
 	memcpy(keyuints, key, 272);
 	//Buffer.BlockCopy(key, 0, keyuints, 0, key.Length);
 
-	for (int blockIndex = 0; blockIndex < dataLength / 16; blockIndex++)
+	for (uint32_t blockIndex = 0; blockIndex < dataLength / 16; blockIndex++)
 	{
 		uint8_t* encryptedBlock = new uint8_t[16];
 		memcpy(encryptedBlock, data + 16 * blockIndex, 16);

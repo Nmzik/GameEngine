@@ -72,7 +72,7 @@ void RpfFile::LoadRpf(std::ifstream& rpf, std::string& FileName, uint32_t FileSi
 	memstream EntriesStream(entriesData, EntryCount * 16);
 	memstream NamesStream(namesData, NamesLength);
 
-	for (int i = 0; i < EntryCount; i++)
+	for (uint32_t i = 0; i < EntryCount; i++)
 	{
 		uint32_t x;
 		uint32_t y;

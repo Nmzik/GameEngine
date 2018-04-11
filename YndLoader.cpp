@@ -23,7 +23,7 @@ YndLoader::YndLoader(std::string FileName)
 	file.seekg(NodeDictionary.NodesPointer);
 	nodes.resize(NodeDictionary.NodesCount);
 
-	for (int i = 0; i < NodeDictionary.NodesCount; i++)
+	for (uint32_t i = 0; i < NodeDictionary.NodesCount; i++)
 	{
 		file.read((char*)&nodes[i], sizeof(Node));
 	}
@@ -39,7 +39,7 @@ YndLoader::YndLoader(std::string FileName)
 	file.seekg(NodeDictionary.LinksPtr);
 	nodeLinks.resize(NodeDictionary.LinksCount);
 
-	for (int i = 0; i < NodeDictionary.LinksCount; i++)
+	for (uint32_t i = 0; i < NodeDictionary.LinksCount; i++)
 	{
 		file.read((char*)&nodeLinks[i], sizeof(NodeLink));
 	}
@@ -55,7 +55,7 @@ YndLoader::YndLoader(std::string FileName)
 	file.seekg(NodeDictionary.JunctionsPtr);
 	nodeJunctions.resize(NodeDictionary.JunctionsCount);
 
-	for (int i = 0; i < NodeDictionary.JunctionsCount; i++)
+	for (uint32_t i = 0; i < NodeDictionary.JunctionsCount; i++)
 	{
 		file.read((char*)&nodeJunctions[i], sizeof(NodeJunction));
 	}

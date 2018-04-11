@@ -163,7 +163,7 @@ YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world, memstream& file) : Collisio
 
 		file.seekg(geom.PolygonsPointer);
 
-		for (int i = 0; i < geom.PolygonsCount; i++)  //PERFORMANCE IMPROVEMENT???
+		for (uint32_t i = 0; i < geom.PolygonsCount; i++)  //PERFORMANCE IMPROVEMENT???
 		{
 			uint8_t type;
 			file.read((char*)&type, sizeof(uint8_t));
@@ -198,7 +198,7 @@ YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world, memstream& file) : Collisio
 			std::vector<glm::vec3> Vertices;
 			Vertices.resize(geom.VerticesCount);
 
-			for (int i = 0; i < geom.VerticesCount; i++)
+			for (uint32_t i = 0; i < geom.VerticesCount; i++)
 			{
 				Vertices[i] = glm::vec3(vertices[i].x, vertices[i].y, vertices[i].z) * geom.Quantum;
 			}
