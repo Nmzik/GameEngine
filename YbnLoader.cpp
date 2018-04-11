@@ -3,7 +3,6 @@
 YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world, memstream& file) : CollisionWorld(world)
 {
 	compound = new btCompoundShape();
-	std::vector<glm::vec3> CenterGeometry;
 
 	ResourceFileBase resourceFileBase;
 	file.read((char*)&resourceFileBase, sizeof(ResourceFileBase));
@@ -110,8 +109,6 @@ YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world, memstream& file) : Collisio
 		int16_t z;
 	};
 
-	std::vector<BoundGeometry> BoundGeometries;
-
 	file.read((char*)&BoundComposite, sizeof(BoundComposite));
 
 	TranslatePTR(BoundComposite.ChildrenPointer);
@@ -161,7 +158,7 @@ YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world, memstream& file) : Collisio
 		};
 
 		std::vector<BoundPolygonTriangle> PolygonTriangles;
-		CenterGeometry.push_back(geom.CenterGeom);
+		PolygonTriangles.reserve(geom.PolygonsCount);
 		TranslatePTR(geom.PolygonsPointer);
 
 		file.seekg(geom.PolygonsPointer);
@@ -226,8 +223,6 @@ YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world, memstream& file) : Collisio
 			//localTrans effectively shifts the center of mass with respect to the chassis
 			localTrans.setOrigin(btVector3(geom.CenterGeom.x, geom.CenterGeom.y, geom.CenterGeom.z));
 			compound->addChildShape(localTrans, trishape);
-
-			BoundGeometries.push_back(geom);
 		}
 		file.seekg(BoundsPointer);
 	}
@@ -256,10 +251,4 @@ YbnLoader::~YbnLoader()
 
 	delete rigidBody;
 	delete compound;
-}
-
-glm::mat4 YbnLoader::GetMat4()
-{
-	glm::mat4 model = glm::translate(glm::mat4(), glm::vec3(25.8109264, -8.294803, 9.779061));
-	return model;
 }

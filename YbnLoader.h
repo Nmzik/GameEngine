@@ -25,6 +25,5 @@ public:
 
 	YbnLoader(btDiscreteDynamicsWorld* world, memstream& file);
 	~YbnLoader();
-	glm::mat4 GetMat4();
 };
 
