@@ -104,7 +104,7 @@ void main()
 	vec4 FragPosLightSpace = lightSpaceMatrix * vec4(FragPos, 1.0);
 	vec3 ambient;
 	ambient  = light.ambient * Diffuse * AmbientOcclusion;
-	//if (type == 1) ambient  = light.ambient * Diffuse;
+	if (type == 1) ambient  = light.ambient * Diffuse;
     // diffuse
     vec3 lightDir = normalize(-light.direction);
     float diff = max(dot(Normal, lightDir), 0.0);

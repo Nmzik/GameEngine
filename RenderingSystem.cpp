@@ -147,6 +147,7 @@ void RenderingSystem::createGBuffer()
 {
 	glGenFramebuffers(1, &gBuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
+
 	// normal color buffer
 	glGenTextures(1, &gNormal);
 	glBindTexture(GL_TEXTURE_2D, gNormal);
@@ -217,7 +218,7 @@ void RenderingSystem::createSSAO()
 	glBindFramebuffer(GL_FRAMEBUFFER, ssaoBlurFBO);
 	glGenTextures(1, &ssaoColorBufferBlur);
 	glBindTexture(GL_TEXTURE_2D, ssaoColorBufferBlur);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, ScreenResWidth / 2, ScreenResHeight / 2, 0, GL_RGB, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, ScreenResWidth, ScreenResHeight, 0, GL_RGB, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ssaoColorBufferBlur, 0);
@@ -296,7 +297,6 @@ void RenderingSystem::renderQuad()
 
 void RenderingSystem::render(GameWorld* world)
 {
-	//float tod = world->gameHour + world->gameMinute / 60.f;
 	double SUNRISE = 5.47f;		// % of Day
 	double SUNSET = 19.35f;
 	uint8_t MOONRISE = 17;	// % of Day
@@ -307,7 +307,7 @@ void RenderingSystem::render(GameWorld* world)
 		float phi = glm::pi<float>() / 2.0f - (float)sunT * glm::pi<float>();
 		float theta = 0.0f;
 
-		//dirLight.direction = glm::normalize(glm::vec3(-glm::sin(phi)*glm::cos(theta), glm::cos(phi), glm::sin(phi)*glm::sin(theta)));
+		dirLight.direction = glm::normalize(glm::vec3(-glm::sin(phi)*glm::cos(theta), glm::cos(phi), glm::sin(phi)*glm::sin(theta)));
 	}
 
 	/*if (world->gameHour < MOONSET || world->gameHour < MOONRISE) {
@@ -446,12 +446,7 @@ void RenderingSystem::render(GameWorld* world)
 	DepthTexture->use();
 	DepthTexture->setMat4("lightSpaceMatrix", lightSpaceMatrix);
 	//glCullFace(GL_BACK);
-	for (auto& YdrFile : world->ydrLoader)
-	{
-		auto modelpos = YdrFile->GetMat4();
-		DepthTexture->setMat4(ModelUniformLoc, modelpos);
-		YdrFile->Draw();
-	}
+	
 	//glCullFace(GL_FRONT);
 	//printf("SUN %s\n",glm::to_string(sunDirection).c_str());
 
@@ -465,10 +460,10 @@ void RenderingSystem::render(GameWorld* world)
 	glBindTexture(GL_TEXTURE_2D, depthMap);
 	renderQuad();*/
 
-	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	//glViewport(0, 0, ScreenResWidth, ScreenResHeight);
+	/*glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glViewport(0, 0, ScreenResWidth, ScreenResHeight);*/
 
-	glm::mat4 InverseViewMatrix = glm::inverse(view);
+	glm::mat4 InverseProjMatrix = glm::inverse(projection);
 
 	// generate SSAO texture
 	// ------------------------
@@ -479,7 +474,7 @@ void RenderingSystem::render(GameWorld* world)
 	for (unsigned int i = 0; i < 64; ++i)
 		shaderSSAO->setVec3("samples[" + std::to_string(i) + "]", ssaoKernel[i]);
 	shaderSSAO->setMat4("projection", projection);
-	shaderSSAO->setMat4("InverseProjectionMatrix", InverseViewMatrix);
+	shaderSSAO->setMat4("InverseProjectionMatrix", InverseProjMatrix);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, gDepthMap);
 	glActiveTexture(GL_TEXTURE1);
@@ -516,8 +511,9 @@ void RenderingSystem::render(GameWorld* world)
 	glBindTexture(GL_TEXTURE_2D, ssaoColorBufferBlur);
 
 	gbufferLighting->setVec3("light.direction", dirLight.direction);
+	gbufferLighting->setInt("type", type);
 	gbufferLighting->setVec3("viewPos", camera->Position);
-	gbufferLighting->setMat4("InverseProjectionMatrix", InverseViewMatrix);
+	gbufferLighting->setMat4("InverseProjectionMatrix", InverseProjMatrix);
 	//gbufferLighting->setMat4("lightSpaceMatrix", lightSpaceMatrix);
 	renderQuad();
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);

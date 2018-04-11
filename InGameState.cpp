@@ -44,12 +44,11 @@ void InGameState::tick(float delta_time)
 	//KEYBOARD
 
 	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_Q)) {
-		game->getRenderer()->hdrEnabled = !game->getRenderer()->hdrEnabled;
+		game->getRenderer()->setType(0);
 	}
 
 	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_E)) {
-		game->getWorld()->renderProxies = !game->getWorld()->renderProxies;
-		if (game->getWorld()->renderProxies) printf("SWITCHED");
+		game->getRenderer()->setType(1);
 	}
 
 	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_Z)) {
