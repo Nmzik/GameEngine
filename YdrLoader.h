@@ -298,8 +298,6 @@ class YdrLoader
 	std::vector<Material*> materials;
 public:
 	bool isVisible = false;
-	glm::vec3 BBCenter;
-	float BBRadius;
 	uint32_t time;
 	bool Loaded = false;
 	YdrLoader(memstream& file, btDiscreteDynamicsWorld* world);
