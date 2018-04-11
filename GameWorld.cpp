@@ -186,15 +186,15 @@ void GameWorld::LoadYmap(uint32_t hash, Camera* camera)
 								continue;
 							}
 
-							if (camera->intersects(it->second.bsCentre + map->CEntityDefs[i].position, it->second.bsRadius * std::max(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ))) {
+							//if (camera->intersects(it->second.bsCentre + map->CEntityDefs[i].position, it->second.bsRadius * std::max(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ))) {
 								LoadYTD(it->second.textureDictionary);
 								if (it->second.assetType == ASSET_TYPE_DRAWABLE)
-									LoadYDR(map->CEntityDefs[i].archetypeName, map->ModelMatrices[i]);
+									LoadYDR(camera, map->CEntityDefs[i].archetypeName, it->second.bsCentre + map->CEntityDefs[i].position, it->second.bsRadius * std::max(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ), map->ModelMatrices[i]);
 								if (it->second.assetType == ASSET_TYPE_DRAWABLEDICTIONARY)
-									LoadYDD(map->CEntityDefs[i].archetypeName, it->second.drawableDictionary, map->ModelMatrices[i]);
+									LoadYDD(camera, map->CEntityDefs[i].archetypeName, it->second.bsCentre + map->CEntityDefs[i].position, it->second.bsRadius * std::max(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ), it->second.drawableDictionary, map->ModelMatrices[i]);
 								if (it->second.assetType == ASSET_TYPE_FRAGMENT)
-									LoadYFT(map->CEntityDefs[i].archetypeName, map->ModelMatrices[i]);
-							}
+									LoadYFT(camera, map->CEntityDefs[i].archetypeName, it->second.bsCentre + map->CEntityDefs[i].position, it->second.bsRadius * std::max(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ), map->ModelMatrices[i]);
+							//}
 						}
 						else {
 							std::unordered_map<uint32_t, CTimeArchetypeDef>::iterator it = data.CTimeArchetypeDefs.find(map->CEntityDefs[i].archetypeName);
@@ -204,11 +204,11 @@ void GameWorld::LoadYmap(uint32_t hash, Camera* camera)
 								if ((it->second._TimeArchetypeDef.timeFlags >> gameHour) & 1) {
 									LoadYTD(it->second._BaseArchetypeDef.textureDictionary);
 									if (it->second._BaseArchetypeDef.assetType == ASSET_TYPE_DRAWABLE)
-										LoadYDR(map->CEntityDefs[i].archetypeName, map->ModelMatrices[i]);
+										LoadYDR(camera, map->CEntityDefs[i].archetypeName, it->second._BaseArchetypeDef.bsCentre + map->CEntityDefs[i].position, it->second._BaseArchetypeDef.bsRadius * std::max(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ), map->ModelMatrices[i]);
 									if (it->second._BaseArchetypeDef.assetType == ASSET_TYPE_DRAWABLEDICTIONARY)
-										LoadYDD(map->CEntityDefs[i].archetypeName, it->second._BaseArchetypeDef.drawableDictionary, map->ModelMatrices[i]);
+										LoadYDD(camera, map->CEntityDefs[i].archetypeName, it->second._BaseArchetypeDef.bsCentre + map->CEntityDefs[i].position, it->second._BaseArchetypeDef.bsRadius * std::max(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ), it->second._BaseArchetypeDef.drawableDictionary, map->ModelMatrices[i]);
 									if (it->second._BaseArchetypeDef.assetType == ASSET_TYPE_FRAGMENT)
-										LoadYFT(map->CEntityDefs[i].archetypeName, map->ModelMatrices[i]);
+										LoadYFT(camera, map->CEntityDefs[i].archetypeName, it->second._BaseArchetypeDef.bsCentre + map->CEntityDefs[i].position, it->second._BaseArchetypeDef.bsRadius * std::max(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ), map->ModelMatrices[i]);
 								}
 							}
 							//}
@@ -299,15 +299,15 @@ void GameWorld::LoadYTD(uint32_t hash)
 	}
 }
 
-void GameWorld::LoadYDR(uint32_t hash, glm::mat4 & matrix)
+void GameWorld::LoadYDR(Camera* camera, uint32_t hash, glm::vec3 BSCentre, float BSRadius, glm::mat4 & matrix)
 {
 	std::unordered_map<uint32_t, YdrLoader*>::iterator iter = ydrLoader.find(hash);
 	if (iter != ydrLoader.end())
 	{
 		iter->second->time = SDL_GetTicks();
-		
-		renderList.emplace_back(iter->second, matrix);
-
+		if (camera->intersects(BSCentre, BSRadius)) {
+			renderList.emplace_back(iter->second, matrix);
+		}
 		return;
 	}
 
@@ -330,7 +330,7 @@ void GameWorld::LoadYDR(uint32_t hash, glm::mat4 & matrix)
 	}
 }
 
-void GameWorld::LoadYDD(uint32_t hash, uint32_t DrawableDictionaryHash, glm::mat4 & matrix)
+void GameWorld::LoadYDD(Camera* camera, uint32_t hash, glm::vec3 BSCentre, float BSRadius, uint32_t DrawableDictionaryHash, glm::mat4 & matrix)
 {
 	std::unordered_map<uint32_t, YddLoader*>::iterator iter = yddLoader.find(DrawableDictionaryHash);
 	if (iter != yddLoader.end())
@@ -338,9 +338,10 @@ void GameWorld::LoadYDD(uint32_t hash, uint32_t DrawableDictionaryHash, glm::mat
 		std::unordered_map<uint32_t, YdrLoader*>::iterator iter2 = iter->second->YdrFiles.find(hash);
 		if (iter2 != iter->second->YdrFiles.end())
 		{
-			renderList.emplace_back(iter2->second, matrix);
-
 			iter->second->time = SDL_GetTicks();
+			if (camera->intersects(BSCentre, BSRadius)) {
+				renderList.emplace_back(iter2->second, matrix);
+			}
 			return;
 		}
 	}
@@ -363,15 +364,15 @@ void GameWorld::LoadYDD(uint32_t hash, uint32_t DrawableDictionaryHash, glm::mat
 
 }
 
-void GameWorld::LoadYFT(uint32_t hash, glm::mat4 & matrix)
+void GameWorld::LoadYFT(Camera* camera, uint32_t hash, glm::vec3 BSCentre, float BSRadius, glm::mat4 & matrix)
 {
 	std::unordered_map<uint32_t, YftLoader*>::iterator iter = yftLoader.find(hash);
 	if (iter != yftLoader.end())
 	{
 		iter->second->time = SDL_GetTicks();
-
-		renderList.emplace_back(iter->second->YdrFile, matrix);
-
+		if (camera->intersects(BSCentre, BSRadius)) {
+			renderList.emplace_back(iter->second->YdrFile, matrix);
+		}
 		return;
 	}
 
