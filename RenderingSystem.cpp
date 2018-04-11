@@ -307,7 +307,7 @@ void RenderingSystem::render(GameWorld* world)
 		float phi = glm::pi<float>() / 2.0f - (float)sunT * glm::pi<float>();
 		float theta = 0.0f;
 
-		dirLight.direction = glm::normalize(glm::vec3(-glm::sin(phi)*glm::cos(theta), glm::cos(phi), glm::sin(phi)*glm::sin(theta)));
+		dirLight.direction = glm::normalize(glm::vec3(-glm::sin(phi)*glm::cos(theta), glm::sin(phi)*glm::sin(theta), glm::cos(phi)));
 	}
 
 	/*if (world->gameHour < MOONSET || world->gameHour < MOONRISE) {
@@ -460,8 +460,8 @@ void RenderingSystem::render(GameWorld* world)
 	glBindTexture(GL_TEXTURE_2D, depthMap);
 	renderQuad();*/
 
-	/*glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glViewport(0, 0, ScreenResWidth, ScreenResHeight);*/
+	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	//glViewport(0, 0, ScreenResWidth, ScreenResHeight);
 
 	glm::mat4 InverseProjMatrix = glm::inverse(projection);
 
