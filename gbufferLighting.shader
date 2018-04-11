@@ -17,9 +17,9 @@ out vec4 FragColor;
 
 in vec2 TexCoords;
 
+uniform sampler2D gDepth;
 uniform sampler2D gNormal;
 uniform sampler2D gAlbedoSpec;
-uniform sampler2D gDepth;
 uniform sampler2D shadowMap;
 uniform sampler2D ssao;
 

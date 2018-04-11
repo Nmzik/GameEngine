@@ -17,9 +17,9 @@ out float FragColor;
 
 in vec2 TexCoords;
 
+uniform sampler2D gDepth;
 uniform sampler2D gNormal;
 uniform sampler2D texNoise;
-uniform sampler2D gDepth;
 
 uniform mat4 InverseProjectionMatrix;
 uniform vec3 samples[64];
