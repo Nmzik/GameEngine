@@ -52,9 +52,8 @@ class Mesh
 
 	Material* material;
 	unsigned int num_indices;
-	uint32_t num_vertices;
 public:
-	Mesh(const uint8_t* meshData, uint64_t VertexPointer, uint32_t VertexSize, uint64_t IndicesPointer, uint32_t IndicesSize, VertexType type, uint32_t textureHash);
+	Mesh(const uint8_t* meshData, uint64_t VertexPointer, uint32_t VertexSize, uint64_t IndicesPointer, uint32_t IndicesSize, VertexType type, Material* mat);
 	~Mesh();
 
 	void Draw();

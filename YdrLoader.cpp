@@ -2,7 +2,6 @@
 
 YdrLoader::YdrLoader(memstream& file, btDiscreteDynamicsWorld* world)
 {
-	std::vector<uint32_t> TexturesHashes;
 
 	ResourceFileBase resourceFileBase;
 	file.read((char*)&resourceFileBase, sizeof(ResourceFileBase));
@@ -63,7 +62,6 @@ YdrLoader::YdrLoader(memstream& file, btDiscreteDynamicsWorld* world)
 	}
 
 	TranslatePTR(_ShaderGroup.ShadersPointer);
-
 	file.seekg(_ShaderGroup.ShadersPointer);
 
 	for (int i = 0; i < _ShaderGroup.ShadersCount1; i++)
@@ -73,59 +71,100 @@ YdrLoader::YdrLoader(memstream& file, btDiscreteDynamicsWorld* world)
 		uint64_t posOriginal = file.tellg();
 
 		TranslatePTR(data_pointer);
-
 		file.seekg(data_pointer);
 
 		ShaderFX shaderFX;
-
 		file.read((char*)&shaderFX, sizeof(shaderFX));
 
 		TranslatePTR(shaderFX.ParametersPointer);
 
 		file.seekg(shaderFX.ParametersPointer);
 
-		for (int i = 0; i < 1; i++) ///i < shaderFX.ParameterCount
+		std::vector<uint32_t> ShaderHashes;
+		ShaderHashes.resize(shaderFX.TextureParametersCount);
+
+		std::vector<uint32_t> TexturesHashes;
+
+		int offset = 0;
+
+		for (int i = 0; i < shaderFX.ParameterCount; i++)
 		{
 			ShaderParameter param;
 			file.read((char*)&param, sizeof(ShaderParameter));
 
-			if (param.DataType == 1) { //SOME OTHER SHIT OTHER THAN TEXTURE
-				TexturesHashes.push_back(0);
-			}
-			else
+			switch (param.DataType)
+			{
+			case 0:
 
-				if (param.DataType == 0) {
-
-					if (param.DataPointer == 0) {
-						TexturesHashes.push_back(0);
-					}
-					else {
-
-						uint64_t Pos = file.tellg();
-
-						TranslatePTR(param.DataPointer);
-
-						file.seekg(param.DataPointer);
-
-						TextureBase texBase;
-						file.read((char*)&texBase, sizeof(TextureBase));
-
-						TranslatePTR(texBase.NamePointer);
-
-						file.seekg(texBase.NamePointer);
-
-						std::string Name;
-						std::getline(file, Name, '\0');
-
-						std::transform(Name.begin(), Name.end(), Name.begin(), tolower);
-						uint32_t NameHash = GenHash(Name);
-
-						TexturesHashes.push_back(NameHash);
-
-						file.seekg(Pos);
-					}
+				if (param.DataPointer == 0) {
+					TexturesHashes.push_back(0);
 				}
+				else {
+
+					uint64_t Pos = file.tellg();
+
+					TranslatePTR(param.DataPointer);
+
+					file.seekg(param.DataPointer);
+
+					TextureBase texBase;
+					file.read((char*)&texBase, sizeof(TextureBase));
+
+					TranslatePTR(texBase.NamePointer);
+
+					file.seekg(texBase.NamePointer);
+
+					std::string Name;
+					std::getline(file, Name, '\0');
+
+					std::transform(Name.begin(), Name.end(), Name.begin(), tolower);
+					uint32_t NameHash = GenHash(Name);
+
+					TexturesHashes.push_back(NameHash);
+
+					file.seekg(Pos);
+				}
+
+				break;
+			case 1: //SOME OTHER SHIT OTHER THAN TEXTURE
+				offset += 16;
+				TexturesHashes.push_back(0);
+				break;
+			default:
+				offset += 16 * param.DataType;
+				TexturesHashes.push_back(0); //NOT ERROR
+				break;
+			}
 		}
+
+		file.seekg(offset, std::ios::cur);
+
+		if (shaderFX.TextureParametersCount > 0)
+			file.read((char*)&ShaderHashes[0], sizeof(uint32_t) * shaderFX.TextureParametersCount);
+
+		uint32_t DiffuseSampler = 0;
+		uint32_t BumpSampler = 0;
+		uint32_t SpecularSampler = 0;
+		uint32_t DetailSampler = 0;
+
+		for (int i = 0; i < ShaderHashes.size(); i++)
+		{
+			if (ShaderHashes[i] == 4059966321) { //DiffuseSampler
+				DiffuseSampler = TexturesHashes[i];
+			}
+			if (ShaderHashes[i] == 1186448975) { //BumpSampler
+				BumpSampler = TexturesHashes[i];
+			}
+			if (ShaderHashes[i] == 1619499462) { //SpecularSampler
+				SpecularSampler = TexturesHashes[i];
+			}
+			if (ShaderHashes[i] == 3393362404) { //DetailSampler
+				DetailSampler = TexturesHashes[i];
+			}
+		}
+
+		Material* newMat = new Material(DiffuseSampler, BumpSampler, SpecularSampler, DetailSampler);
+		materials.push_back(newMat);
 
 		file.seekg(posOriginal);
 
@@ -220,7 +259,7 @@ YdrLoader::YdrLoader(memstream& file, btDiscreteDynamicsWorld* world)
 			case 216172782140612614:  //YFT - 0x0300000001996006  PNCH2H4
 				switch (decl.Flags)
 				{
-				case 89: 
+				case 89:
 					decl.Flags = VertexType::PNCH2;
 					break;     //  PNCH2
 				}
@@ -236,7 +275,7 @@ YdrLoader::YdrLoader(memstream& file, btDiscreteDynamicsWorld* world)
 
 			TranslatePTR(indexbuffer.IndicesPointer);
 
-			Mesh* newMesh = new Mesh(file._buffer.p, vertbuffer.DataPointer1, vertbuffer.VertexCount * vertbuffer.VertexStride, indexbuffer.IndicesPointer, indexbuffer.IndicesCount, (VertexType)decl.Flags, TexturesHashes[ShaderMapping[i]]);
+			Mesh* newMesh = new Mesh(file._buffer.p, vertbuffer.DataPointer1, vertbuffer.VertexCount * vertbuffer.VertexStride, indexbuffer.IndicesPointer, indexbuffer.IndicesCount, (VertexType)decl.Flags, materials[ShaderMapping[i]]);
 			meshes.push_back(newMesh);
 
 			file.seekg(pos);
@@ -248,6 +287,10 @@ YdrLoader::YdrLoader(memstream& file, btDiscreteDynamicsWorld* world)
 
 YdrLoader::~YdrLoader()
 {
+	for (auto& material : materials)
+	{
+		delete material;
+	}
 	delete ytdFile;
 	for (auto& mesh : meshes)
 	{

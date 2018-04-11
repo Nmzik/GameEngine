@@ -1,6 +1,6 @@
 #include "Mesh.h"
 
-Mesh::Mesh(const uint8_t* meshData, uint64_t VertexPointer, uint32_t VertexSize, uint64_t IndicesPointer, uint32_t IndicesSize, VertexType type, uint32_t textureHash)
+Mesh::Mesh(const uint8_t* meshData, uint64_t VertexPointer, uint32_t VertexSize, uint64_t IndicesPointer, uint32_t IndicesSize, VertexType type, Material* mat) : material(mat)
 {
 	glGenVertexArrays(1, &VAO);
 
@@ -156,16 +156,16 @@ Mesh::Mesh(const uint8_t* meshData, uint64_t VertexPointer, uint32_t VertexSize,
 		glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_FALSE, 76, (GLvoid*)24);
 		glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 76, (GLvoid*)28);
 		break;
-	/*case PNCTTTT:
-		break;
-	case PCCNCCTT:
-		break;
-	case PCTT:
-		break;
-	case PCCCCT:
-		break;
-	case PCCNC:
-		break;*/
+		/*case PNCTTTT:
+			break;
+		case PCCNCCTT:
+			break;
+		case PCTT:
+			break;
+		case PCCCCT:
+			break;
+		case PCCNC:
+			break;*/
 	case PCCNCTT:
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 52, nullptr);
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 52, (GLvoid*)20);
@@ -184,10 +184,10 @@ Mesh::Mesh(const uint8_t* meshData, uint64_t VertexPointer, uint32_t VertexSize,
 		glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_FALSE, 60, (GLvoid*)12);
 		glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 60, (GLvoid*)36);
 		break;
-	/*case PNCTT:
-		break;
-	case PNCTTT:
-		break;*/
+		/*case PNCTT:
+			break;
+		case PNCTTT:
+			break;*/
 	default:
 		printf("VERTEX\n");
 		break;
@@ -202,7 +202,6 @@ Mesh::Mesh(const uint8_t* meshData, uint64_t VertexPointer, uint32_t VertexSize,
 	//glBindVertexArray(0);
 	//glBindBuffer(GL_ARRAY_BUFFER, 0);
 	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-	material = new Material(textureHash);
 
 }
 
@@ -212,7 +211,6 @@ Mesh::~Mesh()
 	glDeleteBuffers(1, &EBO);
 	glDeleteBuffers(1, &VBO);
 	glDeleteVertexArrays(1, &VAO);
-	delete material;
 }
 
 void Mesh::Draw()

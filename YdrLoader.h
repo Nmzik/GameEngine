@@ -295,6 +295,7 @@ class YdrLoader
 {
 	std::vector<Mesh*> meshes;
 	YtdFile* ytdFile;
+	std::vector<Material*> materials;
 public:
 	bool isVisible = false;
 	glm::vec3 BBCenter;
