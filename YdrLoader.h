@@ -297,6 +297,7 @@ class YdrLoader
 	YtdFile* ytdFile;
 	std::vector<Material*> materials;
 public:
+	YtdFile * externalYtd;
 	bool isVisible = false;
 	uint32_t time;
 	bool Loaded = false;

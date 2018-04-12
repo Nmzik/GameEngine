@@ -142,7 +142,7 @@ GameWorld::GameWorld()
 		vehicleModel = new YftLoader(stream, dynamicsWorld);
 	}
 
-	
+
 	//ClearTestFunction();
 	/*std::unordered_map<uint32_t, CMloArchetypeDef>::iterator it;
 	it = data.MloDictionary.find(210892389);
@@ -182,51 +182,48 @@ void GameWorld::LoadYmap(uint32_t hash, Camera* camera)
 		if (!(map->_CMapData.flags & 1) > 0) { //DONT LOAD SCRIPTED MAPS
 			for (int i = 0; i < map->CEntityDefs.size(); i++)
 			{
-					bool IsVisible = glm::length(camera->Position - map->CEntityDefs[i].position) <= map->CEntityDefs[i].lodDist * LODMultiplier;
-					bool childrenVisible = (glm::length(camera->Position - map->CEntityDefs[i].position) <= map->CEntityDefs[i].childLodDist * LODMultiplier) && (map->CEntityDefs[i].numChildren > 0);
-					if (IsVisible && !childrenVisible) {
-						//if (map->CEntityDefs[i].archetypeName == 4143923005) { //714617596 for materials
-						std::unordered_map<uint32_t, CBaseArchetypeDef>::iterator it = data.CBaseArchetypeDefs.find(map->CEntityDefs[i].archetypeName);
-						if (it != data.CBaseArchetypeDefs.end())
+				bool IsVisible = glm::length(camera->Position - map->CEntityDefs[i].position) <= map->CEntityDefs[i].lodDist * LODMultiplier;
+				bool childrenVisible = (glm::length(camera->Position - map->CEntityDefs[i].position) <= map->CEntityDefs[i].childLodDist * LODMultiplier) && (map->CEntityDefs[i].numChildren > 0);
+				if (IsVisible && !childrenVisible) {
+					//if (map->CEntityDefs[i].archetypeName == 4143923005) { //714617596 for materials
+					std::unordered_map<uint32_t, CBaseArchetypeDef>::iterator it = data.CBaseArchetypeDefs.find(map->CEntityDefs[i].archetypeName);
+					if (it != data.CBaseArchetypeDefs.end())
+					{
+						if ((it->second.flags & 2048) > 0)
 						{
-							if ((it->second.flags & 2048) > 0)
-							{
-								//if (!renderProxies) continue;
-								continue;
-							}
+							//if (!renderProxies) continue;
+							continue;
+						}
 
-							//if (camera->intersects(it->second.bsCentre + map->CEntityDefs[i].position, it->second.bsRadius * std::max(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ))) {
-								LoadYTD(it->second.textureDictionary);
-								if (it->second.assetType == ASSET_TYPE_DRAWABLE)
-									LoadYDR(camera, map->CEntityDefs[i].archetypeName, it->second.bsCentre + map->CEntityDefs[i].position, it->second.bsRadius * std::max(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ), map->ModelMatrices[i]);
-								if (it->second.assetType == ASSET_TYPE_DRAWABLEDICTIONARY)
-									LoadYDD(camera, map->CEntityDefs[i].archetypeName, it->second.bsCentre + map->CEntityDefs[i].position, it->second.bsRadius * std::max(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ), it->second.drawableDictionary, map->ModelMatrices[i]);
-								if (it->second.assetType == ASSET_TYPE_FRAGMENT)
-									LoadYFT(camera, map->CEntityDefs[i].archetypeName, it->second.bsCentre + map->CEntityDefs[i].position, it->second.bsRadius * std::max(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ), map->ModelMatrices[i]);
-							//}
-						}
-						else {
-							std::unordered_map<uint32_t, CTimeArchetypeDef>::iterator it = data.CTimeArchetypeDefs.find(map->CEntityDefs[i].archetypeName);
-							if (it != data.CTimeArchetypeDefs.end())
-							{
-								//TIME FLAGS FOUND
-								if ((it->second._TimeArchetypeDef.timeFlags >> gameHour) & 1) {
-									LoadYTD(it->second._BaseArchetypeDef.textureDictionary);
-									if (it->second._BaseArchetypeDef.assetType == ASSET_TYPE_DRAWABLE)
-										LoadYDR(camera, map->CEntityDefs[i].archetypeName, it->second._BaseArchetypeDef.bsCentre + map->CEntityDefs[i].position, it->second._BaseArchetypeDef.bsRadius * std::max(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ), map->ModelMatrices[i]);
-									if (it->second._BaseArchetypeDef.assetType == ASSET_TYPE_DRAWABLEDICTIONARY)
-										LoadYDD(camera, map->CEntityDefs[i].archetypeName, it->second._BaseArchetypeDef.bsCentre + map->CEntityDefs[i].position, it->second._BaseArchetypeDef.bsRadius * std::max(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ), it->second._BaseArchetypeDef.drawableDictionary, map->ModelMatrices[i]);
-									if (it->second._BaseArchetypeDef.assetType == ASSET_TYPE_FRAGMENT)
-										LoadYFT(camera, map->CEntityDefs[i].archetypeName, it->second._BaseArchetypeDef.bsCentre + map->CEntityDefs[i].position, it->second._BaseArchetypeDef.bsRadius * std::max(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ), map->ModelMatrices[i]);
-								}
+						if (it->second.assetType == ASSET_TYPE_DRAWABLE)
+							LoadYDR(camera, map->CEntityDefs[i].archetypeName, it->second.textureDictionary, it->second.bsCentre + map->CEntityDefs[i].position, it->second.bsRadius * std::max(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ), map->ModelMatrices[i]);
+						if (it->second.assetType == ASSET_TYPE_DRAWABLEDICTIONARY)
+							LoadYDD(camera, map->CEntityDefs[i].archetypeName, it->second.textureDictionary, it->second.bsCentre + map->CEntityDefs[i].position, it->second.bsRadius * std::max(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ), it->second.drawableDictionary, map->ModelMatrices[i]);
+						if (it->second.assetType == ASSET_TYPE_FRAGMENT)
+							LoadYFT(camera, map->CEntityDefs[i].archetypeName, it->second.textureDictionary, it->second.bsCentre + map->CEntityDefs[i].position, it->second.bsRadius * std::max(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ), map->ModelMatrices[i]);
+					}
+					else {
+						std::unordered_map<uint32_t, CTimeArchetypeDef>::iterator it = data.CTimeArchetypeDefs.find(map->CEntityDefs[i].archetypeName);
+						if (it != data.CTimeArchetypeDefs.end())
+						{
+							//TIME FLAGS FOUND
+							if ((it->second._TimeArchetypeDef.timeFlags >> gameHour) & 1) {
+								LoadYTD(it->second._BaseArchetypeDef.textureDictionary);
+								if (it->second._BaseArchetypeDef.assetType == ASSET_TYPE_DRAWABLE)
+									LoadYDR(camera, map->CEntityDefs[i].archetypeName, it->second._BaseArchetypeDef.textureDictionary, it->second._BaseArchetypeDef.bsCentre + map->CEntityDefs[i].position, it->second._BaseArchetypeDef.bsRadius * std::max(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ), map->ModelMatrices[i]);
+								if (it->second._BaseArchetypeDef.assetType == ASSET_TYPE_DRAWABLEDICTIONARY)
+									LoadYDD(camera, map->CEntityDefs[i].archetypeName, it->second._BaseArchetypeDef.textureDictionary, it->second._BaseArchetypeDef.bsCentre + map->CEntityDefs[i].position, it->second._BaseArchetypeDef.bsRadius * std::max(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ), it->second._BaseArchetypeDef.drawableDictionary, map->ModelMatrices[i]);
+								if (it->second._BaseArchetypeDef.assetType == ASSET_TYPE_FRAGMENT)
+									LoadYFT(camera, map->CEntityDefs[i].archetypeName, it->second._BaseArchetypeDef.textureDictionary, it->second._BaseArchetypeDef.bsCentre + map->CEntityDefs[i].position, it->second._BaseArchetypeDef.bsRadius * std::max(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ), map->ModelMatrices[i]);
 							}
-							//}
-								//else {
-									//printf("NOT FOUND");
-								//}
 						}
+						//}
+							//else {
+								//printf("NOT FOUND");
+							//}
 					}
 				}
+			}
 		}
 	}
 	else {
@@ -280,14 +277,14 @@ bool GameWorld::LoadYTYP(uint32_t hash)
 	}
 }
 
-void GameWorld::LoadYTD(uint32_t hash)
+YtdFile* GameWorld::LoadYTD(uint32_t hash)
 {
 	std::unordered_map<uint32_t, YtdFile*>::iterator it = ytdLoader.find(hash);
 	if (it != ytdLoader.end())
 	{
 		it->second->time = SDL_GetTicks();
 
-		return;
+		return it->second;
 	}
 
 	auto iter = data.YtdEntries.find(hash);
@@ -303,16 +300,21 @@ void GameWorld::LoadYTD(uint32_t hash)
 		YtdFile* file = new YtdFile(stream);
 		file->time = SDL_GetTicks();
 		ytdLoader[hash] = file;
-		//TextureManager::LoadTexture(file->textures[0]);
-		//delete file;
+
+		return file;
 	}
 }
 
-void GameWorld::LoadYDR(Camera* camera, uint32_t hash, glm::vec3 BSCentre, float BSRadius, glm::mat4 & matrix)
+void GameWorld::LoadYDR(Camera* camera, uint32_t hash, uint32_t TextureDictionary, glm::vec3 BSCentre, float BSRadius, glm::mat4 & matrix)
 {
 	std::unordered_map<uint32_t, YdrLoader*>::iterator iter = ydrLoader.find(hash);
 	if (iter != ydrLoader.end())
 	{
+		if (!iter->second->externalYtd)
+			iter->second->externalYtd = LoadYTD(TextureDictionary);
+		else
+			iter->second->externalYtd->time = SDL_GetTicks();
+
 		iter->second->time = SDL_GetTicks();
 		if (camera->intersects(BSCentre, BSRadius)) {
 			renderList.emplace_back(iter->second, matrix);
@@ -339,7 +341,7 @@ void GameWorld::LoadYDR(Camera* camera, uint32_t hash, glm::vec3 BSCentre, float
 	}
 }
 
-void GameWorld::LoadYDD(Camera* camera, uint32_t hash, glm::vec3 BSCentre, float BSRadius, uint32_t DrawableDictionaryHash, glm::mat4 & matrix)
+void GameWorld::LoadYDD(Camera* camera, uint32_t hash, uint32_t TextureDictionary, glm::vec3 BSCentre, float BSRadius, uint32_t DrawableDictionaryHash, glm::mat4 & matrix)
 {
 	std::unordered_map<uint32_t, YddLoader*>::iterator iter = yddLoader.find(DrawableDictionaryHash);
 	if (iter != yddLoader.end())
@@ -347,6 +349,11 @@ void GameWorld::LoadYDD(Camera* camera, uint32_t hash, glm::vec3 BSCentre, float
 		std::unordered_map<uint32_t, YdrLoader*>::iterator iter2 = iter->second->YdrFiles.find(hash);
 		if (iter2 != iter->second->YdrFiles.end())
 		{
+			if (!iter2->second->externalYtd)
+				iter2->second->externalYtd = LoadYTD(TextureDictionary);
+			else
+				iter2->second->externalYtd->time = SDL_GetTicks();
+
 			iter->second->time = SDL_GetTicks();
 			if (camera->intersects(BSCentre, BSRadius)) {
 				renderList.emplace_back(iter2->second, matrix);
@@ -373,11 +380,16 @@ void GameWorld::LoadYDD(Camera* camera, uint32_t hash, glm::vec3 BSCentre, float
 
 }
 
-void GameWorld::LoadYFT(Camera* camera, uint32_t hash, glm::vec3 BSCentre, float BSRadius, glm::mat4 & matrix)
+void GameWorld::LoadYFT(Camera* camera, uint32_t hash, uint32_t TextureDictionary, glm::vec3 BSCentre, float BSRadius, glm::mat4 & matrix)
 {
 	std::unordered_map<uint32_t, YftLoader*>::iterator iter = yftLoader.find(hash);
 	if (iter != yftLoader.end())
 	{
+		if (!iter->second->YdrFile->externalYtd)
+			iter->second->YdrFile->externalYtd = LoadYTD(TextureDictionary);
+		else
+			iter->second->YdrFile->externalYtd->time = SDL_GetTicks();
+
 		iter->second->time = SDL_GetTicks();
 		if (camera->intersects(BSCentre, BSRadius)) {
 			renderList.emplace_back(iter->second->YdrFile, matrix);

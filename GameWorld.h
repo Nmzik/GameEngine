@@ -82,13 +82,13 @@ public:
 
 	bool LoadYTYP(uint32_t hash);
 
-	void LoadYTD(uint32_t hash);
+	YtdFile* LoadYTD(uint32_t hash);
 
-	void LoadYDR(Camera* camera, uint32_t hash, glm::vec3 BSCentre, float BSRadius, glm::mat4 & matrix);
+	void LoadYDR(Camera* camera, uint32_t hash, uint32_t TextureDictionary, glm::vec3 BSCentre, float BSRadius, glm::mat4 & matrix);
 
-	void LoadYDD(Camera* camera, uint32_t hash, glm::vec3 BSCentre, float BSRadius, uint32_t DrawableDictionaryHash, glm::mat4 & matrix);
+	void LoadYDD(Camera* camera, uint32_t hash, uint32_t TextureDictionary, glm::vec3 BSCentre, float BSRadius, uint32_t DrawableDictionaryHash, glm::mat4 & matrix);
 
-	void LoadYFT(Camera* camera, uint32_t hash, glm::vec3 BSCentre, float BSRadius, glm::mat4 & matrix);
+	void LoadYFT(Camera* camera, uint32_t hash, uint32_t TextureDictionary, glm::vec3 BSCentre, float BSRadius, glm::mat4 & matrix);
 
 	void LoadYBN(uint32_t hash);
 
