@@ -21,6 +21,9 @@ btScalar m_defaultContactProcessingThreshold(BT_LARGE_FLOAT);
 Vehicle::Vehicle(glm::vec3 position, YftLoader* yft, btDiscreteDynamicsWorld* world) : throttle(0), steeringValue(0), vehicle(yft)
 {
 	btRaycastVehicle::btVehicleTuning m_tuning;
+
+	m_tuning.m_frictionSlip = 3.f;
+
 	chassisShape = new btBoxShape(btVector3(1.f, 2.f, 0.5f));
 	compound = new btCompoundShape();
 	btTransform localTrans;
@@ -65,20 +68,17 @@ Vehicle::Vehicle(glm::vec3 position, YftLoader* yft, btDiscreteDynamicsWorld* wo
 	bool isFrontWheel = true;
 
 	btVector3 connectionPointCS0(CUBE_HALF_EXTENTS - (0.3f*wheelWidth), 2 * CUBE_HALF_EXTENTS - wheelRadius, connectionHeight);
-
-
 	m_vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, m_tuning, isFrontWheel);
 
 	connectionPointCS0 = btVector3(-CUBE_HALF_EXTENTS + (0.3f*wheelWidth), 2 * CUBE_HALF_EXTENTS - wheelRadius, connectionHeight);
-
-
 	m_vehicle->addWheel(connectionPointCS0,wheelDirectionCS0,wheelAxleCS,suspensionRestLength,wheelRadius,m_tuning,isFrontWheel);
 
-	connectionPointCS0 = btVector3(-CUBE_HALF_EXTENTS + (0.3f*wheelWidth), -2 * CUBE_HALF_EXTENTS + wheelRadius, connectionHeight);
 	isFrontWheel = false;
-	m_vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, m_tuning, isFrontWheel);
-	connectionPointCS0 = btVector3(CUBE_HALF_EXTENTS - (0.3f*wheelWidth), -2 * CUBE_HALF_EXTENTS + wheelRadius, connectionHeight);
 
+	connectionPointCS0 = btVector3(-CUBE_HALF_EXTENTS + (0.3f*wheelWidth), -2 * CUBE_HALF_EXTENTS + wheelRadius, connectionHeight);
+	m_vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, m_tuning, isFrontWheel);
+
+	connectionPointCS0 = btVector3(CUBE_HALF_EXTENTS - (0.3f*wheelWidth), -2 * CUBE_HALF_EXTENTS + wheelRadius, connectionHeight);
 	m_vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, m_tuning, isFrontWheel);
 
 	for (int i = 0; i<m_vehicle->getNumWheels(); i++)
@@ -111,6 +111,9 @@ Vehicle::~Vehicle()
 
 glm::mat4 Vehicle::GetMat4()
 {
+	if (m_carChassis->getWorldTransform().getOrigin().getZ() <= -150) {
+		m_carChassis->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), m_carChassis->getWorldTransform().getOrigin() + btVector3(0, 0, 300)));
+	}
 	glm::mat4 model;
 
 	m_carChassis->getWorldTransform().getOpenGLMatrix(&model[0][0]);

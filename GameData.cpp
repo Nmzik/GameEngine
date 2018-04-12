@@ -34,6 +34,7 @@ GameData::GameData()
 	{
 		LoadRpf(rpfFile);
 	}
+	LoadHandlingData();
 	LoadWaterQuads();
 	//shrink to fit
 	for (auto& rpfFile : RpfFiles)
@@ -135,6 +136,28 @@ GameData::~GameData()
 {
 }
 
+void GameData::LoadHandlingData()
+{
+	tinyxml2::XMLDocument doc;
+	tinyxml2::XMLError eResult = doc.LoadFile("C:\\Users\\nmzik\\Desktop\\handling.meta");
+
+	tinyxml2::XMLElement * root = doc.FirstChildElement("CHandlingDataMgr");
+
+	if (root == nullptr) printf("ERROR");
+
+	tinyxml2::XMLElement* element = root->FirstChildElement("HandlingData");
+	if (element == nullptr) printf("ERROR ELEMENT");
+
+	for (tinyxml2::XMLElement* e = element->FirstChildElement("Item"); e != NULL; e = e->NextSiblingElement("Item"))
+	{
+		tinyxml2::XMLText* element = e->FirstChildElement("handlingName")->FirstChild()->ToText();
+		VehiclesNames.push_back(element->Value());
+		//element = element->NextSiblingElement("maxX");
+		//element = element->NextSiblingElement("maxX");
+		//element = element->NextSiblingElement("maxX");
+	}
+}
+
 void GameData::LoadWaterQuads()
 {
 	tinyxml2::XMLDocument doc;
@@ -152,7 +175,6 @@ void GameData::LoadWaterQuads()
 	//tinyxml2::XMLElement* ItemElement = element->FirstChildElement("Item");
 	//if (ItemElement == nullptr) printf("ERROR ELEMENT");
 
-	int test = 0;
 	for (tinyxml2::XMLElement* e = element->FirstChildElement("Item"); e != NULL; e = e->NextSiblingElement("Item"))
 	{
 		WaterQuad waterQuad;
@@ -197,8 +219,6 @@ void GameData::LoadWaterQuads()
 
 		WaterQuads.push_back(waterQuad);
 	}
-
-	printf("%d", test);
 }
 
 void GameData::LoadRpf(std::string& RpfPath)

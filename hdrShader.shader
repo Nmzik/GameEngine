@@ -82,6 +82,18 @@ vec3 blur() {
 	return result;
 }
 
+float A = 0.15;
+float B = 0.50;
+float C = 0.10;
+float D = 0.20;
+float E = 0.02;
+float F = 0.30;
+float W = 11.2;
+
+vec3 FilmicToneMapping(vec3 x) {
+	return ((x*(A*x + C * B) + D * E) / (x*(A*x + B) + D * F)) - E / F;
+}
+
 void main()
 {
     vec3 hdrColor = texture(hdrBuffer, TexCoords).rgb;
@@ -90,23 +102,18 @@ void main()
 		const float gamma = 2.2;
 		vec3 color = computeFxaa();
 
-		float A = 0.15;
-		float B = 0.50;
-		float C = 0.10;
-		float D = 0.20;
-		float E = 0.02;
-		float F = 0.30;
-		float W = 11.2;
-		float exposure = 2.;
-		color *= exposure;
-		color = ((color * (A * color + C * B) + D * E) / (color * (A * color + B) + D * F)) - E / F;
-		float white = ((W * (A * W + C * B) + D * E) / (W * (A * W + B) + D * F)) - E / F;
-		color /= white;
+		//color *= 8;
 
-		color = pow(color, vec3(1.0 / gamma));
-		if (UseBlur) color += blur();
+		color *= 2.9;
+		float exBias = 2.0f;
+		vec3 curr = FilmicToneMapping(exBias*color);
+		vec3 whiteScale = 1.0f/FilmicToneMapping(vec3(W));
+		curr *= whiteScale;
 
-		FragColor = vec4(color, 1.0);
+		curr = pow(curr, vec3(1.0 / gamma));
+		if (UseBlur) curr += blur();
+
+		FragColor = vec4(curr, 1.0);
     }
     else
     {

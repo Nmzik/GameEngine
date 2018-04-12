@@ -40,8 +40,12 @@ public:
 	std::unordered_map<uint32_t, RpfResourceFileEntry*> YtypEntries;
 	std::unordered_map<uint32_t, RpfResourceFileEntry*> YbnEntries;
 
+	std::vector<std::string> VehiclesNames;
+
 	GameData();
 	~GameData();
+
+	void LoadHandlingData();
 
 	void LoadWaterQuads();
 	void LoadRpf(std::string& RpfPath);

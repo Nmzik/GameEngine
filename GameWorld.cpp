@@ -36,6 +36,13 @@ GameWorld::GameWorld()
 		spaceGrid.AddCInteriorProxy(&cacheFile.AllCInteriorProxies[i], i);
 	}
 
+	for (auto& vehicleName : data.VehiclesNames)
+	{
+		std::transform(vehicleName.begin(), vehicleName.end(), vehicleName.begin(), tolower);
+		uint32_t VehicleHash = GenHash(vehicleName);
+		vehiclesPool[VehicleHash] = nullptr;
+	}
+
 	ydrLoader.reserve(500);
 	yddLoader.reserve(500);;
 	yftLoader.reserve(500);
@@ -92,6 +99,7 @@ GameWorld::GameWorld()
 		YddLoader* playerYDD = new YddLoader(stream, dynamicsWorld);
 
 		player[0] = new Player(glm::vec3(2137, 3656, 100), playerYDD, dynamicsWorld);
+		player[0]->getPhysCharacter()->setGravity(btVector3(0, 0, 0));
 		player[1] = new Player(glm::vec3(9.66, -1184.98, 75.74), playerYDD, dynamicsWorld);
 		player[1]->getPhysCharacter()->setGravity(btVector3(0, 0, 0));
 		player[2] = new Player(glm::vec3(1983.69f, 3825.26, 66.38), playerYDD, dynamicsWorld);
@@ -134,6 +142,7 @@ GameWorld::GameWorld()
 		vehicleModel = new YftLoader(stream, dynamicsWorld);
 	}
 
+	
 	//ClearTestFunction();
 	/*std::unordered_map<uint32_t, CMloArchetypeDef>::iterator it;
 	it = data.MloDictionary.find(210892389);
@@ -566,10 +575,33 @@ void GameWorld::createPedestrian()
 	//pedestrians.push_back(newPlayer);
 }
 
-void GameWorld::createVehicle()
+void GameWorld::createVehicle(glm::vec3 position)
 {
-	Vehicle *newVehicle = new Vehicle(glm::vec3(-20, 0, 0), vehicleModel, dynamicsWorld);
-	vehicles.push_back(newVehicle);
+	int vehicleID = rand() % vehiclesPool.size();
+
+	auto it = vehiclesPool.begin();
+	std::advance(it, vehicleID);
+	if (it->second == nullptr) {
+
+		auto itv = data.YftEntries.find(it->first);
+		if (itv != data.YftEntries.end())
+		{
+			//std::cout << "YFT CAR Found " << itv->second->Name << std::endl;
+			auto& element = *(itv->second);
+			std::vector<uint8_t> outputBuffer;
+			data.ExtractFileResource(element, outputBuffer);
+
+			memstream stream(outputBuffer.data(), outputBuffer.size());
+			YftLoader *vehicle = new YftLoader(stream, dynamicsWorld);
+			it->second = vehicle;
+		}
+
+	}
+
+	if (it->second != nullptr) {
+		Vehicle *newVehicle = new Vehicle(position, it->second, dynamicsWorld);
+		vehicles.push_back(newVehicle);
+	}
 }
 
 void GameWorld::Update()
@@ -627,8 +659,7 @@ void GameWorld::UpdateTraffic(Camera* camera)
 			float xRandom = RandomFloat(camera->Position.x - radiusTraffic, camera->Position.x + radiusTraffic);
 			float yRandom = RandomFloat(camera->Position.y - radiusTraffic, camera->Position.y + radiusTraffic);
 			if (!camera->intersects(glm::vec3(xRandom, yRandom, camera->Position.z + 3.0f), 1.0f)) {
-				Vehicle* newVehicle = new Vehicle(glm::vec3(xRandom, yRandom, camera->Position.z + 3.0f), vehicleModel, dynamicsWorld);
-				vehicles.push_back(newVehicle);
+				createVehicle(glm::vec3(xRandom, yRandom, camera->Position.z + 3.0f));
 			}
 		}
 	}

@@ -62,6 +62,7 @@ public:
 	std::unordered_map<uint32_t, YbnLoader*> ybnLoader;
 	std::vector<YtypLoader*> ytypLoader;
 	std::unordered_map<uint32_t, YmapLoader*> ymapLoader;
+	std::unordered_map<uint32_t, YftLoader*> vehiclesPool;
 	std::vector<Player*> pedestrians;
 	std::vector<Vehicle*> vehicles;
 
@@ -106,7 +107,7 @@ public:
 	}
 
 	void createPedestrian();
-	void createVehicle();
+	void createVehicle(glm::vec3 position);
 	void Update();
 	void UpdateTraffic(Camera* camera);
 	Vehicle* FindNearestVehicle();
