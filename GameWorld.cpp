@@ -1,6 +1,6 @@
 #include "GameWorld.h"
 
-#define UnloadTime 2000
+#define UnloadTime 4000
 
 GameWorld::GameWorld()
 {
@@ -185,7 +185,7 @@ void GameWorld::LoadYmap(uint32_t hash, Camera* camera)
 				bool IsVisible = glm::length(camera->Position - map->CEntityDefs[i].position) <= map->CEntityDefs[i].lodDist * LODMultiplier;
 				bool childrenVisible = (glm::length(camera->Position - map->CEntityDefs[i].position) <= map->CEntityDefs[i].childLodDist * LODMultiplier) && (map->CEntityDefs[i].numChildren > 0);
 				if (IsVisible && !childrenVisible) {
-					//if (map->CEntityDefs[i].archetypeName == 4143923005) { //714617596 for materials
+					//if (map->CEntityDefs[i].archetypeName == 4143923005)
 					std::unordered_map<uint32_t, CBaseArchetypeDef>::iterator it = data.CBaseArchetypeDefs.find(map->CEntityDefs[i].archetypeName);
 					if (it != data.CBaseArchetypeDefs.end())
 					{
@@ -329,7 +329,6 @@ void GameWorld::LoadYDR(Camera* camera, uint32_t hash, uint32_t TextureDictionar
 		auto& element = *(it->second);
 		std::vector<uint8_t> outputBuffer;
 		data.ExtractFileResource(element, outputBuffer);
-		//printf(" SIZE BUFFER %d MB\n", outputBuffer.size() * sizeof(uint8_t)/1024/1024);
 
 		memstream stream(outputBuffer.data(), outputBuffer.size());
 
@@ -457,44 +456,46 @@ void GameWorld::GetVisibleYmaps(Shader* shader, Camera* camera)
 		LoadYmap(cacheFile.AllMapNodes[mapNode].Name, camera);
 	}
 
+	/*for (auto& Proxy : cell.CInteriorProxies)
+	{
+		auto it = ymapLoader.find(cacheFile.AllCInteriorProxies[Proxy].Parent);
+		if (it != ymapLoader.end()) {
+			YmapLoader* ymapFile = it->second;
+			for (int i = 0; i < ymapFile->CMloInstanceDefs.size(); i++)
+			{
+				std::unordered_map<uint32_t, std::vector<CEntityDef>>::iterator it = data.MloDictionary.find(ymapFile->CMloInstanceDefs[i].CEntityDef.archetypeName);
+				if (it != data.MloDictionary.end())
+				{
+					for (auto& EntityDef : it->second)
+					{
+						glm::vec4 rotmultiply = EntityDef.rotation * ymapFile->CMloInstanceDefs[i].CEntityDef.rotation;
+						glm::mat4 matrix = glm::translate(glm::mat4(), ymapFile->CMloInstanceDefs[i].CEntityDef.position + EntityDef.position) * glm::toMat4(glm::quat(-ymapFile->CMloInstanceDefs[i].CEntityDef.rotation.w, -ymapFile->CMloInstanceDefs[i].CEntityDef.rotation.x, -ymapFile->CMloInstanceDefs[i].CEntityDef.rotation.y, -ymapFile->CMloInstanceDefs[i].CEntityDef.rotation.z)) * glm::scale(glm::mat4(), glm::vec3(EntityDef.scaleXY, EntityDef.scaleXY, EntityDef.scaleZ));
+	
+						
+						LoadYDR(camera, EntityDef.archetypeName, 0, ymapFile->CMloInstanceDefs[i].CEntityDef.position + EntityDef.position, 1.0f, matrix);
+						//LoadYDD(camera, ymapFile->CMloInstanceDefs[i].CEntityDef.archetypeName, 0, it->second._BaseArchetypeDef.bsCentre + map->CEntityDefs[i].position, it->second._BaseArchetypeDef.bsRadius * std::max(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ), it->second._BaseArchetypeDef.drawableDictionary, map->ModelMatrices[i]);
+						//LoadYFT(camera, EntityDef.archetypeName, 0, ymapFile->CMloInstanceDefs[i].CEntityDef.position + EntityDef.position, 100.0f, matrix);
+					}
+
+				}
+			}
+		}
+	}*/
+
 	std::sort(renderList.begin(), renderList.end(), [](RenderInstruction& a, RenderInstruction& b) { //FRONT_TO_BACK
-		return a.model[3].y < b.model[3].y;
+		return a.modelMatrix[3].y < b.modelMatrix[3].y;
 	});
 
 	for (auto& model : renderList)
 	{
-		shader->setMat4(3, model.model);
+		shader->setMat4(3, model.modelMatrix);
 		model.ydr->Draw();
 	}
 
 	renderList.clear();
 
-	/*for (auto& Proxy : cell.CInteriorProxies)
-	{
-		LoadYmap(shader, Proxy->Parent, camera);
-		for (auto& ymapFile : ymapLoader)
-		{
-			if (ymapFile->Hash == Proxy->Parent) {
-				for (int i = 0; i < ymapFile->CMloInstanceDefs.size(); i++)
-				{
-					std::unordered_map<uint32_t, std::vector<CEntityDef>>::iterator it = data.MloDictionary.find(ymapFile->CMloInstanceDefs[i].CEntityDef.archetypeName);
-					if (it != data.MloDictionary.end())
-					{
-						for (auto& EntityDef : it->second)
-						{
-							LoadYTD(EntityDef.archetypeName);
-							glm::mat4 matrix = glm::translate(glm::mat4(), ymapFile->CMloInstanceDefs[i].CEntityDef.position + EntityDef.position) * glm::toMat4(glm::quat(-ymapFile->CMloInstanceDefs[i].CEntityDef.rotation.w, ymapFile->CMloInstanceDefs[i].CEntityDef.rotation.x, ymapFile->CMloInstanceDefs[i].CEntityDef.rotation.y, ymapFile->CMloInstanceDefs[i].CEntityDef.rotation.z) * glm::quat(-EntityDef.rotation.w, EntityDef.rotation.x, EntityDef.rotation.y, EntityDef.rotation.z)) * glm::scale(glm::mat4(), glm::vec3(EntityDef.scaleXY, EntityDef.scaleXY, EntityDef.scaleZ));
-							LoadDrawable(shader, EntityDef.archetypeName, matrix);
-						}
-
-					}
-				}
-			}
-		}
-
-		//LoadYBN(Proxy->Name);
-		//LoadYmap(Proxy->Parent, Position);
-	}*/
+	//LoadYBN(Proxy->Name);
+	//LoadYmap(Proxy->Parent, Position);
 
 	//printf("CULLED :%d\n", culled);
 	//culled = 0;

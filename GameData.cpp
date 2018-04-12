@@ -111,7 +111,7 @@ GameData::GameData()
 					memstream stream(outputBuffer.data(), outputBuffer.size());
 
 					YtypLoader file(stream);
-					for (auto&  def : file.CBaseArchetypeDefs)
+					for (auto& def : file.CBaseArchetypeDefs)
 					{
 						CBaseArchetypeDefs[def.assetName] = def;
 					}

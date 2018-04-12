@@ -27,9 +27,9 @@ class GameWorld
 {
 	struct RenderInstruction {
 		YdrLoader* ydr;
-		glm::mat4 model;
+		glm::mat4 modelMatrix;
 
-		RenderInstruction(YdrLoader* modelYdr, glm::mat4 modelMatrix) :ydr(modelYdr), model(modelMatrix) {
+		RenderInstruction(YdrLoader* modelYdr, glm::mat4 Matrix) :ydr(modelYdr), modelMatrix(Matrix) {
 
 		}
 	};
