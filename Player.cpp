@@ -7,13 +7,13 @@ Player::Player(glm::vec3 position, YddLoader* ydd, btDiscreteDynamicsWorld* worl
 	physObject->setUserPointer(this);
 	physObject->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), btVector3(position.x, position.y, position.z)));
 	physObject->setCollisionShape(physShape);
-	physObject->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
+	physObject->setCollisionFlags(btCollisionObject::CF_KINEMATIC_OBJECT);
 	physCharacter = new btKinematicCharacterController(physObject, physShape, 0.30f);
-	physCharacter->setFallSpeed(100.f);
-	physCharacter->setUseGhostSweepTest(false);
-	//physCharacter->setVelocityForTimeInterval(btVector3(1.f, 1.f, 1.f), 1.f);
+	physCharacter->setFallSpeed(20.f);
+	physCharacter->setUseGhostSweepTest(true);
+	physCharacter->setVelocityForTimeInterval(btVector3(1.f, 1.f, 1.f), 1.f);
 	physCharacter->setGravity(world->getGravity());
-	world->addCollisionObject(physObject, btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter);
+	world->addCollisionObject(physObject, btBroadphaseProxy::KinematicFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::KinematicFilter);
 	world->addAction(physCharacter);	
 
 	playerDirection = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -21,7 +21,7 @@ Player::Player(glm::vec3 position, YddLoader* ydd, btDiscreteDynamicsWorld* worl
 
 Player::~Player()
 {
-	delete player;
+	//delete player;
 	//printf("DESTRUCTOR \n");
 }
 

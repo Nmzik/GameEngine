@@ -90,6 +90,9 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 	shaderSSAO->setInt("gNormal", 1);
 	shaderSSAO->setInt("texNoise", 2);
 
+	ssaoProjection = glGetUniformLocation(shaderSSAO->ID, "projection");
+	ssaoInverseProjectionMatrix = glGetUniformLocation(shaderSSAO->ID, "InverseProjectionMatrix");
+
 	shaderSSAOBlur->use();
 	shaderSSAOBlur->setInt("ssaoInput", 0);
 
@@ -473,8 +476,8 @@ void RenderingSystem::render(GameWorld* world)
 	// Send kernel + rotation 
 	for (unsigned int i = 0; i < 64; ++i)
 		shaderSSAO->setVec3("samples[" + std::to_string(i) + "]", ssaoKernel[i]);
-	shaderSSAO->setMat4("projection", projection);
-	shaderSSAO->setMat4("InverseProjectionMatrix", InverseProjMatrix);
+	shaderSSAO->setMat4(ssaoProjection, projection);
+	shaderSSAO->setMat4(ssaoInverseProjectionMatrix, InverseProjMatrix);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, gDepthMap);
 	glActiveTexture(GL_TEXTURE1);

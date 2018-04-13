@@ -73,6 +73,7 @@ public:
 	uint8_t gameHour;
 	uint8_t currentPlayerID = 0;
 	Player* player[3];
+	YddLoader* playerYDD;
 	YftLoader* vehicleModel;
 
 	GameWorld();

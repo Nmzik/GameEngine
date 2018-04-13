@@ -96,7 +96,7 @@ GameWorld::GameWorld()
 		data.ExtractFileResource(element, outputBuffer);
 
 		memstream stream(outputBuffer.data(), outputBuffer.size());
-		YddLoader* playerYDD = new YddLoader(stream, dynamicsWorld);
+		playerYDD = new YddLoader(stream, dynamicsWorld);
 
 		player[0] = new Player(glm::vec3(2137, 3656, 100), playerYDD, dynamicsWorld);
 		player[0]->getPhysCharacter()->setGravity(btVector3(0, 0, 0));
@@ -653,8 +653,10 @@ void GameWorld::UpdateTraffic(Camera* camera)
 		for (int i = 0; i < MaximumAvailablePeds; i++) {
 			float xRandom = RandomFloat(camera->Position.x - radiusTraffic, camera->Position.x + radiusTraffic);
 			float yRandom = RandomFloat(camera->Position.y - radiusTraffic, camera->Position.y + radiusTraffic);
-			//Player *newPlayer = new Player(glm::vec3(xRandom, yRandom, cameraPosition.z + 5.0f), dynamicsWorld);
-			//pedestrians.push_back(newPlayer);
+			if (!camera->intersects(glm::vec3(xRandom, yRandom, camera->Position.z + 3.0f), 1.0f)) {
+				Player *newPlayer = new Player(glm::vec3(xRandom, yRandom, camera->Position.z + 3.0f), playerYDD, dynamicsWorld);
+				pedestrians.push_back(newPlayer);
+			}
 		}
 	}
 	//CARS

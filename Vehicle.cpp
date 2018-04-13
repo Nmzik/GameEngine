@@ -48,7 +48,7 @@ Vehicle::Vehicle(glm::vec3 position, YftLoader* yft, btDiscreteDynamicsWorld* wo
 	m_carChassis->setContactProcessingThreshold(m_defaultContactProcessingThreshold);
 
 	m_carChassis->setWorldTransform(tr);
-	world->addRigidBody(m_carChassis);
+	world->addRigidBody(m_carChassis, btBroadphaseProxy::KinematicFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::KinematicFilter);
 
 	m_wheelShape = new btCylinderShapeX(btVector3(wheelWidth, wheelRadius, wheelRadius));
 

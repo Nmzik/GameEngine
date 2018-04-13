@@ -7,9 +7,10 @@
 
 class Shader
 {
-	GLuint ID;
 
 public:
+	GLuint ID;
+
 	Shader(const char* ShaderPath)
 	{
 		std::string vertexCode;

@@ -28,6 +28,10 @@ private:
 	Shader* ourShader;
 	Shader* gbuffer;
 	Shader* shaderSSAO;
+
+	GLuint ssaoProjection;
+	GLuint ssaoInverseProjectionMatrix;
+
 	Shader* shaderSSAOBlur;
 	Shader* gbufferLighting;
 	Shader* DepthTexture;

@@ -124,17 +124,17 @@ void InGameState::tick(float delta_time)
 			if (player->GetCurrentVehicle()) {
 				//in Vehicle
 				printf("EXITING");
-				player->getPhysCharacter()->warp(player->GetCurrentVehicle()->m_carChassis->getWorldTransform().getOrigin() + btVector3(0.0f, 0.0f, 5.0f));
+				player->getPhysCharacter()->warp(player->GetCurrentVehicle()->m_carChassis->getWorldTransform().getOrigin() + btVector3(0.0f, 0.0f, 3.0f));
 				player->ExitVehicle();
-				player->getPhysCharacter()->getGhostObject()->getBroadphaseHandle()->m_collisionFilterGroup = btBroadphaseProxy::CharacterFilter;
-				player->getPhysCharacter()->getGhostObject()->getBroadphaseHandle()->m_collisionFilterMask = btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter;
+				//player->getPhysCharacter()->getGhostObject()->getBroadphaseHandle()->m_collisionFilterGroup = btBroadphaseProxy::CharacterFilter;
+				player->getPhysCharacter()->getGhostObject()->getBroadphaseHandle()->m_collisionFilterMask = btBroadphaseProxy::StaticFilter | btBroadphaseProxy::KinematicFilter;
 				player->getPhysCharacter()->setGravity(game->getWorld()->GetDynamicsWorld()->getGravity());
 			} else {
 				printf("ENTERING");
 				player->EnterVehicle(game->getWorld()->FindNearestVehicle());
 				if (player->GetCurrentVehicle()) {
-					player->getPhysCharacter()->getGhostObject()->getBroadphaseHandle()->m_collisionFilterGroup = btBroadphaseProxy::KinematicFilter;
-					player->getPhysCharacter()->getGhostObject()->getBroadphaseHandle()->m_collisionFilterMask = btBroadphaseProxy::KinematicFilter;
+					//player->getPhysCharacter()->getGhostObject()->getBroadphaseHandle()->m_collisionFilterGroup = btBroadphaseProxy::KinematicFilter;
+					player->getPhysCharacter()->getGhostObject()->getBroadphaseHandle()->m_collisionFilterMask = btBroadphaseProxy::DefaultFilter;
 					player->getPhysCharacter()->setGravity(btVector3(0, 0, 0));
 				}
 			}
