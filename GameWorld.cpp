@@ -159,6 +159,10 @@ GameWorld::~GameWorld()
 	delete dynamicsWorld;
 }
 
+float RandomFloat(float min, float max) {
+	return  (max - min) * ((((float)rand()) / (float)RAND_MAX)) + min;
+}
+
 void GameWorld::LoadYmap(uint32_t hash, Camera* camera)
 {
 	auto it = ymapLoader.find(hash);
@@ -212,6 +216,22 @@ void GameWorld::LoadYmap(uint32_t hash, Camera* camera)
 					}
 				}
 			}
+			/*if (map->CCarGens.size() > 0) {
+				for (auto& carGen : map->CCarGens)
+				{
+					int MaximumAvailableVehicles = 20 - vehicles.size(); //HARDCODED
+					if (camera->Position.z < 100.0f) {
+						for (int i = 0; i < MaximumAvailableVehicles; i++) {
+							float xRandom = RandomFloat(carGen.position.x - carGen.perpendicularLength, carGen.position.x + carGen.perpendicularLength);
+							float yRandom = RandomFloat(carGen.position.y - carGen.perpendicularLength, carGen.position.y + carGen.perpendicularLength);
+							//if (!camera->intersects(glm::vec3(xRandom, yRandom, carGen.position.z), 1.0f)) {
+								createVehicle(glm::vec3(xRandom, yRandom, carGen.position.z));
+							//}
+						}
+					}
+				}
+			}*/
+
 		}
 	}
 	else {
@@ -616,10 +636,6 @@ void GameWorld::Update()
 	{
 		vehicle->PhysicsTick();
 	}
-}
-
-float RandomFloat(float min, float max) {
-	return  (max - min) * ((((float)rand()) / (float)RAND_MAX)) + min;
 }
 
 void GameWorld::UpdateTraffic(Camera* camera)

@@ -327,6 +327,30 @@ struct CMloInstanceDef //160 bytes, Key:2151576752
 	uint32_t MLOInstflags; //156   156: UnsignedInt: 0: MLOInstflags//3761966250
 };
 
+struct CCarGen //80 bytes, Key:2345238261
+{
+	uint32_t Unused0;//0
+	uint32_t Unused1;//4
+	uint32_t Unused2;//8
+	uint32_t Unused3;//12
+	glm::vec3 position; //16   16: Float_XYZ: 0: position
+	float Unused4;//28
+	float orientX; //32   32: Float: 0: orientX=735213009
+	float orientY; //36   36: Float: 0: orientY=979440342
+	float perpendicularLength; //40   40: Float: 0: perpendicularLength=124715667
+	uint32_t  carModel; //44   44: Hash: 0: carModel
+	uint32_t flags; //48   48: UnsignedInt: 0: flags   ///  _CP_: looks like flag 1879051873 in cargens forces to spawn a vehicle
+	int32_t  bodyColorRemap1; //52   52: SignedInt: 0: bodyColorRemap1=1429703670
+	int32_t  bodyColorRemap2; //56   56: SignedInt: 0: bodyColorRemap2=1254848286
+	int32_t  bodyColorRemap3; //60   60: SignedInt: 0: bodyColorRemap3=1880965569
+	int32_t  bodyColorRemap4; //64   64: SignedInt: 0: bodyColorRemap4=1719152247
+	int32_t  popGroup; //68   68: Hash: 0: popGroup=911358791
+	int8_t livery; //72   72: SignedByte: 0: livery
+	uint8_t Unused5;//73
+	int16_t Unused6;//74
+	uint32_t Unused7;//76
+};
+
 ///YMAP REAL DATA
 
 struct rage__fwInstancedMapData //48 bytes, Key:1836780118
@@ -420,6 +444,7 @@ public:
 	CMapData _CMapData;
 	std::vector<CMloInstanceDef> CMloInstanceDefs;
 	std::vector<CEntityDef> CEntityDefs;
+	std::vector<CCarGen> CCarGens;
 
 	YmapLoader(memstream& file);
 	~YmapLoader();

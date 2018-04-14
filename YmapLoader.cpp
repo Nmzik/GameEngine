@@ -68,6 +68,16 @@ YmapLoader::YmapLoader(memstream& file)
 				CMloInstanceDefs.push_back(def);
 			}
 		}
+
+		if (Block.MetaDataBlock_struct.StructureNameHash == 1860713439) //CCarGen
+		{
+			for (int i = 0; i < Block.MetaDataBlock_struct.DataLength / sizeof(CCarGen); i++)
+			{
+				CCarGen cargen;
+				std::memcpy(&cargen, &Block.Data[i * sizeof(CCarGen)], sizeof(CCarGen));
+				CCarGens.push_back(cargen);
+			}
+		}
 	}
 }
 
