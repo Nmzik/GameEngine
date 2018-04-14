@@ -1,33 +1,49 @@
 #include "Player.h"
 
-Player::Player(glm::vec3 position, YddLoader* ydd, btDiscreteDynamicsWorld* world) : player(ydd)
+Player::Player(glm::vec3 position, YddLoader* ydd, btDiscreteDynamicsWorld* world) : player(ydd), World(world)
 {
-	btPairCachingGhostObject* physObject = new btPairCachingGhostObject();
+	btScalar mass(1.0f);
+	btVector3 localInertia(0, 0, 0);
+
 	physShape = new btCapsuleShapeZ(0.45f, 1.2f);
-	physObject->setUserPointer(this);
-	physObject->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), btVector3(position.x, position.y, position.z)));
-	physObject->setCollisionShape(physShape);
-	physObject->setCollisionFlags(btCollisionObject::CF_KINEMATIC_OBJECT);
-	physCharacter = new btKinematicCharacterController(physObject, physShape, 0.30f);
-	physCharacter->setFallSpeed(20.f);
-	physCharacter->setUseGhostSweepTest(true);
-	physCharacter->setVelocityForTimeInterval(btVector3(1.f, 1.f, 1.f), 1.f);
-	physCharacter->setGravity(world->getGravity());
-	world->addCollisionObject(physObject, btBroadphaseProxy::KinematicFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::KinematicFilter);
-	world->addAction(physCharacter);	
+
+	physShape->calculateLocalInertia(mass, localInertia);
+
+	btTransform transform;
+	transform.setIdentity();
+	transform.setOrigin(btVector3(position.x, position.y, position.z));
+
+	btDefaultMotionState* myMotionState = new btDefaultMotionState(transform);
+	btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, physShape, localInertia);
+	rbInfo.m_restitution = 0.0f;
+	rbInfo.m_friction = 1.0;
+
+	body = new btRigidBody(rbInfo);
+	body->setSleepingThresholds(0.0, 0.0);
+	body->setAngularFactor(0.0);
+	body->forceActivationState(DISABLE_DEACTIVATION);
+
+	world->addRigidBody(body, btBroadphaseProxy::KinematicFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::KinematicFilter);
+
+
 
 	playerDirection = glm::vec3(0.0f, 0.0f, 0.0f);
 }
 
 Player::~Player()
 {
-	//delete player;
-	//printf("DESTRUCTOR \n");
+	delete body->getMotionState();
+
+	delete physShape;
+
+	World->removeRigidBody(body);
+
+	delete body;
 }
 
-btKinematicCharacterController* Player::getPhysCharacter()
+btRigidBody* Player::getPhysCharacter()
 {
-	return physCharacter;
+	return body;
 }
 
 void Player::TakeDamage(float dmg)
@@ -38,19 +54,21 @@ void Player::TakeDamage(float dmg)
 glm::mat4 Player::getPosition()
 {
 	//printf("POS %f\n", physCharacter->getGhostObject()->getWorldTransform().getOrigin().getZ());
-	if (physCharacter->getGhostObject()->getWorldTransform().getOrigin().getZ() <= -150) {
-		physCharacter->getGhostObject()->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), physCharacter->getGhostObject()->getWorldTransform().getOrigin() + btVector3(0, 0, 300)));
+	if (body->getWorldTransform().getOrigin().getZ() <= -150) {
+		body->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), body->getWorldTransform().getOrigin() + btVector3(0, 0, 300)));
 	}
 
 	glm::mat4 model;
-	physCharacter->getGhostObject()->getWorldTransform().getOpenGLMatrix(&model[0][0]);
+	body->getWorldTransform().getOpenGLMatrix(&model[0][0]);
 
 	return model;
 }
 
 void Player::PhysicsTick()
 {
-	physCharacter->setWalkDirection(btVector3(playerDirection.x, playerDirection.y, playerDirection.z));
+	
+
+	//body->setLinearVelocity(btVector3(playerDirection.x, playerDirection.y, playerDirection.z));
 }
 
 void Player::ExitVehicle()
@@ -86,7 +104,17 @@ void Player::setActiveWeapon(uint32_t slot)
 
 void Player::Jump()
 {
-	if (physCharacter->onGround()) physCharacter->jump(btVector3(0.0f, 0.0f, 30.0f));
+	btVector3 m_rayStart = body->getCenterOfMassPosition();
+	btVector3 m_rayEnd = m_rayStart - btVector3(0.0, 0.0, 1.5);
+
+	// rayCallback
+	btCollisionWorld::ClosestRayResultCallback rayCallback(m_rayStart, m_rayEnd);
+
+	World->rayTest(m_rayStart, m_rayEnd, rayCallback);
+	if (rayCallback.hasHit())
+	{//JUMP!
+		body->applyCentralImpulse(btVector3(0.f, 0.f, 40.0f));
+	}
 }
 
 void Player::Draw()

@@ -114,7 +114,6 @@ void InGameState::tick(float delta_time)
 		if (game->getInput()->IsKeyPressed(SDL_SCANCODE_A)) game->getRenderer()->getCamera().ProcessKeyboard(LEFT, delta_time);
 		if (game->getInput()->IsKeyPressed(SDL_SCANCODE_D)) game->getRenderer()->getCamera().ProcessKeyboard(RIGHT, delta_time);
 		//player->getPhysCharacter()->warp(btVector3(game->getRenderer()->getCamera().Position.x, game->getRenderer()->getCamera().Position.y, game->getRenderer()->getCamera().Position.z));
-		//player->getPhysCharacter()->setWalkDirection(btVector3(0.f, 0.f, 0.f));
 	}
 	else {
 
@@ -124,17 +123,20 @@ void InGameState::tick(float delta_time)
 			if (player->GetCurrentVehicle()) {
 				//in Vehicle
 				printf("EXITING");
-				player->getPhysCharacter()->warp(player->GetCurrentVehicle()->m_carChassis->getWorldTransform().getOrigin() + btVector3(0.0f, 0.0f, 3.0f));
+				btTransform transform;
+				transform.setIdentity();
+				transform.setOrigin(player->GetCurrentVehicle()->m_carChassis->getWorldTransform().getOrigin() + btVector3(0.0f, 0.0f, 3.0f));
+				player->getPhysCharacter()->setWorldTransform(transform);
+
 				player->ExitVehicle();
-				//player->getPhysCharacter()->getGhostObject()->getBroadphaseHandle()->m_collisionFilterGroup = btBroadphaseProxy::CharacterFilter;
-				player->getPhysCharacter()->getGhostObject()->getBroadphaseHandle()->m_collisionFilterMask = btBroadphaseProxy::StaticFilter | btBroadphaseProxy::KinematicFilter;
+				player->getPhysCharacter()->getBroadphaseHandle()->m_collisionFilterMask = btBroadphaseProxy::StaticFilter | btBroadphaseProxy::KinematicFilter;
+
 				player->getPhysCharacter()->setGravity(game->getWorld()->GetDynamicsWorld()->getGravity());
 			} else {
 				printf("ENTERING");
 				player->EnterVehicle(game->getWorld()->FindNearestVehicle());
 				if (player->GetCurrentVehicle()) {
-					//player->getPhysCharacter()->getGhostObject()->getBroadphaseHandle()->m_collisionFilterGroup = btBroadphaseProxy::KinematicFilter;
-					player->getPhysCharacter()->getGhostObject()->getBroadphaseHandle()->m_collisionFilterMask = btBroadphaseProxy::DefaultFilter;
+					player->getPhysCharacter()->getBroadphaseHandle()->m_collisionFilterMask = btBroadphaseProxy::DefaultFilter;
 					player->getPhysCharacter()->setGravity(btVector3(0, 0, 0));
 				}
 			}
@@ -161,10 +163,10 @@ void InGameState::tick(float delta_time)
 
 			player->GetCurrentVehicle()->steeringValue = steering;
 
-			player->getPhysCharacter()->warp(player->GetCurrentVehicle()->m_carChassis->getWorldTransform().getOrigin());
+			player->getPhysCharacter()->setWorldTransform(player->GetCurrentVehicle()->m_carChassis->getWorldTransform());
 		}
 		else {
-			game->getRenderer()->getCamera().Position = glm::vec3(player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getX(), player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getY(), player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getZ());
+			game->getRenderer()->getCamera().Position = glm::vec3(player->getPhysCharacter()->getWorldTransform().getOrigin().getX(), player->getPhysCharacter()->getWorldTransform().getOrigin().getY(), player->getPhysCharacter()->getWorldTransform().getOrigin().getZ());
 
 			float speed = game->getInput()->IsKeyPressed(SDL_SCANCODE_LSHIFT) ? 2.0f : 1.0f;
 
@@ -185,13 +187,13 @@ void InGameState::tick(float delta_time)
 			if (length > 0.1f) {
 				auto move = speed * glm::normalize(movement);
 				//move *= delta_time;
-				player->getPhysCharacter()->setWalkDirection(btVector3(move.x, move.z, 0.f));
+				player->getPhysCharacter()->setLinearVelocity(btVector3(move.x * 30, move.z * 30, 0.f));
 			}
 			else {
-				player->getPhysCharacter()->setWalkDirection(btVector3(0.f, 0.f, 0.f));
+				//player->getPhysCharacter()->setLinearVelocity(btVector3(0.f, 0.f, 0.f));
 			}
 
-			if (game->getInput()->IsKeyPressed(SDL_SCANCODE_SPACE)) player->Jump();
+			if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_SPACE)) player->Jump();
 		}
 	}
 

@@ -639,10 +639,10 @@ void GameWorld::UpdateTraffic(Camera* camera)
 	float radiusTraffic = 20.0f;
 	//PEDESTRIANS
 	for (int i = 0; i < pedestrians.size(); i++) {
-		glm::vec3 pedestrianPosition(pedestrians[i]->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getX(), pedestrians[i]->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getY(), pedestrians[i]->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getZ());
+		glm::vec3 pedestrianPosition(pedestrians[i]->getPhysCharacter()->getWorldTransform().getOrigin().getX(), pedestrians[i]->getPhysCharacter()->getWorldTransform().getOrigin().getY(), pedestrians[i]->getPhysCharacter()->getWorldTransform().getOrigin().getZ());
 		if (glm::distance(camera->Position, pedestrianPosition) >= 100.0f) {
-			dynamicsWorld->removeCollisionObject(pedestrians[i]->getPhysCharacter()->getGhostObject());
-			dynamicsWorld->removeCharacter(pedestrians[i]->getPhysCharacter());
+			//dynamicsWorld->removeCollisionObject(pedestrians[i]->getPhysCharacter()->getGhostObject());
+			//dynamicsWorld->removeCharacter(pedestrians[i]->getPhysCharacter());
 			delete pedestrians[i];
 			pedestrians.erase(pedestrians.begin() + i);
 		}
@@ -688,7 +688,7 @@ Vehicle* GameWorld::FindNearestVehicle()
 
 	for (auto& vehicle : vehicles)
 	{
-		glm::vec3 PlayerPosition(player[currentPlayerID]->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getX(), player[currentPlayerID]->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getY(), player[currentPlayerID]->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getZ());
+		glm::vec3 PlayerPosition(player[currentPlayerID]->getPhysCharacter()->getWorldTransform().getOrigin().getX(), player[currentPlayerID]->getPhysCharacter()->getWorldTransform().getOrigin().getY(), player[currentPlayerID]->getPhysCharacter()->getWorldTransform().getOrigin().getZ());
 		glm::vec3 VehiclePosition(vehicle->m_carChassis->getWorldTransform().getOrigin().getX(), vehicle->m_carChassis->getWorldTransform().getOrigin().getY(), vehicle->m_carChassis->getWorldTransform().getOrigin().getZ());
 		float vd = glm::length(PlayerPosition - VehiclePosition);
 		if (vd < d) {
@@ -715,7 +715,7 @@ void GameWorld::DetectWeaponHit(glm::vec3 CameraPosition, glm::vec3 lookDirectio
 		//printf("player pointer %p\n", (void*)&player);
 		if (player != nullptr) {
 			player->TakeDamage(20);
-			player->getPhysCharacter()->applyImpulse(btVector3(0.0f, 0.0f, -20.0f));
+			//player->getPhysCharacter()->applyImpulse(btVector3(0.0f, 0.0f, -20.0f));
 			if (!player->isAlive()) {
 				printf("KILLED!\n");
 				//fun stuff

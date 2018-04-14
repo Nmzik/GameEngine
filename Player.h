@@ -15,19 +15,20 @@ struct CharacterWeaponSlot {
 
 class Player
 {
-	btKinematicCharacterController *physCharacter;
 	btCapsuleShapeZ* physShape;
+	btRigidBody *body;
 	std::array<CharacterWeaponSlot, 13> weapons;
 	uint16_t currentWeapon = 0;
 	float health = 100.0f;
 	bool inWater = false;
 	glm::vec3 playerDirection;
+	btDiscreteDynamicsWorld* World;
 	Vehicle* vehicle;
 	YddLoader* player;
 public:
 	Player(glm::vec3 position, YddLoader* ydd, btDiscreteDynamicsWorld* world);
 	~Player();
-
+	bool on_ground = false;
 	bool isAlive() {
 		return health > 0;
 	}
@@ -41,7 +42,7 @@ public:
 	void addToInventory(uint32_t slot, uint32_t ammo);
 	void setActiveWeapon(uint32_t slot);
 	void Jump();
-	btKinematicCharacterController* getPhysCharacter();
+	btRigidBody* getPhysCharacter();
 	void Draw();
 };
 
