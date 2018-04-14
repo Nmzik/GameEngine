@@ -130,18 +130,6 @@ GameWorld::GameWorld()
 		}
 	}
 
-	auto itv = data.YftEntries.find(3728579874);
-	if (itv != data.YftEntries.end())
-	{
-		std::cout << "YFT CAR Found " << itv->second->Name << std::endl;
-		auto& element = *(itv->second);
-		std::vector<uint8_t> outputBuffer;
-		data.ExtractFileResource(element, outputBuffer);
-
-		memstream stream(outputBuffer.data(), outputBuffer.size());
-		vehicleModel = new YftLoader(stream, dynamicsWorld);
-	}
-
 
 	//ClearTestFunction();
 	/*std::unordered_map<uint32_t, CMloArchetypeDef>::iterator it;
@@ -405,7 +393,7 @@ void GameWorld::LoadYFT(Camera* camera, uint32_t hash, uint32_t TextureDictionar
 		data.ExtractFileResource(element, outputBuffer);
 
 		memstream stream(outputBuffer.data(), outputBuffer.size());
-		YftLoader *newYft = new YftLoader(stream, dynamicsWorld);
+		YftLoader *newYft = new YftLoader(stream, false, dynamicsWorld);
 		newYft->time = SDL_GetTicks();
 		yftLoader[hash] = newYft;
 
@@ -605,7 +593,7 @@ void GameWorld::createVehicle(glm::vec3 position)
 			data.ExtractFileResource(element, outputBuffer);
 
 			memstream stream(outputBuffer.data(), outputBuffer.size());
-			YftLoader *vehicle = new YftLoader(stream, dynamicsWorld);
+			YftLoader *vehicle = new YftLoader(stream, true, dynamicsWorld);
 			it->second = vehicle;
 		}
 

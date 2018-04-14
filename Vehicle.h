@@ -3,6 +3,7 @@
 #include "BulletCollision/CollisionDispatch/btGhostObject.h"
 #include "BulletDynamics/Character/btKinematicCharacterController.h"
 #include "YftLoader.h"
+#include "Shader.h"
 
 class Vehicle
 {
@@ -30,6 +31,6 @@ public:
 
 	glm::mat4 GetMat4();
 	void PhysicsTick();
-	void Draw();
+	void Draw(Shader* shader);
 };
 

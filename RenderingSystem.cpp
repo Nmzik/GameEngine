@@ -412,7 +412,7 @@ void RenderingSystem::render(GameWorld* world)
 	for (int i = 0; i < world->vehicles.size(); i++) {
 		auto modelVehicle = world->vehicles[i]->GetMat4();
 		gbuffer->setMat4(ModelUniformLoc, modelVehicle);
-		world->vehicles[i]->Draw();
+		world->vehicles[i]->Draw(gbuffer);
 	}
 
 	if (RenderDebugWorld) {

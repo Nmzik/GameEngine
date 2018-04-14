@@ -1,6 +1,6 @@
 #include "YftLoader.h"
 
-YftLoader::YftLoader(memstream& file, btDiscreteDynamicsWorld* world)
+YftLoader::YftLoader(memstream& file, bool need, btDiscreteDynamicsWorld* world)
 {
 	ResourceFileBase resourceFileBase;
 	file.read((char*)&resourceFileBase, sizeof(ResourceFileBase));
@@ -132,7 +132,71 @@ YftLoader::YftLoader(memstream& file, btDiscreteDynamicsWorld* world)
 		uint32_t Unknown_12Ch; // 0x00000000
 	} FragPhysicsLOD;
 
-	/*TranslatePTR(FragType.PhysicsLODGroupPointer);
+	struct {
+		uint32_t VFT;
+		uint32_t Unknown_04h; // 0x00000001
+		float Unknown_08h;
+		float Unknown_0Ch;
+		float Unknown_10h;
+		uint32_t Unknown_14h; // 0x00000000
+		uint32_t Unknown_18h; // 0x00000000
+		uint32_t Unknown_1Ch; // 0x00000000
+		uint32_t Unknown_20h; // 0x00000000
+		uint32_t Unknown_24h; // 0x00000000
+		uint32_t Unknown_28h; // 0x00000000
+		uint32_t Unknown_2Ch; // 0x00000000
+		uint32_t Unknown_30h; // 0x00000000
+		uint32_t Unknown_34h; // 0x00000000
+		uint32_t Unknown_38h; // 0x00000000
+		uint32_t Unknown_3Ch; // 0x00000000
+		uint32_t Unknown_40h; // 0x00000000
+		uint32_t Unknown_44h; // 0x00000000
+		uint32_t Unknown_48h; // 0x00000000
+		uint32_t Unknown_4Ch; // 0x00000000
+		uint32_t Unknown_50h; // 0x00000000
+		uint32_t Unknown_54h; // 0x00000000
+		uint32_t Unknown_58h; // 0x00000000
+		uint32_t Unknown_5Ch; // 0x00000000
+		uint32_t Unknown_60h; // 0x00000000
+		uint32_t Unknown_64h; // 0x00000000
+		uint32_t Unknown_68h; // 0x00000000
+		uint32_t Unknown_6Ch; // 0x00000000
+		uint32_t Unknown_70h; // 0x00000000
+		uint32_t Unknown_74h; // 0x00000000
+		uint32_t Unknown_78h; // 0x00000000
+		uint32_t Unknown_7Ch; // 0x00000000
+		uint32_t Unknown_80h; // 0x00000000
+		uint32_t Unknown_84h; // 0x00000000
+		uint32_t Unknown_88h; // 0x00000000
+		uint32_t Unknown_8Ch; // 0x00000000
+		uint32_t Unknown_90h; // 0x00000000
+		uint32_t Unknown_94h; // 0x00000000
+		uint32_t Unknown_98h; // 0x00000000
+		uint32_t Unknown_9Ch; // 0x00000000
+		uint64_t Drawable1Pointer;
+		uint64_t Drawable2Pointer;
+		uint64_t EvtSetPointer;
+		uint32_t Unknown_B8h; // 0x00000000
+		uint32_t Unknown_BCh; // 0x00000000
+		uint32_t Unknown_C0h; // 0x00000000
+		uint32_t Unknown_C4h; // 0x00000000
+		uint32_t Unknown_C8h; // 0x00000000
+		uint32_t Unknown_CCh; // 0x00000000
+		uint32_t Unknown_D0h; // 0x00000000
+		uint32_t Unknown_D4h; // 0x00000000
+		uint32_t Unknown_D8h; // 0x00000000
+		uint32_t Unknown_DCh; // 0x00000000
+		uint32_t Unknown_E0h; // 0x00000000
+		uint32_t Unknown_E4h; // 0x00000000
+		uint32_t Unknown_E8h; // 0x00000000
+		uint32_t Unknown_ECh; // 0x00000000
+		uint32_t Unknown_F0h; // 0x00000000
+		uint32_t Unknown_F4h; // 0x00000000
+		uint32_t Unknown_F8h; // 0x00000000
+		uint32_t Unknown_FCh; // 0x00000000
+	} FragPhysTypeChild;
+
+	TranslatePTR(FragType.PhysicsLODGroupPointer);
 
 	file.seekg(FragType.PhysicsLODGroupPointer);
 
@@ -144,9 +208,44 @@ YftLoader::YftLoader(memstream& file, btDiscreteDynamicsWorld* world)
 
 	file.read((char*)&FragPhysicsLOD, sizeof(FragPhysicsLOD));
 
-	TranslatePTR(FragPhysicsLOD.BoundPointer);
+	TranslatePTR(FragPhysicsLOD.ChildrenPointer);
 
-	YbnLoader* loader = new YbnLoader(world, file, hash);*/
+	file.seekg(FragPhysicsLOD.ChildrenPointer);
+	if (need) {
+
+		for (int i = 0; i < FragPhysicsLOD.ChildrenCount; i++)
+		{
+			uint64_t DataPointer;
+			file.read((char*)&DataPointer, sizeof(uint64_t));
+
+			uint64_t ChildrenPointer = file.tellg();
+
+			TranslatePTR(DataPointer);
+
+			file.seekg(DataPointer);
+
+			file.read((char*)&FragPhysTypeChild, sizeof(FragPhysTypeChild));
+
+			TranslatePTR(FragPhysTypeChild.Drawable1Pointer);
+
+			file.seekg(FragPhysTypeChild.Drawable1Pointer);
+
+			YdrLoader* ydr = new YdrLoader(file, world);
+
+			if (ydr->getMeshes().size() != 0) {
+				wheels.push_back(ydr);
+			}
+			else {
+				delete ydr;
+			}
+
+			file.seekg(ChildrenPointer);
+		}
+	}
+
+	//TranslatePTR(FragPhysicsLOD.BoundPointer);
+
+	//YbnLoader* loader = new YbnLoader(world, file, hash);*/
 }
 
 

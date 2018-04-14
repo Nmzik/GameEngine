@@ -301,6 +301,9 @@ public:
 	bool isVisible = false;
 	uint32_t time;
 	bool Loaded = false;
+	std::vector<Mesh*>& getMeshes() {
+		return meshes;
+	}
 	YdrLoader(memstream& file, btDiscreteDynamicsWorld* world);
 	~YdrLoader();
 

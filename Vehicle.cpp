@@ -132,7 +132,19 @@ void Vehicle::PhysicsTick()
 	m_vehicle->setSteeringValue(steeringValue, 1);
 }
 
-void Vehicle::Draw() 
+void Vehicle::Draw(Shader* shader) 
 {
 	vehicle->Draw();
+
+	for (int i = 0; i < m_vehicle->getNumWheels(); i++)
+	{
+		glm::mat4 model;
+
+		m_vehicle->getWheelTransformWS(i).getOpenGLMatrix(&model[0][0]);
+		for (auto& wheel : vehicle->wheels)
+		{
+			shader->setMat4(3, model);
+			wheel->Draw();
+		}
+	}
 }
