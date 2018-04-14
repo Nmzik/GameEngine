@@ -362,38 +362,6 @@ void RenderingSystem::render(GameWorld* world)
 	}
 	world->GetResourceManager()->mainLock.unlock();*/
 	//printf("=========================\n");
-	/*for (auto& yftFile : world->yftLoader)
-	{
-		auto modelpos = yftFile->GetMat4();
-		gbuffer->setMat4(ModelUniformLoc, modelpos);
-		yftFile->Draw();
-	}
-	for (auto& yddFile : world->yddLoader)
-	{
-		if (yddFile->YdrFile != nullptr) {
-			auto modelpos = yddFile->GetMat4();
-			gbuffer->setMat4(ModelUniformLoc, modelpos);
-			yddFile->Draw();
-		}
-	}
-
-	//std::sort(std::begin(world->ydrLoader), std::end(world->ydrLoader), [](YdrLoader* a, YdrLoader* b) {return a->ModelMatrix[3][1] < b->ModelMatrix[3][1]; }); //by y axis
-	//glEnable(GL_CULL_FACE);
-	for (auto& YdrFile : world->ydrLoader)
-	{
-		//if (camera->intersects(YdrFile->BBCenter, YdrFile->BBRadius)) {
-		auto modelpos = YdrFile->GetMat4();
-		gbuffer->setMat4(ModelUniformLoc, modelpos);
-		YdrFile->Draw();
-		//}
-	}
-	//glDisable(GL_CULL_FACE);
-
-	/*for (auto& waterMesh : world->WaterMeshes)
-	{
-		gbuffer->setMat4(ModelUniformLoc, glm::mat4(1.0));
-		waterMesh.Draw();
-	}*/
 
 	glDepthMask(GL_FALSE);
 	glm::mat4 SkydomeMatrix = glm::translate(glm::mat4(), camera->Position) * glm::toMat4(glm::quat(-1, 0, 0, 0)) * glm::scale(glm::mat4(), glm::vec3(10, 10, 10));
@@ -430,6 +398,14 @@ void RenderingSystem::render(GameWorld* world)
 		gbuffer->setMat4(ModelUniformLoc, modelMatrix);
 		world->player[i]->Draw();
 	}
+
+	glDisable(GL_CULL_FACE);
+	for (auto& waterMesh : world->WaterMeshes)
+	{
+		gbuffer->setMat4(ModelUniformLoc, glm::mat4(1.0));
+		waterMesh.Draw();
+	}
+	glEnable(GL_CULL_FACE);
 
 	//glDisable(GL_CULL_FACE);
 

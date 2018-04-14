@@ -71,12 +71,12 @@ GameWorld::GameWorld()
 				YtdFile* file = new YtdFile(stream, 3523992128);
 			}
 	}*/
-	/*LoadYTD(3523992128); //water.ytd
+	//*LoadYTD(3523992128); //water.ytd
 	for (auto& WaterQuad : data.WaterQuads)
 	{
 		Water water(WaterQuad);
 		WaterMeshes.push_back(water);
-	}*/
+	}
 
 	gameHour = 10;
 	gameMinute = 0;
