@@ -41,7 +41,7 @@ YdrLoader::YdrLoader(memstream& file, btDiscreteDynamicsWorld* world)
 		}
 
 		if (Drawable.BoundPointer != 0) {
-			printf("YBN INSIDE YDR\n");
+			//printf("YBN INSIDE YDR\n");
 			//YbnLoader* loader = new YbnLoader(world, file, hash);
 		}
 
@@ -59,7 +59,7 @@ YdrLoader::YdrLoader(memstream& file, btDiscreteDynamicsWorld* world)
 			TranslatePTR(_ShaderGroup.TextureDictionaryPointer);
 
 			file.seekg(_ShaderGroup.TextureDictionaryPointer);
-			printf("YTD INSIDE YDR\n");
+			//printf("YTD INSIDE YDR\n");
 			ytdFile = new YtdFile(file);
 		}
 

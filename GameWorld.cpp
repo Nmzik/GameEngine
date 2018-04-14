@@ -168,7 +168,6 @@ void GameWorld::LoadYmap(uint32_t hash, Camera* camera)
 	auto it = ymapLoader.find(hash);
 	if (it != ymapLoader.end()) {
 		YmapLoader* map = it->second;
-		//printf("FOUND SAME\n");
 		//FOUND
 		map->time = SDL_GetTicks();
 		if (!(map->_CMapData.flags & 1) > 0) { //DONT LOAD SCRIPTED MAPS
@@ -200,7 +199,6 @@ void GameWorld::LoadYmap(uint32_t hash, Camera* camera)
 						{
 							//TIME FLAGS FOUND
 							if ((it->second._TimeArchetypeDef.timeFlags >> gameHour) & 1) {
-								LoadYTD(it->second._BaseArchetypeDef.textureDictionary);
 								if (it->second._BaseArchetypeDef.assetType == ASSET_TYPE_DRAWABLE)
 									LoadYDR(camera, map->CEntityDefs[i].archetypeName, it->second._BaseArchetypeDef.textureDictionary, it->second._BaseArchetypeDef.bsCentre + map->CEntityDefs[i].position, it->second._BaseArchetypeDef.bsRadius * std::max(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ), map->ModelMatrices[i]);
 								if (it->second._BaseArchetypeDef.assetType == ASSET_TYPE_DRAWABLEDICTIONARY)
@@ -209,13 +207,28 @@ void GameWorld::LoadYmap(uint32_t hash, Camera* camera)
 									LoadYFT(camera, map->CEntityDefs[i].archetypeName, it->second._BaseArchetypeDef.textureDictionary, it->second._BaseArchetypeDef.bsCentre + map->CEntityDefs[i].position, it->second._BaseArchetypeDef.bsRadius * std::max(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ), map->ModelMatrices[i]);
 							}
 						}
-						//}
-							//else {
-								//printf("NOT FOUND");
-							//}
+						}
 					}
 				}
 			}
+		/*if (map->CMloInstanceDefs.size() > 0) {
+			for (int i = 0; i < map->CMloInstanceDefs.size(); i++)
+			{
+				auto it = data.MloDictionary.find(map->CMloInstanceDefs[i].CEntityDef.archetypeName);
+				if (it != data.MloDictionary.end())
+				{
+					for (auto& EntityDef : it->second)
+					{
+						glm::vec4 rotmultiply = EntityDef.rotation * map->CMloInstanceDefs[i].CEntityDef.rotation;
+						glm::mat4 matrix = glm::translate(glm::mat4(), map->CMloInstanceDefs[i].CEntityDef.position + EntityDef.position) * glm::toMat4(glm::quat(-map->CMloInstanceDefs[i].CEntityDef.rotation.w, -map->CMloInstanceDefs[i].CEntityDef.rotation.x, -map->CMloInstanceDefs[i].CEntityDef.rotation.y, -map->CMloInstanceDefs[i].CEntityDef.rotation.z)) * glm::scale(glm::mat4(), glm::vec3(EntityDef.scaleXY, EntityDef.scaleXY, EntityDef.scaleZ));
+
+						LoadYDR(camera, EntityDef.archetypeName, 0, map->CMloInstanceDefs[i].CEntityDef.position + EntityDef.position, 1.0f, matrix);
+						//LoadYDD(camera, map->CMloInstanceDefs[i].CEntityDef.archetypeName, 0, it->second._BaseArchetypeDef.bsCentre + map->CEntityDefs[i].position, it->second._BaseArchetypeDef.bsRadius * std::max(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ), it->second._BaseArchetypeDef.drawableDictionary, map->ModelMatrices[i]);
+						//LoadYFT(camera, EntityDef.archetypeName, 0, map->CMloInstanceDefs[i].CEntityDef.position + EntityDef.position, 100.0f, matrix);
+					}
+				}
+			}
+		}*/
 			/*if (map->CCarGens.size() > 0) {
 				for (auto& carGen : map->CCarGens)
 				{
@@ -232,7 +245,6 @@ void GameWorld::LoadYmap(uint32_t hash, Camera* camera)
 				}
 			}*/
 
-		}
 	}
 	else {
 		auto it = data.YmapEntries.find(hash);
@@ -466,28 +478,7 @@ void GameWorld::GetVisibleYmaps(Shader* shader, Camera* camera)
 
 	/*for (auto& Proxy : cell.CInteriorProxies)
 	{
-		auto it = ymapLoader.find(cacheFile.AllCInteriorProxies[Proxy].Parent);
-		if (it != ymapLoader.end()) {
-			YmapLoader* ymapFile = it->second;
-			for (int i = 0; i < ymapFile->CMloInstanceDefs.size(); i++)
-			{
-				std::unordered_map<uint32_t, std::vector<CEntityDef>>::iterator it = data.MloDictionary.find(ymapFile->CMloInstanceDefs[i].CEntityDef.archetypeName);
-				if (it != data.MloDictionary.end())
-				{
-					for (auto& EntityDef : it->second)
-					{
-						glm::vec4 rotmultiply = EntityDef.rotation * ymapFile->CMloInstanceDefs[i].CEntityDef.rotation;
-						glm::mat4 matrix = glm::translate(glm::mat4(), ymapFile->CMloInstanceDefs[i].CEntityDef.position + EntityDef.position) * glm::toMat4(glm::quat(-ymapFile->CMloInstanceDefs[i].CEntityDef.rotation.w, -ymapFile->CMloInstanceDefs[i].CEntityDef.rotation.x, -ymapFile->CMloInstanceDefs[i].CEntityDef.rotation.y, -ymapFile->CMloInstanceDefs[i].CEntityDef.rotation.z)) * glm::scale(glm::mat4(), glm::vec3(EntityDef.scaleXY, EntityDef.scaleXY, EntityDef.scaleZ));
-	
-						
-						LoadYDR(camera, EntityDef.archetypeName, 0, ymapFile->CMloInstanceDefs[i].CEntityDef.position + EntityDef.position, 1.0f, matrix);
-						//LoadYDD(camera, ymapFile->CMloInstanceDefs[i].CEntityDef.archetypeName, 0, it->second._BaseArchetypeDef.bsCentre + map->CEntityDefs[i].position, it->second._BaseArchetypeDef.bsRadius * std::max(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ), it->second._BaseArchetypeDef.drawableDictionary, map->ModelMatrices[i]);
-						//LoadYFT(camera, EntityDef.archetypeName, 0, ymapFile->CMloInstanceDefs[i].CEntityDef.position + EntityDef.position, 100.0f, matrix);
-					}
-
-				}
-			}
-		}
+		LoadYmap(cacheFile.AllCInteriorProxies[Proxy].Parent, camera);
 	}*/
 
 	std::sort(renderList.begin(), renderList.end(), [](RenderInstruction& a, RenderInstruction& b) { //FRONT_TO_BACK
