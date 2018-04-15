@@ -74,9 +74,9 @@ void Game::run() {
 		float delta_time = std::chrono::duration<float>(current_time - old_time).count();
 
 		input->Update();
-		StateManager::get().tick(delta_time);
 		if (!paused) {
 			gameWorld->update(delta_time);
+			StateManager::get().tick(delta_time);
 			gameWorld->UpdateTraffic(&rendering_system->getCamera());
 			rendering_system->render(gameWorld.get());
 		}
