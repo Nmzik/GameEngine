@@ -165,11 +165,8 @@ float RandomFloat(float min, float max) {
 
 void GameWorld::LoadYmap(uint32_t hash, Camera* camera)
 {
-	auto it = ymapLoader.find(hash);
-	if (it != ymapLoader.end()) {
-		YmapLoader* map = it->second;
-		//FOUND
-		map->time = SDL_GetTicks();
+	YmapLoader *map = GetYmap(hash);
+	if (map) {
 		if (!(map->_CMapData.flags & 1) > 0) { //DONT LOAD SCRIPTED MAPS
 			for (int i = 0; i < map->CEntityDefs.size(); i++)
 			{
@@ -207,44 +204,53 @@ void GameWorld::LoadYmap(uint32_t hash, Camera* camera)
 									LoadYFT(camera, map->CEntityDefs[i].archetypeName, it->second._BaseArchetypeDef.textureDictionary, it->second._BaseArchetypeDef.bsCentre + map->CEntityDefs[i].position, it->second._BaseArchetypeDef.bsRadius * std::max(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ), map->ModelMatrices[i]);
 							}
 						}
-						}
 					}
 				}
 			}
-		/*if (map->CMloInstanceDefs.size() > 0) {
-			for (int i = 0; i < map->CMloInstanceDefs.size(); i++)
+		}
+	}
+	/*if (map->CMloInstanceDefs.size() > 0) {
+		for (int i = 0; i < map->CMloInstanceDefs.size(); i++)
+		{
+			auto it = data.MloDictionary.find(map->CMloInstanceDefs[i].CEntityDef.archetypeName);
+			if (it != data.MloDictionary.end())
 			{
-				auto it = data.MloDictionary.find(map->CMloInstanceDefs[i].CEntityDef.archetypeName);
-				if (it != data.MloDictionary.end())
+				for (auto& EntityDef : it->second)
 				{
-					for (auto& EntityDef : it->second)
-					{
-						glm::vec4 rotmultiply = EntityDef.rotation * map->CMloInstanceDefs[i].CEntityDef.rotation;
-						glm::mat4 matrix = glm::translate(glm::mat4(), map->CMloInstanceDefs[i].CEntityDef.position + EntityDef.position) * glm::toMat4(glm::quat(-map->CMloInstanceDefs[i].CEntityDef.rotation.w, -map->CMloInstanceDefs[i].CEntityDef.rotation.x, -map->CMloInstanceDefs[i].CEntityDef.rotation.y, -map->CMloInstanceDefs[i].CEntityDef.rotation.z)) * glm::scale(glm::mat4(), glm::vec3(EntityDef.scaleXY, EntityDef.scaleXY, EntityDef.scaleZ));
+					glm::vec4 rotmultiply = EntityDef.rotation * map->CMloInstanceDefs[i].CEntityDef.rotation;
+					glm::mat4 matrix = glm::translate(glm::mat4(), map->CMloInstanceDefs[i].CEntityDef.position + EntityDef.position) * glm::toMat4(glm::quat(-map->CMloInstanceDefs[i].CEntityDef.rotation.w, -map->CMloInstanceDefs[i].CEntityDef.rotation.x, -map->CMloInstanceDefs[i].CEntityDef.rotation.y, -map->CMloInstanceDefs[i].CEntityDef.rotation.z)) * glm::scale(glm::mat4(), glm::vec3(EntityDef.scaleXY, EntityDef.scaleXY, EntityDef.scaleZ));
 
-						LoadYDR(camera, EntityDef.archetypeName, 0, map->CMloInstanceDefs[i].CEntityDef.position + EntityDef.position, 1.0f, matrix);
-						//LoadYDD(camera, map->CMloInstanceDefs[i].CEntityDef.archetypeName, 0, it->second._BaseArchetypeDef.bsCentre + map->CEntityDefs[i].position, it->second._BaseArchetypeDef.bsRadius * std::max(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ), it->second._BaseArchetypeDef.drawableDictionary, map->ModelMatrices[i]);
-						//LoadYFT(camera, EntityDef.archetypeName, 0, map->CMloInstanceDefs[i].CEntityDef.position + EntityDef.position, 100.0f, matrix);
-					}
+					LoadYDR(camera, EntityDef.archetypeName, 0, map->CMloInstanceDefs[i].CEntityDef.position + EntityDef.position, 1.0f, matrix);
+					//LoadYDD(camera, map->CMloInstanceDefs[i].CEntityDef.archetypeName, 0, it->second._BaseArchetypeDef.bsCentre + map->CEntityDefs[i].position, it->second._BaseArchetypeDef.bsRadius * std::max(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ), it->second._BaseArchetypeDef.drawableDictionary, map->ModelMatrices[i]);
+					//LoadYFT(camera, EntityDef.archetypeName, 0, map->CMloInstanceDefs[i].CEntityDef.position + EntityDef.position, 100.0f, matrix);
 				}
 			}
-		}*/
-			/*if (map->CCarGens.size() > 0) {
-				for (auto& carGen : map->CCarGens)
-				{
-					int MaximumAvailableVehicles = 20 - vehicles.size(); //HARDCODED
-					if (camera->Position.z < 100.0f) {
-						for (int i = 0; i < MaximumAvailableVehicles; i++) {
-							float xRandom = RandomFloat(carGen.position.x - carGen.perpendicularLength, carGen.position.x + carGen.perpendicularLength);
-							float yRandom = RandomFloat(carGen.position.y - carGen.perpendicularLength, carGen.position.y + carGen.perpendicularLength);
-							//if (!camera->intersects(glm::vec3(xRandom, yRandom, carGen.position.z), 1.0f)) {
-								createVehicle(glm::vec3(xRandom, yRandom, carGen.position.z));
-							//}
-						}
-					}
+		}
+	}*/
+	/*if (map->CCarGens.size() > 0) {
+		for (auto& carGen : map->CCarGens)
+		{
+			int MaximumAvailableVehicles = 20 - vehicles.size(); //HARDCODED
+			if (camera->Position.z < 100.0f) {
+				for (int i = 0; i < MaximumAvailableVehicles; i++) {
+					float xRandom = RandomFloat(carGen.position.x - carGen.perpendicularLength, carGen.position.x + carGen.perpendicularLength);
+					float yRandom = RandomFloat(carGen.position.y - carGen.perpendicularLength, carGen.position.y + carGen.perpendicularLength);
+					//if (!camera->intersects(glm::vec3(xRandom, yRandom, carGen.position.z), 1.0f)) {
+						createVehicle(glm::vec3(xRandom, yRandom, carGen.position.z));
+					//}
 				}
-			}*/
+			}
+		}
+	}*/
 
+}
+
+YmapLoader* GameWorld::GetYmap(uint32_t hash)
+{
+	auto it = ymapLoader.find(hash);
+	if (it != ymapLoader.end()) {
+		it->second->time = SDL_GetTicks();
+		return it->second;
 	}
 	else {
 		auto it = data.YmapEntries.find(hash);
@@ -263,7 +269,7 @@ void GameWorld::LoadYmap(uint32_t hash, Camera* camera)
 			ymap->time = SDL_GetTicks();
 			ymapLoader[hash] = ymap;
 
-			for (auto& entity : ymap->CEntityDefs)
+			/*for (auto& entity : ymap->CEntityDefs)
 			{
 				if (entity.lodDist <= 0 || entity.childLodDist <= 0) {
 					std::unordered_map<uint32_t, CBaseArchetypeDef>::iterator it = data.CBaseArchetypeDefs.find(entity.archetypeName);
@@ -273,9 +279,11 @@ void GameWorld::LoadYmap(uint32_t hash, Camera* camera)
 						if (entity.lodDist <= 0) entity.childLodDist = it->second.lodDist;
 					}
 				}
-			}
+			}*/
 		}
 	}
+
+	return nullptr;
 }
 
 bool GameWorld::LoadYTYP(uint32_t hash)
@@ -299,7 +307,7 @@ bool GameWorld::LoadYTYP(uint32_t hash)
 
 YtdFile* GameWorld::LoadYTD(uint32_t hash)
 {
-	std::unordered_map<uint32_t, YtdFile*>::iterator it = ytdLoader.find(hash);
+	auto it = ytdLoader.find(hash);
 	if (it != ytdLoader.end())
 	{
 		it->second->time = SDL_GetTicks();
@@ -327,19 +335,26 @@ YtdFile* GameWorld::LoadYTD(uint32_t hash)
 
 void GameWorld::LoadYDR(Camera* camera, uint32_t hash, uint32_t TextureDictionary, glm::vec3 BSCentre, float BSRadius, glm::mat4 & matrix)
 {
-	std::unordered_map<uint32_t, YdrLoader*>::iterator iter = ydrLoader.find(hash);
+	YdrLoader* file = GetYdr(hash);
+	if (file) {
+		if (!file->externalYtd)
+			file->externalYtd = LoadYTD(TextureDictionary);
+		else
+			file->externalYtd->time = SDL_GetTicks();
+
+		if (camera->intersects(BSCentre, BSRadius)) {
+			renderList.emplace_back(file, matrix);
+		}
+	}
+}
+
+YdrLoader * GameWorld::GetYdr(uint32_t hash)
+{
+	auto iter = ydrLoader.find(hash);
 	if (iter != ydrLoader.end())
 	{
-		if (!iter->second->externalYtd)
-			iter->second->externalYtd = LoadYTD(TextureDictionary);
-		else
-			iter->second->externalYtd->time = SDL_GetTicks();
-
 		iter->second->time = SDL_GetTicks();
-		if (camera->intersects(BSCentre, BSRadius)) {
-			renderList.emplace_back(iter->second, matrix);
-		}
-		return;
+		return iter->second;
 	}
 
 	auto it = data.YdrEntries.find(hash);
@@ -356,32 +371,40 @@ void GameWorld::LoadYDR(Camera* camera, uint32_t hash, uint32_t TextureDictionar
 		newYdr->time = SDL_GetTicks();
 		ydrLoader[hash] = newYdr;
 
-		return;
+		return newYdr;
 	}
+	return nullptr;
 }
 
 void GameWorld::LoadYDD(Camera* camera, uint32_t hash, uint32_t TextureDictionary, glm::vec3 BSCentre, float BSRadius, uint32_t DrawableDictionaryHash, glm::mat4 & matrix)
 {
-	std::unordered_map<uint32_t, YddLoader*>::iterator iter = yddLoader.find(DrawableDictionaryHash);
-	if (iter != yddLoader.end())
-	{
-		std::unordered_map<uint32_t, YdrLoader*>::iterator iter2 = iter->second->YdrFiles.find(hash);
-		if (iter2 != iter->second->YdrFiles.end())
+	YddLoader* file = GetYdd(DrawableDictionaryHash);
+	if (file) {
+		std::unordered_map<uint32_t, YdrLoader*>::iterator iter2 = file->YdrFiles.find(hash);
+		if (iter2 != file->YdrFiles.end())
 		{
 			if (!iter2->second->externalYtd)
 				iter2->second->externalYtd = LoadYTD(TextureDictionary);
 			else
 				iter2->second->externalYtd->time = SDL_GetTicks();
 
-			iter->second->time = SDL_GetTicks();
 			if (camera->intersects(BSCentre, BSRadius)) {
 				renderList.emplace_back(iter2->second, matrix);
 			}
-			return;
 		}
 	}
+}
 
-	auto it = data.YddEntries.find(DrawableDictionaryHash);
+YddLoader * GameWorld::GetYdd(uint32_t hash)
+{
+	auto iter = yddLoader.find(hash);
+	if (iter != yddLoader.end())
+	{
+		iter->second->time = SDL_GetTicks();
+		return iter->second;
+	}
+
+	auto it = data.YddEntries.find(hash);
 	if (it != data.YddEntries.end())
 	{
 		std::cout << "YDD Found " << it->second->Name << std::endl;
@@ -392,28 +415,36 @@ void GameWorld::LoadYDD(Camera* camera, uint32_t hash, uint32_t TextureDictionar
 		memstream stream(outputBuffer.data(), outputBuffer.size());
 		YddLoader* newYdd = new YddLoader(stream, dynamicsWorld);
 		newYdd->time = SDL_GetTicks();
-		yddLoader[DrawableDictionaryHash] = newYdd;
+		yddLoader[hash] = newYdd;
 
-		return;
+		return newYdd;
 	}
 
+	return nullptr;
 }
 
 void GameWorld::LoadYFT(Camera* camera, uint32_t hash, uint32_t TextureDictionary, glm::vec3 BSCentre, float BSRadius, glm::mat4 & matrix)
 {
-	std::unordered_map<uint32_t, YftLoader*>::iterator iter = yftLoader.find(hash);
+	YftLoader* file = file = GetYft(hash);
+	if (file) {
+		if (!file->YdrFile->externalYtd)
+			file->YdrFile->externalYtd = LoadYTD(TextureDictionary);
+		else
+			file->YdrFile->externalYtd->time = SDL_GetTicks();
+
+		if (camera->intersects(BSCentre, BSRadius)) {
+			renderList.emplace_back(file->YdrFile, matrix);
+		}
+	}
+}
+
+YftLoader * GameWorld::GetYft(uint32_t hash)
+{
+	auto iter = yftLoader.find(hash);
 	if (iter != yftLoader.end())
 	{
-		if (!iter->second->YdrFile->externalYtd)
-			iter->second->YdrFile->externalYtd = LoadYTD(TextureDictionary);
-		else
-			iter->second->YdrFile->externalYtd->time = SDL_GetTicks();
-
 		iter->second->time = SDL_GetTicks();
-		if (camera->intersects(BSCentre, BSRadius)) {
-			renderList.emplace_back(iter->second->YdrFile, matrix);
-		}
-		return;
+		return iter->second;
 	}
 
 	auto it = data.YftEntries.find(hash);
@@ -429,9 +460,10 @@ void GameWorld::LoadYFT(Camera* camera, uint32_t hash, uint32_t TextureDictionar
 		newYft->time = SDL_GetTicks();
 		yftLoader[hash] = newYft;
 
-		return;
+		return newYft;
 	}
 
+	return nullptr;
 }
 
 void GameWorld::LoadYBN(uint32_t hash)

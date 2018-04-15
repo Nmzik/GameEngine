@@ -79,16 +79,19 @@ public:
 	~GameWorld();
 
 	void LoadYmap(uint32_t hash, Camera* camera);
-
+	YmapLoader* GetYmap(uint32_t hash);
 	bool LoadYTYP(uint32_t hash);
 
 	YtdFile* LoadYTD(uint32_t hash);
 
 	void LoadYDR(Camera* camera, uint32_t hash, uint32_t TextureDictionary, glm::vec3 BSCentre, float BSRadius, glm::mat4 & matrix);
+	YdrLoader* GetYdr(uint32_t hash);
 
 	void LoadYDD(Camera* camera, uint32_t hash, uint32_t TextureDictionary, glm::vec3 BSCentre, float BSRadius, uint32_t DrawableDictionaryHash, glm::mat4 & matrix);
+	YddLoader* GetYdd(uint32_t hash);
 
 	void LoadYFT(Camera* camera, uint32_t hash, uint32_t TextureDictionary, glm::vec3 BSCentre, float BSRadius, glm::mat4 & matrix);
+	YftLoader* GetYft(uint32_t hash);
 
 	void LoadYBN(uint32_t hash);
 
