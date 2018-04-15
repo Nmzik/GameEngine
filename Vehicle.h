@@ -9,7 +9,7 @@ class Vehicle
 {
 	YftLoader* vehicle;
 public:
-	Vehicle(glm::vec3 position, YftLoader* yft, btDiscreteDynamicsWorld* world);
+	Vehicle(glm::vec3 position, float mass, YftLoader* yft, btDiscreteDynamicsWorld* world);
 	~Vehicle();
 
 	float throttle;

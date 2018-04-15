@@ -36,11 +36,9 @@ GameWorld::GameWorld()
 		spaceGrid.AddCInteriorProxy(&cacheFile.AllCInteriorProxies[i], i);
 	}
 
-	for (auto& vehicleName : data.VehiclesNames)
+	for (auto& vehicle : data.Vehicles)
 	{
-		std::transform(vehicleName.begin(), vehicleName.end(), vehicleName.begin(), tolower);
-		uint32_t VehicleHash = GenHash(vehicleName);
-		vehiclesPool[VehicleHash] = nullptr;
+		vehiclesPool[vehicle.Hash] = vehicle;
 	}
 
 	ydrLoader.reserve(500);
@@ -631,7 +629,7 @@ void GameWorld::createVehicle(glm::vec3 position)
 
 	auto it = vehiclesPool.begin();
 	std::advance(it, vehicleID);
-	if (it->second == nullptr) {
+	if (it->second.file == nullptr) {
 
 		auto itv = data.YftEntries.find(it->first);
 		if (itv != data.YftEntries.end())
@@ -643,13 +641,13 @@ void GameWorld::createVehicle(glm::vec3 position)
 
 			memstream stream(outputBuffer.data(), outputBuffer.size());
 			YftLoader *vehicle = new YftLoader(stream, true, dynamicsWorld);
-			it->second = vehicle;
+			it->second.file = vehicle;
 		}
 
 	}
 
-	if (it->second != nullptr) {
-		Vehicle *newVehicle = new Vehicle(position, it->second, dynamicsWorld);
+	if (it->second.file != nullptr) {
+		Vehicle *newVehicle = new Vehicle(position, it->second.mass, it->second.file, dynamicsWorld);
 		vehicles.push_back(newVehicle);
 	}
 }

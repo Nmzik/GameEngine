@@ -18,7 +18,7 @@ float	rollInfluence = 0.1f;//1.0f;
 btScalar suspensionRestLength(0.6f);
 btScalar m_defaultContactProcessingThreshold(BT_LARGE_FLOAT);
 
-Vehicle::Vehicle(glm::vec3 position, YftLoader* yft, btDiscreteDynamicsWorld* world) : throttle(0), steeringValue(0), vehicle(yft)
+Vehicle::Vehicle(glm::vec3 position, float mass, YftLoader* yft, btDiscreteDynamicsWorld* world) : throttle(0), steeringValue(0), vehicle(yft)
 {
 	btRaycastVehicle::btVehicleTuning m_tuning;
 
@@ -34,7 +34,7 @@ Vehicle::Vehicle(glm::vec3 position, YftLoader* yft, btDiscreteDynamicsWorld* wo
 	compound->addChildShape(localTrans, chassisShape);
 
 	btVector3 localInertia(0, 0, 0);
-	compound->calculateLocalInertia(800, localInertia);
+	compound->calculateLocalInertia(mass, localInertia);
 
 	btTransform tr;
 	tr.setIdentity();
@@ -42,7 +42,7 @@ Vehicle::Vehicle(glm::vec3 position, YftLoader* yft, btDiscreteDynamicsWorld* wo
 
 	btDefaultMotionState* myMotionState = new btDefaultMotionState(tr);
 
-	btRigidBody::btRigidBodyConstructionInfo cInfo(800, myMotionState, compound, localInertia);
+	btRigidBody::btRigidBodyConstructionInfo cInfo(mass, myMotionState, compound, localInertia);
 
 	m_carChassis = new btRigidBody(cInfo);
 	m_carChassis->setContactProcessingThreshold(m_defaultContactProcessingThreshold);

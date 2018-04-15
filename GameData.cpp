@@ -150,11 +150,20 @@ void GameData::LoadHandlingData()
 
 	for (tinyxml2::XMLElement* e = element->FirstChildElement("Item"); e != NULL; e = e->NextSiblingElement("Item"))
 	{
-		tinyxml2::XMLText* element = e->FirstChildElement("handlingName")->FirstChild()->ToText();
-		VehiclesNames.push_back(element->Value());
-		//element = element->NextSiblingElement("maxX");
-		//element = element->NextSiblingElement("maxX");
-		//element = element->NextSiblingElement("maxX");
+		CarHandling car;
+
+		tinyxml2::XMLElement* element = e->FirstChildElement("handlingName");
+		std::string CarName = element->FirstChild()->Value();
+
+		std::transform(CarName.begin(), CarName.end(), CarName.begin(), tolower);
+		car.Hash = GenHash(CarName);
+		///
+		element = element->NextSiblingElement("fMass");
+		element->QueryFloatAttribute("value", &car.mass);
+
+		car.file = nullptr;
+
+		Vehicles.push_back(car);
 	}
 }
 

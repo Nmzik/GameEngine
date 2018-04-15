@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include "tinyxml2.h"
 #include "YtypLoader.h"
+#include "YftLoader.h"
 
 struct WaterQuad
 {
@@ -20,6 +21,13 @@ struct WaterQuad
 	float a3;
 	float a4;
 	bool NoStencil;
+};
+
+struct CarHandling
+{
+	uint32_t Hash;
+	float mass;
+	YftLoader* file;
 };
 
 class GameData
@@ -40,7 +48,7 @@ public:
 	std::unordered_map<uint32_t, RpfResourceFileEntry*> YtypEntries;
 	std::unordered_map<uint32_t, RpfResourceFileEntry*> YbnEntries;
 
-	std::vector<std::string> VehiclesNames;
+	std::vector<CarHandling> Vehicles;
 
 	GameData();
 	~GameData();
