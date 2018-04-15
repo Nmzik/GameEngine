@@ -42,7 +42,7 @@ YdrLoader::YdrLoader(memstream& file, btDiscreteDynamicsWorld* world)
 
 		if (Drawable.BoundPointer != 0) {
 			//printf("YBN INSIDE YDR\n");
-			//YbnLoader* loader = new YbnLoader(world, file, hash);
+			//YbnLoader* loader = new YbnLoader(world, file);
 		}
 
 		//Shader stuff

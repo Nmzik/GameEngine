@@ -301,7 +301,7 @@ struct CEntityDef //128 bytes, Key:1825799514
 	uint32_t Unused4;//28
 	glm::vec3 position; //32   32: Float_XYZ: 0: position
 	float Unused5;//44
-	glm::vec4 rotation; //48   48: Float_XYZW: 0: rotation
+	glm::quat rotation; //48   48: Float_XYZW: 0: rotation
 	float scaleXY; //64   64: Float: 0: 2627937847
 	float scaleZ; //68   68: Float: 0: 284916802
 	int32_t parentIndex; //72   72: SignedInt: 0: parentIndex

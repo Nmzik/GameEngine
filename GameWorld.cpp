@@ -705,7 +705,7 @@ void GameWorld::UpdateTraffic(Camera* camera)
 			float xRandom = RandomFloat(camera->Position.x - radiusTraffic, camera->Position.x + radiusTraffic);
 			float yRandom = RandomFloat(camera->Position.y - radiusTraffic, camera->Position.y + radiusTraffic);
 			if (!camera->intersects(glm::vec3(xRandom, yRandom, camera->Position.z + 3.0f), 1.0f)) {
-				createVehicle(glm::vec3(xRandom, yRandom, camera->Position.z + 3.0f));
+				//createVehicle(glm::vec3(xRandom, yRandom, camera->Position.z + 3.0f));
 			}
 		}
 	}
