@@ -41,8 +41,10 @@ YdrLoader::YdrLoader(memstream& file, btDiscreteDynamicsWorld* world)
 		}
 
 		if (Drawable.BoundPointer != 0) {
-			//printf("YBN INSIDE YDR\n");
-			//YbnLoader* loader = new YbnLoader(world, file);
+			TranslatePTR(Drawable.BoundPointer);
+			file.seekg(Drawable.BoundPointer);
+
+			//ybnfile = new YbnLoader(world, file);
 		}
 
 		//Shader stuff
@@ -297,6 +299,8 @@ YdrLoader::YdrLoader(memstream& file, btDiscreteDynamicsWorld* world)
 
 YdrLoader::~YdrLoader()
 {
+	if (ybnfile)
+		delete ybnfile;
 	for (auto& material : materials)
 	{
 		delete material;
