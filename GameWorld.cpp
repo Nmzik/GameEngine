@@ -326,8 +326,8 @@ YtdFile* GameWorld::LoadYTD(uint32_t hash)
 		memstream stream(outputBuffer.data(), outputBuffer.size());
 
 		YtdFile* file = new YtdFile(stream);
-		file->time = SDL_GetTicks();
 		ytdLoader[hash] = file;
+		file->time = SDL_GetTicks();
 
 		return file;
 	}
@@ -335,24 +335,21 @@ YtdFile* GameWorld::LoadYTD(uint32_t hash)
 
 void GameWorld::LoadYDR(Camera* camera, uint32_t hash, uint32_t TextureDictionary, glm::vec3 BSCentre, float BSRadius, glm::mat4 & matrix)
 {
-	YdrLoader* file = GetYdr(hash);
+	YdrLoader* file = GetYdr(hash, TextureDictionary);
 	if (file) {
-		if (!file->externalYtd)
-			file->externalYtd = LoadYTD(TextureDictionary);
-		else
-			file->externalYtd->time = SDL_GetTicks();
-
 		if (camera->intersects(BSCentre, BSRadius)) {
 			renderList.emplace_back(file, matrix);
 		}
 	}
 }
 
-YdrLoader * GameWorld::GetYdr(uint32_t hash)
+YdrLoader * GameWorld::GetYdr(uint32_t hash, uint32_t TextureDictionaryHash)
 {
 	auto iter = ydrLoader.find(hash);
 	if (iter != ydrLoader.end())
 	{
+		if (iter->second->externalYtd)
+			iter->second->externalYtd->time = SDL_GetTicks();
 		iter->second->time = SDL_GetTicks();
 		return iter->second;
 	}
@@ -367,10 +364,14 @@ YdrLoader * GameWorld::GetYdr(uint32_t hash)
 
 		memstream stream(outputBuffer.data(), outputBuffer.size());
 
+		YtdFile* ytd = LoadYTD(TextureDictionaryHash);
 		YdrLoader *newYdr = new YdrLoader(stream, dynamicsWorld);
-		newYdr->time = SDL_GetTicks();
 		ydrLoader[hash] = newYdr;
-
+		newYdr->time = SDL_GetTicks();
+		if (ytd) {
+			newYdr->externalYtd = ytd;
+			newYdr->externalYtd->time = SDL_GetTicks();
+		}
 		return newYdr;
 	}
 	return nullptr;
@@ -378,16 +379,11 @@ YdrLoader * GameWorld::GetYdr(uint32_t hash)
 
 void GameWorld::LoadYDD(Camera* camera, uint32_t hash, uint32_t TextureDictionary, glm::vec3 BSCentre, float BSRadius, uint32_t DrawableDictionaryHash, glm::mat4 & matrix)
 {
-	YddLoader* file = GetYdd(DrawableDictionaryHash);
+	YddLoader* file = GetYdd(DrawableDictionaryHash, TextureDictionary);
 	if (file) {
 		std::unordered_map<uint32_t, YdrLoader*>::iterator iter2 = file->YdrFiles.find(hash);
 		if (iter2 != file->YdrFiles.end())
 		{
-			if (!iter2->second->externalYtd)
-				iter2->second->externalYtd = LoadYTD(TextureDictionary);
-			else
-				iter2->second->externalYtd->time = SDL_GetTicks();
-
 			if (camera->intersects(BSCentre, BSRadius)) {
 				renderList.emplace_back(iter2->second, matrix);
 			}
@@ -395,11 +391,13 @@ void GameWorld::LoadYDD(Camera* camera, uint32_t hash, uint32_t TextureDictionar
 	}
 }
 
-YddLoader * GameWorld::GetYdd(uint32_t hash)
+YddLoader * GameWorld::GetYdd(uint32_t hash, uint32_t TextureDictionaryHash)
 {
 	auto iter = yddLoader.find(hash);
 	if (iter != yddLoader.end())
 	{
+		if (iter->second->externalYtd)
+			iter->second->externalYtd->time = SDL_GetTicks();
 		iter->second->time = SDL_GetTicks();
 		return iter->second;
 	}
@@ -413,9 +411,15 @@ YddLoader * GameWorld::GetYdd(uint32_t hash)
 		data.ExtractFileResource(element, outputBuffer);
 
 		memstream stream(outputBuffer.data(), outputBuffer.size());
+
+		YtdFile* ytd = LoadYTD(TextureDictionaryHash);
 		YddLoader* newYdd = new YddLoader(stream, dynamicsWorld);
-		newYdd->time = SDL_GetTicks();
 		yddLoader[hash] = newYdd;
+		newYdd->time = SDL_GetTicks();
+		if (ytd) {
+			newYdd->externalYtd = ytd;
+			newYdd->externalYtd->time = SDL_GetTicks();
+		}
 
 		return newYdd;
 	}
@@ -425,24 +429,21 @@ YddLoader * GameWorld::GetYdd(uint32_t hash)
 
 void GameWorld::LoadYFT(Camera* camera, uint32_t hash, uint32_t TextureDictionary, glm::vec3 BSCentre, float BSRadius, glm::mat4 & matrix)
 {
-	YftLoader* file = file = GetYft(hash);
+	YftLoader* file = file = GetYft(hash, TextureDictionary);
 	if (file) {
-		if (!file->YdrFile->externalYtd)
-			file->YdrFile->externalYtd = LoadYTD(TextureDictionary);
-		else
-			file->YdrFile->externalYtd->time = SDL_GetTicks();
-
 		if (camera->intersects(BSCentre, BSRadius)) {
 			renderList.emplace_back(file->YdrFile, matrix);
 		}
 	}
 }
 
-YftLoader * GameWorld::GetYft(uint32_t hash)
+YftLoader * GameWorld::GetYft(uint32_t hash, uint32_t TextureDictionaryHash)
 {
 	auto iter = yftLoader.find(hash);
 	if (iter != yftLoader.end())
 	{
+		if (iter->second->YdrFile->externalYtd)
+			iter->second->YdrFile->externalYtd->time = SDL_GetTicks();
 		iter->second->time = SDL_GetTicks();
 		return iter->second;
 	}
@@ -456,10 +457,15 @@ YftLoader * GameWorld::GetYft(uint32_t hash)
 		data.ExtractFileResource(element, outputBuffer);
 
 		memstream stream(outputBuffer.data(), outputBuffer.size());
-		YftLoader *newYft = new YftLoader(stream, false, dynamicsWorld);
-		newYft->time = SDL_GetTicks();
-		yftLoader[hash] = newYft;
 
+		YtdFile* ytd = LoadYTD(TextureDictionaryHash);
+		YftLoader *newYft = new YftLoader(stream, false, dynamicsWorld);
+		yftLoader[hash] = newYft;
+		newYft->time = SDL_GetTicks();
+		if (ytd) {
+			newYft->YdrFile->externalYtd = ytd;
+			newYft->YdrFile->externalYtd->time = SDL_GetTicks();
+		}
 		return newYft;
 	}
 

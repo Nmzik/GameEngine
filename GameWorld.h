@@ -85,13 +85,13 @@ public:
 	YtdFile* LoadYTD(uint32_t hash);
 
 	void LoadYDR(Camera* camera, uint32_t hash, uint32_t TextureDictionary, glm::vec3 BSCentre, float BSRadius, glm::mat4 & matrix);
-	YdrLoader* GetYdr(uint32_t hash);
+	YdrLoader* GetYdr(uint32_t hash, uint32_t TextureDictionaryHash);
 
 	void LoadYDD(Camera* camera, uint32_t hash, uint32_t TextureDictionary, glm::vec3 BSCentre, float BSRadius, uint32_t DrawableDictionaryHash, glm::mat4 & matrix);
-	YddLoader* GetYdd(uint32_t hash);
+	YddLoader* GetYdd(uint32_t hash, uint32_t TextureDictionaryHash);
 
 	void LoadYFT(Camera* camera, uint32_t hash, uint32_t TextureDictionary, glm::vec3 BSCentre, float BSRadius, glm::mat4 & matrix);
-	YftLoader* GetYft(uint32_t hash);
+	YftLoader* GetYft(uint32_t hash, uint32_t TextureDictionaryHash);
 
 	void LoadYBN(uint32_t hash);
 

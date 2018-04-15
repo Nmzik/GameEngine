@@ -268,20 +268,23 @@ YdrLoader::YdrLoader(memstream& file, btDiscreteDynamicsWorld* world)
 
 				TranslatePTR(drawGeom.IndexBufferPointer);
 
-				file.seekg(drawGeom.IndexBufferPointer);
+				if (drawGeom.IndexBufferPointer != 0) {
 
-				IndexBuffer indexbuffer;
-				file.read((char*)&indexbuffer, sizeof(IndexBuffer));
+					file.seekg(drawGeom.IndexBufferPointer);
 
-				TranslatePTR(indexbuffer.IndicesPointer);
+					IndexBuffer indexbuffer;
+					file.read((char*)&indexbuffer, sizeof(IndexBuffer));
 
-				if (materials.size() == 0) {
-					Mesh* newMesh = new Mesh(file._buffer.p, vertbuffer.DataPointer1, vertbuffer.VertexCount * vertbuffer.VertexStride, indexbuffer.IndicesPointer, indexbuffer.IndicesCount, (VertexType)decl.Flags, material);
-					meshes.push_back(newMesh);
-				}
-				else {
-					Mesh* newMesh = new Mesh(file._buffer.p, vertbuffer.DataPointer1, vertbuffer.VertexCount * vertbuffer.VertexStride, indexbuffer.IndicesPointer, indexbuffer.IndicesCount, (VertexType)decl.Flags, materials[ShaderMapping[i]]);
-					meshes.push_back(newMesh);
+					TranslatePTR(indexbuffer.IndicesPointer);
+
+					if (materials.size() == 0) {
+						Mesh* newMesh = new Mesh(file._buffer.p, vertbuffer.DataPointer1, vertbuffer.VertexCount * vertbuffer.VertexStride, indexbuffer.IndicesPointer, indexbuffer.IndicesCount, (VertexType)decl.Flags, material);
+						meshes.push_back(newMesh);
+					}
+					else {
+						Mesh* newMesh = new Mesh(file._buffer.p, vertbuffer.DataPointer1, vertbuffer.VertexCount * vertbuffer.VertexStride, indexbuffer.IndicesPointer, indexbuffer.IndicesCount, (VertexType)decl.Flags, materials[ShaderMapping[i]]);
+						meshes.push_back(newMesh);
+					}
 				}
 
 				file.seekg(pos);
