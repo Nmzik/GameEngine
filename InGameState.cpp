@@ -187,10 +187,10 @@ void InGameState::tick(float delta_time)
 			if (length > 0.1f) {
 				auto move = speed * glm::normalize(movement);
 				//move *= delta_time;
-				player->getPhysCharacter()->setLinearVelocity(btVector3(move.x * 30, move.z * 30, 0.f));
+				player->getPhysCharacter()->setLinearVelocity(btVector3(move.x * 30, move.z * 30, player->getPhysCharacter()->getLinearVelocity().z()));
 			}
 			else {
-				//player->getPhysCharacter()->setLinearVelocity(btVector3(0.f, 0.f, 0.f));
+				player->getPhysCharacter()->setLinearVelocity(btVector3(0.f, 0.f, player->getPhysCharacter()->getLinearVelocity().z()));
 			}
 
 			if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_SPACE)) player->Jump();
