@@ -321,9 +321,9 @@ void YdrLoader::UploadMeshes()
 	Loaded = true;
 }
 
-void YdrLoader::Draw()
+void YdrLoader::Draw(Shader* shader)
 {
 	for (auto& mesh : meshes) {
-		mesh->Draw();
+		mesh->Draw(shader);
 	}
 }

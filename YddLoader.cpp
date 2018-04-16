@@ -67,10 +67,10 @@ YddLoader::~YddLoader()
 	}
 }
 
-void YddLoader::Draw()
+void YddLoader::Draw(Shader* shader)
 {
 	for (auto YdrFile : YdrFiles)
 	{
-		YdrFile.second->Draw();
+		YdrFile.second->Draw(shader);
 	}
 }

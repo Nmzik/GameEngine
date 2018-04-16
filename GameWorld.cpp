@@ -520,14 +520,18 @@ void GameWorld::GetVisibleYmaps(Shader* shader, Camera* camera)
 		LoadYmap(cacheFile.AllCInteriorProxies[Proxy].Parent, camera);
 	}*/
 
-	std::sort(renderList.begin(), renderList.end(), [](RenderInstruction& a, RenderInstruction& b) { //FRONT_TO_BACK
-		return a.modelMatrix[3].y < b.modelMatrix[3].y;
+	std::sort(renderList.begin(), renderList.end(), [&camera](RenderInstruction& a, RenderInstruction& b) { //FRONT_TO_BACK
+		glm::vec3 lhsPosition = glm::vec3(a.modelMatrix[3]);
+		glm::vec3 rhsPosition = glm::vec3(b.modelMatrix[3]);
+
+		return glm::dot(camera->Position, lhsPosition) > glm::dot(camera->Position, rhsPosition);
+
 	});
 
 	for (auto& model : renderList)
 	{
 		shader->setMat4(3, model.modelMatrix);
-		model.ydr->Draw();
+		model.ydr->Draw(shader);
 	}
 
 	renderList.clear();

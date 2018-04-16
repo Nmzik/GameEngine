@@ -48,8 +48,8 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 	if (!GLEW_EXT_texture_compression_s3tc) printf("NOT INITALIZED s3tc\n");
 	if (!GLEW_EXT_texture_compression_rgtc) printf("NOT INITALIZED rgtc\n");
 
-	glEnable(GL_DEBUG_OUTPUT);
-	glDebugMessageCallback(myDebugCallback, nullptr);
+	//glEnable(GL_DEBUG_OUTPUT);
+	//glDebugMessageCallback(myDebugCallback, nullptr);
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
@@ -151,20 +151,20 @@ void RenderingSystem::createGBuffer()
 	glGenFramebuffers(1, &gBuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
 
-	// normal color buffer
-	glGenTextures(1, &gNormal);
-	glBindTexture(GL_TEXTURE_2D, gNormal);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, ScreenResWidth, ScreenResHeight, 0, GL_RGB, GL_FLOAT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gNormal, 0);
 	// color + specular color buffer
 	glGenTextures(1, &gAlbedoSpec);
 	glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, ScreenResWidth, ScreenResHeight, 0, GL_RGBA, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gAlbedoSpec, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gAlbedoSpec, 0);
+	// normal color buffer
+	glGenTextures(1, &gNormal);
+	glBindTexture(GL_TEXTURE_2D, gNormal);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, ScreenResWidth, ScreenResHeight, 0, GL_RGB, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gNormal, 0);
 	// tell OpenGL which color attachments we'll use (of this framebuffer) for rendering 
 	unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
 	glDrawBuffers(2, attachments);
@@ -366,7 +366,7 @@ void RenderingSystem::render(GameWorld* world)
 	glDepthMask(GL_FALSE);
 	glm::mat4 SkydomeMatrix = glm::translate(glm::mat4(), camera->Position) * glm::toMat4(glm::quat(-1, 0, 0, 0)) * glm::scale(glm::mat4(), glm::vec3(10, 10, 10));
 	gbuffer->setMat4(3, SkydomeMatrix);
-	world->skydome->YdrFiles[2640562617]->Draw();
+	world->skydome->YdrFiles[2640562617]->Draw(gbuffer);
 	glDepthMask(GL_TRUE);
 
 	//glEnable(GL_BLEND);
@@ -377,7 +377,7 @@ void RenderingSystem::render(GameWorld* world)
 	for (int i = 0; i < world->pedestrians.size(); i++) {
 		auto model = world->pedestrians[i]->getPosition();
 		gbuffer->setMat4(ModelUniformLoc, model);
-		world->pedestrians[i]->Draw();
+		world->pedestrians[i]->Draw(gbuffer);
 	}
 
 	for (int i = 0; i < world->vehicles.size(); i++) {
@@ -399,7 +399,7 @@ void RenderingSystem::render(GameWorld* world)
 	{
 		auto modelMatrix = world->player[i]->getPosition();
 		gbuffer->setMat4(ModelUniformLoc, modelMatrix);
-		world->player[i]->Draw();
+		world->player[i]->Draw(gbuffer);
 	}
 
 	glDisable(GL_CULL_FACE);

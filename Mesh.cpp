@@ -213,9 +213,9 @@ Mesh::~Mesh()
 	glDeleteVertexArrays(1, &VAO);
 }
 
-void Mesh::Draw()
+void Mesh::Draw(Shader* shader)
 {
 	glBindVertexArray(VAO);
-	material->bind();
+	material->bind(shader);
 	glDrawElements(GL_TRIANGLES, num_indices, GL_UNSIGNED_SHORT, 0);
 }

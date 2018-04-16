@@ -56,6 +56,6 @@ public:
 	Mesh(const uint8_t* meshData, uint64_t VertexPointer, uint32_t VertexSize, uint64_t IndicesPointer, uint32_t IndicesSize, VertexType type, Material* mat);
 	~Mesh();
 
-	void Draw();
+	void Draw(Shader* shader);
 };
 

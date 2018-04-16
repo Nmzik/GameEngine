@@ -36,8 +36,8 @@ void main()
 
 #shader fragment
 #version 430 core
-layout (location = 0) out vec3 gNormal;
-layout (location = 1) out vec4 gAlbedoSpec;
+layout (location = 0) out vec4 gAlbedoSpec;
+layout (location = 1) out vec3 gNormal;
 
 in vec2 TexCoords;
 in vec3 Normal;
@@ -49,6 +49,8 @@ struct Material {
 	sampler2D specular;
 	float shininess;
 };
+
+uniform bool UseSpecular;
 
 uniform Material material;
 
@@ -63,5 +65,6 @@ void main()
 	//gAlbedoSpec = vec4(Color.b, Color.g, Color.r, Color.a);
     gAlbedoSpec.rgb = texture(material.diffuse, TexCoords).rgb;
     // store specular intensity in gAlbedoSpec's alpha component
-    gAlbedoSpec.a *= texture(material.specular, TexCoords).r;
+	if (UseSpecular) 
+		gAlbedoSpec.a *= texture(material.specular, TexCoords).r;
 }

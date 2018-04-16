@@ -43,6 +43,6 @@ public:
 	void setActiveWeapon(uint32_t slot);
 	void Jump();
 	btRigidBody* getPhysCharacter();
-	void Draw();
+	void Draw(Shader* shader);
 };
 

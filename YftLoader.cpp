@@ -253,8 +253,3 @@ YftLoader::~YftLoader()
 {
 	delete YdrFile;
 }
-
-void YftLoader::Draw()
-{
-	YdrFile->Draw();
-}

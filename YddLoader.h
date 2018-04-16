@@ -22,6 +22,6 @@ public:
 	YddLoader(memstream& file, btDiscreteDynamicsWorld* world);
 	~YddLoader();
 
-	void Draw();
+	void Draw(Shader* shader);
 };
 

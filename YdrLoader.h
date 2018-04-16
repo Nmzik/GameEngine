@@ -312,6 +312,6 @@ public:
 
 	void UploadMeshes();
 
-	void Draw();
+	void Draw(Shader* shader);
 };
 

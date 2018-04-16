@@ -23,7 +23,5 @@ public:
 
 	YftLoader(memstream& file, bool need, btDiscreteDynamicsWorld* world);
 	~YftLoader();
-
-	void Draw();
 };
 

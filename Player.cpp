@@ -117,7 +117,7 @@ void Player::Jump()
 	}
 }
 
-void Player::Draw()
+void Player::Draw(Shader* shader)
 {
-	player->Draw();
+	player->Draw(shader);
 }

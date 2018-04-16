@@ -2,6 +2,7 @@
 
 #include "glew.h"
 #include "TextureManager.h"
+#include "Shader.h"
 
 class Material
 {
@@ -14,6 +15,6 @@ public:
 	GLuint specularTextureID;
 	GLuint detailTextureID;
 
-	void bind();
+	void bind(Shader* shader);
 };
 

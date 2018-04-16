@@ -134,7 +134,7 @@ void Vehicle::PhysicsTick()
 
 void Vehicle::Draw(Shader* shader) 
 {
-	vehicle->Draw();
+	vehicle->YdrFile->Draw(shader);
 
 	for (int i = 0; i < m_vehicle->getNumWheels(); i++)
 	{
@@ -144,7 +144,7 @@ void Vehicle::Draw(Shader* shader)
 		for (auto& wheel : vehicle->wheels)
 		{
 			shader->setMat4(3, model);
-			wheel->Draw();
+			wheel->Draw(shader);
 		}
 	}
 }
