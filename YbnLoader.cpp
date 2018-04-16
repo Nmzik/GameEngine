@@ -228,6 +228,8 @@ YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world, memstream& file) : Collisio
 
 		file.read((char*)&Bounds, sizeof(Bounds));
 
+		//if (Bounds.Type != 10 || Bounds.Type != 8) return;
+
 		BoundGeometry geom;
 		file.read((char*)&geom, sizeof(BoundGeometry));
 

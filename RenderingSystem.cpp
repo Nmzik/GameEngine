@@ -26,8 +26,6 @@ void myDebugCallback(
 
 RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLight(glm::vec3(0.1, 0.8, 0.1), glm::vec3(0.2f, 0.2f, 0.2f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1.0f, 1.0f, 1.0f), true)
 {
-	glcontext = SDL_GL_CreateContext(window);
-
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
@@ -38,6 +36,8 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 	// Turn on double buffering with a 24bit Z buffer.
 	// You may need to change this to 16 or 32 for your system
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+
+	glcontext = SDL_GL_CreateContext(window);
 
 	SDL_GL_SetSwapInterval(1);
 
@@ -369,7 +369,10 @@ void RenderingSystem::render(GameWorld* world)
 	world->skydome->YdrFiles[2640562617]->Draw();
 	glDepthMask(GL_TRUE);
 
+	//glEnable(GL_BLEND);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	world->GetVisibleYmaps(gbuffer, camera);
+	//glDisable(GL_BLEND);
 
 	for (int i = 0; i < world->pedestrians.size(); i++) {
 		auto model = world->pedestrians[i]->getPosition();

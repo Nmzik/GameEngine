@@ -164,7 +164,7 @@ float RandomFloat(float min, float max) {
 void GameWorld::LoadYmap(uint32_t hash, Camera* camera)
 {
 	YmapLoader *map = GetYmap(hash);
-	if (map) {
+	if (map) { //prop_bush_lrg_02b.ydr 
 		if (!(map->_CMapData.flags & 1) > 0) { //DONT LOAD SCRIPTED MAPS
 			for (int i = 0; i < map->CEntityDefs.size(); i++)
 			{
@@ -204,6 +204,9 @@ void GameWorld::LoadYmap(uint32_t hash, Camera* camera)
 						}
 					}
 				}
+				/*if (map->CEntityDefs[i].archetypeName == 3829216027) {
+					auto iter = GetYdr(3829216027, 0);
+				}*/
 			}
 		}
 	}
