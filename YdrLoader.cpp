@@ -1,6 +1,6 @@
 #include "YdrLoader.h"
 
-YdrLoader::YdrLoader(memstream& file, btDiscreteDynamicsWorld* world)
+YdrLoader::YdrLoader(memstream& file, btDiscreteDynamicsWorld* world, bool isYft)
 {
 	Material* material = new Material(0, 0, 0, 0);
 
@@ -21,10 +21,41 @@ YdrLoader::YdrLoader(memstream& file, btDiscreteDynamicsWorld* world)
 			uint64_t BoundPointer;
 		} Drawable;
 
-		//READ COLLISION DATA FROM YDR
-		file.read((char*)&Drawable, sizeof(Drawable));
+		struct {
+			uint32_t Unknown_0A8h;
+			uint32_t Unknown_0ACh;
+			glm::mat4 Unknown_0B0h;
+			uint64_t BoundPointer;
+			uint64_t Unknown_0F8h_Pointer;
+			uint16_t Count1;
+			uint16_t Count2;
+			uint32_t Unknown_104h; // 0x00000000
+			uint64_t Unknown_108h_Pointer;
+			uint16_t Count3;
+			uint16_t Count4;
+			uint32_t Unknown_114h; // 0x00000000
+			uint32_t Unknown_118h; // 0x00000000
+			uint32_t Unknown_11Ch; // 0x00000000
+			uint32_t Unknown_120h; // 0x00000000
+			uint32_t Unknown_124h; // 0x00000000
+			uint32_t Unknown_128h; // 0x00000000
+			uint32_t Unknown_12Ch; // 0x00000000
+			uint64_t NamePointer;
+			uint32_t Unknown_138h; // 0x00000000
+			uint32_t Unknown_13Ch; // 0x00000000
+			uint32_t Unknown_140h; // 0x00000000
+			uint32_t Unknown_144h; // 0x00000000
+			uint32_t Unknown_148h; // 0x00000000
+			uint32_t Unknown_14Ch; // 0x00000000
+		} FragDrawable;
 
-		if (Drawable.LightAttributesPointer != 0) {
+		//READ COLLISION DATA FROM YDR
+		if (isYft) {
+			file.read((char*)&FragDrawable, sizeof(FragDrawable));
+		} else
+			file.read((char*)&Drawable, sizeof(Drawable));
+
+		if (Drawable.LightAttributesPointer != 0 && !isYft) {
 			TranslatePTR(Drawable.LightAttributesPointer);
 
 			file.seekg(Drawable.LightAttributesPointer);
@@ -39,12 +70,19 @@ YdrLoader::YdrLoader(memstream& file, btDiscreteDynamicsWorld* world)
 				lightAttributes_s.push_back(light);
 			}
 		}
+		if (isYft) {
+			if (FragDrawable.BoundPointer != 0) {
+				TranslatePTR(FragDrawable.BoundPointer);
+				file.seekg(FragDrawable.BoundPointer);
 
-		if (Drawable.BoundPointer != 0) {
+				ybnfile = new YbnLoader(world, file);
+			}
+
+		} else if (Drawable.BoundPointer != 0) {
 			TranslatePTR(Drawable.BoundPointer);
 			file.seekg(Drawable.BoundPointer);
 
-			//ybnfile = new YbnLoader(world, file);
+			ybnfile = new YbnLoader(world, file);
 		}
 
 		//Shader stuff

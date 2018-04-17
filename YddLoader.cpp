@@ -51,7 +51,7 @@ YddLoader::YddLoader(memstream& file, btDiscreteDynamicsWorld* world)
 
 		file.seekg(DataPointer);
 
-		YdrLoader* YdrFile = new YdrLoader(file, world);
+		YdrLoader* YdrFile = new YdrLoader(file, world, false);
 		YdrFiles[Hashes[i]] = YdrFile;
 
 		file.seekg(DrawablePointer);

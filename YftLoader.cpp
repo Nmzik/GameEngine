@@ -73,7 +73,7 @@ YftLoader::YftLoader(memstream& file, bool need, btDiscreteDynamicsWorld* world)
 
 	file.seekg(FragType.DrawablePointer);
 
-	YdrFile = new YdrLoader(file, world);
+	YdrFile = new YdrLoader(file, world, true);
 
 	struct {
 		uint32_t VFT;
