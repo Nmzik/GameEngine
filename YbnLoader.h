@@ -104,10 +104,6 @@ class YbnLoader
 		int16_t edgeIndex1;
 		int16_t edgeIndex2;
 		int16_t edgeIndex3;
-		//////
-		int32_t vertIndex1;
-		int32_t vertIndex2;
-		int32_t vertIndex3;
 	};
 
 	struct BoundPolygonSphere {
@@ -158,11 +154,13 @@ class YbnLoader
 		uint64_t BVHPointer;
 	} BoundComposite;
 
+	std::vector<glm::vec3> Vertices;
+	std::vector<int32_t> indices;
 
 	btRigidBody * rigidBody;
 	btDiscreteDynamicsWorld* CollisionWorld;
 	btCompoundShape* compound;
-	btTriangleMesh* TriMesh;
+	btTriangleIndexVertexArray* VertIndicesArray;
 	btBvhTriangleMeshShape* trishape;
 	std::vector<YbnLoader*> ybns;
 public:

@@ -13,8 +13,7 @@ YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world, memstream& file) : Collisio
 		BoundGeometry geom;
 		file.read((char*)&geom, sizeof(BoundGeometry));
 
-		std::vector<BoundPolygonTriangle> PolygonTriangles;
-		PolygonTriangles.reserve(geom.PolygonsCount);
+		indices.reserve(geom.PolygonsCount * 3);
 
 		std::vector<BoundPolygonSphere> PolygonSpheres;
 
@@ -32,11 +31,10 @@ YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world, memstream& file) : Collisio
 			{
 			case 0:
 				BoundPolygonTriangle PolygonTriangle;
-				file.read((char*)&PolygonTriangle, sizeof(BoundPolygonTriangle) - 12);
-				PolygonTriangle.vertIndex1 = PolygonTriangle.triIndex1 & 0x7FFF;
-				PolygonTriangle.vertIndex2 = PolygonTriangle.triIndex2 & 0x7FFF;
-				PolygonTriangle.vertIndex3 = PolygonTriangle.triIndex3 & 0x7FFF;
-				PolygonTriangles.push_back(PolygonTriangle);
+				file.read((char*)&PolygonTriangle, sizeof(BoundPolygonTriangle));
+				indices.push_back(PolygonTriangle.triIndex1 & 0x7FFF);
+				indices.push_back(PolygonTriangle.triIndex2 & 0x7FFF);
+				indices.push_back(PolygonTriangle.triIndex3 & 0x7FFF);
 				break;
 			case 1:
 				BoundPolygonSphere PolygonSphere;
@@ -63,7 +61,7 @@ YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world, memstream& file) : Collisio
 		}
 
 		///////////////////
-		if (PolygonTriangles.size() != 0) {
+		if (indices.size() != 0) {
 			TranslatePTR(geom.VerticesPointer);
 
 			file.seekg(geom.VerticesPointer);
@@ -71,7 +69,6 @@ YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world, memstream& file) : Collisio
 			Vertex_HalfType *vertices = new Vertex_HalfType[geom.VerticesCount];
 			file.read((char*)&vertices[0], sizeof(Vertex_HalfType) * geom.VerticesCount);
 
-			std::vector<glm::vec3> Vertices;
 			Vertices.resize(geom.VerticesCount);
 
 			for (uint32_t i = 0; i < geom.VerticesCount; i++)
@@ -94,25 +91,10 @@ YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world, memstream& file) : Collisio
 				}
 			}
 			else {*/
-				TriMesh = new btTriangleMesh(); // (FALSE , FALSE) constructor ACTUALLY!
-				TriMesh->preallocateVertices(Vertices.size() * 3);
-				TriMesh->preallocateIndices(PolygonTriangles.size() * 3);
+				VertIndicesArray = new btTriangleIndexVertexArray(indices.size() /3 , (int*)indices.data(), 3 * sizeof(int32_t),
+					Vertices.size(), &Vertices[0][0], sizeof(glm::vec3));
 
-				for (int i = 0; i < Vertices.size(); i++)
-				{
-					//TriMesh->addTriangle(btVector3(Vertices[i * 3].x, Vertices[i * 3].y, Vertices[i * 3].z), btVector3(Vertices[i * 3 + 1].x, Vertices[i * 3 + 1].y, Vertices[i * 3 + 1].z), btVector3(Vertices[i * 3 + 2].x, Vertices[i * 3 + 2].y, Vertices[i * 3 + 2].z));
-					TriMesh->findOrAddVertex(btVector3(Vertices[i].x, Vertices[i].y, Vertices[i].z), false);
-				}
-
-				for (int i = 0; i < PolygonTriangles.size(); i++)
-				{
-					TriMesh->addTriangleIndices(PolygonTriangles[i].vertIndex1, PolygonTriangles[i].vertIndex2, PolygonTriangles[i].vertIndex3);
-				}
-
-				//btTriangleIndexVertexArray* VertIndicesArray = new btTriangleIndexVertexArray(indices.size() /3 , (int*)indices.data(), 3 * sizeof(int32_t),
-					//Vertices.size(), (float*)Vertices.data(), sizeof(glm::vec3));
-
-				trishape = new btBvhTriangleMeshShape(TriMesh, false);
+				trishape = new btBvhTriangleMeshShape(VertIndicesArray, false);
 				trishape->setMargin(Bounds.Margin);
 
 				btTransform localTrans;
@@ -165,8 +147,8 @@ YbnLoader::~YbnLoader()
 		delete ybns[i];
 	}
 
-	if (TriMesh)
-		delete TriMesh;
+	if (VertIndicesArray)
+		delete VertIndicesArray;
 	if (trishape)
 		delete trishape;
 	if (rigidBody) {
