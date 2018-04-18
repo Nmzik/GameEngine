@@ -91,7 +91,7 @@ public:
 	std::vector<uint8_t> JunctionHeightmapBytes;
 	std::vector<NodeJunctionRef> NodeJunctionRefs;
 
-	YndLoader(std::string FileName);
+	YndLoader(memstream& file);
 	~YndLoader();
 };
 

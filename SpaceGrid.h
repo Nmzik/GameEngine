@@ -7,6 +7,7 @@
 #include "zlib.h"
 #include "glm.hpp"
 #include "CacheDatFile.h"
+#include "YndLoader.h"
 
 class SpaceGridCell
 {
@@ -51,5 +52,50 @@ public:
 	SpaceGridCell &GetCell(glm::vec3 P);
 	SpaceGridCell &GetCell(glm::i32vec2 g);
 	glm::i32vec2 GetCellPos(glm::vec3 p);
+};
+
+class NodeGridCell {
+public:
+	int X;
+	int Y;
+	int ID;
+	YndLoader* ynd;
+
+	NodeGridCell(int x, int y) : X(x), Y(y)
+	{
+		ID = y * 32 + x;
+	}
+};
+
+class NodeGrid {
+public:
+	float CellSize = 512.0f;
+	float CellSizeInv = 1.0f / CellSize; //inverse of the cell size.
+	int CellCountX = 32;
+	int CellCountY = 32;
+	float CornerX = -8192.0f;
+	float CornerY = -8192.0f;
+
+	NodeGridCell *cells[32 * 32];
+
+	NodeGrid() {
+		for (int x = 0; x < CellCountX; x++)
+		{
+			for (int y = 0; y < CellCountY; y++)
+			{
+				cells[x * CellCountX + y] =  new NodeGridCell(x, y);
+			}
+		}
+	}
+
+	glm::i32vec2 GetCellPos(glm::vec3 p) {
+		glm::vec3 ind = (p - glm::vec3(CornerX, CornerY, 0)) * CellSizeInv;
+		int x = (int)ind.x;
+		int y = (int)ind.y;
+		x = (x < 0) ? 0 : (x >= CellCountX) ? CellCountX - 1 : x;
+		y = (y < 0) ? 0 : (y >= CellCountY) ? CellCountY - 1 : y;
+		return glm::i32vec2(x, y);
+	}
+
 };
 

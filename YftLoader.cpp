@@ -230,7 +230,7 @@ YftLoader::YftLoader(memstream& file, bool need, btDiscreteDynamicsWorld* world)
 
 			file.seekg(FragPhysTypeChild.Drawable1Pointer);
 
-			YdrLoader* ydr = new YdrLoader(file, world);
+			YdrLoader* ydr = new YdrLoader(file, world, true);
 
 			if (ydr->getMeshes().size() != 0) {
 				wheels.push_back(ydr);

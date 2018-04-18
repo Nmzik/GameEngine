@@ -52,7 +52,8 @@ YdrLoader::YdrLoader(memstream& file, btDiscreteDynamicsWorld* world, bool isYft
 		//READ COLLISION DATA FROM YDR
 		if (isYft) {
 			file.read((char*)&FragDrawable, sizeof(FragDrawable));
-		} else
+		}
+		else
 			file.read((char*)&Drawable, sizeof(Drawable));
 
 		if (Drawable.LightAttributesPointer != 0 && !isYft) {
@@ -78,7 +79,8 @@ YdrLoader::YdrLoader(memstream& file, btDiscreteDynamicsWorld* world, bool isYft
 				ybnfile = new YbnLoader(world, file);
 			}
 
-		} else if (Drawable.BoundPointer != 0) {
+		}
+		else if (Drawable.BoundPointer != 0) {
 			TranslatePTR(Drawable.BoundPointer);
 			file.seekg(Drawable.BoundPointer);
 
@@ -308,23 +310,20 @@ YdrLoader::YdrLoader(memstream& file, btDiscreteDynamicsWorld* world, bool isYft
 
 				TranslatePTR(drawGeom.IndexBufferPointer);
 
-				if (drawGeom.IndexBufferPointer != 0) {
+				file.seekg(drawGeom.IndexBufferPointer);
 
-					file.seekg(drawGeom.IndexBufferPointer);
+				IndexBuffer indexbuffer;
+				file.read((char*)&indexbuffer, sizeof(IndexBuffer));
 
-					IndexBuffer indexbuffer;
-					file.read((char*)&indexbuffer, sizeof(IndexBuffer));
+				TranslatePTR(indexbuffer.IndicesPointer);
 
-					TranslatePTR(indexbuffer.IndicesPointer);
-
-					if (materials.size() == 0) {
-						Mesh* newMesh = new Mesh(file._buffer.p, vertbuffer.DataPointer1, vertbuffer.VertexCount * vertbuffer.VertexStride, indexbuffer.IndicesPointer, indexbuffer.IndicesCount, (VertexType)decl.Flags, material);
-						meshes.push_back(newMesh);
-					}
-					else {
-						Mesh* newMesh = new Mesh(file._buffer.p, vertbuffer.DataPointer1, vertbuffer.VertexCount * vertbuffer.VertexStride, indexbuffer.IndicesPointer, indexbuffer.IndicesCount, (VertexType)decl.Flags, materials[ShaderMapping[i]]);
-						meshes.push_back(newMesh);
-					}
+				if (materials.size() == 0) {
+					Mesh* newMesh = new Mesh(file._buffer.p, vertbuffer.DataPointer1, vertbuffer.VertexCount * vertbuffer.VertexStride, indexbuffer.IndicesPointer, indexbuffer.IndicesCount, (VertexType)decl.Flags, material);
+					meshes.push_back(newMesh);
+				}
+				else {
+					Mesh* newMesh = new Mesh(file._buffer.p, vertbuffer.DataPointer1, vertbuffer.VertexCount * vertbuffer.VertexStride, indexbuffer.IndicesPointer, indexbuffer.IndicesCount, (VertexType)decl.Flags, materials[ShaderMapping[i]]);
+					meshes.push_back(newMesh);
 				}
 
 				file.seekg(pos);

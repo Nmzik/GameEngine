@@ -147,6 +147,11 @@ void InGameState::tick(float delta_time)
 		movement.z = game->getInput()->IsKeyPressed(SDL_SCANCODE_A) - game->getInput()->IsKeyPressed(SDL_SCANCODE_D);
 
 		if (player->GetCurrentVehicle()) {
+
+			if (player->GetCurrentVehicle()->m_carChassis->getWorldTransform().getOrigin().getZ() <= -150) {
+				player->GetCurrentVehicle()->m_carChassis->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), player->GetCurrentVehicle()->m_carChassis->getWorldTransform().getOrigin() + btVector3(0, 0, 300)));
+			}
+
 			game->getRenderer()->getCamera().Position = glm::vec3(player->GetCurrentVehicle()->m_carChassis->getWorldTransform().getOrigin().getX(), player->GetCurrentVehicle()->m_carChassis->getWorldTransform().getOrigin().getY(), player->GetCurrentVehicle()->m_carChassis->getWorldTransform().getOrigin().getZ());
 			if (game->getInput()->IsKeyPressed(SDL_SCANCODE_W)) {
 				player->GetCurrentVehicle()->SetThrottle(1.0);

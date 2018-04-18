@@ -1,13 +1,7 @@
 #include "YndLoader.h"
 
-YndLoader::YndLoader(std::string FileName)
+YndLoader::YndLoader(memstream& file)
 {
-	std::ifstream file("C:\\Users\\nmzik\\Desktop\\test\\"+ FileName , std::ios::binary);
-
-	if (!file.is_open()) {
-		printf("NOT FOUND!");
-	}
-
 	ResourceFileBase resourceFileBase;
 	file.read((char*)&resourceFileBase, sizeof(ResourceFileBase));
 

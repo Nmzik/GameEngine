@@ -45,6 +45,7 @@ class GameWorld
 	GameData data;
 	CacheDatFile cacheFile;
 	SpaceGrid spaceGrid;
+	NodeGrid nodeGrid;
 	ResourceManager* _ResourceManager;
 	//SoundManager sound;
 	PhysicsDebugDrawer debug;
@@ -112,7 +113,7 @@ public:
 	void createPedestrian();
 	void createVehicle(glm::vec3 position);
 	void Update();
-	void UpdateTraffic(Camera* camera);
+	void UpdateTraffic(Camera* camera, glm::vec3 pos);
 	Vehicle* FindNearestVehicle();
 	void DetectWeaponHit(glm::vec3 CameraPosition, glm::vec3 lookDirection);
 	void update(float delta_time);

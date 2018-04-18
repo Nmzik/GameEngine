@@ -106,14 +106,11 @@ Vehicle::~Vehicle()
 	delete m_vehicle;
 	m_vehicle = NULL;
 
-	delete vehicle;
+	//delete vehicle;
 }
 
 glm::mat4 Vehicle::GetMat4()
 {
-	if (m_carChassis->getWorldTransform().getOrigin().getZ() <= -150) {
-		m_carChassis->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), m_carChassis->getWorldTransform().getOrigin() + btVector3(0, 0, 300)));
-	}
 	glm::mat4 model;
 
 	m_carChassis->getWorldTransform().getOpenGLMatrix(&model[0][0]);

@@ -89,6 +89,10 @@ GameData::GameData()
 					YftEntries[entry.NameHash] = &entry;
 					YftEntries[entry.ShortNameHash] = &entry;
 				}
+				if (extension == ".ynd") {
+					YndEntries[entry.NameHash] = &entry;
+					YndEntries[entry.ShortNameHash] = &entry;
+				}
 				if (extension == ".ytd") {
 					YtdEntries[entry.NameHash] = &entry;
 					YtdEntries[entry.ShortNameHash] = &entry;
