@@ -3,9 +3,7 @@
 #include "Vehicle.h"
 #include "YddLoader.h"
 #include <array>
-//#include "GameWorld.h"
 
-//class GameWorld;
 struct CharacterWeaponSlot {
 	// Assuming these match the entries in weapon.dat
 	uint32_t weaponId;

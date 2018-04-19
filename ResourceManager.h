@@ -2,28 +2,28 @@
 
 #include <thread>
 #include <mutex>
+#include "includes.h"
 #include "GameWorld.h"
 
 class GameWorld;
 
 class ResourceManager
 {
-	std::thread LoadingResourcesThread;
+	std::thread ResourcesThread;
 	std::mutex mylock;
 
-	//std::vector <Model*> waitingList;
+	std::vector<Resource*> waitingList;
 	GameWorld *gameworld;
 public:
-	std::mutex mainLock;
 
 	ResourceManager(GameWorld *world);
 	~ResourceManager();
 
-	/*void AddToWaitingList(Model* model) {
+	void AddToWaitingList(Resource* res) {
 		mylock.lock();
-		waitingList.push_back(model);
+		waitingList.push_back(res);
 		mylock.unlock();
-	}*/
+	}
 
 	void update();
 };

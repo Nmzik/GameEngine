@@ -1,11 +1,7 @@
 #pragma once
-#include "fstream"
-#include <iostream>
-#include <vector>
-#include "zlib.h"
-#include "glm.hpp"
-#include "RpfEntry.h"
 #include "YdrLoader.h"
+#include "zlib.h"
+#include "RpfEntry.h"
 
 struct MetaStructureEntryInfo_s {
 	uint32_t EntryNameHash;

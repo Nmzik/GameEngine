@@ -134,6 +134,7 @@
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GameWorld.h" />
     <ClInclude Include="GTAEncryption.h" />
+    <ClInclude Include="includes.h" />
     <ClInclude Include="InGameState.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="Light.h" />

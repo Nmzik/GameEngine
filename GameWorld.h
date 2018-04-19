@@ -1,4 +1,5 @@
 #pragma once
+#include "includes.h"
 #include "SoundManager.h"
 #include "Player.h"
 #include "Vehicle.h"
@@ -67,6 +68,8 @@ public:
 	std::vector<Player*> pedestrians;
 	std::vector<Vehicle*> vehicles;
 
+	std::mutex resources_lock;
+	std::vector<Resource*> resources;
 	RenderList renderList;
 
 	bool renderProxies = true;
@@ -97,6 +100,12 @@ public:
 	void LoadYBN(uint32_t hash);
 
 	void GetVisibleYmaps(Shader* shader, Camera* camera);
+
+	void LoadQueuedResources();
+
+	GameData* getGameData() {
+		return &data;
+	}
 
 	ResourceManager* GetResourceManager() {
 		return _ResourceManager;
