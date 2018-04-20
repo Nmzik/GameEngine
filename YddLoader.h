@@ -5,7 +5,7 @@ class YddLoader
 {
 public:
 	std::unordered_map<uint32_t, YdrLoader*> YdrFiles;
-	YtdFile * externalYtd;
+	YtdLoader * externalYtd;
 	uint32_t time;
 	YddLoader(memstream& file, btDiscreteDynamicsWorld* world);
 	~YddLoader();

@@ -74,6 +74,19 @@ void ResourceManager::update()
 				}
 			}
 				break;
+			case ytd:
+			{
+				auto it = gameworld->getGameData()->YtdEntries.find(res->Hash);
+				if (it != gameworld->getGameData()->YtdEntries.end())
+				{
+					gameworld->getGameData()->ExtractFileResource(*(it->second), res->Buffer);
+
+					gameworld->resources_lock.lock();
+					gameworld->resources.push_back(res);
+					gameworld->resources_lock.unlock();
+				}
+			}
+			break;
 			}
 
 		}

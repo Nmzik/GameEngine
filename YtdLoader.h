@@ -37,13 +37,13 @@ struct TextureBase{
 	uint32_t Unknown_3Ch; // 0x00000000
 };
 
-class YtdFile
+class YtdLoader
 {
 public:
 	uint32_t time;
 	std::vector<uint32_t> TextureNameHashes;
 
-	YtdFile(memstream& file);
-	~YtdFile();
+	YtdLoader(memstream& file);
+	~YtdLoader();
 };
 

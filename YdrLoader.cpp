@@ -102,7 +102,7 @@ YdrLoader::YdrLoader(memstream& file, btDiscreteDynamicsWorld* world, bool isYft
 
 			file.seekg(_ShaderGroup.TextureDictionaryPointer);
 			//printf("YTD INSIDE YDR\n");
-			ytdFile = new YtdFile(file);
+			Ytd = new YtdLoader(file);
 		}
 
 		TranslatePTR(_ShaderGroup.ShadersPointer);
@@ -342,7 +342,7 @@ YdrLoader::~YdrLoader()
 	{
 		delete material;
 	}
-	delete ytdFile;
+	delete Ytd;
 	for (auto& mesh : meshes)
 	{
 		delete mesh;

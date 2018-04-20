@@ -1,6 +1,6 @@
 #include "YtdLoader.h"
 
-YtdFile::YtdFile(memstream& file)
+YtdLoader::YtdLoader(memstream& file)
 {
 	enum TextureFormat
 	{
@@ -197,7 +197,7 @@ YtdFile::YtdFile(memstream& file)
 }
 
 
-YtdFile::~YtdFile()
+YtdLoader::~YtdLoader()
 {
 	for (int i = 0; i < TextureNameHashes.size(); i++)
 	{

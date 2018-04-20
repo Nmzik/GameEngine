@@ -59,7 +59,7 @@ public:
 	std::unordered_map<uint32_t, YdrLoader*> ydrLoader;
 	std::unordered_map<uint32_t, YddLoader*> yddLoader;
 	std::unordered_map<uint32_t, YftLoader*> yftLoader;
-	std::unordered_map<uint32_t, YtdFile*> ytdLoader;
+	std::unordered_map<uint32_t, YtdLoader*> ytdLoader;
 	//std::vector<YndLoader> yndLoader;
 	std::unordered_map<uint32_t, YbnLoader*> ybnLoader;
 	std::vector<YtypLoader*> ytypLoader;
@@ -86,7 +86,7 @@ public:
 	YmapLoader* GetYmap(uint32_t hash);
 	bool LoadYTYP(uint32_t hash);
 
-	YtdFile* LoadYTD(uint32_t hash);
+	YtdLoader* LoadYTD(uint32_t hash);
 
 	void LoadYDR(Camera* camera, uint32_t hash, uint32_t TextureDictionary, glm::vec3 BSCentre, float BSRadius, glm::mat4 & matrix);
 	YdrLoader* GetYdr(uint32_t hash, uint32_t TextureDictionaryHash);

@@ -90,7 +90,7 @@ GameWorld::GameWorld()
 
 				memstream stream(outputBuffer.data(), outputBuffer.size());
 
-				YtdFile* file = new YtdFile(stream, 3523992128);
+				YtdLoader* file = new YtdLoader(stream, 3523992128);
 			}
 	}*/
 	//*LoadYTD(3523992128); //water.ytd
@@ -148,7 +148,7 @@ GameWorld::GameWorld()
 
 			memstream stream(outputBuffer.data(), outputBuffer.size());
 
-			YtdFile* file = new YtdFile(stream);
+			YtdLoader* file = new YtdLoader(stream);
 		}
 	}
 
@@ -278,8 +278,7 @@ YmapLoader* GameWorld::GetYmap(uint32_t hash)
 		return it->second;
 	}
 	else {
-		Resource *res = new Resource(ymap, hash);
-		GetResourceManager()->AddToWaitingList(res);
+		GetResourceManager()->AddToWaitingList(new Resource(ymap, hash));
 	}
 
 	return nullptr;
@@ -304,32 +303,18 @@ bool GameWorld::LoadYTYP(uint32_t hash)
 	}
 }
 
-YtdFile* GameWorld::LoadYTD(uint32_t hash)
+YtdLoader* GameWorld::LoadYTD(uint32_t hash)
 {
 	auto it = ytdLoader.find(hash);
 	if (it != ytdLoader.end())
 	{
 		it->second->time = SDL_GetTicks();
-
 		return it->second;
 	}
-
-	auto iter = data.YtdEntries.find(hash);
-	if (iter != data.YtdEntries.end())
-	{
-		std::cout << "YTD Found " << iter->second->Name << std::endl;
-		auto& element = *(iter->second);
-		std::vector<uint8_t> outputBuffer;
-		data.ExtractFileResource(element, outputBuffer);
-
-		memstream stream(outputBuffer.data(), outputBuffer.size());
-
-		YtdFile* file = new YtdFile(stream);
-		ytdLoader[hash] = file;
-		file->time = SDL_GetTicks();
-
-		return file;
+	else {
+		GetResourceManager()->AddToWaitingList(new Resource(ytd, hash));
 	}
+	return nullptr;
 }
 
 void GameWorld::LoadYDR(Camera* camera, uint32_t hash, uint32_t TextureDictionary, glm::vec3 BSCentre, float BSRadius, glm::mat4 & matrix)
@@ -353,8 +338,8 @@ YdrLoader * GameWorld::GetYdr(uint32_t hash, uint32_t TextureDictionaryHash)
 		return iter->second;
 	}
 	else {
-		Resource *res = new Resource(ydr, hash);
-		GetResourceManager()->AddToWaitingList(res);
+		GetResourceManager()->AddToWaitingList(new Resource(ydr, hash, TextureDictionaryHash));
+		LoadYTD(TextureDictionaryHash);
 	}
 	return nullptr;
 }
@@ -384,8 +369,8 @@ YddLoader * GameWorld::GetYdd(uint32_t hash, uint32_t TextureDictionaryHash)
 		return iter->second;
 	}
 	else {
-		Resource *res = new Resource(ydd, hash);
-		GetResourceManager()->AddToWaitingList(res);
+		GetResourceManager()->AddToWaitingList(new Resource(ydd, hash, TextureDictionaryHash));
+		LoadYTD(TextureDictionaryHash);
 	}
 	return nullptr;
 }
@@ -411,8 +396,8 @@ YftLoader * GameWorld::GetYft(uint32_t hash, uint32_t TextureDictionaryHash)
 		return iter->second;
 	}
 	else {
-		Resource *res = new Resource(yft, hash);
-		GetResourceManager()->AddToWaitingList(res);
+		GetResourceManager()->AddToWaitingList(new Resource(yft, hash, TextureDictionaryHash));
+		LoadYTD(TextureDictionaryHash);
 	}
 	return nullptr;
 }
@@ -601,38 +586,46 @@ void GameWorld::LoadQueuedResources()
 		}
 		case ydr:
 		{
-			//YtdFile* ytd = LoadYTD(TextureDictionaryHash);
+			YtdLoader* ytd = LoadYTD((*it)->TextureDictionaryHash);
 			YdrLoader *newYdr = new YdrLoader(stream, dynamicsWorld);
 			ydrLoader[(*it)->Hash] = newYdr;
 			newYdr->time = SDL_GetTicks();
-			/*if (ytd) {
+			if (ytd) {
 				newYdr->externalYtd = ytd;
 				newYdr->externalYtd->time = SDL_GetTicks();
-			}*/
+			}
 			break;
 		}
 		case ydd:
 		{
-			//YtdFile * ytd = LoadYTD(TextureDictionaryHash);
+			YtdLoader * ytd = LoadYTD((*it)->TextureDictionaryHash);
 			YddLoader* newYdd = new YddLoader(stream, dynamicsWorld);
 			yddLoader[(*it)->Hash] = newYdd;
 			newYdd->time = SDL_GetTicks();
-			/*if (ytd) {
+			if (ytd) {
 				newYdd->externalYtd = ytd;
 				newYdd->externalYtd->time = SDL_GetTicks();
-			}*/
+			}
 			break;
 		}
 		case yft:
 		{
-			//YtdFile* ytd = LoadYTD(TextureDictionaryHash);
+			YtdLoader* ytd = LoadYTD((*it)->TextureDictionaryHash);
 			YftLoader *newYft = new YftLoader(stream, false, dynamicsWorld);
 			yftLoader[(*it)->Hash] = newYft;
 			newYft->time = SDL_GetTicks();
-			/*if (ytd) {
+			if (ytd) {
 				newYft->YdrFile->externalYtd = ytd;
 				newYft->YdrFile->externalYtd->time = SDL_GetTicks();
-			}*/
+			}
+			break;
+		}
+		case ytd:
+		{
+			YtdLoader *newYtd = new YtdLoader(stream);
+			ytdLoader[(*it)->Hash] = newYtd;
+			newYtd->time = SDL_GetTicks();
+			break;
 		}
 		}
 

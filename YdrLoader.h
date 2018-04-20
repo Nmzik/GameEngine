@@ -289,18 +289,18 @@ struct DrawableModel {
 	uint32_t Unknown_2Ch;
 };
 
-class YtdFile;
+class YtdLoader;
 
 class YdrLoader
 {
 	friend class YbnLoader;
 
 	std::vector<Mesh*> meshes;
-	YtdFile* ytdFile;
+	YtdLoader* Ytd;
 	YbnLoader* ybnfile;
 	std::vector<Material*> materials;
 public:
-	YtdFile * externalYtd;
+	YtdLoader * externalYtd;
 	bool isVisible = false;
 	uint32_t time;
 	bool Loaded = false;
