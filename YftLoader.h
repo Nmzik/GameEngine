@@ -8,7 +8,7 @@ public:
 	uint32_t time;
 	std::vector<YdrLoader*> wheels;
 
-	YftLoader(memstream& file, bool need, btDiscreteDynamicsWorld* world);
+	YftLoader(memstream& file, int32_t systemSize, bool need, btDiscreteDynamicsWorld* world);
 	~YftLoader();
 };
 

@@ -1,6 +1,6 @@
 #include "YtdLoader.h"
 
-YtdLoader::YtdLoader(memstream& file)
+YtdLoader::YtdLoader(memstream& file, int32_t systemSize)
 {
 	enum TextureFormat
 	{
@@ -93,7 +93,7 @@ YtdLoader::YtdLoader(memstream& file)
 		//READ ACTUAL DATA
 		TranslatePTR(Texture.DataPointer);
 
-		Texture.DataPointer += 8192;
+		Texture.DataPointer += systemSize;
 
 		int fullLength = 0;
 		int length = Texture.Stride * Texture.Height;

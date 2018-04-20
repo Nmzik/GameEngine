@@ -307,7 +307,7 @@ public:
 	std::vector<Mesh*>& getMeshes() {
 		return meshes;
 	}
-	YdrLoader(memstream& file, btDiscreteDynamicsWorld* world, bool isYft = false);
+	YdrLoader(memstream& file, int32_t systemSize, btDiscreteDynamicsWorld* world, bool isYft = false);
 	~YdrLoader();
 
 	void UploadMeshes();

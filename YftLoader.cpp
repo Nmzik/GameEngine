@@ -1,6 +1,6 @@
 #include "YftLoader.h"
 
-YftLoader::YftLoader(memstream& file, bool need, btDiscreteDynamicsWorld* world)
+YftLoader::YftLoader(memstream& file, int32_t systemSize, bool need, btDiscreteDynamicsWorld* world)
 {
 	ResourceFileBase resourceFileBase;
 	file.read((char*)&resourceFileBase, sizeof(ResourceFileBase));
@@ -73,7 +73,7 @@ YftLoader::YftLoader(memstream& file, bool need, btDiscreteDynamicsWorld* world)
 
 	file.seekg(FragType.DrawablePointer);
 
-	YdrFile = new YdrLoader(file, world, true);
+	YdrFile = new YdrLoader(file, systemSize, world, true);
 
 	struct {
 		uint32_t VFT;
@@ -230,7 +230,7 @@ YftLoader::YftLoader(memstream& file, bool need, btDiscreteDynamicsWorld* world)
 
 			file.seekg(FragPhysTypeChild.Drawable1Pointer);
 
-			YdrLoader* ydr = new YdrLoader(file, world, true);
+			YdrLoader* ydr = new YdrLoader(file, systemSize, world, true);
 
 			if (ydr->getMeshes().size() != 0) {
 				wheels.push_back(ydr);

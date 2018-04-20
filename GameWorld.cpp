@@ -118,7 +118,7 @@ GameWorld::GameWorld()
 		data.ExtractFileResource(element, outputBuffer);
 
 		memstream stream(outputBuffer.data(), outputBuffer.size());
-		playerYDD = new YddLoader(stream, dynamicsWorld);
+		playerYDD = new YddLoader(stream, element.SystemSize, dynamicsWorld);
 
 		player[0] = new Player(glm::vec3(2137, 3656, 100), playerYDD, dynamicsWorld);
 		player[0]->getPhysCharacter()->setGravity(btVector3(0, 0, 0));
@@ -137,7 +137,7 @@ GameWorld::GameWorld()
 		data.ExtractFileResource(element, outputBuffer);
 
 		memstream stream(outputBuffer.data(), outputBuffer.size());
-		skydome = new YddLoader(stream, dynamicsWorld);
+		skydome = new YddLoader(stream, element.SystemSize, dynamicsWorld);
 		auto iter = data.YtdEntries.find(2640562617);
 		if (iter != data.YtdEntries.end())
 		{
@@ -148,7 +148,7 @@ GameWorld::GameWorld()
 
 			memstream stream(outputBuffer.data(), outputBuffer.size());
 
-			YtdLoader* file = new YtdLoader(stream);
+			YtdLoader* file = new YtdLoader(stream, element.SystemSize);
 		}
 	}
 
@@ -587,7 +587,7 @@ void GameWorld::LoadQueuedResources()
 		case ydr:
 		{
 			YtdLoader* ytd = LoadYTD((*it)->TextureDictionaryHash);
-			YdrLoader *newYdr = new YdrLoader(stream, dynamicsWorld);
+			YdrLoader *newYdr = new YdrLoader(stream, (*it)->SystemSize, dynamicsWorld);
 			ydrLoader[(*it)->Hash] = newYdr;
 			newYdr->time = SDL_GetTicks();
 			if (ytd) {
@@ -599,7 +599,7 @@ void GameWorld::LoadQueuedResources()
 		case ydd:
 		{
 			YtdLoader * ytd = LoadYTD((*it)->TextureDictionaryHash);
-			YddLoader* newYdd = new YddLoader(stream, dynamicsWorld);
+			YddLoader* newYdd = new YddLoader(stream, (*it)->SystemSize, dynamicsWorld);
 			yddLoader[(*it)->Hash] = newYdd;
 			newYdd->time = SDL_GetTicks();
 			if (ytd) {
@@ -611,7 +611,7 @@ void GameWorld::LoadQueuedResources()
 		case yft:
 		{
 			YtdLoader* ytd = LoadYTD((*it)->TextureDictionaryHash);
-			YftLoader *newYft = new YftLoader(stream, false, dynamicsWorld);
+			YftLoader *newYft = new YftLoader(stream, (*it)->SystemSize, false, dynamicsWorld);
 			yftLoader[(*it)->Hash] = newYft;
 			newYft->time = SDL_GetTicks();
 			if (ytd) {
@@ -622,7 +622,7 @@ void GameWorld::LoadQueuedResources()
 		}
 		case ytd:
 		{
-			YtdLoader *newYtd = new YtdLoader(stream);
+			YtdLoader *newYtd = new YtdLoader(stream, 0);
 			ytdLoader[(*it)->Hash] = newYtd;
 			newYtd->time = SDL_GetTicks();
 			break;
@@ -658,7 +658,7 @@ void GameWorld::createVehicle(glm::vec3 position)
 			data.ExtractFileResource(element, outputBuffer);
 
 			memstream stream(outputBuffer.data(), outputBuffer.size());
-			YftLoader *vehicle = new YftLoader(stream, true, dynamicsWorld);
+			YftLoader *vehicle = new YftLoader(stream, element.SystemSize, true, dynamicsWorld);
 			it->second.file = vehicle;
 		}
 

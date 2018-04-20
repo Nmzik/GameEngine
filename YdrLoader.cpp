@@ -1,6 +1,6 @@
 #include "YdrLoader.h"
 
-YdrLoader::YdrLoader(memstream& file, btDiscreteDynamicsWorld* world, bool isYft)
+YdrLoader::YdrLoader(memstream& file, int32_t systemSize, btDiscreteDynamicsWorld* world, bool isYft)
 {
 	Material* material = new Material(0, 0, 0, 0);
 
@@ -102,7 +102,7 @@ YdrLoader::YdrLoader(memstream& file, btDiscreteDynamicsWorld* world, bool isYft
 
 			file.seekg(_ShaderGroup.TextureDictionaryPointer);
 			//printf("YTD INSIDE YDR\n");
-			Ytd = new YtdLoader(file);
+			Ytd = new YtdLoader(file, systemSize);
 		}
 
 		TranslatePTR(_ShaderGroup.ShadersPointer);

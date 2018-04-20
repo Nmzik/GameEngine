@@ -28,7 +28,7 @@ void ResourceManager::update()
 				if (it != gameworld->getGameData()->YmapEntries.end())
 				{
 					gameworld->getGameData()->ExtractFileResource(*(it->second), res->Buffer);
-
+					res->SystemSize = it->second->SystemSize;
 					gameworld->resources_lock.lock();
 					gameworld->resources.push_back(res);
 					gameworld->resources_lock.unlock();
@@ -41,7 +41,7 @@ void ResourceManager::update()
 				if (it != gameworld->getGameData()->YdrEntries.end())
 				{
 					gameworld->getGameData()->ExtractFileResource(*(it->second), res->Buffer);
-
+					res->SystemSize = it->second->SystemSize;
 					gameworld->resources_lock.lock();
 					gameworld->resources.push_back(res);
 					gameworld->resources_lock.unlock();
@@ -54,7 +54,7 @@ void ResourceManager::update()
 				if (it != gameworld->getGameData()->YddEntries.end())
 				{
 					gameworld->getGameData()->ExtractFileResource(*(it->second), res->Buffer);
-
+					res->SystemSize = it->second->SystemSize;
 					gameworld->resources_lock.lock();
 					gameworld->resources.push_back(res);
 					gameworld->resources_lock.unlock();
@@ -67,7 +67,7 @@ void ResourceManager::update()
 				if (it != gameworld->getGameData()->YftEntries.end())
 				{
 					gameworld->getGameData()->ExtractFileResource(*(it->second), res->Buffer);
-
+					res->SystemSize = it->second->SystemSize;
 					gameworld->resources_lock.lock();
 					gameworld->resources.push_back(res);
 					gameworld->resources_lock.unlock();
@@ -80,7 +80,7 @@ void ResourceManager::update()
 				if (it != gameworld->getGameData()->YtdEntries.end())
 				{
 					gameworld->getGameData()->ExtractFileResource(*(it->second), res->Buffer);
-
+					res->SystemSize = it->second->SystemSize;
 					gameworld->resources_lock.lock();
 					gameworld->resources.push_back(res);
 					gameworld->resources_lock.unlock();

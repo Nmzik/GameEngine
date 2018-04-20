@@ -1,6 +1,6 @@
 #include "YddLoader.h"
 
-YddLoader::YddLoader(memstream& file, btDiscreteDynamicsWorld* world)
+YddLoader::YddLoader(memstream& file, int32_t systemSize, btDiscreteDynamicsWorld* world)
 {
 	ResourceFileBase resourceFileBase;
 	file.read((char*)&resourceFileBase, sizeof(ResourceFileBase));
@@ -51,7 +51,7 @@ YddLoader::YddLoader(memstream& file, btDiscreteDynamicsWorld* world)
 
 		file.seekg(DataPointer);
 
-		YdrLoader* YdrFile = new YdrLoader(file, world, false);
+		YdrLoader* YdrFile = new YdrLoader(file, systemSize, world, false);
 		YdrFiles[Hashes[i]] = YdrFile;
 
 		file.seekg(DrawablePointer);

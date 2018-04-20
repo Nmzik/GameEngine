@@ -43,7 +43,7 @@ public:
 	uint32_t time;
 	std::vector<uint32_t> TextureNameHashes;
 
-	YtdLoader(memstream& file);
+	YtdLoader(memstream& file, int32_t systemSize);
 	~YtdLoader();
 };
 

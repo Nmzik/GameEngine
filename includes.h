@@ -16,6 +16,7 @@ public:
 	Type type;
 	uint32_t Hash;
 	uint32_t TextureDictionaryHash;
+	int32_t SystemSize;
 	std::vector<uint8_t> Buffer;
 
 	Resource(Type t, uint32_t hash, uint32_t TextureHash = 0) : type(t), Hash(hash), TextureDictionaryHash(TextureHash) {
