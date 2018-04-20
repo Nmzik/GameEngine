@@ -16,6 +16,7 @@ void ResourceManager::update()
 {
 	while (true) {
 		std::unique_lock<std::mutex> lock(mylock);
+
 		if (waitingList.size() > 0) {
 			auto res = waitingList.back();
 			waitingList.pop_back();

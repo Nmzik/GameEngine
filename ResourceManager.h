@@ -21,7 +21,17 @@ public:
 
 	void AddToWaitingList(Resource* res) {
 		mylock.lock();
-		waitingList.push_back(res);
+
+		bool found = false;
+
+		for (int i = 0; i < waitingList.size(); i++)
+		{
+			if (waitingList[i]->Hash == res->Hash && waitingList[i]->type == res->type) found = true;
+		}
+
+		if (!found)
+			waitingList.push_back(res);
+
 		mylock.unlock();
 	}
 
