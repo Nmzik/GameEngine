@@ -808,16 +808,48 @@ bool GameWorld::DetectInWater(glm::vec3 Position) {
 void GameWorld::ClearTestFunction()
 {
 	printf("PRESSED");
-	player[0]->getPhysCharacter()->setGravity(btVector3(0, 0, 0));
-	/*ybnLoader.resize(300);
-	for (int i = 0; i < 100; i++)
+	for (auto it = ybnLoader.begin(); it != ybnLoader.end();)
 	{
-		LoadYBN(2081927167);
+			delete it->second;
+			it = ybnLoader.erase(it);
+
 	}
 
-	for (std::vector<YbnLoader*>::iterator it = ybnLoader.begin(); it != ybnLoader.end();)
+	for (auto it = ymapLoader.begin(); it != ymapLoader.end();)
 	{
-		delete *it;
-		it = ybnLoader.erase(it);
-	}*/
+			delete it->second;
+			it = ymapLoader.erase(it);
+	}
+
+	for (auto it = ydrLoader.begin(); it != ydrLoader.end();)
+	{
+
+			delete it->second;
+			it = ydrLoader.erase(it);
+
+	}
+
+	for (auto it = yddLoader.begin(); it != yddLoader.end();)
+	{
+
+			delete it->second;
+			it = yddLoader.erase(it);
+
+	}
+
+	for (auto it = yftLoader.begin(); it != yftLoader.end();)
+	{
+
+			delete it->second;
+			it = yftLoader.erase(it);
+
+	}
+
+	for (auto it = ytdLoader.begin(); it != ytdLoader.end();)
+	{
+
+			delete it->second;
+			it = ytdLoader.erase(it);
+		
+	}
 }

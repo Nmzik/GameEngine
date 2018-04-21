@@ -9,6 +9,7 @@ YdrLoader::YdrLoader(memstream& file, int32_t systemSize, btDiscreteDynamicsWorl
 
 	DrawableBase drawBase;
 	file.read((char*)&drawBase, sizeof(drawBase));
+
 	if (drawBase.DrawableModelsXPointer != 0) {
 		struct {
 			uint64_t NamePointer;
@@ -52,39 +53,38 @@ YdrLoader::YdrLoader(memstream& file, int32_t systemSize, btDiscreteDynamicsWorl
 		//READ COLLISION DATA FROM YDR
 		if (isYft) {
 			file.read((char*)&FragDrawable, sizeof(FragDrawable));
-		}
-		else
-			file.read((char*)&Drawable, sizeof(Drawable));
 
-		if (Drawable.LightAttributesPointer != 0 && !isYft) {
-			TranslatePTR(Drawable.LightAttributesPointer);
-
-			file.seekg(Drawable.LightAttributesPointer);
-
-			std::vector<LightAttributes_s> lightAttributes_s;
-			lightAttributes_s.resize(Drawable.LightAttributesCount1);
-
-			for (int i = 0; i < Drawable.LightAttributesCount1; i++)
-			{
-				LightAttributes_s light;
-				file.read((char*)&light, sizeof(LightAttributes_s));
-				lightAttributes_s.push_back(light);
-			}
-		}
-		if (isYft) {
 			if (FragDrawable.BoundPointer != 0) {
 				TranslatePTR(FragDrawable.BoundPointer);
 				file.seekg(FragDrawable.BoundPointer);
 
 				ybnfile = new YbnLoader(world, file);
 			}
-
 		}
-		else if (Drawable.BoundPointer != 0) {
-			TranslatePTR(Drawable.BoundPointer);
-			file.seekg(Drawable.BoundPointer);
+		else {
+			file.read((char*)&Drawable, sizeof(Drawable));
 
-			ybnfile = new YbnLoader(world, file);
+			if (Drawable.LightAttributesPointer != 0) {
+				TranslatePTR(Drawable.LightAttributesPointer);
+
+				file.seekg(Drawable.LightAttributesPointer);
+
+				std::vector<LightAttributes_s> lightAttributes_s;
+				lightAttributes_s.resize(Drawable.LightAttributesCount1);
+
+				for (int i = 0; i < Drawable.LightAttributesCount1; i++)
+				{
+					LightAttributes_s light;
+					file.read((char*)&light, sizeof(LightAttributes_s));
+					lightAttributes_s.push_back(light);
+				}
+			}
+			if (Drawable.BoundPointer != 0) {
+				TranslatePTR(Drawable.BoundPointer);
+				file.seekg(Drawable.BoundPointer);
+
+				ybnfile = new YbnLoader(world, file);
+			}
 		}
 
 		//Shader stuff
@@ -97,11 +97,9 @@ YdrLoader::YdrLoader(memstream& file, int32_t systemSize, btDiscreteDynamicsWorl
 
 		file.read((char*)&_ShaderGroup, sizeof(ShaderGroup));
 
-		if (_ShaderGroup.TextureDictionaryPointer != 0 && drawBase.ShaderGroupPointer != 0) {
+		if (_ShaderGroup.TextureDictionaryPointer != 0) {
 			TranslatePTR(_ShaderGroup.TextureDictionaryPointer);
-
 			file.seekg(_ShaderGroup.TextureDictionaryPointer);
-			//printf("YTD INSIDE YDR\n");
 			Ytd = new YtdLoader(file, systemSize);
 		}
 

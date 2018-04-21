@@ -104,33 +104,55 @@ YtdLoader::YtdLoader(memstream& file, int32_t systemSize)
 		}
 
 		unsigned int format;
+		unsigned int InternalFormat;
+		bool compressed = false;
+
 		switch (Texture.Format)
 		{
 		case D3DFMT_DXT1:
+			compressed = true;
 			format = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
 			break;
 		case D3DFMT_DXT3:
+			compressed = true;
 			format = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
 			break;
 		case D3DFMT_DXT5:
+			compressed = true;
 			format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
 			break;
 		case D3DFMT_BC7:
+			compressed = true;
 			format = GL_COMPRESSED_RGBA_BPTC_UNORM;
+			break;
 		case D3DFMT_ATI1:
+			compressed = true;
 			format = GL_COMPRESSED_RED_RGTC1;
+			break;
 		case D3DFMT_ATI2:
+			compressed = true;
 			format = GL_COMPRESSED_RG_RGTC2;
+			break;
 		case D3DFMT_A8R8G8B8:
+			InternalFormat = GL_RGBA8;
 			format = GL_UNSIGNED_INT_8_8_8_8_REV;
+			break;
 		case D3DFMT_A1R5G5B5:
+			InternalFormat = GL_RGB5_A1;
 			format = GL_UNSIGNED_SHORT_1_5_5_5_REV;
+			break;
 		case D3DFMT_A8:
+			InternalFormat = GL_RGB8;
 			format = GL_COMPRESSED_RED_GREEN_RGTC2_EXT;
+			break;
 		case D3DFMT_A8B8G8R8:
+			InternalFormat = GL_RGBA8;
 			format = GL_COMPRESSED_RED_GREEN_RGTC2_EXT;
+			break;
 		case D3DFMT_L8:
+			InternalFormat = GL_LUMINANCE8;
 			format = GL_COMPRESSED_RED_GREEN_RGTC2_EXT;
+			break;
 		default:
 			printf("UNSUPPORTED FORMAT\n");
 			break;
@@ -155,7 +177,7 @@ YtdLoader::YtdLoader(memstream& file, int32_t systemSize)
 			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 			//glPixelStorei(GL_UNPACK_ALIGNMENT, 1);*/
 
-			if (Texture.Format == D3DFMT_DXT1 || Texture.Format == D3DFMT_DXT3 || Texture.Format == D3DFMT_DXT5 || Texture.Format == D3DFMT_BC7 || Texture.Format == D3DFMT_ATI1 || Texture.Format == D3DFMT_ATI2)
+			if (compressed)
 			{
 				unsigned int blockSize = (format == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT || format == GL_COMPRESSED_RED_RGTC1) ? 8 : 16;
 				unsigned int offset = 0;
@@ -167,23 +189,24 @@ YtdLoader::YtdLoader(memstream& file, int32_t systemSize)
 					glCompressedTexImage2D(GL_TEXTURE_2D, level, format, Texture.Width, Texture.Height, 0, size, &file._buffer.p[Texture.DataPointer] + offset);
 
 					offset += size;
-					Texture.Width /= 2;
-					Texture.Height /= 2;
+					Texture.Width = std::max(Texture.Width / 2, 1);
+					Texture.Height = std::max(Texture.Height / 2, 1);
 				}
 
 			}
 			else {
+				unsigned int offset = 0;
 
-				if (Texture.Format == D3DFMT_A8R8G8B8)
-					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, Texture.Width, Texture.Height, 0, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, &file._buffer.p[Texture.DataPointer]);
-				if (Texture.Format == D3DFMT_A1R5G5B5)
-					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, Texture.Width, Texture.Height, 0, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &file._buffer.p[Texture.DataPointer]);
-				if (Texture.Format == D3DFMT_A8) //NO CLUE?????
-					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, Texture.Width, Texture.Height, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, &file._buffer.p[Texture.DataPointer]);
-				if (Texture.Format == D3DFMT_A8B8G8R8)
-					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, Texture.Width, Texture.Height, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV, &file._buffer.p[Texture.DataPointer]);
-				if (Texture.Format == D3DFMT_L8)
-					glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE8, Texture.Width, Texture.Height, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, &file._buffer.p[Texture.DataPointer]);
+				for (unsigned int level = 0; level < Texture.Levels; ++level)
+				{
+					unsigned int size = ((Texture.Width + 1) >> 1)  * ((Texture.Height + 1) >> 1) * 4;
+
+					glTexImage2D(GL_TEXTURE_2D, 0, InternalFormat, Texture.Width, Texture.Height, 0, GL_BGRA, format, &file._buffer.p[Texture.DataPointer] + offset);
+
+					offset += size;
+					Texture.Width /= 2;
+					Texture.Height /= 2;
+				}
 			}
 
 
