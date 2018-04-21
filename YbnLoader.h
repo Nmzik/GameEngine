@@ -149,6 +149,10 @@ class YbnLoader
 	btRigidBody * rigidBody;
 	btDiscreteDynamicsWorld* CollisionWorld;
 	btCompoundShape* compound;
+	std::vector<btBoxShape*> boxShapes;
+	std::vector<btCylinderShapeZ*> CylinderShapes;
+	std::vector<btCapsuleShapeZ*> CapsuleShapes;
+	std::vector<btSphereShape*> SphereShapes;
 	btTriangleIndexVertexArray* VertIndicesArray;
 	btBvhTriangleMeshShape* trishape;
 	std::vector<YbnLoader*> ybns;

@@ -20,11 +20,20 @@ void Material::bind(Shader* shader)
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, diffuseTextureID);
 	//set UseNormalMap/use specularmap int values in shaders
+
+	if (bumpTextureID == 0)
+		shader->setBool("UseNormal", false);
+	else {
+		shader->setBool("UseNormal", true);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, bumpTextureID);
+	}
+
 	if (specularTextureID == 0)
 		shader->setBool("UseSpecular", false);
 	else {
 		shader->setBool("UseSpecular", true);
-		glActiveTexture(GL_TEXTURE1);
+		glActiveTexture(GL_TEXTURE2);
 		glBindTexture(GL_TEXTURE_2D, specularTextureID);
 	}
 }

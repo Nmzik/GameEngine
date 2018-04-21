@@ -31,7 +31,6 @@ GameWorld::GameWorld()
 
 			auto it = data.YndEntries.find(fnhash);
 			if (it != data.YndEntries.end()) {
-				printf("FOUND");
 
 				auto& element = *(it->second);
 				std::vector<uint8_t> outputBuffer;

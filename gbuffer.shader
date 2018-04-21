@@ -46,10 +46,12 @@ in vec4 Color;
 
 struct Material {
 	sampler2D diffuse;
+	sampler2D normalMap;
 	sampler2D specular;
 	float shininess;
 };
 
+uniform bool UseNormal;
 uniform bool UseSpecular;
 
 uniform Material material;
@@ -57,7 +59,15 @@ uniform Material material;
 void main()
 {    
     // also store the per-fragment normals into the gbuffer
-    gNormal = normalize(Normal);
+	if (UseNormal) {
+		vec3 normal = texture(material.normalMap, TexCoords).rgb;
+		// transform normal vector to range [-1,1]
+		normal = normalize(normal * 2.0 - 1.0);  // this normal is in tangent space
+		gNormal = normalize(TBN * normal);
+	}
+	else {
+		gNormal = normalize(Normal);
+	}
     // and the diffuse per-fragment color
 	/*vec4 texColor = texture(material.diffuse, TexCoords);
 	if (texColor.a < 0.1)
