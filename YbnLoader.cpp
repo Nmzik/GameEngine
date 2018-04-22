@@ -98,7 +98,7 @@ YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world, memstream& file) : Collisio
 			}
 		}
 
-		if (PolygonBoxes.size() != 0) {
+		/*if (PolygonBoxes.size() != 0) {
 			for (int i = 0; i < PolygonBoxes.size(); i++)
 			{
 				btBoxShape* shape = new btBoxShape(btVector3(0.5, 0.5, 0.5));
@@ -110,7 +110,7 @@ YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world, memstream& file) : Collisio
 				localTrans.setOrigin(btVector3(geom.CenterGeom.x + Vertices[PolygonBoxes[i].boxIndex1].x, geom.CenterGeom.y + Vertices[PolygonBoxes[i].boxIndex1].y, geom.CenterGeom.z + Vertices[PolygonBoxes[i].boxIndex1].z));
 				compound->addChildShape(localTrans, shape);
 			}
-		}
+		}*/
 
 		if (PolygonCapsules.size() != 0) {
 			for (int i = 0; i < PolygonCapsules.size(); i++)

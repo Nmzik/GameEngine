@@ -156,8 +156,11 @@ void InGameState::tick(float delta_time)
 			if (game->getInput()->IsKeyPressed(SDL_SCANCODE_W)) {
 				player->GetCurrentVehicle()->SetThrottle(1.0);
 			}
-			if (game->getInput()->IsKeyPressed(SDL_SCANCODE_S)) {
+			else if (game->getInput()->IsKeyPressed(SDL_SCANCODE_S)) {
 				player->GetCurrentVehicle()->SetThrottle(-1.0);
+			}
+			else {
+				player->GetCurrentVehicle()->SetThrottle(0.0);
 			}
 
 			float steering = 0.0f;

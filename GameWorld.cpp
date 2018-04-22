@@ -10,10 +10,7 @@ GameWorld::GameWorld()
 	solver = new btSequentialImpulseConstraintSolver;
 	dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
 
-	dynamicsWorld->setGravity(btVector3(0, 0, -10));
-
-	btOverlappingPairCallback* _overlappingPairCallback = new btGhostPairCallback();
-	broadphase->getOverlappingPairCache()->setInternalGhostPairCallback(_overlappingPairCallback);
+	dynamicsWorld->setGravity(btVector3(0, 0, -9.8f));
 
 	//Default texture
 	TextureManager::LoadTexture(0, TextureManager::loadTexture("blank.jpg"));
@@ -102,9 +99,7 @@ GameWorld::GameWorld()
 	gameHour = 10;
 	gameMinute = 0;
 
-	debug.setDebugMode(btIDebugDraw::DBG_DrawWireframe |
-		btIDebugDraw::DBG_DrawConstraints |
-		btIDebugDraw::DBG_DrawConstraintLimits);
+	debug.setDebugMode(btIDebugDraw::DBG_DrawWireframe);
 	dynamicsWorld->setDebugDrawer(&debug);
 	//LoadYDR(3186271474, glm::vec3(), glm::quat(), glm::vec3());
 
