@@ -77,7 +77,7 @@ void Game::run() {
 		if (!paused) {
 			gameWorld->update(delta_time);
 			StateManager::get().tick(delta_time);
-			gameWorld->UpdateTraffic(&rendering_system->getCamera(), rendering_system->getCamera().Position);
+			//gameWorld->UpdateTraffic(&rendering_system->getCamera(), rendering_system->getCamera().Position);
 			rendering_system->render(gameWorld.get());
 		}
 

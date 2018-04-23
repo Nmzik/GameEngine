@@ -259,6 +259,8 @@ uint8_t* GTAEncryption::DecryptNGRoundB(uint8_t* data, uint32_t* key, uint32_t t
 
 void GTAEncryption::DecompressBytes(uint8_t * data, uint32_t dataLength, std::vector<uint8_t>& output)
 {
+	output.resize(1024 * 1024);
+
 	z_stream strm;
 
 	/* allocate inflate state */
@@ -267,21 +269,28 @@ void GTAEncryption::DecompressBytes(uint8_t * data, uint32_t dataLength, std::ve
 	strm.opaque = Z_NULL;
 	strm.avail_in = dataLength;
 	strm.next_in = data;
+	strm.avail_out = output.size();
+	strm.next_out = &output[0];
+
 	int ret = inflateInit2(&strm, -MAX_WBITS);
 	if (ret != Z_OK) printf("ERROR IN ZLIB");
 
-	std::vector<uint8_t> buf(1024 * 1024);
-
 	do {
-		strm.avail_out = buf.size();
-		strm.next_out = &buf[0];
-
 		ret = inflate(&strm, Z_NO_FLUSH);
-		if (ret < 0 || ret == Z_NEED_DICT) {
+
+		if (ret < 0) {
 			(void)inflateEnd(&strm);
 			printf("Error %d in zlib uncompress\n", ret);
 		}
-		output.insert(output.end(), &buf[0], &buf[0] + buf.size() - strm.avail_out);
+
+		if (ret != Z_STREAM_END) {
+			int oldSize = output.size();
+			output.resize(output.size() * 2);
+
+			strm.avail_out = oldSize;
+			strm.next_out = output.data() + oldSize;
+		}
+
 	} while (ret != Z_STREAM_END);
 
 	(void)inflateEnd(&strm);
