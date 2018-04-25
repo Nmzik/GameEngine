@@ -2,7 +2,7 @@
 
 YdrLoader::YdrLoader(memstream& file, int32_t systemSize, btDiscreteDynamicsWorld* world, bool isYft)
 {
-	Material* material = new Material(0, 0, 0, 0);
+	material = new Material(0, 0, 0, 0);
 
 	ResourceFileBase resourceFileBase;
 	file.read((char*)&resourceFileBase, sizeof(ResourceFileBase));
@@ -58,7 +58,7 @@ YdrLoader::YdrLoader(memstream& file, int32_t systemSize, btDiscreteDynamicsWorl
 				TranslatePTR(FragDrawable.BoundPointer);
 				file.seekg(FragDrawable.BoundPointer);
 
-				ybnfile = new YbnLoader(world, file);
+				//ybnfile = new YbnLoader(world, file);
 			}
 		}
 		else {
@@ -83,7 +83,7 @@ YdrLoader::YdrLoader(memstream& file, int32_t systemSize, btDiscreteDynamicsWorl
 				TranslatePTR(Drawable.BoundPointer);
 				file.seekg(Drawable.BoundPointer);
 
-				ybnfile = new YbnLoader(world, file);
+				//ybnfile = new YbnLoader(world, file);
 			}
 		}
 
@@ -251,7 +251,7 @@ YdrLoader::YdrLoader(memstream& file, int32_t systemSize, btDiscreteDynamicsWorl
 			file.seekg(drawModel.GeometriesPointer);
 
 			//Optimization
-			meshes.reserve(drawModel.GeometriesCount1);
+			meshes.resize(drawModel.GeometriesCount1);
 
 			for (int i = 0; i < drawModel.GeometriesCount1; i++) //no difference btween geometriescount1 and 2
 			{
@@ -316,12 +316,12 @@ YdrLoader::YdrLoader(memstream& file, int32_t systemSize, btDiscreteDynamicsWorl
 				TranslatePTR(indexbuffer.IndicesPointer);
 
 				if (materials.size() == 0) {
-					Mesh* newMesh = new Mesh(file._buffer.p, vertbuffer.DataPointer1, vertbuffer.VertexCount * vertbuffer.VertexStride, indexbuffer.IndicesPointer, indexbuffer.IndicesCount, (VertexType)decl.Flags, material);
-					meshes.push_back(newMesh);
+					meshes[i].Init(file._buffer.p, vertbuffer.DataPointer1, vertbuffer.VertexCount * vertbuffer.VertexStride, indexbuffer.IndicesPointer, indexbuffer.IndicesCount, (VertexType)decl.Flags, material);
+
 				}
 				else {
-					Mesh* newMesh = new Mesh(file._buffer.p, vertbuffer.DataPointer1, vertbuffer.VertexCount * vertbuffer.VertexStride, indexbuffer.IndicesPointer, indexbuffer.IndicesCount, (VertexType)decl.Flags, materials[ShaderMapping[i]]);
-					meshes.push_back(newMesh);
+					meshes[i].Init(file._buffer.p, vertbuffer.DataPointer1, vertbuffer.VertexCount * vertbuffer.VertexStride, indexbuffer.IndicesPointer, indexbuffer.IndicesCount, (VertexType)decl.Flags, materials[ShaderMapping[i]]);
+
 				}
 
 				file.seekg(pos);
@@ -334,6 +334,8 @@ YdrLoader::YdrLoader(memstream& file, int32_t systemSize, btDiscreteDynamicsWorl
 
 YdrLoader::~YdrLoader()
 {
+	delete material;
+
 	if (ybnfile)
 		delete ybnfile;
 	for (auto& material : materials)
@@ -343,7 +345,7 @@ YdrLoader::~YdrLoader()
 	delete Ytd;
 	for (auto& mesh : meshes)
 	{
-		delete mesh;
+		mesh.Cleanup();
 	}
 }
 
@@ -359,6 +361,6 @@ void YdrLoader::UploadMeshes()
 void YdrLoader::Draw(Shader* shader)
 {
 	for (auto& mesh : meshes) {
-		mesh->Draw(shader);
+		mesh.Draw(shader);
 	}
 }

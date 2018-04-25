@@ -295,7 +295,8 @@ class YdrLoader
 {
 	friend class YbnLoader;
 
-	std::vector<Mesh*> meshes;
+	Material* material;
+	std::vector<Mesh> meshes;
 	YtdLoader* Ytd;
 	YbnLoader* ybnfile;
 	std::vector<Material*> materials;
@@ -304,9 +305,6 @@ public:
 	bool isVisible = false;
 	uint32_t time;
 	bool Loaded = false;
-	std::vector<Mesh*>& getMeshes() {
-		return meshes;
-	}
 	YdrLoader(memstream& file, int32_t systemSize, btDiscreteDynamicsWorld* world, bool isYft = false);
 	~YdrLoader();
 

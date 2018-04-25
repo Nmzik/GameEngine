@@ -1,7 +1,15 @@
 #include "Mesh.h"
 
-Mesh::Mesh(const uint8_t* meshData, uint64_t VertexPointer, uint32_t VertexSize, uint64_t IndicesPointer, uint32_t IndicesSize, VertexType type, Material* mat) : material(mat)
+Mesh::Mesh()
 {
+
+
+}
+
+void Mesh::Init(const uint8_t * meshData, uint64_t VertexPointer, uint32_t VertexSize, uint64_t IndicesPointer, uint32_t IndicesSize, VertexType type, Material * mat)
+{
+	material = mat;
+
 	glGenVertexArrays(1, &VAO);
 
 	glBindVertexArray(VAO);
@@ -157,15 +165,15 @@ Mesh::Mesh(const uint8_t* meshData, uint64_t VertexPointer, uint32_t VertexSize,
 		glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 76, (GLvoid*)28);
 		break;
 		/*case PNCTTTT:
-			break;
+		break;
 		case PCCNCCTT:
-			break;
+		break;
 		case PCTT:
-			break;
+		break;
 		case PCCCCT:
-			break;
+		break;
 		case PCCNC:
-			break;*/
+		break;*/
 	case PCCNCTT:
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 52, nullptr);
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 52, (GLvoid*)20);
@@ -185,9 +193,9 @@ Mesh::Mesh(const uint8_t* meshData, uint64_t VertexPointer, uint32_t VertexSize,
 		glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 60, (GLvoid*)36);
 		break;
 		/*case PNCTT:
-			break;
+		break;
 		case PNCTTT:
-			break;*/
+		break;*/
 	default:
 		printf("VERTEX\n");
 		break;
@@ -199,18 +207,21 @@ Mesh::Mesh(const uint8_t* meshData, uint64_t VertexPointer, uint32_t VertexSize,
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, IndicesSize * sizeof(uint16_t), &meshData[IndicesPointer], GL_STATIC_DRAW); //16 BIT INDICES max 65536
 
-	//glBindVertexArray(0);
-	//glBindBuffer(GL_ARRAY_BUFFER, 0);
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
+																													  //glBindVertexArray(0);
+																													  //glBindBuffer(GL_ARRAY_BUFFER, 0);
+																													  //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
+void Mesh::Cleanup()
+{
+	glDeleteVertexArrays(1, &VAO);
+	glDeleteBuffers(1, &VBO);
+	glDeleteBuffers(1, &EBO);
+}
 
 Mesh::~Mesh()
 {
-	glDeleteBuffers(1, &EBO);
-	glDeleteBuffers(1, &VBO);
-	glDeleteVertexArrays(1, &VAO);
+
 }
 
 void Mesh::Draw(Shader* shader)

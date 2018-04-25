@@ -2,14 +2,15 @@
 
 YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world, memstream& file) : CollisionWorld(world)
 {
-	compound = new btCompoundShape();
-
 	ResourceFileBase resourceFileBase;
 	file.read((char*)&resourceFileBase, sizeof(ResourceFileBase));
 
 	file.read((char*)&Bounds, sizeof(Bounds));
 
 	if (Bounds.Type == 8 || Bounds.Type == 4) {
+		btCompoundShape* compound = new btCompoundShape();
+		Shapes.push_back(compound);
+
 		BoundGeometry geom;
 		file.read((char*)&geom, sizeof(BoundGeometry));
 
@@ -84,14 +85,15 @@ YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world, memstream& file) : Collisio
 
 		delete[] vertices;
 
+		btTransform localTrans;
+		localTrans.setIdentity();
+
 		if (PolygonCylinders.size() != 0) {
 			for (int i = 0; i < PolygonCylinders.size(); i++)
 			{
 				btCylinderShapeZ* shape = new btCylinderShapeZ(btVector3(0.5, 0.5, 0.5));
-				CylinderShapes.push_back(shape);
+				Shapes.push_back(shape);
 
-				btTransform localTrans;
-				localTrans.setIdentity();
 				//localTrans effectively shifts the center of mass with respect to the chassis
 				localTrans.setOrigin(btVector3(geom.CenterGeom.x + Vertices[PolygonCylinders[i].cylinderIndex1].x, geom.CenterGeom.y + Vertices[PolygonCylinders[i].cylinderIndex1].y, geom.CenterGeom.z + Vertices[PolygonCylinders[i].cylinderIndex1].z));
 				compound->addChildShape(localTrans, shape);
@@ -104,8 +106,6 @@ YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world, memstream& file) : Collisio
 				btBoxShape* shape = new btBoxShape(btVector3(0.5, 0.5, 0.5));
 				boxShapes.push_back(shape);
 
-				btTransform localTrans;
-				localTrans.setIdentity();
 				//localTrans effectively shifts the center of mass with respect to the chassis
 				localTrans.setOrigin(btVector3(geom.CenterGeom.x + Vertices[PolygonBoxes[i].boxIndex1].x, geom.CenterGeom.y + Vertices[PolygonBoxes[i].boxIndex1].y, geom.CenterGeom.z + Vertices[PolygonBoxes[i].boxIndex1].z));
 				compound->addChildShape(localTrans, shape);
@@ -116,10 +116,8 @@ YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world, memstream& file) : Collisio
 			for (int i = 0; i < PolygonCapsules.size(); i++)
 			{
 				btCapsuleShapeZ* capsule = new btCapsuleShapeZ(PolygonCapsules[i].capsuleRadius, 1.0f);
-				CapsuleShapes.push_back(capsule);
+				Shapes.push_back(capsule);
 
-				btTransform localTrans;
-				localTrans.setIdentity();
 				//localTrans effectively shifts the center of mass with respect to the chassis
 				localTrans.setOrigin(btVector3(geom.CenterGeom.x + Vertices[PolygonCapsules[i].capsuleIndex1].x, geom.CenterGeom.y + Vertices[PolygonCapsules[i].capsuleIndex1].y, geom.CenterGeom.z + Vertices[PolygonCapsules[i].capsuleIndex1].z));
 				compound->addChildShape(localTrans, capsule);
@@ -130,10 +128,8 @@ YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world, memstream& file) : Collisio
 			for (int i = 0; i < PolygonSpheres.size(); i++)
 			{
 				btSphereShape* sphere = new btSphereShape(PolygonSpheres[i].sphereRadius);
-				SphereShapes.push_back(sphere);
+				Shapes.push_back(sphere);
 
-				btTransform localTrans;
-				localTrans.setIdentity();
 				//localTrans effectively shifts the center of mass with respect to the chassis
 				localTrans.setOrigin(btVector3(geom.CenterGeom.x + Vertices[PolygonSpheres[i].sphereIndex].x, geom.CenterGeom.y + Vertices[PolygonSpheres[i].sphereIndex].y, geom.CenterGeom.z + Vertices[PolygonSpheres[i].sphereIndex].z));
 				compound->addChildShape(localTrans, sphere);
@@ -147,8 +143,6 @@ YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world, memstream& file) : Collisio
 			trishape = new btBvhTriangleMeshShape(VertIndicesArray, false);
 			trishape->setMargin(Bounds.Margin);
 
-			btTransform localTrans;
-			localTrans.setIdentity();
 			//localTrans effectively shifts the center of mass with respect to the chassis
 			localTrans.setOrigin(btVector3(geom.CenterGeom.x, geom.CenterGeom.y, geom.CenterGeom.z));
 			compound->addChildShape(localTrans, trishape);
@@ -196,24 +190,9 @@ YbnLoader::~YbnLoader()
 		delete ybns[i];
 	}
 
-	for (auto& cylinderShape : CylinderShapes)
+	for (auto& shape : Shapes)
 	{
-		delete cylinderShape;
-	}
-
-	for (auto& boxShape : boxShapes)
-	{
-		delete boxShape;
-	}
-
-	for (auto& capsuleShape : CapsuleShapes)
-	{
-		delete capsuleShape;
-	}
-
-	for (auto& sphereShape : SphereShapes)
-	{
-		delete sphereShape;
+		delete shape;
 	}
 
 	if (VertIndicesArray)
@@ -227,5 +206,4 @@ YbnLoader::~YbnLoader()
 
 		delete rigidBody;
 	}
-	delete compound;
 }

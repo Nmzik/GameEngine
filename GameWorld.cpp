@@ -573,53 +573,73 @@ void GameWorld::LoadQueuedResources()
 		{
 		case ymap:
 		{
-			YmapLoader * ymap = new YmapLoader(stream);
-			ymap->time = SDL_GetTicks();
-			ymapLoader[(*it)->Hash] = ymap;
+			auto iter = ymapLoader.find((*it)->Hash);
+			if (iter == ymapLoader.end())
+			{
+				YmapLoader * ymap = new YmapLoader(stream);
+				ymap->time = SDL_GetTicks();
+				ymapLoader[(*it)->Hash] = ymap;
+			}
 			break;
 		}
 		case ydr:
 		{
-			YtdLoader* ytd = LoadYTD((*it)->TextureDictionaryHash);
-			YdrLoader *newYdr = new YdrLoader(stream, (*it)->SystemSize, dynamicsWorld);
-			ydrLoader[(*it)->Hash] = newYdr;
-			newYdr->time = SDL_GetTicks();
-			if (ytd) {
-				newYdr->externalYtd = ytd;
-				newYdr->externalYtd->time = SDL_GetTicks();
+			auto iter = ydrLoader.find((*it)->Hash);
+			if (iter == ydrLoader.end())
+			{
+				YtdLoader* ytd = LoadYTD((*it)->TextureDictionaryHash);
+				YdrLoader *newYdr = new YdrLoader(stream, (*it)->SystemSize, dynamicsWorld);
+				ydrLoader[(*it)->Hash] = newYdr;
+				newYdr->time = SDL_GetTicks();
+				if (ytd) {
+					newYdr->externalYtd = ytd;
+					newYdr->externalYtd->time = SDL_GetTicks();
+				}
 			}
 			break;
 		}
 		case ydd:
 		{
-			YtdLoader * ytd = LoadYTD((*it)->TextureDictionaryHash);
-			YddLoader* newYdd = new YddLoader(stream, (*it)->SystemSize, dynamicsWorld);
-			yddLoader[(*it)->Hash] = newYdd;
-			newYdd->time = SDL_GetTicks();
-			if (ytd) {
-				newYdd->externalYtd = ytd;
-				newYdd->externalYtd->time = SDL_GetTicks();
+			auto iter = yddLoader.find((*it)->Hash);
+			if (iter == yddLoader.end())
+			{
+				YtdLoader * ytd = LoadYTD((*it)->TextureDictionaryHash);
+				YddLoader* newYdd = new YddLoader(stream, (*it)->SystemSize, dynamicsWorld);
+				yddLoader[(*it)->Hash] = newYdd;
+				newYdd->time = SDL_GetTicks();
+				if (ytd) {
+					newYdd->externalYtd = ytd;
+					newYdd->externalYtd->time = SDL_GetTicks();
+				}
 			}
 			break;
 		}
 		case yft:
 		{
-			YtdLoader* ytd = LoadYTD((*it)->TextureDictionaryHash);
-			YftLoader *newYft = new YftLoader(stream, (*it)->SystemSize, false, dynamicsWorld);
-			yftLoader[(*it)->Hash] = newYft;
-			newYft->time = SDL_GetTicks();
-			if (ytd) {
-				newYft->YdrFile->externalYtd = ytd;
-				newYft->YdrFile->externalYtd->time = SDL_GetTicks();
+			auto iter = yftLoader.find((*it)->Hash);
+			if (iter == yftLoader.end())
+			{
+				YtdLoader* ytd = LoadYTD((*it)->TextureDictionaryHash);
+				YftLoader *newYft = new YftLoader(stream, (*it)->SystemSize, false, dynamicsWorld);
+				yftLoader[(*it)->Hash] = newYft;
+				newYft->time = SDL_GetTicks();
+				if (ytd) {
+					newYft->YdrFile->externalYtd = ytd;
+					newYft->YdrFile->externalYtd->time = SDL_GetTicks();
+				}
 			}
 			break;
 		}
 		case ytd:
 		{
-			YtdLoader *newYtd = new YtdLoader(stream, 0);
-			ytdLoader[(*it)->Hash] = newYtd;
-			newYtd->time = SDL_GetTicks();
-			break;
+			auto iter = ytdLoader.find((*it)->Hash);
+			if (iter == ytdLoader.end())
+			{
+				YtdLoader *newYtd = new YtdLoader(stream, 0);
+				ytdLoader[(*it)->Hash] = newYtd;
+				newYtd->time = SDL_GetTicks();
+				break;
+			}
 		}
 		}
 
@@ -804,46 +824,46 @@ void GameWorld::ClearTestFunction()
 	printf("PRESSED");
 	for (auto it = ybnLoader.begin(); it != ybnLoader.end();)
 	{
-			delete it->second;
-			it = ybnLoader.erase(it);
+		delete it->second;
+		it = ybnLoader.erase(it);
 
 	}
 
 	for (auto it = ymapLoader.begin(); it != ymapLoader.end();)
 	{
-			delete it->second;
-			it = ymapLoader.erase(it);
+		delete it->second;
+		it = ymapLoader.erase(it);
 	}
 
 	for (auto it = ydrLoader.begin(); it != ydrLoader.end();)
 	{
 
-			delete it->second;
-			it = ydrLoader.erase(it);
+		delete it->second;
+		it = ydrLoader.erase(it);
 
 	}
 
 	for (auto it = yddLoader.begin(); it != yddLoader.end();)
 	{
 
-			delete it->second;
-			it = yddLoader.erase(it);
+		delete it->second;
+		it = yddLoader.erase(it);
 
 	}
 
 	for (auto it = yftLoader.begin(); it != yftLoader.end();)
 	{
 
-			delete it->second;
-			it = yftLoader.erase(it);
+		delete it->second;
+		it = yftLoader.erase(it);
 
 	}
 
 	for (auto it = ytdLoader.begin(); it != ytdLoader.end();)
 	{
 
-			delete it->second;
-			it = ytdLoader.erase(it);
-		
+		delete it->second;
+		it = ytdLoader.erase(it);
+
 	}
 }
