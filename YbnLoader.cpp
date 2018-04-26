@@ -73,8 +73,8 @@ YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world, memstream& file) : Collisio
 
 		file.seekg(geom.VerticesPointer);
 
-		glm::i32vec3 *vertices = new glm::i32vec3[geom.VerticesCount];
-		file.read((char*)&vertices[0], sizeof(glm::i32vec3) * geom.VerticesCount);
+		glm::i16vec3 *vertices = new glm::i16vec3[geom.VerticesCount];
+		file.read((char*)&vertices[0], sizeof(glm::i16vec3) * geom.VerticesCount);
 
 		Vertices.resize(geom.VerticesCount);
 
