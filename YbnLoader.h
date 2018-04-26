@@ -70,12 +70,6 @@ class YbnLoader
 		uint32_t Unknown_12Ch; // 0x00000000
 	};
 
-	struct Vertex_HalfType {
-		int16_t x;
-		int16_t y;
-		int16_t z;
-	};
-
 	enum BoundPolygonType
 	{
 		Triangle = 0,

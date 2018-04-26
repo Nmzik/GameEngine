@@ -296,11 +296,11 @@ class YdrLoader
 	friend class YbnLoader;
 
 	Material* material;
-	std::vector<Mesh> meshes;
 	YtdLoader* Ytd;
 	YbnLoader* ybnfile;
 	std::vector<Material*> materials;
 public:
+	std::vector<Mesh> meshes;
 	YtdLoader * externalYtd;
 	bool isVisible = false;
 	uint32_t time;

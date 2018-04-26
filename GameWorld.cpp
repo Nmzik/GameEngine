@@ -189,7 +189,6 @@ void GameWorld::LoadYmap(uint32_t hash, Camera* camera)
 				bool IsVisible = glm::length(camera->Position - map->CEntityDefs[i].position) <= map->CEntityDefs[i].lodDist * LODMultiplier;
 				bool childrenVisible = (glm::length(camera->Position - map->CEntityDefs[i].position) <= map->CEntityDefs[i].childLodDist * LODMultiplier) && (map->CEntityDefs[i].numChildren > 0);
 				if (IsVisible && !childrenVisible) {
-					//if (map->CEntityDefs[i].archetypeName == 4143923005)
 					std::unordered_map<uint32_t, CBaseArchetypeDef>::iterator it = data.CBaseArchetypeDefs.find(map->CEntityDefs[i].archetypeName);
 					if (it != data.CBaseArchetypeDefs.end())
 					{
@@ -199,12 +198,18 @@ void GameWorld::LoadYmap(uint32_t hash, Camera* camera)
 							continue;
 						}
 
-						if (it->second.assetType == ASSET_TYPE_DRAWABLE)
+						switch (it->second.assetType)
+						{
+						case ASSET_TYPE_DRAWABLE:
 							LoadYDR(camera, map->CEntityDefs[i].archetypeName, it->second.textureDictionary, it->second.bsCentre + map->CEntityDefs[i].position, it->second.bsRadius * std::max(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ), map->ModelMatrices[i]);
-						if (it->second.assetType == ASSET_TYPE_DRAWABLEDICTIONARY)
+							break;
+						case ASSET_TYPE_DRAWABLEDICTIONARY:
 							LoadYDD(camera, map->CEntityDefs[i].archetypeName, it->second.textureDictionary, it->second.bsCentre + map->CEntityDefs[i].position, it->second.bsRadius * std::max(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ), it->second.drawableDictionary, map->ModelMatrices[i]);
-						if (it->second.assetType == ASSET_TYPE_FRAGMENT)
+							break;
+						case ASSET_TYPE_FRAGMENT:
 							LoadYFT(camera, map->CEntityDefs[i].archetypeName, it->second.textureDictionary, it->second.bsCentre + map->CEntityDefs[i].position, it->second.bsRadius * std::max(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ), map->ModelMatrices[i]);
+							break;
+						}
 					}
 					else {
 						std::unordered_map<uint32_t, CTimeArchetypeDef>::iterator it = data.CTimeArchetypeDefs.find(map->CEntityDefs[i].archetypeName);
@@ -212,19 +217,23 @@ void GameWorld::LoadYmap(uint32_t hash, Camera* camera)
 						{
 							//TIME FLAGS FOUND
 							if ((it->second._TimeArchetypeDef.timeFlags >> gameHour) & 1) {
-								if (it->second._BaseArchetypeDef.assetType == ASSET_TYPE_DRAWABLE)
+
+								switch (it->second._BaseArchetypeDef.assetType)
+								{
+								case ASSET_TYPE_DRAWABLE:
 									LoadYDR(camera, map->CEntityDefs[i].archetypeName, it->second._BaseArchetypeDef.textureDictionary, it->second._BaseArchetypeDef.bsCentre + map->CEntityDefs[i].position, it->second._BaseArchetypeDef.bsRadius * std::max(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ), map->ModelMatrices[i]);
-								if (it->second._BaseArchetypeDef.assetType == ASSET_TYPE_DRAWABLEDICTIONARY)
+									break;
+								case ASSET_TYPE_DRAWABLEDICTIONARY:
 									LoadYDD(camera, map->CEntityDefs[i].archetypeName, it->second._BaseArchetypeDef.textureDictionary, it->second._BaseArchetypeDef.bsCentre + map->CEntityDefs[i].position, it->second._BaseArchetypeDef.bsRadius * std::max(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ), it->second._BaseArchetypeDef.drawableDictionary, map->ModelMatrices[i]);
-								if (it->second._BaseArchetypeDef.assetType == ASSET_TYPE_FRAGMENT)
+									break;
+								case ASSET_TYPE_FRAGMENT:
 									LoadYFT(camera, map->CEntityDefs[i].archetypeName, it->second._BaseArchetypeDef.textureDictionary, it->second._BaseArchetypeDef.bsCentre + map->CEntityDefs[i].position, it->second._BaseArchetypeDef.bsRadius * std::max(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ), map->ModelMatrices[i]);
+									break;
+								}
 							}
 						}
 					}
 				}
-				/*if (map->CEntityDefs[i].archetypeName == 3829216027) {
-					auto iter = GetYdr(3829216027, 0);
-				}*/
 			}
 		}
 	}
@@ -468,7 +477,12 @@ void GameWorld::GetVisibleYmaps(Shader* shader, Camera* camera)
 	for (auto& model : renderList)
 	{
 		shader->setMat4(3, model.modelMatrix);
-		model.ydr->Draw(shader);
+		for (auto &mesh : model.ydr->meshes)
+		{
+			glBindVertexArray(mesh.VAO);
+			mesh.material->bind(shader);
+			glDrawElements(GL_TRIANGLES, mesh.num_indices, GL_UNSIGNED_SHORT, 0);
+		}
 	}
 
 	renderList.clear();

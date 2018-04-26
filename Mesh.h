@@ -48,11 +48,12 @@ enum VertexType : uint32_t
 
 class Mesh
 {
+public:
 	GLuint VBO, EBO, VAO;
 
 	Material* material;
 	unsigned int num_indices;
-public:
+
 	Mesh();
 	void Init(const uint8_t* meshData, uint64_t VertexPointer, uint32_t VertexSize, uint64_t IndicesPointer, uint32_t IndicesSize, VertexType type, Material* mat);
 	void Cleanup();
