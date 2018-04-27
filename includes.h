@@ -7,7 +7,8 @@ enum Type {
 	ydr,
 	ydd,
 	yft,
-	ytd
+	ytd,
+	ybn
 };
 
 class Resource

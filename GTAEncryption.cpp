@@ -1,5 +1,6 @@
 #include "GTAEncryption.h"
 
+z_stream GTAEncryption::strm;
 uint8_t GTAEncryption::PC_AES_KEY[32];
 uint8_t GTAEncryption::LUT[256];
 uint8_t GTAEncryption::PC_NG_KEYS[101][272];
@@ -52,6 +53,19 @@ void GTAEncryption::LoadKeys()
 	}
 
 	ngtables.close();
+
+
+	//ZLIB STUFF
+	strm.zalloc = Z_NULL;
+	strm.zfree = Z_NULL;
+	strm.opaque = Z_NULL;
+	strm.next_in = Z_NULL;
+	strm.avail_in = 0;
+
+	int ret = inflateInit2(&strm, -MAX_WBITS);
+	if (ret != Z_OK) {
+		printf("ERROR IN ZLIB");
+	}
 }
 
 uint32_t GTAEncryption::CalculateHash(std::string text)
@@ -261,25 +275,18 @@ void GTAEncryption::DecompressBytes(uint8_t * data, uint32_t dataLength, std::ve
 {
 	output.resize(1024 * 1024);
 
-	z_stream strm;
-
-	/* allocate inflate state */
-	strm.zalloc = Z_NULL;
-	strm.zfree = Z_NULL;
-	strm.opaque = Z_NULL;
 	strm.avail_in = dataLength;
 	strm.next_in = data;
 	strm.avail_out = output.size();
 	strm.next_out = &output[0];
 
-	int ret = inflateInit2(&strm, -MAX_WBITS);
-	if (ret != Z_OK) printf("ERROR IN ZLIB");
+	int ret;
 
 	do {
 		ret = inflate(&strm, Z_NO_FLUSH);
 
 		if (ret < 0) {
-			(void)inflateEnd(&strm);
+			(void)inflateReset(&strm);
 			printf("Error %d in zlib uncompress\n", ret);
 		}
 
@@ -293,7 +300,7 @@ void GTAEncryption::DecompressBytes(uint8_t * data, uint32_t dataLength, std::ve
 
 	} while (ret != Z_STREAM_END);
 
-	(void)inflateEnd(&strm);
+	(void)inflateReset(&strm);
 }
 
 uint32_t GenHash(std::string Name)

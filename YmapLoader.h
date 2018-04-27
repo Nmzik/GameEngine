@@ -435,6 +435,7 @@ struct Entity //160 bytes, Key:2520619910
 class YmapLoader
 {
 public:
+	YmapLoader * next;
 	std::vector<glm::mat4> ModelMatrices;
 	uint32_t time;
 	CMapData _CMapData;
@@ -442,7 +443,21 @@ public:
 	std::vector<CEntityDef> CEntityDefs;
 	std::vector<CCarGen> CCarGens;
 
-	YmapLoader(memstream& file);
-	~YmapLoader();
+	void Init(memstream & file);
+};
+
+class YmapPool
+{
+public:
+	YmapPool();
+	~YmapPool();
+
+	YmapLoader* Load(memstream& file);
+	void Remove(YmapLoader* ymap);
+
+	YmapLoader ymaps[500];
+
+private:
+	YmapLoader * firstAvailable_;
 };
 

@@ -34,7 +34,7 @@ void ResourceManager::update()
 					gameworld->resources_lock.unlock();
 				}
 			}
-			break;
+					   break;
 			case ydr:
 			{
 				auto it = gameworld->getGameData()->YdrEntries.find(res->Hash);
@@ -47,7 +47,7 @@ void ResourceManager::update()
 					gameworld->resources_lock.unlock();
 				}
 			}
-				break;
+			break;
 			case ydd:
 			{
 				auto it = gameworld->getGameData()->YddEntries.find(res->Hash);
@@ -60,7 +60,7 @@ void ResourceManager::update()
 					gameworld->resources_lock.unlock();
 				}
 			}
-				break;
+			break;
 			case yft:
 			{
 				auto it = gameworld->getGameData()->YftEntries.find(res->Hash);
@@ -73,11 +73,24 @@ void ResourceManager::update()
 					gameworld->resources_lock.unlock();
 				}
 			}
-				break;
+			break;
 			case ytd:
 			{
 				auto it = gameworld->getGameData()->YtdEntries.find(res->Hash);
 				if (it != gameworld->getGameData()->YtdEntries.end())
+				{
+					gameworld->getGameData()->ExtractFileResource(*(it->second), res->Buffer);
+					res->SystemSize = it->second->SystemSize;
+					gameworld->resources_lock.lock();
+					gameworld->resources.push_back(res);
+					gameworld->resources_lock.unlock();
+				}
+			}
+			break;
+			case ybn:
+			{
+				auto it = gameworld->getGameData()->YbnEntries.find(res->Hash);
+				if (it != gameworld->getGameData()->YbnEntries.end())
 				{
 					gameworld->getGameData()->ExtractFileResource(*(it->second), res->Buffer);
 					res->SystemSize = it->second->SystemSize;

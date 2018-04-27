@@ -51,14 +51,13 @@ void Player::TakeDamage(float dmg)
 	health -= dmg;
 }
 
-glm::mat4 Player::getPosition()
+glm::mat4& Player::getPosition()
 {
 	//printf("POS %f\n", physCharacter->getGhostObject()->getWorldTransform().getOrigin().getZ());
 	if (body->getWorldTransform().getOrigin().getZ() <= -150) {
 		body->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), body->getWorldTransform().getOrigin() + btVector3(0, 0, 300)));
 	}
 
-	glm::mat4 model;
 	body->getWorldTransform().getOpenGLMatrix(&model[0][0]);
 
 	return model;

@@ -375,18 +375,6 @@ void RenderingSystem::render(GameWorld* world)
 	world->GetVisibleYmaps(gbuffer, camera);
 	//glDisable(GL_BLEND);
 
-	for (int i = 0; i < world->pedestrians.size(); i++) {
-		auto model = world->pedestrians[i]->getPosition();
-		gbuffer->setMat4(ModelUniformLoc, model);
-		world->pedestrians[i]->Draw(gbuffer);
-	}
-
-	for (int i = 0; i < world->vehicles.size(); i++) {
-		auto modelVehicle = world->vehicles[i]->GetMat4();
-		gbuffer->setMat4(ModelUniformLoc, modelVehicle);
-		world->vehicles[i]->Draw(gbuffer);
-	}
-
 	if (RenderDebugWorld) {
 		world->GetDynamicsWorld()->debugDrawWorld();
 		gbuffer->setMat4(ModelUniformLoc, glm::mat4(1.0));

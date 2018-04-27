@@ -23,6 +23,7 @@ class Player
 	btDiscreteDynamicsWorld* World;
 	Vehicle* vehicle;
 	YddLoader* player;
+	glm::mat4 model;
 public:
 	Player(glm::vec3 position, YddLoader* ydd, btDiscreteDynamicsWorld* world);
 	~Player();
@@ -32,7 +33,7 @@ public:
 	}
 
 	void TakeDamage(float dmg);
-	glm::mat4 getPosition();
+	glm::mat4& getPosition();
 	void PhysicsTick();
 	void ExitVehicle();
 	void EnterVehicle(Vehicle* nearestVehicle);

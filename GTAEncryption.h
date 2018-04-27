@@ -9,6 +9,8 @@ uint32_t GenHash(std::string Name);
 
 class GTAEncryption
 {
+	static z_stream strm;
+
 	static uint8_t PC_AES_KEY[32];
 	static uint8_t LUT[256];
 	static uint8_t PC_NG_KEYS[101][272];

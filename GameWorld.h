@@ -67,6 +67,7 @@ public:
 	std::unordered_map<uint32_t, CarHandling> vehiclesPool;
 	std::vector<Player*> pedestrians;
 	std::vector<Vehicle*> vehicles;
+	YmapPool ymapPool;
 
 	std::mutex resources_lock;
 	std::vector<Resource*> resources;

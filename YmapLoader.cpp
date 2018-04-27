@@ -3,7 +3,7 @@
 #define SYSTEM_BASE 0x50000000
 #define GRAPHICS_BASE 0x60000000
 
-YmapLoader::YmapLoader(memstream& file)
+void YmapLoader::Init(memstream& file)
 {
 /*	//ADD NEED
 	uint32_t rsc7;
@@ -81,8 +81,39 @@ YmapLoader::YmapLoader(memstream& file)
 	}
 }
 
+YmapPool::YmapPool()
+{
+	firstAvailable_ = &ymaps[0];
 
-YmapLoader::~YmapLoader()
+	for (int i = 0; i < 499; i++)
+	{
+		ymaps[i].next = &ymaps[i + 1];
+	}
+
+	ymaps[499].next = NULL;
+}
+
+YmapPool::~YmapPool()
 {
 
+}
+
+YmapLoader* YmapPool::Load(memstream & file)
+{
+	// Make sure the pool isn't full.
+	assert(firstAvailable_ != NULL);
+
+	// Remove it from the available list.
+	YmapLoader* newYmap = firstAvailable_;
+	firstAvailable_ = newYmap->next;
+
+	newYmap->Init(file);
+
+	return newYmap;
+}
+
+void YmapPool::Remove(YmapLoader* ymap)
+{
+	ymap->next = firstAvailable_;
+	firstAvailable_ = ymap;
 }

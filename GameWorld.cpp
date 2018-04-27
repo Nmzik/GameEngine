@@ -413,21 +413,8 @@ void GameWorld::LoadYBN(uint32_t hash)
 		iter->second->time = SDL_GetTicks();
 		return;
 	}
-	auto it = data.YbnEntries.find(hash);
-	if (it != data.YbnEntries.end())
-	{
-		std::cout << "YBN Found " << it->second->Name << std::endl;
-		auto& element = *(it->second);
-		std::vector<uint8_t> outputBuffer;
-		data.ExtractFileResource(element, outputBuffer);
-
-		memstream stream(outputBuffer.data(), outputBuffer.size());
-
-		YbnLoader *newYbn = new YbnLoader(dynamicsWorld, stream);
-		newYbn->time = SDL_GetTicks();
-		ybnLoader[hash] = newYbn;
-
-		return;
+	else {
+		GetResourceManager()->AddToWaitingList(new Resource(ybn, hash));
 	}
 }
 
@@ -465,6 +452,23 @@ void GameWorld::GetVisibleYmaps(Shader* shader, Camera* camera)
 
 		}
 	}*/
+
+	for (int i = 0; i < pedestrians.size(); i++) {
+		auto& model = pedestrians[i]->getPosition();
+		if (camera->intersects(glm::vec3(model[3]), 1.0f)) {
+			shader->setMat4(3, model);
+			pedestrians[i]->Draw(shader);
+		}
+	}
+
+	for (int i = 0; i < vehicles.size(); i++) {
+		auto modelVehicle = vehicles[i]->GetMat4();
+
+		if (camera->intersects(glm::vec3(modelVehicle[3]), 1.0f)) {
+			shader->setMat4(3, modelVehicle);
+			vehicles[i]->Draw(shader);
+		}
+	}
 
 	std::sort(renderList.begin(), renderList.end(), [&camera](RenderInstruction& a, RenderInstruction& b) { //FRONT_TO_BACK
 		glm::vec3 lhsPosition = glm::vec3(a.modelMatrix[3]);
@@ -512,7 +516,7 @@ void GameWorld::GetVisibleYmaps(Shader* shader, Camera* camera)
 	{
 		if (curTime - (it->second)->time > UnloadTime)
 		{
-			delete it->second;
+			ymapPool.Remove(it->second);
 			it = ymapLoader.erase(it);
 		}
 		else
@@ -590,7 +594,7 @@ void GameWorld::LoadQueuedResources()
 			auto iter = ymapLoader.find((*it)->Hash);
 			if (iter == ymapLoader.end())
 			{
-				YmapLoader * ymap = new YmapLoader(stream);
+				YmapLoader * ymap = ymapPool.Load(stream);
 				ymap->time = SDL_GetTicks();
 				ymapLoader[(*it)->Hash] = ymap;
 			}
@@ -652,6 +656,17 @@ void GameWorld::LoadQueuedResources()
 				YtdLoader *newYtd = new YtdLoader(stream, 0);
 				ytdLoader[(*it)->Hash] = newYtd;
 				newYtd->time = SDL_GetTicks();
+				break;
+			}
+		}
+		case ybn:
+		{
+			auto iter = ybnLoader.find((*it)->Hash);
+			if (iter == ybnLoader.end())
+			{
+				YbnLoader *newYbn = new YbnLoader(dynamicsWorld, stream);
+				ybnLoader[(*it)->Hash] = newYbn;
+				newYbn->time = SDL_GetTicks();
 				break;
 			}
 		}
