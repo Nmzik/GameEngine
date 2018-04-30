@@ -11,77 +11,41 @@ YdrLoader::YdrLoader(memstream& file, int32_t systemSize, btDiscreteDynamicsWorl
 	file.read((char*)&drawBase, sizeof(drawBase));
 
 	if (drawBase.DrawableModelsXPointer != 0) {
-		struct {
-			uint64_t NamePointer;
-			uint64_t LightAttributesPointer;
-			uint16_t LightAttributesCount1;
-			uint16_t LightAttributesCount2;
-			uint32_t Unknown_BCh; // 0x00000000
-			uint32_t Unknown_C0h; // 0x00000000
-			uint32_t Unknown_C4h; // 0x00000000
-			uint64_t BoundPointer;
-		} Drawable;
-
-		struct {
-			uint32_t Unknown_0A8h;
-			uint32_t Unknown_0ACh;
-			glm::mat4 Unknown_0B0h;
-			uint64_t BoundPointer;
-			uint64_t Unknown_0F8h_Pointer;
-			uint16_t Count1;
-			uint16_t Count2;
-			uint32_t Unknown_104h; // 0x00000000
-			uint64_t Unknown_108h_Pointer;
-			uint16_t Count3;
-			uint16_t Count4;
-			uint32_t Unknown_114h; // 0x00000000
-			uint32_t Unknown_118h; // 0x00000000
-			uint32_t Unknown_11Ch; // 0x00000000
-			uint32_t Unknown_120h; // 0x00000000
-			uint32_t Unknown_124h; // 0x00000000
-			uint32_t Unknown_128h; // 0x00000000
-			uint32_t Unknown_12Ch; // 0x00000000
-			uint64_t NamePointer;
-			uint32_t Unknown_138h; // 0x00000000
-			uint32_t Unknown_13Ch; // 0x00000000
-			uint32_t Unknown_140h; // 0x00000000
-			uint32_t Unknown_144h; // 0x00000000
-			uint32_t Unknown_148h; // 0x00000000
-			uint32_t Unknown_14Ch; // 0x00000000
-		} FragDrawable;
 
 		//READ COLLISION DATA FROM YDR
 		if (isYft) {
-			file.read((char*)&FragDrawable, sizeof(FragDrawable));
+			FragDrawable fragDrawable;
+			file.read((char*)&fragDrawable, sizeof(FragDrawable));
 
-			if (FragDrawable.BoundPointer != 0) {
-				TranslatePTR(FragDrawable.BoundPointer);
-				file.seekg(FragDrawable.BoundPointer);
+			if (fragDrawable.BoundPointer != 0) {
+				TranslatePTR(fragDrawable.BoundPointer);
+				file.seekg(fragDrawable.BoundPointer);
 
 				//ybnfile = new YbnLoader(world, file);
 			}
 		}
 		else {
-			file.read((char*)&Drawable, sizeof(Drawable));
+			Drawable drawable;
+			file.read((char*)&drawable, sizeof(Drawable));
 
-			if (Drawable.LightAttributesPointer != 0) {
-				TranslatePTR(Drawable.LightAttributesPointer);
+			if (drawable.LightAttributesPointer != 0) {
+				TranslatePTR(drawable.LightAttributesPointer);
 
-				file.seekg(Drawable.LightAttributesPointer);
+				file.seekg(drawable.LightAttributesPointer);
 
 				std::vector<LightAttributes_s> lightAttributes_s;
-				lightAttributes_s.resize(Drawable.LightAttributesCount1);
+				lightAttributes_s.resize(drawable.LightAttributesCount1);
 
-				for (int i = 0; i < Drawable.LightAttributesCount1; i++)
+				for (int i = 0; i < drawable.LightAttributesCount1; i++)
 				{
 					LightAttributes_s light;
 					file.read((char*)&light, sizeof(LightAttributes_s));
 					lightAttributes_s.push_back(light);
 				}
 			}
-			if (Drawable.BoundPointer != 0) {
-				TranslatePTR(Drawable.BoundPointer);
-				file.seekg(Drawable.BoundPointer);
+			if (drawable.BoundPointer != 0) {
+				TranslatePTR(drawable.BoundPointer);
+				file.seekg(drawable.BoundPointer);
 
 				//ybnfile = new YbnLoader(world, file);
 			}
