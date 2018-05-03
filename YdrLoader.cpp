@@ -2,7 +2,7 @@
 
 YdrLoader::YdrLoader(memstream& file, int32_t systemSize, btDiscreteDynamicsWorld* world, bool isYft)
 {
-	material = new Material(0, 0, 0, 0);
+	Material material(0, 0, 0, 0);
 
 	ResourceFileBase resourceFileBase;
 	file.read((char*)&resourceFileBase, sizeof(ResourceFileBase));
@@ -169,7 +169,7 @@ YdrLoader::YdrLoader(memstream& file, int32_t systemSize, btDiscreteDynamicsWorl
 				}
 			}
 
-			Material* newMat = new Material(DiffuseSampler, BumpSampler, SpecularSampler, DetailSampler);
+			Material newMat(DiffuseSampler, BumpSampler, SpecularSampler, DetailSampler);
 			materials.push_back(newMat);
 
 			file.seekg(posOriginal);
@@ -281,7 +281,6 @@ YdrLoader::YdrLoader(memstream& file, int32_t systemSize, btDiscreteDynamicsWorl
 
 				if (materials.size() == 0) {
 					meshes[i].Init(file._buffer.p, vertbuffer.DataPointer1, vertbuffer.VertexCount * vertbuffer.VertexStride, indexbuffer.IndicesPointer, indexbuffer.IndicesCount, (VertexType)decl.Flags, material);
-
 				}
 				else {
 					meshes[i].Init(file._buffer.p, vertbuffer.DataPointer1, vertbuffer.VertexCount * vertbuffer.VertexStride, indexbuffer.IndicesPointer, indexbuffer.IndicesCount, (VertexType)decl.Flags, materials[ShaderMapping[i]]);
@@ -298,14 +297,8 @@ YdrLoader::YdrLoader(memstream& file, int32_t systemSize, btDiscreteDynamicsWorl
 
 YdrLoader::~YdrLoader()
 {
-	delete material;
-
 	if (ybnfile)
 		delete ybnfile;
-	for (auto& material : materials)
-	{
-		delete material;
-	}
 	delete Ytd;
 	for (auto& mesh : meshes)
 	{

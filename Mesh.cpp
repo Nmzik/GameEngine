@@ -1,12 +1,12 @@
 #include "Mesh.h"
 
-Mesh::Mesh()
+Mesh::Mesh() : material(0,0,0,0)
 {
 
 
 }
 
-void Mesh::Init(const uint8_t * meshData, uint64_t VertexPointer, uint32_t VertexSize, uint64_t IndicesPointer, uint32_t IndicesSize, VertexType type, Material * mat)
+void Mesh::Init(const uint8_t * meshData, uint64_t VertexPointer, uint32_t VertexSize, uint64_t IndicesPointer, uint32_t IndicesSize, VertexType type, Material mat)
 {
 	material = mat;
 
@@ -227,6 +227,6 @@ Mesh::~Mesh()
 void Mesh::Draw(Shader* shader)
 {
 	glBindVertexArray(VAO);
-	material->bind(shader);
+	material.bind(shader);
 	glDrawElements(GL_TRIANGLES, num_indices, GL_UNSIGNED_SHORT, 0);
 }

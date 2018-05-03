@@ -334,10 +334,9 @@ class YdrLoader
 {
 	friend class YbnLoader;
 
-	Material* material;
 	YtdLoader* Ytd;
 	YbnLoader* ybnfile;
-	std::vector<Material*> materials;
+	std::vector<Material> materials;
 public:
 	std::vector<Mesh> meshes;
 	YtdLoader * externalYtd;

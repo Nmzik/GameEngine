@@ -484,7 +484,7 @@ void GameWorld::GetVisibleYmaps(Shader* shader, Camera* camera)
 		for (auto &mesh : model.ydr->meshes)
 		{
 			glBindVertexArray(mesh.VAO);
-			mesh.material->bind(shader);
+			mesh.material.bind(shader);
 			glDrawElements(GL_TRIANGLES, mesh.num_indices, GL_UNSIGNED_SHORT, 0);
 		}
 	}
