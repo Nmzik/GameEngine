@@ -31,15 +31,15 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
+	//SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
 
 	// Turn on double buffering with a 24bit Z buffer.
 	// You may need to change this to 16 or 32 for your system
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 0);
 
 	glcontext = SDL_GL_CreateContext(window);
 
-	SDL_GL_SetSwapInterval(1);
+	SDL_GL_SetSwapInterval(0); //ZERO - no vsync
 
 	glewExperimental = GL_TRUE;
 	glewInit();
@@ -53,6 +53,8 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
+	glDisable(GL_MULTISAMPLE);
+	glDisable(GL_DITHER);
 
 	ScreenResWidth = 1280;
 	ScreenResHeight = 720;
@@ -129,6 +131,8 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 
 
 	projection = glm::perspective(glm::radians(45.0f), (float)1280 / (float)720, 0.1f, 10000.0f);
+
+	//glGenQueries(1, &m_nQueryIDDrawTime);
 }
 
 RenderingSystem::~RenderingSystem()
@@ -325,6 +329,8 @@ void RenderingSystem::render(GameWorld* world)
 
 	//glClearColor(0.0, 0.0, 0.0, 0.0);
 
+	//glBeginQuery(GL_TIME_ELAPSED, m_nQueryIDDrawTime);
+
 	///geometry to gbuffer->shadowmaps(directional light)->shadowmaps(point light)->ssao->lighting(Final)->skybox
 	// --------------------------------GeometryPass Deferred Rendering----------------------------------
 	glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
@@ -337,32 +343,6 @@ void RenderingSystem::render(GameWorld* world)
 	gbuffer->setMat4(ViewUniformLoc, view);
 
 	camera->UpdateFrustum(projection * view);
-
-	//light position object
-	/*static glm::mat4 model(1.0f);
-	model = glm::translate(glm::vec3(0.0f,50.0f,0.0f));
-	//model = glm::rotateZ(lightdirection, -0.01f);
-	model = glm::rotate(model, -1.f, glm::vec3(0.f, 1.f, 1.f));
-	printf("TEST %s\n", glm::to_string(model));
-	//model = glm::rotate(-0.01f, lightdirection);
-	gbuffer->setMat4("model", model);
-	world->models[0].Draw();*/
-
-	/*world->GetResourceManager()->mainLock.lock();
-	for (auto& model : world->models)
-	{
-		if (model->isLoaded == false) {
-			model->UploadToBuffers();
-		}
-		//printf("%f\n", glm::distance(camera->Position, model.GetPosition()));
-		//if (glm::distance(camera->Position, model.GetPosition()) < 80.0f) {
-			auto modelMatrix = model->getModelMatrix();
-			gbuffer->setMat4("model", modelMatrix);
-			model->Draw();
-		//}
-	}
-	world->GetResourceManager()->mainLock.unlock();*/
-	//printf("=========================\n");
 
 	glDepthMask(GL_FALSE);
 	glm::mat4 SkydomeMatrix = glm::translate(glm::mat4(), camera->Position) * glm::toMat4(glm::quat(-1, 0, 0, 0)) * glm::scale(glm::mat4(), glm::vec3(10, 10, 10));
@@ -495,12 +475,16 @@ void RenderingSystem::render(GameWorld* world)
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, colorBuffer);
 	float exposure = 1.0f;
-	hdrShader->setBool("hdr", hdrEnabled);
 	hdrShader->setInt("UseBlur", 0);
 	hdrShader->setFloat("exposure", exposure);
 	renderQuad();
 
+	/*glEndQuery(GL_TIME_ELAPSED);
+	GLuint64 elapsedTime, vertSub;
+	glGetQueryObjectui64v(m_nQueryIDDrawTime, GL_QUERY_RESULT, &elapsedTime);
+	double drawTimeGPU = (double)(elapsedTime) / 1000000.0;*/
 
+	//printf("DRAW TIME %f ms\n", drawTimeGPU);
 	SDL_GL_SwapWindow(window);
 }
 

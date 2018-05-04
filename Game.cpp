@@ -48,8 +48,7 @@ void Game::updateFPS(float delta_time) {
 	if (time_since_last_fps_output >= 1.0f) {
 		time_since_last_fps_output = 0.0f;
 		std::ostringstream osstr;
-		osstr << "SDL2 window" << " (" << (int((1.0f / delta_time_smoothed) * 10.0f) / 10.0f) << " FPS, ";
-		osstr << (int(delta_time_smoothed * 10000.0f) / 10.0f) << " ms / frame) | ";
+		osstr << "SDL2 window" << " (" << (int((1.0f / delta_time_smoothed) * 10.0f) / 10.0f) << " FPS, " << (int(delta_time_smoothed * 10000.0f) / 10.0f) << " ms / frame) | ";
 		SDL_SetWindowTitle(window, osstr.str().c_str());
 	}
 }
@@ -60,8 +59,6 @@ void Game::run() {
 
 	bool running = true;
 	auto current_time = std::chrono::steady_clock::now();
-	//float current_time = 0.f;
-	//float old_time;
 	
 	while (running) {
 		while (SDL_PollEvent(&event)) {

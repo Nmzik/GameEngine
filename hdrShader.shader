@@ -22,7 +22,6 @@ float FXAA_REDUCE_MUL = 1.0f/8.0f;
 float FXAA_REDUCE_MIN = 1.0f/128.0f;
 
 uniform sampler2D hdrBuffer;
-uniform bool hdr;
 uniform bool UseBlur;
 uniform float exposure;
 
@@ -97,8 +96,6 @@ vec3 FilmicToneMapping(vec3 x) {
 void main()
 {
     vec3 hdrColor = texture(hdrBuffer, TexCoords).rgb;
-    if(hdr)
-    {
 		const float gamma = 2.2;
 		vec3 color = computeFxaa();
 
@@ -114,11 +111,4 @@ void main()
 		if (UseBlur) curr += blur();
 
 		FragColor = vec4(curr, 1.0);
-    }
-    else
-    {
-        vec3 result = pow(hdrColor, vec3(1.0));
-		if (UseBlur) result += blur();
-        FragColor = vec4(result, 1.0);
-    }
 }

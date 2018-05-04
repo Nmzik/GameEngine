@@ -63,6 +63,8 @@ private:
 	unsigned int gBuffer;
 	unsigned int gNormal, gAlbedoSpec, gDepthMap;
 
+	GLuint m_nQueryIDDrawTime;
+
 	void skyboxPass();
 
 	SDL_Window* window;
@@ -76,7 +78,6 @@ public:
 	bool DrawCollision = false;
 	bool test = true;
 	bool RenderDebugWorld = false;
-	bool hdrEnabled = true;
 	float x = 50.f;
 	Camera& getCamera();
 	void createGBuffer();
