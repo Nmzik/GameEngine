@@ -50,6 +50,7 @@ private:
 	int ShadowHeight;
 
 	glm::mat4 projection;
+	glm::mat4 InverseProjMatrix;
 	unsigned int depthMapFBO;
 	unsigned int depthMap;
 	unsigned int ssaoFBO, ssaoBlurFBO;

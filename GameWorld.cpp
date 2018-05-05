@@ -418,7 +418,7 @@ void GameWorld::LoadYBN(uint32_t hash)
 	}
 }
 
-void GameWorld::GetVisibleYmaps(Shader* shader, Camera* camera)
+void GameWorld::GetVisibleYmaps(Camera* camera)
 {
 	SpaceGridCell& cell = spaceGrid.GetCell(camera->Position);
 
@@ -453,23 +453,6 @@ void GameWorld::GetVisibleYmaps(Shader* shader, Camera* camera)
 		}
 	}*/
 
-	for (int i = 0; i < pedestrians.size(); i++) {
-		auto& model = pedestrians[i]->getPosition();
-		if (camera->intersects(glm::vec3(model[3]), 1.0f)) {
-			shader->setMat4(3, model);
-			pedestrians[i]->Draw(shader);
-		}
-	}
-
-	for (int i = 0; i < vehicles.size(); i++) {
-		auto modelVehicle = vehicles[i]->GetMat4();
-
-		if (camera->intersects(glm::vec3(modelVehicle[3]), 1.0f)) {
-			shader->setMat4(3, modelVehicle);
-			vehicles[i]->Draw(shader);
-		}
-	}
-
 	std::sort(renderList.begin(), renderList.end(), [&camera](RenderInstruction& a, RenderInstruction& b) { //FRONT_TO_BACK
 		glm::vec3 lhsPosition = glm::vec3(a.modelMatrix[3]);
 		glm::vec3 rhsPosition = glm::vec3(b.modelMatrix[3]);
@@ -478,19 +461,7 @@ void GameWorld::GetVisibleYmaps(Shader* shader, Camera* camera)
 
 	});
 
-	for (auto& model : renderList)
-	{
-		shader->setMat4(3, model.modelMatrix);
-		for (auto &mesh : model.ydr->meshes)
-		{
-			glBindVertexArray(mesh.VAO);
-			mesh.material.bind(shader);
-			glDrawElements(GL_TRIANGLES, mesh.num_indices, GL_UNSIGNED_SHORT, 0);
-		}
-	}
-
-	renderList.clear();
-
+	
 	//LoadYBN(Proxy->Name);
 	//LoadYmap(Proxy->Parent, Position);
 
@@ -823,10 +794,12 @@ void GameWorld::DetectWeaponHit(glm::vec3 CameraPosition, glm::vec3 lookDirectio
 
 
 
-void GameWorld::update(float delta_time)
+void GameWorld::update(float delta_time, Camera* camera)
 {
 	Update();
+	//gameWorld->UpdateTraffic(&rendering_system->getCamera(), rendering_system->getCamera().Position)
 	dynamicsWorld->stepSimulation(delta_time);
+	GetVisibleYmaps(camera);
 }
 
 

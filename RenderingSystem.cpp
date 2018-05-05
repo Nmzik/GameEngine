@@ -129,6 +129,7 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 
 
 	projection = glm::perspective(glm::radians(45.0f), (float)1280 / (float)720, 0.1f, 10000.0f);
+	InverseProjMatrix = glm::inverse(projection);
 
 	glGenQueries(1, &m_nQueryIDDrawTime);
 }
@@ -326,6 +327,10 @@ void RenderingSystem::render(GameWorld* world)
 	}*/
 
 	//glClearColor(0.0, 0.0, 0.0, 0.0);
+
+	glm::mat4 view = camera->GetViewMatrix();
+	camera->UpdateFrustum(projection * view);
+
 	if (gpuTimer && !mWaiting)
 		glBeginQuery(GL_TIME_ELAPSED, m_nQueryIDDrawTime);
 
@@ -334,13 +339,9 @@ void RenderingSystem::render(GameWorld* world)
 	glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	//glEnable(GL_CULL_FACE);;
-	glm::mat4 view = camera->GetViewMatrix();
 	gbuffer->use();
 	gbuffer->setMat4(ProjUniformLoc, projection);
 	gbuffer->setMat4(ViewUniformLoc, view);
-
-	camera->UpdateFrustum(projection * view);
 
 	glDepthMask(GL_FALSE);
 	glm::mat4 SkydomeMatrix = glm::translate(glm::mat4(), camera->Position) * glm::toMat4(glm::quat(-1, 0, 0, 0)) * glm::scale(glm::mat4(), glm::vec3(10, 10, 10));
@@ -350,8 +351,37 @@ void RenderingSystem::render(GameWorld* world)
 
 	//glEnable(GL_BLEND);
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	world->GetVisibleYmaps(gbuffer, camera);
 	//glDisable(GL_BLEND);
+
+	for (int i = 0; i < world->pedestrians.size(); i++) {
+		auto& model = world->pedestrians[i]->getPosition();
+		if (camera->intersects(glm::vec3(model[3]), 1.0f)) {
+			gbuffer->setMat4(3, model);
+			world->pedestrians[i]->Draw(gbuffer);
+		}
+	}
+
+	for (int i = 0; i < world->vehicles.size(); i++) {
+		auto modelVehicle = world->vehicles[i]->GetMat4();
+
+		if (camera->intersects(glm::vec3(modelVehicle[3]), 1.0f)) {
+			gbuffer->setMat4(3, modelVehicle);
+			world->vehicles[i]->Draw(gbuffer);
+		}
+	}
+
+	for (auto& model : world->renderList)
+	{
+		gbuffer->setMat4(3, model.modelMatrix);
+		for (auto &mesh : model.ydr->meshes)
+		{
+			glBindVertexArray(mesh.VAO);
+			mesh.material.bind(gbuffer);
+			glDrawElements(GL_TRIANGLES, mesh.num_indices, GL_UNSIGNED_SHORT, 0);
+		}
+	}
+
+	world->renderList.clear();
 
 	if (RenderDebugWorld) {
 		world->GetDynamicsWorld()->debugDrawWorld();
@@ -412,8 +442,6 @@ void RenderingSystem::render(GameWorld* world)
 	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	//glViewport(0, 0, ScreenResWidth, ScreenResHeight);
 
-	glm::mat4 InverseProjMatrix = glm::inverse(projection);
-
 	// generate SSAO texture
 	// ------------------------
 	glBindFramebuffer(GL_FRAMEBUFFER, ssaoFBO);
@@ -431,7 +459,7 @@ void RenderingSystem::render(GameWorld* world)
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, noiseTexture);
 	renderQuad();
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	// blur SSAO texture to remove noise
 	// ------------------------------------
@@ -441,7 +469,7 @@ void RenderingSystem::render(GameWorld* world)
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, ssaoColorBuffer);
 	renderQuad();
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	// --------------------------------LightingPass Deferred Rendering----------------------------------
 	glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
@@ -465,9 +493,9 @@ void RenderingSystem::render(GameWorld* world)
 	gbufferLighting->setMat4("InverseProjectionMatrix", InverseProjMatrix);
 	//gbufferLighting->setMat4("lightSpaceMatrix", lightSpaceMatrix);
 	renderQuad();
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	// --------------------------------HDR----------------------------------
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	hdrShader->use();
 	glActiveTexture(GL_TEXTURE0);

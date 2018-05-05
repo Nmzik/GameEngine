@@ -100,7 +100,7 @@ public:
 
 	void LoadYBN(uint32_t hash);
 
-	void GetVisibleYmaps(Shader* shader, Camera* camera);
+	void GetVisibleYmaps(Camera* camera);
 
 	void LoadQueuedResources();
 
@@ -126,7 +126,7 @@ public:
 	void UpdateTraffic(Camera* camera, glm::vec3 pos);
 	Vehicle* FindNearestVehicle();
 	void DetectWeaponHit(glm::vec3 CameraPosition, glm::vec3 lookDirection);
-	void update(float delta_time);
+	void update(float delta_time, Camera* camera);
 
 	void TestFunction(glm::vec3 Position);
 	bool DetectInWater(glm::vec3 Position);
