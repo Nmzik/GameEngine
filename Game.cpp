@@ -48,7 +48,7 @@ void Game::updateFPS(float delta_time) {
 	if (time_since_last_fps_output >= 1.0f) {
 		time_since_last_fps_output = 0.0f;
 		std::ostringstream osstr;
-		osstr << "SDL2 window" << " (" << (int((1.0f / delta_time_smoothed) * 10.0f) / 10.0f) << " FPS, " << (int(delta_time_smoothed * 10000.0f) / 10.0f) << " ms / frame) | ";
+		osstr << "SDL2 window" << " (" << (int((1.0f / delta_time_smoothed) * 10.0f) / 10.0f) << " FPS, CPU time " << (int(delta_time_smoothed * 10000.0f) / 10.0f) << ") | GPU time " << rendering_system->gpuTime * 0.000001f << "ms";
 		SDL_SetWindowTitle(window, osstr.str().c_str());
 	}
 }

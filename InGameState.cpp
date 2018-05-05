@@ -44,7 +44,7 @@ void InGameState::tick(float delta_time)
 	//KEYBOARD
 
 	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_Q)) {
-		game->getRenderer()->setType(0);
+		game->getRenderer()->gpuTimer = !game->getRenderer()->gpuTimer;
 	}
 
 	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_E)) {

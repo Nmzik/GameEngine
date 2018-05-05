@@ -130,7 +130,7 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 
 	projection = glm::perspective(glm::radians(45.0f), (float)1280 / (float)720, 0.1f, 10000.0f);
 
-	//glGenQueries(1, &m_nQueryIDDrawTime);
+	glGenQueries(1, &m_nQueryIDDrawTime);
 }
 
 RenderingSystem::~RenderingSystem()
@@ -326,8 +326,8 @@ void RenderingSystem::render(GameWorld* world)
 	}*/
 
 	//glClearColor(0.0, 0.0, 0.0, 0.0);
-
-	//glBeginQuery(GL_TIME_ELAPSED, m_nQueryIDDrawTime);
+	if (gpuTimer && !mWaiting)
+		glBeginQuery(GL_TIME_ELAPSED, m_nQueryIDDrawTime);
 
 	///geometry to gbuffer->shadowmaps(directional light)->shadowmaps(point light)->ssao->lighting(Final)->skybox
 	// --------------------------------GeometryPass Deferred Rendering----------------------------------
@@ -477,12 +477,22 @@ void RenderingSystem::render(GameWorld* world)
 	hdrShader->setFloat("exposure", exposure);
 	renderQuad();
 
-	/*glEndQuery(GL_TIME_ELAPSED);
-	GLuint64 elapsedTime, vertSub;
-	glGetQueryObjectui64v(m_nQueryIDDrawTime, GL_QUERY_RESULT, &elapsedTime);
-	double drawTimeGPU = (double)(elapsedTime) / 1000000.0;*/
+	if (gpuTimer) {
+		if (!mWaiting) {
+			glEndQuery(GL_TIME_ELAPSED);
+			mWaiting = true;
+		}
 
-	//printf("DRAW TIME %f ms\n", drawTimeGPU);
+		GLint resultReady = 0;
+		glGetQueryObjectiv(m_nQueryIDDrawTime, GL_QUERY_RESULT_AVAILABLE, &resultReady);
+
+		if (resultReady)
+		{
+			glGetQueryObjectuiv(m_nQueryIDDrawTime, GL_QUERY_RESULT, &gpuTime);
+			mWaiting = false;
+		}
+	}
+
 	SDL_GL_SwapWindow(window);
 }
 

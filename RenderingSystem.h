@@ -74,11 +74,11 @@ public:
 	RenderingSystem(SDL_Window* window_);
 	~RenderingSystem();
 
+	bool gpuTimer = false;
+	bool mWaiting = false;
+	GLuint gpuTime = 0;
 	glm::vec3 lightPos;
-	bool DrawCollision = false;
-	bool test = true;
 	bool RenderDebugWorld = false;
-	float x = 50.f;
 	Camera& getCamera();
 	void createGBuffer();
 	void createDepthFBO();
