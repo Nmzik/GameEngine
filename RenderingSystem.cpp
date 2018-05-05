@@ -82,9 +82,9 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 	createHDRFBO();
 
 	gbuffer->use();
-	gbuffer->setInt("material.diffuse", 0);
-	gbuffer->setInt("material.normalMap", 1);
-	gbuffer->setInt("material.specular", 2);
+	gbuffer->setInt("DiffuseSampler", 0);
+	gbuffer->setInt("BumpSampler", 1);
+	gbuffer->setInt("SpecSampler", 2);
 
 	shaderSSAO->use();
 	shaderSSAO->setInt("gDepth", 0);

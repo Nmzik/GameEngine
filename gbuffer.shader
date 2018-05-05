@@ -44,23 +44,18 @@ in vec3 Normal;
 in mat3 TBN;
 in vec4 Color;
 
-struct Material {
-	sampler2D diffuse;
-	sampler2D normalMap;
-	sampler2D specular;
-	float shininess;
-};
+uniform sampler2D DiffuseSampler;
+uniform sampler2D BumpSampler;
+uniform sampler2D SpecSampler;
 
 uniform bool UseNormal;
 uniform bool UseSpecular;
-
-uniform Material material;
 
 void main()
 {    
     // also store the per-fragment normals into the gbuffer
 	if (UseNormal) {
-		vec3 normal = texture(material.normalMap, TexCoords).rgb;
+		vec3 normal = texture(BumpSampler, TexCoords).rgb;
 		// transform normal vector to range [-1,1]
 		normal = normalize(normal * 2.0 - 1.0);  // this normal is in tangent space
 		gNormal = normalize(TBN * normal);
@@ -73,8 +68,8 @@ void main()
 	if (texColor.a < 0.1)
 		discard;*/
 	//gAlbedoSpec = vec4(Color.b, Color.g, Color.r, Color.a);
-    gAlbedoSpec.rgb = texture(material.diffuse, TexCoords).rgb;
+    gAlbedoSpec.rgb = texture(DiffuseSampler, TexCoords).rgb;
     // store specular intensity in gAlbedoSpec's alpha component
 	if (UseSpecular) 
-		gAlbedoSpec.a *= texture(material.specular, TexCoords).r;
+		gAlbedoSpec.a *= texture(SpecSampler, TexCoords).r;
 }

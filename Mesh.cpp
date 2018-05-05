@@ -1,17 +1,8 @@
 #include "Mesh.h"
 
-Mesh::Mesh() : material(0,0,0,0)
+Mesh::Mesh(const uint8_t* meshData, uint64_t VertexPointer, uint32_t VertexSize, uint64_t IndicesPointer, uint32_t IndicesSize, VertexType type, Material mat) : material(mat), num_indices(IndicesSize)
 {
-
-
-}
-
-void Mesh::Init(const uint8_t * meshData, uint64_t VertexPointer, uint32_t VertexSize, uint64_t IndicesPointer, uint32_t IndicesSize, VertexType type, Material mat)
-{
-	material = mat;
-
 	glGenVertexArrays(1, &VAO);
-
 	glBindVertexArray(VAO);
 
 	glGenBuffers(1, &VBO);
@@ -201,15 +192,9 @@ void Mesh::Init(const uint8_t * meshData, uint64_t VertexPointer, uint32_t Verte
 		break;
 	}
 
-	num_indices = IndicesSize;
-
 	glGenBuffers(1, &EBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, IndicesSize * sizeof(uint16_t), &meshData[IndicesPointer], GL_STATIC_DRAW); //16 BIT INDICES max 65536
-
-																													  //glBindVertexArray(0);
-																													  //glBindBuffer(GL_ARRAY_BUFFER, 0);
-																													  //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 void Mesh::Cleanup()

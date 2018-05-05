@@ -54,8 +54,7 @@ public:
 	Material material;
 	unsigned int num_indices;
 
-	Mesh();
-	void Init(const uint8_t* meshData, uint64_t VertexPointer, uint32_t VertexSize, uint64_t IndicesPointer, uint32_t IndicesSize, VertexType type, Material mat);
+	Mesh(const uint8_t* meshData, uint64_t VertexPointer, uint32_t VertexSize, uint64_t IndicesPointer, uint32_t IndicesSize, VertexType type, Material mat);
 	void Cleanup();
 
 	~Mesh();

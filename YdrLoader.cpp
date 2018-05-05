@@ -215,7 +215,7 @@ YdrLoader::YdrLoader(memstream& file, int32_t systemSize, btDiscreteDynamicsWorl
 			file.seekg(drawModel.GeometriesPointer);
 
 			//Optimization
-			meshes.resize(drawModel.GeometriesCount1);
+			meshes.reserve(drawModel.GeometriesCount1);
 
 			for (int i = 0; i < drawModel.GeometriesCount1; i++) //no difference btween geometriescount1 and 2
 			{
@@ -280,10 +280,10 @@ YdrLoader::YdrLoader(memstream& file, int32_t systemSize, btDiscreteDynamicsWorl
 				TranslatePTR(indexbuffer.IndicesPointer);
 
 				if (materials.size() == 0) {
-					meshes[i].Init(file._buffer.p, vertbuffer.DataPointer1, vertbuffer.VertexCount * vertbuffer.VertexStride, indexbuffer.IndicesPointer, indexbuffer.IndicesCount, (VertexType)decl.Flags, material);
+					meshes.emplace_back(file._buffer.p, vertbuffer.DataPointer1, vertbuffer.VertexCount * vertbuffer.VertexStride, indexbuffer.IndicesPointer, indexbuffer.IndicesCount, (VertexType)decl.Flags, material);
 				}
 				else {
-					meshes[i].Init(file._buffer.p, vertbuffer.DataPointer1, vertbuffer.VertexCount * vertbuffer.VertexStride, indexbuffer.IndicesPointer, indexbuffer.IndicesCount, (VertexType)decl.Flags, materials[ShaderMapping[i]]);
+					meshes.emplace_back(file._buffer.p, vertbuffer.DataPointer1, vertbuffer.VertexCount * vertbuffer.VertexStride, indexbuffer.IndicesPointer, indexbuffer.IndicesCount, (VertexType)decl.Flags, materials[ShaderMapping[i]]);
 
 				}
 
