@@ -21,11 +21,6 @@ void SpaceGrid::AddBoundsItem(BoundsStoreItem* item, uint16_t id)
 		{
 			if (!((x < 0) || (y < 0) || (x >= CellCount) || (y >= CellCount)))
 				Grid[x * 500 + y].AddBoundsItem(id);
-			/*SpaceGridCell* cell = GetCell(glm::vec2(x, y));
-			if (cell != nullptr)
-			{
-			cell->AddNode(node);
-			}*/
 		}
 	}
 }
@@ -41,11 +36,6 @@ void SpaceGrid::AddMapNode(MapDataStoreNode* node, uint16_t id)
 		{
 			if (!((x < 0) || (y < 0) || (x >= CellCount) || (y >= CellCount)))
 				Grid[x * 500 + y].AddNode(id);
-			/*SpaceGridCell* cell = GetCell(glm::vec2(x, y));
-			if (cell != nullptr)
-			{
-				cell->AddNode(node);
-			}*/
 		}
 	}
 }
@@ -61,11 +51,6 @@ void SpaceGrid::AddCInteriorProxy(CInteriorProxy * proxy, uint16_t id)
 		{
 			if (!((x < 0) || (y < 0) || (x >= CellCount) || (y >= CellCount)))
 				Grid[x * 500 + y].AddCInteriorProxy(id);
-			/*SpaceGridCell* cell = GetCell(glm::vec2(x, y));
-			if (cell != nullptr)
-			{
-			cell->AddNode(node);
-			}*/
 		}
 	}
 }
