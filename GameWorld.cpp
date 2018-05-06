@@ -711,9 +711,9 @@ void GameWorld::UpdateTraffic(Camera* camera, glm::vec3 pos)
 		}
 	}
 
-	int MaximumAvailablePeds = 20 - pedestrians.size(); //HARDCODED
+	uint32_t MaximumAvailablePeds = 20 - pedestrians.size(); //HARDCODED
 	if (camera->Position.z < 100.0f) {
-		for (int i = 0; i < MaximumAvailablePeds; i++) {
+		for (uint32_t i = 0; i < MaximumAvailablePeds; i++) {
 			float xRandom = RandomFloat(camera->Position.x - radiusTraffic, camera->Position.x + radiusTraffic);
 			float yRandom = RandomFloat(camera->Position.y - radiusTraffic, camera->Position.y + radiusTraffic);
 			if (!camera->intersects(glm::vec3(xRandom, yRandom, camera->Position.z + 3.0f), 1.0f)) {
@@ -732,9 +732,9 @@ void GameWorld::UpdateTraffic(Camera* camera, glm::vec3 pos)
 			vehicles.erase(vehicles.begin() + i);
 		}
 	}
-	int MaximumAvailableVehicles = 10 - vehicles.size(); //HARDCODED
+	uint32_t MaximumAvailableVehicles = 10 - vehicles.size(); //HARDCODED
 	if (camera->Position.z < 100.0f) {
-		for (int i = 0; i < MaximumAvailableVehicles; i++) {
+		for (uint32_t i = 0; i < MaximumAvailableVehicles; i++) {
 			float xRandom = RandomFloat(pos.x - radiusTraffic, pos.x + radiusTraffic);
 			float yRandom = RandomFloat(pos.y - radiusTraffic, pos.y + radiusTraffic);
 			if (!camera->intersects(glm::vec3(xRandom, yRandom, pos.z), 1.0f)) {
@@ -799,7 +799,10 @@ void GameWorld::update(float delta_time, Camera* camera)
 	Update();
 	//gameWorld->UpdateTraffic(&rendering_system->getCamera(), rendering_system->getCamera().Position)
 	dynamicsWorld->stepSimulation(delta_time);
-	GetVisibleYmaps(camera);
+	if (EnableStreaming) {
+		renderList.clear();
+		GetVisibleYmaps(camera);
+	}
 }
 
 

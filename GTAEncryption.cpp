@@ -291,7 +291,7 @@ void GTAEncryption::DecompressBytes(uint8_t * data, uint32_t dataLength, std::ve
 		}
 
 		if (ret != Z_STREAM_END) {
-			int oldSize = output.size();
+			uint32_t oldSize = output.size();
 			output.resize(output.size() * 2);
 
 			strm.avail_out = oldSize;

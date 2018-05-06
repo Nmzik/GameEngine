@@ -48,7 +48,7 @@ void InGameState::tick(float delta_time)
 	}
 
 	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_E)) {
-		game->getRenderer()->setType(1);
+		game->getWorld()->EnableStreaming = !game->getWorld()->EnableStreaming;
 	}
 
 	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_Z)) {

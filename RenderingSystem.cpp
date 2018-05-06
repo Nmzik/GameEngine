@@ -381,8 +381,6 @@ void RenderingSystem::render(GameWorld* world)
 		}
 	}
 
-	world->renderList.clear();
-
 	if (RenderDebugWorld) {
 		world->GetDynamicsWorld()->debugDrawWorld();
 		gbuffer->setMat4(ModelUniformLoc, glm::mat4(1.0));

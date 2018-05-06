@@ -65,8 +65,6 @@ void PhysicsDebugDrawer::render()
 
 	glDrawArrays(GL_LINES, 0, m_points.size());
 
-	glBindVertexArray(0);
-
 	m_points.clear();
 	m_colors.clear();
 }

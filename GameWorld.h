@@ -73,7 +73,7 @@ public:
 	std::vector<Resource*> resources;
 	RenderList renderList;
 
-	bool renderProxies = true;
+	bool EnableStreaming = true;
 	uint8_t gameMinute;
 	uint8_t gameHour;
 	uint8_t currentPlayerID = 0;

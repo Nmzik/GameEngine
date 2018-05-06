@@ -36,6 +36,14 @@ GameData::GameData()
 	}
 	LoadHandlingData();
 	LoadWaterQuads();
+
+	YdrEntries.reserve(110223);
+	YddEntries.reserve(646372);
+	YtdEntries.reserve(51008);
+	YftEntries.reserve(12052);
+	YmapEntries.reserve(9176);
+	YbnEntries.reserve(17418);
+
 	//shrink to fit
 	for (auto& rpfFile : RpfFiles)
 	{
