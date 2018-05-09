@@ -456,8 +456,7 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 		glm::vec3 lhsPosition = glm::vec3(a.modelMatrix[3]);
 		glm::vec3 rhsPosition = glm::vec3(b.modelMatrix[3]);
 
-		return glm::dot(camera->Position, lhsPosition) > glm::dot(camera->Position, rhsPosition);
-
+		return glm::distance(lhsPosition, camera->Position) < glm::distance(rhsPosition, camera->Position);
 	});
 
 
