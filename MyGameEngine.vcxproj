@@ -91,7 +91,6 @@
     <ClCompile Include="CacheDatFile.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameData.cpp" />
-    <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GameWorld.cpp" />
     <ClCompile Include="GTAEncryption.cpp" />
     <ClCompile Include="InGameState.cpp" />
@@ -131,7 +130,6 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameData.h" />
-    <ClInclude Include="GameObject.h" />
     <ClInclude Include="GameWorld.h" />
     <ClInclude Include="GTAEncryption.h" />
     <ClInclude Include="includes.h" />

@@ -298,9 +298,9 @@ void RenderingSystem::renderQuad()
 	glBindVertexArray(0);
 }
 
-#define ModelUniformLoc 3
-#define ViewUniformLoc 4
-#define ProjUniformLoc 5
+#define ModelUniformLoc 0
+#define ViewUniformLoc 1
+#define ProjUniformLoc 2
 
 void RenderingSystem::render(GameWorld* world)
 {
@@ -340,12 +340,12 @@ void RenderingSystem::render(GameWorld* world)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	gbuffer->use();
-	gbuffer->setMat4(ProjUniformLoc, projection);
 	gbuffer->setMat4(ViewUniformLoc, view);
+	gbuffer->setMat4(ProjUniformLoc, projection);
 
 	glDepthMask(GL_FALSE); //SKYDOME IS STATIONARY - SHOULD BE RENDERED LAST - PLAYER CAN GO OUT OF SKYDOME IF HE IS TOO FAR FROM IT
 	glm::mat4 SkydomeMatrix = glm::translate(glm::mat4(), camera->Position) * glm::toMat4(glm::quat(-1, 0, 0, 0)) * glm::scale(glm::mat4(), glm::vec3(10, 10, 10));
-	gbuffer->setMat4(3, SkydomeMatrix);
+	gbuffer->setMat4(ModelUniformLoc, SkydomeMatrix);
 	world->skydome->YdrFiles[2640562617]->Draw(gbuffer);
 	glDepthMask(GL_TRUE);
 
@@ -356,7 +356,7 @@ void RenderingSystem::render(GameWorld* world)
 	for (int i = 0; i < world->pedestrians.size(); i++) {
 		auto& model = world->pedestrians[i]->getPosition();
 		if (camera->intersects(glm::vec3(model[3]), 1.0f)) {
-			gbuffer->setMat4(3, model);
+			gbuffer->setMat4(ModelUniformLoc, model);
 			world->pedestrians[i]->Draw(gbuffer);
 		}
 	}
@@ -365,14 +365,14 @@ void RenderingSystem::render(GameWorld* world)
 		auto modelVehicle = world->vehicles[i]->GetMat4();
 
 		if (camera->intersects(glm::vec3(modelVehicle[3]), 1.0f)) {
-			gbuffer->setMat4(3, modelVehicle);
+			gbuffer->setMat4(ModelUniformLoc, modelVehicle);
 			world->vehicles[i]->Draw(gbuffer);
 		}
 	}
 
 	for (auto& model : world->renderList)
 	{
-		gbuffer->setMat4(3, model.modelMatrix);
+		gbuffer->setMat4(ModelUniformLoc, model.modelMatrix);
 		for (auto &mesh : model.ydr->meshes)
 		{
 			glBindVertexArray(mesh.VAO);

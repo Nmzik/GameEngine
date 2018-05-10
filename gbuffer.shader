@@ -9,11 +9,10 @@ layout (location = 4) in vec3 tangent;
 out vec2 TexCoords;
 out vec3 Normal;
 out mat3 TBN;
-out vec4 Color;
 
-layout(location = 3) uniform mat4 model;
-layout(location = 4) uniform mat4 view;
-layout(location = 5) uniform mat4 projection;
+layout(location = 0) uniform mat4 model;
+layout(location = 1) uniform mat4 view;
+layout(location = 2) uniform mat4 projection;
 
 void main()
 {
@@ -29,8 +28,6 @@ void main()
 
 	TBN = transpose(mat3(T, B, N));
 
-	Color = aColor;
-
     gl_Position = projection * viewPos;
 }
 
@@ -42,27 +39,17 @@ layout (location = 1) out vec3 gNormal;
 in vec2 TexCoords;
 in vec3 Normal;
 in mat3 TBN;
-in vec4 Color;
 
 uniform sampler2D DiffuseSampler;
 uniform sampler2D BumpSampler;
 uniform sampler2D SpecSampler;
 
-uniform bool UseNormal;
-uniform bool UseSpecular;
-
 void main()
 {    
-    // also store the per-fragment normals into the gbuffer
-	if (UseNormal) {
-		vec3 normal = texture(BumpSampler, TexCoords).rgb;
-		// transform normal vector to range [-1,1]
-		normal = normalize(normal * 2.0 - 1.0);  // this normal is in tangent space
-		gNormal = normalize(TBN * normal);
-	}
-	else {
-		gNormal = normalize(Normal);
-	}
+	vec3 normal = texture(BumpSampler, TexCoords).rgb;
+	// transform normal vector to range [-1,1]
+	normal = normalize(normal * 2.0 - 1.0);  // this normal is in tangent space
+	gNormal = normalize(normal);
     // and the diffuse per-fragment color
 	/*vec4 texColor = texture(material.diffuse, TexCoords);
 	if (texColor.a < 0.1)
@@ -70,6 +57,5 @@ void main()
 	//gAlbedoSpec = vec4(Color.b, Color.g, Color.r, Color.a);
     gAlbedoSpec.rgb = texture(DiffuseSampler, TexCoords).rgb;
     // store specular intensity in gAlbedoSpec's alpha component
-	if (UseSpecular) 
-		gAlbedoSpec.a *= texture(SpecSampler, TexCoords).r;
+	gAlbedoSpec.a = texture(SpecSampler, TexCoords).r;
 }
