@@ -5,13 +5,8 @@
 #include <random>
 #include <iostream>
 #include "glew.h"
-#include "glm.hpp"
-#include "glm/ext.hpp"
-#include "glm/gtx/transform.hpp"
-#include "gtc/matrix_transform.hpp"
-#include "gtx/rotate_vector.hpp"
-#include "gtc/type_ptr.hpp"
-#include "glm/gtx/matrix_decompose.hpp"
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
 
 #include "Shader.h"
 #include "Skybox.h"

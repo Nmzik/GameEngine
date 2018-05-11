@@ -57,7 +57,7 @@ void YmapLoader::Init(memstream& file)
 				if (def.childLodDist <= 0) def.childLodDist = 30.0f;
 
 				CEntityDefs.push_back(def);
-				ModelMatrices.emplace_back(glm::translate(glm::mat4(), def.position) * glm::toMat4(glm::quat(-def.rotation.w, def.rotation.x, def.rotation.y, def.rotation.z)) * glm::scale(glm::mat4(), glm::vec3(def.scaleXY, def.scaleXY, def.scaleZ)));
+				ModelMatrices.emplace_back(glm::translate(glm::mat4(1.0f), def.position) * glm::mat4_cast(glm::quat(-def.rotation.w, def.rotation.x, def.rotation.y, def.rotation.z)) * glm::scale(glm::mat4(1.0f), glm::vec3(def.scaleXY, def.scaleXY, def.scaleZ)));
 			}
 		}
 

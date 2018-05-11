@@ -107,6 +107,7 @@
     <ClCompile Include="RenderingSystem.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="RpfFile.cpp" />
+    <ClCompile Include="ShaderManager.cpp" />
     <ClCompile Include="Skybox.cpp" />
     <ClCompile Include="SoundManager.cpp" />
     <ClCompile Include="SpaceGrid.cpp" />
@@ -148,6 +149,7 @@
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="RpfEntry.h" />
     <ClInclude Include="RpfFile.h" />
+    <ClInclude Include="ShaderManager.h" />
     <ClInclude Include="SoundManager.h" />
     <ClInclude Include="SpaceGrid.h" />
     <ClInclude Include="State.h" />
