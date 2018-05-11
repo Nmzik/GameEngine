@@ -39,7 +39,7 @@ public:
 
 	std::unordered_map<uint32_t, CBaseArchetypeDef> CBaseArchetypeDefs;
 	std::unordered_map<uint32_t, CTimeArchetypeDef> CTimeArchetypeDefs;
-	std::unordered_map<uint32_t, std::vector<CEntityDef>> MloDictionary;
+	//std::unordered_map<uint32_t, std::vector<CEntityDef>> MloDictionary;
 	std::unordered_map<uint32_t, RpfResourceFileEntry*> YdrEntries;
 	std::unordered_map<uint32_t, RpfResourceFileEntry*> YddEntries;
 	std::unordered_map<uint32_t, RpfResourceFileEntry*> YtdEntries;

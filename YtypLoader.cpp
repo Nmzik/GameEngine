@@ -56,7 +56,7 @@ YtypLoader::YtypLoader(memstream& file)
 			}
 		}
 
-		if (Block.MetaDataBlock_struct.StructureNameHash == 3461354627)
+		/*if (Block.MetaDataBlock_struct.StructureNameHash == 3461354627)
 		{
 			for (int i = 0; i < Block.MetaDataBlock_struct.DataLength / sizeof(CEntityDef); i++)
 			{
@@ -64,7 +64,7 @@ YtypLoader::YtypLoader(memstream& file)
 				std::memcpy(&def, &Block.Data[i * sizeof(CEntityDef)], sizeof(CEntityDef));
 				CEntityDefs.push_back(def);
 			}
-		}
+		}*/
 	}
 }
 

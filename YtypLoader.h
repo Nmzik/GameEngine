@@ -1,5 +1,6 @@
 #pragma once
-#include "YmapLoader.h"
+#include "YdrLoader.h"
+#include "Meta.h"
 
 enum Unk_1991964615 //archetype assetType
 	: int //Key:1866031916
@@ -80,7 +81,7 @@ public:
 	std::vector<CBaseArchetypeDef> CBaseArchetypeDefs;
 	std::vector<CTimeArchetypeDef> CTimeArchetypeDefs;
 	std::vector<CMloArchetypeDef> CMloArchetypeDefs;
-	std::vector<CEntityDef> CEntityDefs;
+	//std::vector<CEntityDef> CEntityDefs;
 	YtypLoader(memstream& file);
 	~YtypLoader();
 };

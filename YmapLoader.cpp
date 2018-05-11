@@ -1,8 +1,5 @@
 #include "YmapLoader.h"
 
-#define SYSTEM_BASE 0x50000000
-#define GRAPHICS_BASE 0x60000000
-
 void YmapLoader::Init(memstream& file)
 {
 /*	//ADD NEED
@@ -119,6 +116,7 @@ YmapLoader* YmapPool::Load(memstream & file)
 
 void YmapPool::Remove(YmapLoader* ymap)
 {
+	//ymap->Objects.clear();
 	ymap->next = firstAvailable_;
 	firstAvailable_ = ymap;
 }

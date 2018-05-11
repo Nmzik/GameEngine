@@ -133,10 +133,10 @@ GameData::GameData()
 						CTimeArchetypeDefs[def._BaseArchetypeDef.assetName] = def;
 					}
 
-					if (file.CMloArchetypeDefs.size() != 0)
+					/*if (file.CMloArchetypeDefs.size() != 0)
 					{
 						MloDictionary[file.CMloArchetypeDefs[0]._BaseArchetypeDef.assetName] = file.CEntityDefs;
-					}
+					}*/
 				}
 			}
 		}
