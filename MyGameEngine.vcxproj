@@ -73,7 +73,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\nmzik\source\repos\MyGameEngine\MyGameEngine\zlib;C:\Program Files %28x86%29\OpenAL 1.1 SDK\include;C:\Users\nmzik\source\repos\MyGameEngine\MyGameEngine\glm;C:\Users\nmzik\source\repos\MyGameEngine\MyGameEngine\sdl2\include;C:\Users\nmzik\source\repos\MyGameEngine\MyGameEngine\glew\include\GL;$(ProjectDir)\bullet;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\zlib;C:\Program Files %28x86%29\OpenAL 1.1 SDK\include;$(ProjectDir)\glm;$(ProjectDir)\sdl2\include;$(ProjectDir)\glew\include\GL;$(ProjectDir)\bullet;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>B3_USE_CLEW;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpp14</LanguageStandard>
