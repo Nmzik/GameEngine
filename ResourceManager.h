@@ -20,7 +20,7 @@ public:
 	~ResourceManager();
 
 	void AddToWaitingList(Resource* res) {
-		mylock.lock();
+		std::lock_guard<std::mutex> lock(mylock);
 
 		bool found = false;
 
@@ -31,8 +31,6 @@ public:
 
 		if (!found)
 			waitingList.push_back(res);
-
-		mylock.unlock();
 	}
 
 	void update();

@@ -3,6 +3,7 @@
 #include "BulletCollision/CollisionDispatch/btGhostObject.h"
 #include "YftLoader.h"
 #include "Shader.h"
+#include "SDL.h"
 
 class Vehicle
 {

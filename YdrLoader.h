@@ -441,7 +441,5 @@ public:
 	~YdrLoader();
 
 	void UploadMeshes();
-
-	void Draw(Shader* shader);
 };
 

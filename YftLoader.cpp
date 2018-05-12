@@ -211,7 +211,7 @@ YftLoader::YftLoader(memstream& file, int32_t systemSize, bool need, btDiscreteD
 	TranslatePTR(FragPhysicsLOD.ChildrenPointer);
 
 	file.seekg(FragPhysicsLOD.ChildrenPointer);
-	if (need) {
+	/*if (need) {
 
 		for (int i = 0; i < FragPhysicsLOD.ChildrenCount; i++)
 		{
@@ -237,11 +237,11 @@ YftLoader::YftLoader(memstream& file, int32_t systemSize, bool need, btDiscreteD
 			}
 			else {
 				delete ydr;
-			}*/
+			}
 
 			file.seekg(ChildrenPointer);
 		}
-	}
+	}*/
 
 	//TranslatePTR(FragPhysicsLOD.BoundPointer);
 

@@ -131,7 +131,13 @@ void Vehicle::PhysicsTick()
 
 void Vehicle::Draw(Shader* shader) 
 {
-	vehicle->YdrFile->Draw(shader);
+	vehicle->time = SDL_GetTicks();
+	for (auto &mesh : vehicle->YdrFile->meshes)
+	{
+		glBindVertexArray(mesh.VAO);
+		mesh.material.bind(shader);
+		glDrawElements(GL_TRIANGLES, mesh.num_indices, GL_UNSIGNED_SHORT, 0);
+	}
 
 	for (int i = 0; i < m_vehicle->getNumWheels(); i++)
 	{
@@ -141,7 +147,14 @@ void Vehicle::Draw(Shader* shader)
 		for (auto& wheel : vehicle->wheels)
 		{
 			shader->setMat4(3, model);
-			wheel->Draw(shader);
+
+			for (auto &mesh : wheel->meshes)
+			{
+				glBindVertexArray(mesh.VAO);
+				mesh.material.bind(shader);
+				glDrawElements(GL_TRIANGLES, mesh.num_indices, GL_UNSIGNED_SHORT, 0);
+			}
+
 		}
 	}
 }

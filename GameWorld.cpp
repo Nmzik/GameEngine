@@ -71,6 +71,7 @@ GameWorld::GameWorld()
 	ytypLoader.reserve(500);
 	ymapLoader.reserve(500);
 
+	pedestrians.reserve(20);
 
 	//RenderList
 	renderList.reserve(2000);
@@ -671,25 +672,12 @@ void GameWorld::createVehicle(glm::vec3 position)
 	auto it = vehiclesPool.begin();
 	std::advance(it, vehicleID);
 	if (it->second.file == nullptr) {
-
-		auto itv = data.YftEntries.find(it->first);
-		if (itv != data.YftEntries.end())
-		{
-			//std::cout << "YFT CAR Found " << itv->second->Name << std::endl;
-			auto& element = *(itv->second);
-			std::vector<uint8_t> outputBuffer;
-			data.ExtractFileResource(element, outputBuffer);
-
-			memstream stream(outputBuffer.data(), outputBuffer.size());
-			YftLoader *vehicle = new YftLoader(stream, element.SystemSize, true, dynamicsWorld);
-			it->second.file = vehicle;
-		}
-
+		it->second.file = GetYft(it->first, 0);
 	}
-
-	if (it->second.file != nullptr) {
+	else {
+		it->second.file->time = SDL_GetTicks();
 		Vehicle *newVehicle = new Vehicle(position, it->second.mass, it->second.file, dynamicsWorld);
-		vehicles.push_back(newVehicle);
+		vehicles.emplace_back(newVehicle);
 	}
 }
 
@@ -747,7 +735,7 @@ void GameWorld::UpdateTraffic(Camera* camera, glm::vec3 pos)
 			float xRandom = RandomFloat(pos.x - radiusTraffic, pos.x + radiusTraffic);
 			float yRandom = RandomFloat(pos.y - radiusTraffic, pos.y + radiusTraffic);
 			if (!camera->intersects(glm::vec3(xRandom, yRandom, pos.z), 1.0f)) {
-				createVehicle(glm::vec3(xRandom, yRandom, pos.z));
+				//createVehicle(glm::vec3(xRandom, yRandom, pos.z));
 			}
 		}
 	}
@@ -806,7 +794,7 @@ void GameWorld::DetectWeaponHit(glm::vec3 CameraPosition, glm::vec3 lookDirectio
 void GameWorld::update(float delta_time, Camera* camera)
 {
 	Update();
-	//gameWorld->UpdateTraffic(&rendering_system->getCamera(), rendering_system->getCamera().Position)
+	//UpdateTraffic(camera, camera->Position);
 	dynamicsWorld->stepSimulation(delta_time);
 	if (EnableStreaming) {
 		renderList.clear();

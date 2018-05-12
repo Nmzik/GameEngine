@@ -23,6 +23,7 @@ class Player
 	btDiscreteDynamicsWorld* World;
 	Vehicle* vehicle;
 	YddLoader* player;
+	std::vector<YdrLoader*> playerModel;
 	glm::mat4 model;
 public:
 	Player(glm::vec3 position, YddLoader* ydd, btDiscreteDynamicsWorld* world);

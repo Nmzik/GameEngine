@@ -346,7 +346,13 @@ void RenderingSystem::render(GameWorld* world)
 	glDepthMask(GL_FALSE); //SKYDOME IS STATIONARY - SHOULD BE RENDERED LAST - PLAYER CAN GO OUT OF SKYDOME IF HE IS TOO FAR FROM IT
 	glm::mat4 SkydomeMatrix = glm::translate(glm::mat4(1.0f), camera->Position) * glm::mat4_cast(glm::quat(-1, 0, 0, 0)) * glm::scale(glm::mat4(1.0f), glm::vec3(10, 10, 10));
 	gbuffer->setMat4(ModelUniformLoc, SkydomeMatrix);
-	world->skydome->YdrFiles[2640562617]->Draw(gbuffer);
+
+	for (auto &mesh : world->skydome->YdrFiles[2640562617]->meshes)
+	{
+		glBindVertexArray(mesh.VAO);
+		mesh.material.bind(gbuffer);
+		glDrawElements(GL_TRIANGLES, mesh.num_indices, GL_UNSIGNED_SHORT, 0);
+	}
 	glDepthMask(GL_TRUE);
 
 	//glEnable(GL_BLEND);

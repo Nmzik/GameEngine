@@ -2,6 +2,10 @@
 
 Player::Player(glm::vec3 position, YddLoader* ydd, btDiscreteDynamicsWorld* world) : player(ydd), World(world)
 {
+	playerModel.push_back(ydd->YdrFiles[121241095]);
+	playerModel.push_back(ydd->YdrFiles[1471150075]);
+	playerModel.push_back(ydd->YdrFiles[2540683012]);
+
 	btScalar mass(1.0f);
 	btVector3 localInertia(0, 0, 0);
 
@@ -118,5 +122,13 @@ void Player::Jump()
 
 void Player::Draw(Shader* shader)
 {
-	player->Draw(shader);
+	for (auto& ydr : playerModel)
+	{
+		for (auto &mesh : ydr->meshes)
+		{
+			glBindVertexArray(mesh.VAO);
+			mesh.material.bind(shader);
+			glDrawElements(GL_TRIANGLES, mesh.num_indices, GL_UNSIGNED_SHORT, 0);
+		}
+	}
 }

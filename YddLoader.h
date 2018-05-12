@@ -9,7 +9,5 @@ public:
 	uint32_t time;
 	YddLoader(memstream& file, int32_t systemSize, btDiscreteDynamicsWorld* world);
 	~YddLoader();
-
-	void Draw(Shader* shader);
 };
 

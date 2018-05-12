@@ -66,11 +66,3 @@ YddLoader::~YddLoader()
 		it = YdrFiles.erase(it);
 	}
 }
-
-void YddLoader::Draw(Shader* shader)
-{
-	for (auto YdrFile : YdrFiles)
-	{
-		YdrFile.second->Draw(shader);
-	}
-}
