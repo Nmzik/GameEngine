@@ -68,6 +68,7 @@ public:
 	std::vector<Player*> pedestrians;
 	std::vector<Vehicle*> vehicles;
 	YmapPool ymapPool;
+	PedPool pedPool;
 
 	std::mutex resources_lock;
 	std::vector<Resource*> resources;
@@ -77,7 +78,7 @@ public:
 	uint8_t gameMinute;
 	uint8_t gameHour;
 	uint8_t currentPlayerID = 0;
-	Player* player[3];
+	Player player[3];
 	YddLoader* playerYDD;
 
 	GameWorld();

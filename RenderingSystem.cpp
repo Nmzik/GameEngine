@@ -359,11 +359,13 @@ void RenderingSystem::render(GameWorld* world)
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	//glDisable(GL_BLEND);
 
-	for (int i = 0; i < world->pedestrians.size(); i++) {
-		auto& model = world->pedestrians[i]->getPosition();
-		if (camera->intersects(glm::vec3(model[3]), 1.0f)) {
-			gbuffer->setMat4(ModelUniformLoc, model);
-			world->pedestrians[i]->Draw(gbuffer);
+	for (int i = 0; i < 20; i++) {
+		if (world->pedPool.peds[i].loaded) {
+			auto& model = world->pedPool.peds[i].getPosition();
+			if (camera->intersects(glm::vec3(model[3]), 1.0f)) {
+				gbuffer->setMat4(ModelUniformLoc, model);
+				world->pedPool.peds[i].Draw(gbuffer);
+			}
 		}
 	}
 
@@ -398,9 +400,9 @@ void RenderingSystem::render(GameWorld* world)
 
 	for (int i = 0; i < 3; i++)
 	{
-		auto modelMatrix = world->player[i]->getPosition();
+		auto modelMatrix = world->player[i].getPosition();
 		gbuffer->setMat4(ModelUniformLoc, modelMatrix);
-		world->player[i]->Draw(gbuffer);
+		world->player[i].Draw(gbuffer);
 	}
 
 	glDisable(GL_CULL_FACE);

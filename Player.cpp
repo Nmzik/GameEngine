@@ -1,37 +1,7 @@
 #include "Player.h"
 
-Player::Player(glm::vec3 position, YddLoader* ydd, btDiscreteDynamicsWorld* world) : player(ydd), World(world)
+Player::Player()
 {
-	playerModel.push_back(ydd->YdrFiles[121241095]);
-	playerModel.push_back(ydd->YdrFiles[1471150075]);
-	playerModel.push_back(ydd->YdrFiles[2540683012]);
-
-	btScalar mass(1.0f);
-	btVector3 localInertia(0, 0, 0);
-
-	physShape = new btCapsuleShapeZ(0.45f, 1.2f);
-
-	physShape->calculateLocalInertia(mass, localInertia);
-
-	btTransform transform;
-	transform.setIdentity();
-	transform.setOrigin(btVector3(position.x, position.y, position.z));
-
-	btDefaultMotionState* myMotionState = new btDefaultMotionState(transform);
-	btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, physShape, localInertia);
-	rbInfo.m_restitution = 0.0f;
-	rbInfo.m_friction = 1.0;
-
-	body = new btRigidBody(rbInfo);
-	body->setSleepingThresholds(0.0, 0.0);
-	body->setAngularFactor(0.0);
-	body->forceActivationState(DISABLE_DEACTIVATION);
-
-	world->addRigidBody(body, btBroadphaseProxy::KinematicFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::KinematicFilter);
-
-
-
-	playerDirection = glm::vec3(0.0f, 0.0f, 0.0f);
 }
 
 Player::~Player()
@@ -69,8 +39,6 @@ glm::mat4& Player::getPosition()
 
 void Player::PhysicsTick()
 {
-	
-
 	//body->setLinearVelocity(btVector3(playerDirection.x, playerDirection.y, playerDirection.z));
 }
 
@@ -131,4 +99,67 @@ void Player::Draw(Shader* shader)
 			glDrawElements(GL_TRIANGLES, mesh.num_indices, GL_UNSIGNED_SHORT, 0);
 		}
 	}
+}
+
+void Player::Init(glm::vec3 position, YddLoader * ydd, btDiscreteDynamicsWorld * world)
+{
+	loaded = true;
+	player = ydd;
+	World = world;
+
+	playerModel.push_back(ydd->YdrFiles[121241095]);
+	playerModel.push_back(ydd->YdrFiles[1471150075]);
+	playerModel.push_back(ydd->YdrFiles[2540683012]);
+
+	btScalar mass(1.0f);
+	btVector3 localInertia(0, 0, 0);
+
+	physShape = new btCapsuleShapeZ(0.45f, 1.2f);
+
+	physShape->calculateLocalInertia(mass, localInertia);
+
+	btTransform transform;
+	transform.setIdentity();
+	transform.setOrigin(btVector3(position.x, position.y, position.z));
+
+	btDefaultMotionState* myMotionState = new btDefaultMotionState(transform);
+	btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, physShape, localInertia);
+	rbInfo.m_restitution = 0.0f;
+	rbInfo.m_friction = 1.0;
+
+	body = new btRigidBody(rbInfo);
+	body->setSleepingThresholds(0.0, 0.0);
+	body->setAngularFactor(0.0);
+	body->forceActivationState(DISABLE_DEACTIVATION);
+
+	world->addRigidBody(body, btBroadphaseProxy::KinematicFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::KinematicFilter);
+
+
+
+	playerDirection = glm::vec3(0.0f, 0.0f, 0.0f);
+}
+
+void Player::Remove()
+{
+	delete body->getMotionState();
+
+	delete physShape;
+
+	World->removeRigidBody(body);
+
+	delete body;
+
+	loaded = false;
+}
+
+PedPool::PedPool()
+{
+	firstAvailable_ = &peds[0];
+
+	for (int i = 0; i < 19; i++)
+	{
+		peds[i].next = &peds[i + 1];
+	}
+
+	peds[19].next = nullptr;
 }

@@ -116,12 +116,12 @@ GameWorld::GameWorld()
 		memstream stream(outputBuffer.data(), outputBuffer.size());
 		playerYDD = new YddLoader(stream, element.SystemSize, dynamicsWorld);
 
-		player[0] = new Player(glm::vec3(2137, 3656, 100), playerYDD, dynamicsWorld);
-		player[0]->getPhysCharacter()->setGravity(btVector3(0, 0, 0));
-		player[1] = new Player(glm::vec3(9.66, -1184.98, 75.74), playerYDD, dynamicsWorld);
-		player[1]->getPhysCharacter()->setGravity(btVector3(0, 0, 0));
-		player[2] = new Player(glm::vec3(1983.69f, 3825.26, 66.38), playerYDD, dynamicsWorld);
-		player[2]->getPhysCharacter()->setGravity(btVector3(0, 0, 0));
+		player[0].Init(glm::vec3(2137, 3656, 100), playerYDD, dynamicsWorld);
+		player[0].getPhysCharacter()->setGravity(btVector3(0, 0, 0));
+		player[1].Init(glm::vec3(9.66, -1184.98, 75.74), playerYDD, dynamicsWorld);
+		player[1].getPhysCharacter()->setGravity(btVector3(0, 0, 0));
+		player[2].Init(glm::vec3(1983.69f, 3825.26, 66.38), playerYDD, dynamicsWorld);
+		player[2].getPhysCharacter()->setGravity(btVector3(0, 0, 0));
 	}
 
 	auto it = data.YddEntries.find(2640562617);
@@ -698,26 +698,23 @@ void GameWorld::UpdateTraffic(Camera* camera, glm::vec3 pos)
 {
 	float radiusTraffic = 20.0f;
 	//PEDESTRIANS
-	for (int i = 0; i < pedestrians.size(); i++) {
-		glm::vec3 pedestrianPosition(pedestrians[i]->getPhysCharacter()->getWorldTransform().getOrigin().getX(), pedestrians[i]->getPhysCharacter()->getWorldTransform().getOrigin().getY(), pedestrians[i]->getPhysCharacter()->getWorldTransform().getOrigin().getZ());
-		if (glm::distance(camera->Position, pedestrianPosition) >= 100.0f) {
-			//dynamicsWorld->removeCollisionObject(pedestrians[i]->getPhysCharacter()->getGhostObject());
-			//dynamicsWorld->removeCharacter(pedestrians[i]->getPhysCharacter());
-			delete pedestrians[i];
-			pedestrians.erase(pedestrians.begin() + i);
+	
+	if (pedPool.firstAvailable_ == nullptr) {
+		for (auto& ped : pedPool.peds)
+		{
+			if (glm::distance(camera->Position, glm::vec3(ped.getPhysCharacter()->getWorldTransform().getOrigin().getX(), ped.getPhysCharacter()->getWorldTransform().getOrigin().getY(), ped.getPhysCharacter()->getWorldTransform().getOrigin().getZ())) >= 100.0f) {
+				pedPool.Remove(&ped);
+			}
 		}
 	}
 
-	uint32_t MaximumAvailablePeds = 20 - pedestrians.size(); //HARDCODED
-	if (camera->Position.z < 100.0f) {
-		for (uint32_t i = 0; i < MaximumAvailablePeds; i++) {
-			float xRandom = RandomFloat(camera->Position.x - radiusTraffic, camera->Position.x + radiusTraffic);
-			float yRandom = RandomFloat(camera->Position.y - radiusTraffic, camera->Position.y + radiusTraffic);
-			if (!camera->intersects(glm::vec3(xRandom, yRandom, camera->Position.z + 3.0f), 1.0f)) {
-				Player *newPlayer = new Player(glm::vec3(xRandom, yRandom, camera->Position.z + 3.0f), playerYDD, dynamicsWorld);
-				pedestrians.push_back(newPlayer);
-			}
-		}
+	while (pedPool.firstAvailable_ != nullptr)
+	{
+		float xRandom = RandomFloat(camera->Position.x - radiusTraffic, camera->Position.x + radiusTraffic);
+		float yRandom = RandomFloat(camera->Position.y - radiusTraffic, camera->Position.y + radiusTraffic);
+		//if (!camera->intersects(glm::vec3(xRandom, yRandom, camera->Position.z + 3.0f), 1.0f)) {
+			pedPool.Add(glm::vec3(xRandom, yRandom, camera->Position.z + 3.0f), playerYDD, dynamicsWorld);
+		//}
 	}
 	//CARS
 	for (int i = 0; i < vehicles.size(); i++) {
@@ -749,7 +746,7 @@ Vehicle* GameWorld::FindNearestVehicle()
 
 	for (auto& vehicle : vehicles)
 	{
-		glm::vec3 PlayerPosition(player[currentPlayerID]->getPhysCharacter()->getWorldTransform().getOrigin().getX(), player[currentPlayerID]->getPhysCharacter()->getWorldTransform().getOrigin().getY(), player[currentPlayerID]->getPhysCharacter()->getWorldTransform().getOrigin().getZ());
+		glm::vec3 PlayerPosition(player[currentPlayerID].getPhysCharacter()->getWorldTransform().getOrigin().getX(), player[currentPlayerID].getPhysCharacter()->getWorldTransform().getOrigin().getY(), player[currentPlayerID].getPhysCharacter()->getWorldTransform().getOrigin().getZ());
 		glm::vec3 VehiclePosition(vehicle->m_carChassis->getWorldTransform().getOrigin().getX(), vehicle->m_carChassis->getWorldTransform().getOrigin().getY(), vehicle->m_carChassis->getWorldTransform().getOrigin().getZ());
 		float vd = glm::length(PlayerPosition - VehiclePosition);
 		if (vd < d) {
@@ -794,7 +791,7 @@ void GameWorld::DetectWeaponHit(glm::vec3 CameraPosition, glm::vec3 lookDirectio
 void GameWorld::update(float delta_time, Camera* camera)
 {
 	Update();
-	//UpdateTraffic(camera, camera->Position);
+	UpdateTraffic(camera, camera->Position);
 	dynamicsWorld->stepSimulation(delta_time);
 	if (EnableStreaming) {
 		renderList.clear();

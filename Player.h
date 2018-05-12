@@ -26,12 +26,15 @@ class Player
 	std::vector<YdrLoader*> playerModel;
 	glm::mat4 model;
 public:
-	Player(glm::vec3 position, YddLoader* ydd, btDiscreteDynamicsWorld* world);
+	Player();
 	~Player();
+	Player* next;
 	bool on_ground = false;
 	bool isAlive() {
 		return health > 0;
 	}
+
+	bool loaded = false;
 
 	void TakeDamage(float dmg);
 	glm::mat4& getPosition();
@@ -44,5 +47,31 @@ public:
 	void Jump();
 	btRigidBody* getPhysCharacter();
 	void Draw(Shader* shader);
+	void Init(glm::vec3 position, YddLoader* ydd, btDiscreteDynamicsWorld* world);
+	void Remove();
 };
 
+class PedPool {
+public:
+	PedPool();
+
+	Player peds[20];
+	Player * firstAvailable_;
+
+	void Add(glm::vec3 position, YddLoader * ydd, btDiscreteDynamicsWorld * world) {
+		// Make sure the pool isn't full.
+		assert(firstAvailable_ != NULL);
+
+		// Remove it from the available list.
+		Player* newPlayer = firstAvailable_;
+		firstAvailable_ = newPlayer->next;
+
+		newPlayer->Init(position, ydd, world);
+	}
+
+	void Remove(Player* player) {
+		player->next = firstAvailable_;
+		firstAvailable_ = player;
+		player->Remove();
+	}
+};
