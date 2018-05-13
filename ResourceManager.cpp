@@ -46,6 +46,9 @@ void ResourceManager::update()
 					gameworld->resources.push_back(res);
 					gameworld->resources_lock.unlock();
 				}
+				else {
+					printf("");
+				}
 			}
 			break;
 			case ydd:
@@ -58,6 +61,9 @@ void ResourceManager::update()
 					gameworld->resources_lock.lock();
 					gameworld->resources.push_back(res);
 					gameworld->resources_lock.unlock();
+				}
+				else {
+					printf("");
 				}
 			}
 			break;

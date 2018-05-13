@@ -34,110 +34,80 @@ GameData::GameData()
 	{
 		LoadRpf(rpfFile);
 	}
+
 	LoadHandlingData();
 	LoadWaterQuads();
 
 	YdrEntries.reserve(110223);
-	YddEntries.reserve(646372);
+	YddEntries.reserve(17500);
 	YtdEntries.reserve(51008);
 	YftEntries.reserve(12052);
 	YmapEntries.reserve(9176);
 	YbnEntries.reserve(17418);
 
-	//shrink to fit
 	for (auto& rpfFile : RpfFiles)
 	{
-		for (auto& entry : rpfFile->ResourceEntries) //////////////////////SOMETHING FISHY IS GOING ON HERE!!!!!!!!!!!
+		for (auto& entry : rpfFile->ResourceEntries)
 		{
-			if (!entry.Name.empty()) {
-				std::string extension = entry.Name.substr(entry.Name.length() - 4);
-				std::transform(entry.Name.begin(), entry.Name.end(), entry.Name.begin(), tolower);
-				entry.NameHash = GenHash(entry.Name);
-				size_t index = entry.Name.find_last_of('.');
-				entry.ShortNameHash = (index > 0) ? GenHash(entry.Name.substr(0, index)) : entry.NameHash;
+			std::string extension = entry.Name.substr(entry.Name.length() - 4);
+			std::transform(entry.Name.begin(), entry.Name.end(), entry.Name.begin(), tolower);
+			entry.NameHash = GenHash(entry.Name);
+			size_t index = entry.Name.find_last_of('.');
+			entry.ShortNameHash = (index > 0) ? GenHash(entry.Name.substr(0, index)) : entry.NameHash;
 
-				if (extension == ".ydr") {
-					//YdrEntries[GenHash(entry.Name.substr(0, entry.Name.length() - 4) + "_lod")] = &entry; //WHY????
-					YdrEntries[entry.NameHash] = &entry;
-					YdrEntries[entry.ShortNameHash] = &entry;
+			if (extension == ".ydr") {
+				//YdrEntries[GenHash(entry.Name.substr(0, entry.Name.length() - 4) + "_lod")] = &entry; //WHY????
+				YdrEntries[entry.NameHash] = &entry;
+				YdrEntries[entry.ShortNameHash] = &entry;
+			}
+			if (extension == ".ydd") {
+				YddEntries[entry.NameHash] = &entry;
+				YddEntries[entry.ShortNameHash] = &entry;
+			}
+			if (extension == ".yft") {
+				YftEntries[entry.NameHash] = &entry;
+				YftEntries[entry.ShortNameHash] = &entry;
+			}
+			if (extension == ".ynd") {
+				YndEntries[entry.NameHash] = &entry;
+				YndEntries[entry.ShortNameHash] = &entry;
+			}
+			if (extension == ".ytd") {
+				YtdEntries[entry.NameHash] = &entry;
+				YtdEntries[entry.ShortNameHash] = &entry;
+			}
+			if (extension == ".ybn") {
+				YbnEntries[entry.NameHash] = &entry;
+				YbnEntries[entry.ShortNameHash] = &entry;
+			}
+			if (entry.Name.substr(entry.Name.length() - 5) == ".ymap") {
+				YmapEntries[entry.NameHash] = &entry;
+				YmapEntries[entry.ShortNameHash] = &entry;
+			}
+			if (entry.Name.substr(entry.Name.length() - 5) == ".ytyp") {
+				//YtypEntries[entry.NameHash] = &entry;
+				//YtypEntries[entry.ShortNameHash] = &entry;
+
+				std::vector<uint8_t> outputBuffer;
+				ExtractFileResource(entry, outputBuffer);
+
+				memstream stream(outputBuffer.data(), outputBuffer.size());
+
+				YtypLoader file(stream);
+				for (auto& def : file.CBaseArchetypeDefs)
+				{
+					CBaseArchetypeDefs[def.assetName] = def;
 				}
-				if (extension == ".ydd") {
-					if (entry.Name.length() > 13) { //SHOULD WORK
-						if (entry.Name.substr(entry.Name.length() - 13) == "_children.ydd") {
-							
-							//YddEntries[GenHash(entry.Name.substr(0, entry.Name.length() - 13) + "_lod")] = entry;
-							YddEntries[GenHash(entry.Name.substr(0, entry.Name.length() - 13))] = &entry;
 
-							size_t index1 = entry.Name.find_last_of('_');
-							if (index1 > 0)
-							{
-								std::string str1 = entry.Name.substr(0, index1);
-								size_t index2 = str1.find_last_of('_');
-								if (index2 > 0)
-								{
-									std::string str2 = str1.substr(0, index2);
-									YddEntries[GenHash(str2 + "_lod")] = &entry;
-									uint32_t maxi = 100;
-									for (uint32_t i = 1; i <= maxi; i++)
-									{
-										std::string str3 = str2 + "_" + std::to_string(i);
-										if (i < 10)		str3.insert(str3.length() - 1, "0");
-										YddEntries[GenHash(str3 + "_lod")] = &entry;
-									}
-								}
-							}
-
-						}
-					}
-
-					YddEntries[entry.NameHash] = &entry;
-					YddEntries[entry.ShortNameHash] = &entry;
+				for (auto& def : file.CTimeArchetypeDefs)
+				{
+					CTimeArchetypeDefs[def._BaseArchetypeDef.assetName] = def;
 				}
-				if (extension == ".yft") {
-					YftEntries[entry.NameHash] = &entry;
-					YftEntries[entry.ShortNameHash] = &entry;
-				}
-				if (extension == ".ynd") {
-					YndEntries[entry.NameHash] = &entry;
-					YndEntries[entry.ShortNameHash] = &entry;
-				}
-				if (extension == ".ytd") {
-					YtdEntries[entry.NameHash] = &entry;
-					YtdEntries[entry.ShortNameHash] = &entry;
-				}
-				if (extension == ".ybn") {
-					YbnEntries[entry.NameHash] = &entry;
-					YbnEntries[entry.ShortNameHash] = &entry;
-				}
-				if (entry.Name.substr(entry.Name.length() - 5) == ".ymap") {
-					YmapEntries[entry.NameHash] = &entry;
-					YmapEntries[entry.ShortNameHash] = &entry;
-				}
-				if (entry.Name.substr(entry.Name.length() - 5) == ".ytyp") {
-					//YtypEntries[entry.NameHash] = &entry;
-					//YtypEntries[entry.ShortNameHash] = &entry;
 
-					std::vector<uint8_t> outputBuffer;
-					ExtractFileResource(entry, outputBuffer);
-
-					memstream stream(outputBuffer.data(), outputBuffer.size());
-
-					YtypLoader file(stream);
-					for (auto& def : file.CBaseArchetypeDefs)
-					{
-						CBaseArchetypeDefs[def.assetName] = def;
-					}
-
-					for (auto& def : file.CTimeArchetypeDefs)
-					{
-						CTimeArchetypeDefs[def._BaseArchetypeDef.assetName] = def;
-					}
-
-					/*if (file.CMloArchetypeDefs.size() != 0)
-					{
-						MloDictionary[file.CMloArchetypeDefs[0]._BaseArchetypeDef.assetName] = file.CEntityDefs;
-					}*/
-				}
+				/*if (file.CMloArchetypeDefs.size() != 0)
+				{
+					MloDictionary[file.CMloArchetypeDefs[0]._BaseArchetypeDef.assetName] = file.CEntityDefs;
+				}*/
 			}
 		}
 	}
@@ -182,7 +152,7 @@ void GameData::LoadHandlingData()
 void GameData::LoadWaterQuads()
 {
 	tinyxml2::XMLDocument doc;
-	tinyxml2::XMLError eResult  = doc.LoadFile("C:\\Users\\nmzik\\Desktop\\water.xml");
+	tinyxml2::XMLError eResult = doc.LoadFile("C:\\Users\\nmzik\\Desktop\\water.xml");
 
 	//tinyxml2::XMLNode* pRoot = doc.FirstChild();
 	//if(pRoot == nullptr) printf("ERRORMAIN");
@@ -295,11 +265,11 @@ void GameData::ExtractFileResource(RpfResourceFileEntry entry, std::vector<uint8
 			}
 			else //if (IsNGEncrypted) //assume the archive is set to NG encryption if not AES... (comment: fix for openIV modded files)
 			{*/
-				//decr = GTACrypto.DecryptNG(tbytes, entry.Name, entry.FileSize);
-			//}
-			//else
-			//{ }
+			//decr = GTACrypto.DecryptNG(tbytes, entry.Name, entry.FileSize);
 		//}
+		//else
+		//{ }
+	//}
 
 		GTAEncryption::DecompressBytes(tbytes, totlen, output);
 		delete[] tbytes;
