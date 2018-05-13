@@ -117,11 +117,11 @@ class YmapLoader
 {
 public:
 	YmapLoader * next;
-	std::vector<glm::mat4> ModelMatrices;
+
 	uint32_t time;
 	CMapData _CMapData;
 	std::vector<CMloInstanceDef> CMloInstanceDefs;
-	std::vector<CEntityDef> CEntityDefs;
+	std::vector<Object> Objects;
 	std::vector<CCarGen> CCarGens;
 
 	void Init(memstream & file);

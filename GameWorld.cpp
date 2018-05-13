@@ -185,99 +185,85 @@ void GameWorld::LoadYmap(uint32_t hash, Camera* camera)
 {
 	YmapLoader *map = GetYmap(hash);
 	if (map) {
-		for (int i = 0; i < map->CEntityDefs.size(); i++)
+		for (auto& object : map->Objects)
 		{
-			bool IsVisible = glm::length(camera->Position - map->CEntityDefs[i].position) <= map->CEntityDefs[i].lodDist * LODMultiplier;
-			bool childrenVisible = (glm::length(camera->Position - map->CEntityDefs[i].position) <= map->CEntityDefs[i].childLodDist * LODMultiplier) && (map->CEntityDefs[i].numChildren > 0);
+			bool IsVisible = glm::length(camera->Position - object.position) <= object.CEntity.lodDist * LODMultiplier;
+			bool childrenVisible = (glm::length(camera->Position - object.position) <= object.CEntity.childLodDist * LODMultiplier) && (object.CEntity.numChildren > 0);
 			if (IsVisible && !childrenVisible) {
-				std::unordered_map<uint32_t, CBaseArchetypeDef>::iterator it = data.CBaseArchetypeDefs.find(map->CEntityDefs[i].archetypeName);
-				if (it != data.CBaseArchetypeDefs.end())
-				{
-					if ((it->second.flags & 2048) > 0)
+				if (object.type == 0) {
+					std::unordered_map<uint32_t, CBaseArchetypeDef>::iterator it = data.CBaseArchetypeDefs.find(object.CEntity.archetypeName);
+					if (it != data.CBaseArchetypeDefs.end())
+					{
+						object.Archetype._BaseArchetypeDef = it->second;
+
+						//if (object.CEntity.lodDist <= 0) object.CEntity.lodDist = 30.0f;
+						//if (object.CEntity.childLodDist <= 0) object.CEntity.childLodDist = 30.0f;
+
+						object.type = 1;
+					}
+					else {
+						std::unordered_map<uint32_t, CTimeArchetypeDef>::iterator it = data.CTimeArchetypeDefs.find(object.CEntity.archetypeName);
+						if (it != data.CTimeArchetypeDefs.end())
+						{
+							object.Archetype = it->second;
+
+							//if (object.CEntity.lodDist <= 0) object.CEntity.lodDist = it->second._BaseArchetypeDef.lodDist;
+							//if (object.CEntity.childLodDist <= 0) object.CEntity.childLodDist = it->second._BaseArchetypeDef.lodDist;
+
+							object.type = 2;
+						}
+					}
+				}
+				else {
+
+					if ((object.Archetype._BaseArchetypeDef.flags & 2048) > 0)
 					{
 						//if (!renderProxies) continue;
 						continue;
 					}
 
-					switch (it->second.assetType)
+					if (object.type == 2) {
+						if ((object.Archetype._TimeArchetypeDef.timeFlags >> gameHour) & 1)
+						{
+							continue;
+						}
+					}
+
+					switch (object.Archetype._BaseArchetypeDef.assetType)
 					{
 						case ASSET_TYPE_DRAWABLE: {
-							YdrLoader* file = GetYdr(map->CEntityDefs[i].archetypeName, it->second.textureDictionary);
+							YdrLoader* file = GetYdr(object.CEntity.archetypeName, object.Archetype._BaseArchetypeDef.textureDictionary);
 							if (file) {
-								if (camera->intersects(it->second.bsCentre + map->CEntityDefs[i].position, it->second.bsRadius * std::max(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ))) {
-									renderList.emplace_back(file, map->ModelMatrices[i]);
+								if (camera->intersects(object.Archetype._BaseArchetypeDef.bsCentre + object.CEntity.position, object.Archetype._BaseArchetypeDef.bsRadius * std::max(object.CEntity.scaleXY, object.CEntity.scaleZ))) {
+									renderList.emplace_back(file, object.getMatrix());
 								}
 							}
 							break;
 						}
 						case ASSET_TYPE_DRAWABLEDICTIONARY: {
-							YddLoader* file = GetYdd(it->second.drawableDictionary, it->second.textureDictionary);
+							YddLoader* file = GetYdd(object.Archetype._BaseArchetypeDef.drawableDictionary, object.Archetype._BaseArchetypeDef.textureDictionary);
 							if (file) {
-								std::unordered_map<uint32_t, YdrLoader*>::iterator iter2 = file->YdrFiles.find(map->CEntityDefs[i].archetypeName);
+								std::unordered_map<uint32_t, YdrLoader*>::iterator iter2 = file->YdrFiles.find(object.CEntity.archetypeName);
 								if (iter2 != file->YdrFiles.end())
 								{
-									if (camera->intersects(it->second.bsCentre + map->CEntityDefs[i].position, it->second.bsRadius * std::max(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ))) {
-										renderList.emplace_back(iter2->second, map->ModelMatrices[i]);
+									if (camera->intersects(object.Archetype._BaseArchetypeDef.bsCentre + object.CEntity.position, object.Archetype._BaseArchetypeDef.bsRadius * std::max(object.CEntity.scaleXY, object.CEntity.scaleZ))) {
+										renderList.emplace_back(iter2->second, object.getMatrix());
 									}
 								}
 							}
 							break;
 						}
 						case ASSET_TYPE_FRAGMENT: {
-							YftLoader* file = GetYft(map->CEntityDefs[i].archetypeName, it->second.textureDictionary);
+							YftLoader* file = GetYft(object.CEntity.archetypeName, object.Archetype._BaseArchetypeDef.textureDictionary);
 							if (file) {
-								if (camera->intersects(it->second.bsCentre + map->CEntityDefs[i].position, it->second.bsRadius * std::max(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ))) {
-									renderList.emplace_back(file->YdrFile, map->ModelMatrices[i]);
+								if (camera->intersects(object.Archetype._BaseArchetypeDef.bsCentre + object.CEntity.position, object.Archetype._BaseArchetypeDef.bsRadius * std::max(object.CEntity.scaleXY, object.CEntity.scaleZ))) {
+									renderList.emplace_back(file->YdrFile, object.getMatrix());
 								}
 							}
 							break;
 						}
 					}
-				}
-				else {
-					std::unordered_map<uint32_t, CTimeArchetypeDef>::iterator it = data.CTimeArchetypeDefs.find(map->CEntityDefs[i].archetypeName);
-					if (it != data.CTimeArchetypeDefs.end())
-					{
-						//TIME FLAGS FOUND
-						if ((it->second._TimeArchetypeDef.timeFlags >> gameHour) & 1) {
 
-							switch (it->second._BaseArchetypeDef.assetType)
-							{
-								case ASSET_TYPE_DRAWABLE: {
-									YdrLoader* file = GetYdr(map->CEntityDefs[i].archetypeName, it->second._BaseArchetypeDef.textureDictionary);
-									if (file) {
-										if (camera->intersects(it->second._BaseArchetypeDef.bsCentre + map->CEntityDefs[i].position, it->second._BaseArchetypeDef.bsRadius * std::max(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ))) {
-											renderList.emplace_back(file, map->ModelMatrices[i]);
-										}
-									}
-									break;
-								}
-								case ASSET_TYPE_DRAWABLEDICTIONARY: {
-									YddLoader* file = GetYdd(it->second._BaseArchetypeDef.drawableDictionary, it->second._BaseArchetypeDef.textureDictionary);
-									if (file) {
-										std::unordered_map<uint32_t, YdrLoader*>::iterator iter2 = file->YdrFiles.find(map->CEntityDefs[i].archetypeName);
-										if (iter2 != file->YdrFiles.end())
-										{
-											if (camera->intersects(it->second._BaseArchetypeDef.bsCentre + map->CEntityDefs[i].position, it->second._BaseArchetypeDef.bsRadius * std::max(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ))) {
-												renderList.emplace_back(iter2->second, map->ModelMatrices[i]);
-											}
-										}
-									}
-									break;
-								}
-								case ASSET_TYPE_FRAGMENT: {
-									YftLoader* file = GetYft(map->CEntityDefs[i].archetypeName, it->second._BaseArchetypeDef.textureDictionary);
-									if (file) {
-										if (camera->intersects(it->second._BaseArchetypeDef.bsCentre + map->CEntityDefs[i].position, it->second._BaseArchetypeDef.bsRadius * std::max(map->CEntityDefs[i].scaleXY, map->CEntityDefs[i].scaleZ))) {
-											renderList.emplace_back(file->YdrFile, map->ModelMatrices[i]);
-										}
-									}
-									break;
-								}
-							}
-
-						}
-					}
 				}
 			}
 		}
@@ -791,7 +777,7 @@ void GameWorld::DetectWeaponHit(glm::vec3 CameraPosition, glm::vec3 lookDirectio
 void GameWorld::update(float delta_time, Camera* camera)
 {
 	Update();
-	UpdateTraffic(camera, camera->Position);
+	//UpdateTraffic(camera, camera->Position);
 	dynamicsWorld->stepSimulation(delta_time);
 	if (EnableStreaming) {
 		renderList.clear();

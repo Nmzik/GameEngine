@@ -26,8 +26,7 @@ void YmapLoader::Init(memstream& file)
 		}
 
 		//Optimization
-		CEntityDefs.reserve(_CMapData.entities.Count1);
-		ModelMatrices.reserve(_CMapData.entities.Count1);
+		Objects.reserve(_CMapData.entities.Count1);
 
 		if (Block.MetaDataBlock_struct.StructureNameHash == 3461354627)
 		{
@@ -56,8 +55,7 @@ void YmapLoader::Init(memstream& file)
 				if (def.lodDist <= 0) def.lodDist = 30.0f;
 				if (def.childLodDist <= 0) def.childLodDist = 30.0f;
 
-				CEntityDefs.push_back(def);
-				ModelMatrices.emplace_back(glm::translate(glm::mat4(1.0f), def.position) * glm::mat4_cast(glm::quat(-def.rotation.w, def.rotation.x, def.rotation.y, def.rotation.z)) * glm::scale(glm::mat4(1.0f), glm::vec3(def.scaleXY, def.scaleXY, def.scaleZ)));
+				Objects.emplace_back(def);
 			}
 		}
 
@@ -116,7 +114,7 @@ YmapLoader* YmapPool::Load(memstream & file)
 
 void YmapPool::Remove(YmapLoader* ymap)
 {
-	//ymap->Objects.clear();
+	ymap->Objects.clear();
 	ymap->next = firstAvailable_;
 	firstAvailable_ = ymap;
 }

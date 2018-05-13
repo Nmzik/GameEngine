@@ -89,6 +89,7 @@
   <ItemGroup>
     <ClCompile Include="aes.c" />
     <ClCompile Include="CacheDatFile.cpp" />
+    <ClCompile Include="Entity.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameData.cpp" />
     <ClCompile Include="GameWorld.cpp" />
@@ -130,6 +131,7 @@
     <ClInclude Include="aes.hpp" />
     <ClInclude Include="CacheDatFile.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="Entity.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameData.h" />
     <ClInclude Include="GameWorld.h" />

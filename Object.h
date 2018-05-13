@@ -1,16 +1,15 @@
 #pragma once
 #include "YdrLoader.h"
 #include "YtypLoader.h"
+#include "Entity.h"
 
-class Object
+class Object : public Entity
 {
 	glm::mat4 ModelMatrix;
 public:
-	bool loaded = false;
-	bool ArchetypeFound = false;
-	uint32_t time;
-	YdrLoader* Drawable;
-	CEntityDef Entity;
+	//bool loaded = false;
+	uint8_t type = 0;
+	CEntityDef CEntity;
 	CTimeArchetypeDef Archetype;
 
 	Object(CEntityDef def);
