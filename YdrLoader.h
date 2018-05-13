@@ -436,8 +436,11 @@ public:
 	YtdLoader * externalYtd;
 	bool isVisible = false;
 	uint32_t time;
-	bool Loaded = false;
+	bool Loaded;
+
+	YdrLoader();
 	YdrLoader(memstream& file, int32_t systemSize, btDiscreteDynamicsWorld* world, bool isYft = false);
+	void Init(memstream& file, int32_t systemSize, btDiscreteDynamicsWorld* world, bool isYft = false);
 	~YdrLoader();
 
 	void UploadMeshes();

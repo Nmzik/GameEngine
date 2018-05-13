@@ -118,6 +118,7 @@ class YmapLoader
 public:
 	YmapLoader * next;
 
+	bool Loaded = false;
 	uint32_t time;
 	CMapData _CMapData;
 	std::vector<CMloInstanceDef> CMloInstanceDefs;
@@ -133,7 +134,7 @@ public:
 	YmapPool();
 	~YmapPool();
 
-	YmapLoader* Load(memstream& file);
+	YmapLoader* Load();
 	void Remove(YmapLoader* ymap);
 
 	YmapLoader ymaps[500];

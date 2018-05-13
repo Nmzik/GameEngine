@@ -2,16 +2,8 @@
 
 void YmapLoader::Init(memstream& file)
 {
-/*	//ADD NEED
-	uint32_t rsc7;
-	file.read((char*)&rsc7, sizeof(uint32_t));
-
-	if (rsc7 == 0x37435352) {
-		printf("NOT IMPLEMENTED!");
-	}
-	else {
-		printf("HERE");
-	}*/
+	Loaded = true;
+	//Could be an additional extraction code here
 
 	ResourceFileBase resourceFileBase;
 	file.read((char*)&resourceFileBase, sizeof(ResourceFileBase));
@@ -98,7 +90,7 @@ YmapPool::~YmapPool()
 
 }
 
-YmapLoader* YmapPool::Load(memstream & file)
+YmapLoader* YmapPool::Load()
 {
 	// Make sure the pool isn't full.
 	assert(firstAvailable_ != NULL);
@@ -107,13 +99,14 @@ YmapLoader* YmapPool::Load(memstream & file)
 	YmapLoader* newYmap = firstAvailable_;
 	firstAvailable_ = newYmap->next;
 
-	newYmap->Init(file);
+	//newYmap->Init(file);
 
 	return newYmap;
 }
 
 void YmapPool::Remove(YmapLoader* ymap)
 {
+	ymap->Loaded = false;
 	ymap->Objects.clear();
 	ymap->next = firstAvailable_;
 	firstAvailable_ = ymap;

@@ -1,7 +1,19 @@
 #include "YbnLoader.h"
 
-YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world, memstream& file) : CollisionWorld(world)
+YbnLoader::YbnLoader()
 {
+
+}
+
+YbnLoader::YbnLoader(btDiscreteDynamicsWorld * world, memstream & file)
+{
+	Init(world, file);
+}
+
+void YbnLoader::Init(btDiscreteDynamicsWorld* world, memstream& file)
+{
+	CollisionWorld = world;
+
 	ResourceFileBase resourceFileBase;
 	file.read((char*)&resourceFileBase, sizeof(ResourceFileBase));
 
@@ -181,7 +193,6 @@ YbnLoader::YbnLoader(btDiscreteDynamicsWorld* world, memstream& file) : Collisio
 		}
 	}
 }
-
 
 YbnLoader::~YbnLoader()
 {

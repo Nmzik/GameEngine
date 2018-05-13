@@ -1,7 +1,13 @@
 #include "YftLoader.h"
 
-YftLoader::YftLoader(memstream& file, int32_t systemSize, bool need, btDiscreteDynamicsWorld* world)
+YftLoader::YftLoader() : Loaded(false)
 {
+}
+
+void YftLoader::Init(memstream & file, int32_t systemSize, bool need, btDiscreteDynamicsWorld * world)
+{
+	Loaded = true;
+
 	ResourceFileBase resourceFileBase;
 	file.read((char*)&resourceFileBase, sizeof(ResourceFileBase));
 
@@ -213,39 +219,44 @@ YftLoader::YftLoader(memstream& file, int32_t systemSize, bool need, btDiscreteD
 	file.seekg(FragPhysicsLOD.ChildrenPointer);
 	/*if (need) {
 
-		for (int i = 0; i < FragPhysicsLOD.ChildrenCount; i++)
-		{
-			uint64_t DataPointer;
-			file.read((char*)&DataPointer, sizeof(uint64_t));
+	for (int i = 0; i < FragPhysicsLOD.ChildrenCount; i++)
+	{
+	uint64_t DataPointer;
+	file.read((char*)&DataPointer, sizeof(uint64_t));
 
-			uint64_t ChildrenPointer = file.tellg();
+	uint64_t ChildrenPointer = file.tellg();
 
-			TranslatePTR(DataPointer);
+	TranslatePTR(DataPointer);
 
-			file.seekg(DataPointer);
+	file.seekg(DataPointer);
 
-			file.read((char*)&FragPhysTypeChild, sizeof(FragPhysTypeChild));
+	file.read((char*)&FragPhysTypeChild, sizeof(FragPhysTypeChild));
 
-			TranslatePTR(FragPhysTypeChild.Drawable1Pointer);
+	TranslatePTR(FragPhysTypeChild.Drawable1Pointer);
 
-			file.seekg(FragPhysTypeChild.Drawable1Pointer);
+	file.seekg(FragPhysTypeChild.Drawable1Pointer);
 
-			//YdrLoader* ydr = new YdrLoader(file, systemSize, world, true);
+	//YdrLoader* ydr = new YdrLoader(file, systemSize, world, true);
 
-			/*if (ydr->.size() != 0) {
-				wheels.push_back(ydr);
-			}
-			else {
-				delete ydr;
-			}
+	/*if (ydr->.size() != 0) {
+	wheels.push_back(ydr);
+	}
+	else {
+	delete ydr;
+	}
 
-			file.seekg(ChildrenPointer);
-		}
+	file.seekg(ChildrenPointer);
+	}
 	}*/
 
 	//TranslatePTR(FragPhysicsLOD.BoundPointer);
 
 	//YbnLoader* loader = new YbnLoader(world, file, hash);*/
+}
+
+YftLoader::YftLoader(memstream& file, int32_t systemSize, bool need, btDiscreteDynamicsWorld* world)
+{
+	Init(file, systemSize, need, world);
 }
 
 

@@ -1,7 +1,13 @@
 #include "YddLoader.h"
 
-YddLoader::YddLoader(memstream& file, int32_t systemSize, btDiscreteDynamicsWorld* world)
+YddLoader::YddLoader() : Loaded(false)
 {
+}
+
+void YddLoader::Init(memstream & file, int32_t systemSize, btDiscreteDynamicsWorld * world)
+{
+	Loaded = true;
+
 	ResourceFileBase resourceFileBase;
 	file.read((char*)&resourceFileBase, sizeof(ResourceFileBase));
 
@@ -56,6 +62,11 @@ YddLoader::YddLoader(memstream& file, int32_t systemSize, btDiscreteDynamicsWorl
 
 		file.seekg(DrawablePointer);
 	}
+}
+
+YddLoader::YddLoader(memstream& file, int32_t systemSize, btDiscreteDynamicsWorld* world)
+{
+	Init(file, systemSize, world);
 }
 
 YddLoader::~YddLoader()

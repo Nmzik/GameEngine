@@ -184,7 +184,7 @@ float RandomFloat(float min, float max) {
 void GameWorld::LoadYmap(uint32_t hash, Camera* camera)
 {
 	YmapLoader *map = GetYmap(hash);
-	if (map) {
+	if (map->Loaded) {
 		for (auto& object : map->Objects)
 		{
 			bool IsVisible = glm::length(camera->Position - object.position) <= object.CEntity.lodDist * LODMultiplier;
@@ -233,7 +233,7 @@ void GameWorld::LoadYmap(uint32_t hash, Camera* camera)
 					{
 						case ASSET_TYPE_DRAWABLE: {
 							YdrLoader* file = GetYdr(object.CEntity.archetypeName, object.Archetype._BaseArchetypeDef.textureDictionary);
-							if (file) {
+							if (file->Loaded) {
 								if (camera->intersects(object.Archetype._BaseArchetypeDef.bsCentre + object.CEntity.position, object.Archetype._BaseArchetypeDef.bsRadius * std::max(object.CEntity.scaleXY, object.CEntity.scaleZ))) {
 									renderList.emplace_back(file, object.getMatrix());
 								}
@@ -242,7 +242,7 @@ void GameWorld::LoadYmap(uint32_t hash, Camera* camera)
 						}
 						case ASSET_TYPE_DRAWABLEDICTIONARY: {
 							YddLoader* file = GetYdd(object.Archetype._BaseArchetypeDef.drawableDictionary, object.Archetype._BaseArchetypeDef.textureDictionary);
-							if (file) {
+							if (file->Loaded) {
 								std::unordered_map<uint32_t, YdrLoader*>::iterator iter2 = file->YdrFiles.find(object.CEntity.archetypeName);
 								if (iter2 != file->YdrFiles.end())
 								{
@@ -255,7 +255,7 @@ void GameWorld::LoadYmap(uint32_t hash, Camera* camera)
 						}
 						case ASSET_TYPE_FRAGMENT: {
 							YftLoader* file = GetYft(object.CEntity.archetypeName, object.Archetype._BaseArchetypeDef.textureDictionary);
-							if (file) {
+							if (file->Loaded) {
 								if (camera->intersects(object.Archetype._BaseArchetypeDef.bsCentre + object.CEntity.position, object.Archetype._BaseArchetypeDef.bsRadius * std::max(object.CEntity.scaleXY, object.CEntity.scaleZ))) {
 									renderList.emplace_back(file->YdrFile, object.getMatrix());
 								}
@@ -312,10 +312,11 @@ YmapLoader* GameWorld::GetYmap(uint32_t hash)
 		return it->second;
 	}
 	else {
+		ymapLoader[hash] = ymapPool.Load();
+		ymapLoader[hash]->time = SDL_GetTicks();
 		GetResourceManager()->AddToWaitingList(new Resource(ymap, hash));
+		return ymapLoader[hash];
 	}
-
-	return nullptr;
 }
 
 bool GameWorld::LoadYTYP(uint32_t hash)
@@ -346,9 +347,12 @@ YtdLoader* GameWorld::LoadYTD(uint32_t hash)
 		return it->second;
 	}
 	else {
+		ytdLoader[hash] = new YtdLoader();
+		ytdLoader[hash]->time = SDL_GetTicks();
 		GetResourceManager()->AddToWaitingList(new Resource(ytd, hash));
+
+		return ytdLoader[hash];
 	}
-	return nullptr;
 }
 
 YdrLoader * GameWorld::GetYdr(uint32_t hash, uint32_t TextureDictionaryHash)
@@ -362,10 +366,13 @@ YdrLoader * GameWorld::GetYdr(uint32_t hash, uint32_t TextureDictionaryHash)
 		return iter->second;
 	}
 	else {
+		ydrLoader[hash] = new YdrLoader();
+		ydrLoader[hash]->time = SDL_GetTicks();
 		GetResourceManager()->AddToWaitingList(new Resource(ydr, hash, TextureDictionaryHash));
 		LoadYTD(TextureDictionaryHash);
+
+		return ydrLoader[hash];
 	}
-	return nullptr;
 }
 
 YddLoader * GameWorld::GetYdd(uint32_t hash, uint32_t TextureDictionaryHash)
@@ -379,10 +386,13 @@ YddLoader * GameWorld::GetYdd(uint32_t hash, uint32_t TextureDictionaryHash)
 		return iter->second;
 	}
 	else {
+		yddLoader[hash] = new YddLoader();
+		yddLoader[hash]->time = SDL_GetTicks();
 		GetResourceManager()->AddToWaitingList(new Resource(ydd, hash, TextureDictionaryHash));
 		LoadYTD(TextureDictionaryHash);
+
+		return yddLoader[hash];
 	}
-	return nullptr;
 }
 
 YftLoader * GameWorld::GetYft(uint32_t hash, uint32_t TextureDictionaryHash)
@@ -390,16 +400,19 @@ YftLoader * GameWorld::GetYft(uint32_t hash, uint32_t TextureDictionaryHash)
 	auto iter = yftLoader.find(hash);
 	if (iter != yftLoader.end())
 	{
-		if (iter->second->YdrFile->externalYtd)
-			iter->second->YdrFile->externalYtd->time = SDL_GetTicks();
+		//if (iter->second->YdrFile->externalYtd)
+			//iter->second->YdrFile->externalYtd->time = SDL_GetTicks();
 		iter->second->time = SDL_GetTicks();
 		return iter->second;
 	}
 	else {
+		yftLoader[hash] = new YftLoader();
+		yftLoader[hash]->time = SDL_GetTicks();
 		GetResourceManager()->AddToWaitingList(new Resource(yft, hash, TextureDictionaryHash));
 		LoadYTD(TextureDictionaryHash);
+
+		return yftLoader[hash];
 	}
-	return nullptr;
 }
 
 void GameWorld::LoadYBN(uint32_t hash)
@@ -411,6 +424,8 @@ void GameWorld::LoadYBN(uint32_t hash)
 		return;
 	}
 	else {
+		ybnLoader[hash] = new YbnLoader();
+		ybnLoader[hash]->time = SDL_GetTicks();
 		GetResourceManager()->AddToWaitingList(new Resource(ybn, hash));
 	}
 }
@@ -559,82 +574,94 @@ void GameWorld::LoadQueuedResources()
 			case ymap:
 			{
 				auto iter = ymapLoader.find((*it)->Hash);
-				if (iter == ymapLoader.end())
+				if (iter != ymapLoader.end())
 				{
-					YmapLoader * ymap = ymapPool.Load(stream);
-					ymap->time = SDL_GetTicks();
-					ymapLoader[(*it)->Hash] = ymap;
+					iter->second->Init(stream);
+					iter->second->time = SDL_GetTicks();
+				}
+				else {
+					printf("");
 				}
 				break;
 			}
 			case ydr:
 			{
 				auto iter = ydrLoader.find((*it)->Hash);
-				if (iter == ydrLoader.end())
+				if (iter != ydrLoader.end())
 				{
 					YtdLoader* ytd = LoadYTD((*it)->TextureDictionaryHash);
-					YdrLoader *newYdr = new YdrLoader(stream, (*it)->SystemSize, dynamicsWorld);
-					ydrLoader[(*it)->Hash] = newYdr;
-					newYdr->time = SDL_GetTicks();
+					iter->second->Init(stream, (*it)->SystemSize, dynamicsWorld);
+					iter->second->time = SDL_GetTicks();
 					if (ytd) {
-						newYdr->externalYtd = ytd;
-						newYdr->externalYtd->time = SDL_GetTicks();
+						iter->second->externalYtd = ytd;
+						iter->second->externalYtd->time = SDL_GetTicks();
 					}
+				}
+				else {
+					printf("");
 				}
 				break;
 			}
 			case ydd:
 			{
 				auto iter = yddLoader.find((*it)->Hash);
-				if (iter == yddLoader.end())
+				if (iter != yddLoader.end())
 				{
 					YtdLoader * ytd = LoadYTD((*it)->TextureDictionaryHash);
-					YddLoader* newYdd = new YddLoader(stream, (*it)->SystemSize, dynamicsWorld);
-					yddLoader[(*it)->Hash] = newYdd;
-					newYdd->time = SDL_GetTicks();
+					iter->second->Init(stream, (*it)->SystemSize, dynamicsWorld);
+					iter->second->time = SDL_GetTicks();
 					if (ytd) {
-						newYdd->externalYtd = ytd;
-						newYdd->externalYtd->time = SDL_GetTicks();
+						iter->second->externalYtd = ytd;
+						iter->second->externalYtd->time = SDL_GetTicks();
 					}
+				}
+				else {
+					printf("");
 				}
 				break;
 			}
 			case yft:
 			{
 				auto iter = yftLoader.find((*it)->Hash);
-				if (iter == yftLoader.end())
+				if (iter != yftLoader.end())
 				{
 					YtdLoader* ytd = LoadYTD((*it)->TextureDictionaryHash);
-					YftLoader *newYft = new YftLoader(stream, (*it)->SystemSize, false, dynamicsWorld);
-					yftLoader[(*it)->Hash] = newYft;
-					newYft->time = SDL_GetTicks();
+					iter->second->Init(stream, (*it)->SystemSize, false, dynamicsWorld);
+					iter->second->time = SDL_GetTicks();
 					if (ytd) {
-						newYft->YdrFile->externalYtd = ytd;
-						newYft->YdrFile->externalYtd->time = SDL_GetTicks();
+						iter->second->YdrFile->externalYtd = ytd;
+						iter->second->YdrFile->externalYtd->time = SDL_GetTicks();
 					}
+				}
+				else {
+					printf("");
 				}
 				break;
 			}
 			case ytd:
 			{
 				auto iter = ytdLoader.find((*it)->Hash);
-				if (iter == ytdLoader.end())
+				if (iter != ytdLoader.end())
 				{
-					YtdLoader *newYtd = new YtdLoader(stream, 0);
-					ytdLoader[(*it)->Hash] = newYtd;
-					newYtd->time = SDL_GetTicks();
-					break;
+					iter->second->Init(stream, 0);
+					iter->second->time = SDL_GetTicks();
 				}
+				else {
+					printf("");
+				}
+				break;
 			}
 			case ybn:
 			{
 				auto iter = ybnLoader.find((*it)->Hash);
-				if (iter == ybnLoader.end())
+				if (iter != ybnLoader.end())
 				{
-					YbnLoader *newYbn = new YbnLoader(dynamicsWorld, stream);
-					ybnLoader[(*it)->Hash] = newYbn;
-					newYbn->time = SDL_GetTicks();
+					iter->second->Init(dynamicsWorld, stream);
+					iter->second->time = SDL_GetTicks();
 					break;
+				}
+				else {
+					printf("");
 				}
 			}
 		}
