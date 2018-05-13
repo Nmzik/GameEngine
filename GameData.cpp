@@ -53,7 +53,7 @@ GameData::GameData()
 			std::transform(entry.Name.begin(), entry.Name.end(), entry.Name.begin(), tolower);
 			entry.NameHash = GenHash(entry.Name);
 			size_t index = entry.Name.find_last_of('.');
-			entry.ShortNameHash = (index > 0) ? GenHash(entry.Name.substr(0, index)) : entry.NameHash;
+			entry.ShortNameHash = GenHash(entry.Name.substr(0, index));
 
 			if (extension == ".ydr") {
 				//YdrEntries[GenHash(entry.Name.substr(0, entry.Name.length() - 4) + "_lod")] = &entry; //WHY????

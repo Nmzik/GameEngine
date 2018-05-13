@@ -7,7 +7,7 @@ public:
 	uint32_t NameHash;
 	uint32_t ShortNameHash;
 
-	uint32_t NameOffset = 0;
+	uint32_t NameOffset;
 	std::string Name;
 	std::string Path;
 };
@@ -62,7 +62,9 @@ public:
 	int32_t SystemSize;
 
 	void Read(memstream& stream, std::istream& originalFile, uint64_t StartPos) {
-		stream.read((char*)&NameOffset, sizeof(uint16_t)); //READING 16 bit to 32bit vatiable NEED TO CLEAR IT!
+		uint16_t buf;
+		stream.read((char*)&buf, sizeof(uint16_t));
+		NameOffset = buf;
 
 		uint8_t buf1[3];
 		stream.read((char*)&buf1, 3);

@@ -113,8 +113,6 @@ void RpfFile::LoadRpf(std::ifstream& rpf, std::string& FileName, uint32_t FileSi
 
 	delete[] entriesData;
 	delete[] namesData;
-	//printf("=========================================\n");
-	//printf("FILE===========================%s\n", FileName.c_str());
 }
 
 RpfFile::~RpfFile()
