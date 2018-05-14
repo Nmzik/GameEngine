@@ -2,7 +2,7 @@
 
 ResourceManager::ResourceManager(GameWorld *world) : gameworld{ world }
 {
-	printf("RESOURCE MANAGER LOADED!\n");
+	//printf("RESOURCE MANAGER LOADED!\n");
 	ResourcesThread = std::thread(&ResourceManager::update, this);
 }
 
