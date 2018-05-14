@@ -140,11 +140,11 @@ class YbnLoader
 	std::vector<glm::vec3> Vertices;
 	std::vector<int32_t> indices;
 
-	btRigidBody * rigidBody;
+	btRigidBody * rigidBody = nullptr;
 	btDiscreteDynamicsWorld* CollisionWorld;
 	std::vector<btCollisionShape*> Shapes;
-	btTriangleIndexVertexArray* VertIndicesArray;
-	btBvhTriangleMeshShape* trishape;
+	btTriangleIndexVertexArray* VertIndicesArray = nullptr;
+	btBvhTriangleMeshShape* trishape = nullptr;
 	std::vector<YbnLoader*> ybns;
 public:
 	uint32_t time;

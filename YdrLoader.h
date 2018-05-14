@@ -428,15 +428,15 @@ class YdrLoader
 {
 	friend class YbnLoader;
 
-	YtdLoader* Ytd;
-	YbnLoader* ybnfile;
+	YtdLoader* Ytd = nullptr;
+	YbnLoader* ybnfile = nullptr;
 	std::vector<Material> materials;
 public:
 	std::vector<Mesh> meshes;
-	YtdLoader * externalYtd;
+	YtdLoader * externalYtd = nullptr;
 	bool isVisible = false;
 	uint32_t time;
-	bool Loaded;
+	bool Loaded = false;
 
 	YdrLoader();
 	YdrLoader(memstream& file, int32_t systemSize, btDiscreteDynamicsWorld* world, bool isYft = false);

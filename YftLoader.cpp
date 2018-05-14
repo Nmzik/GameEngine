@@ -1,6 +1,6 @@
 #include "YftLoader.h"
 
-YftLoader::YftLoader() : Loaded(false)
+YftLoader::YftLoader()
 {
 }
 

@@ -1,6 +1,6 @@
 #include "YddLoader.h"
 
-YddLoader::YddLoader() : Loaded(false)
+YddLoader::YddLoader()
 {
 }
 

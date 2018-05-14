@@ -1,6 +1,6 @@
 #include "YdrLoader.h"
 
-YdrLoader::YdrLoader() : Loaded(false)
+YdrLoader::YdrLoader()
 {
 
 }
