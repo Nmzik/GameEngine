@@ -97,52 +97,74 @@ void YbnLoader::Init(btDiscreteDynamicsWorld* world, memstream& file)
 
 		delete[] vertices;
 
-		btTransform localTrans;
-		localTrans.setIdentity();
-
 		if (PolygonCylinders.size() != 0) {
 			for (int i = 0; i < PolygonCylinders.size(); i++)
 			{
 				btCylinderShapeZ* shape = new btCylinderShapeZ(btVector3(0.5, 0.5, 0.5));
 				Shapes.push_back(shape);
 
-				//localTrans effectively shifts the center of mass with respect to the chassis
+				btTransform localTrans;
+				localTrans.setIdentity();
 				localTrans.setOrigin(btVector3(geom.CenterGeom.x + Vertices[PolygonCylinders[i].cylinderIndex1].x, geom.CenterGeom.y + Vertices[PolygonCylinders[i].cylinderIndex1].y, geom.CenterGeom.z + Vertices[PolygonCylinders[i].cylinderIndex1].z));
 				compound->addChildShape(localTrans, shape);
 			}
 		}
 
-		/*if (PolygonBoxes.size() != 0) {
+		if (PolygonBoxes.size() != 0) {
 			for (int i = 0; i < PolygonBoxes.size(); i++)
 			{
-				btBoxShape* shape = new btBoxShape(btVector3(0.5, 0.5, 0.5));
-				boxShapes.push_back(shape);
 
-				//localTrans effectively shifts the center of mass with respect to the chassis
-				localTrans.setOrigin(btVector3(geom.CenterGeom.x + Vertices[PolygonBoxes[i].boxIndex1].x, geom.CenterGeom.y + Vertices[PolygonBoxes[i].boxIndex1].y, geom.CenterGeom.z + Vertices[PolygonBoxes[i].boxIndex1].z));
+				glm::vec3 p1 = Vertices[PolygonBoxes[i].boxIndex1];
+				glm::vec3 p2 = Vertices[PolygonBoxes[i].boxIndex2];
+				glm::vec3 p3 = Vertices[PolygonBoxes[i].boxIndex3];
+				glm::vec3 p4 = Vertices[PolygonBoxes[i].boxIndex4];
+
+				glm::vec3 test = glm::max(p1, p2);
+				glm::vec3 test1 = glm::max(p3, p4);
+
+				glm::vec3 test2 = glm::min(p1, p2);
+				glm::vec3 test3 = glm::min(p3, p4);
+
+				glm::vec3 max = glm::max(test, test1);
+				glm::vec3 min = glm::min(test2, test3);
+
+				auto size = (max - min) / 2.f;
+				auto mid = (min + max) / 2.f;
+
+				btBoxShape* shape = new btBoxShape(btVector3(-size.x, -size.y, size.z));
+
+				Shapes.push_back(shape);
+
+				btTransform localTrans;
+				localTrans.setIdentity();
+				localTrans.setOrigin(btVector3(geom.CenterGeom.x + mid.x, geom.CenterGeom.y + mid.y, geom.CenterGeom.z + mid.z));
 				compound->addChildShape(localTrans, shape);
 			}
-		}*/
+		}
 
 		if (PolygonCapsules.size() != 0) {
-			for (int i = 0; i < PolygonCapsules.size(); i++)
+			for (int i = 0; i < PolygonCapsules.size(); i++) //Height is incorrect
 			{
+				auto mid = (Vertices[PolygonCapsules[i].capsuleIndex1] + Vertices[PolygonCapsules[i].capsuleIndex2]) / 2.f;
+
 				btCapsuleShapeZ* capsule = new btCapsuleShapeZ(PolygonCapsules[i].capsuleRadius, 1.0f);
 				Shapes.push_back(capsule);
 
-				//localTrans effectively shifts the center of mass with respect to the chassis
-				localTrans.setOrigin(btVector3(geom.CenterGeom.x + Vertices[PolygonCapsules[i].capsuleIndex1].x, geom.CenterGeom.y + Vertices[PolygonCapsules[i].capsuleIndex1].y, geom.CenterGeom.z + Vertices[PolygonCapsules[i].capsuleIndex1].z));
+				btTransform localTrans;
+				localTrans.setIdentity();
+				localTrans.setOrigin(btVector3(geom.CenterGeom.x + mid.x, geom.CenterGeom.y + mid.y, geom.CenterGeom.z + mid.z));
 				compound->addChildShape(localTrans, capsule);
 			}
 		}
 
 		if (PolygonSpheres.size() != 0) {
-			for (int i = 0; i < PolygonSpheres.size(); i++)
+			for (int i = 0; i < PolygonSpheres.size(); i++) //works as expected
 			{
 				btSphereShape* sphere = new btSphereShape(PolygonSpheres[i].sphereRadius);
 				Shapes.push_back(sphere);
 
-				//localTrans effectively shifts the center of mass with respect to the chassis
+				btTransform localTrans;
+				localTrans.setIdentity();
 				localTrans.setOrigin(btVector3(geom.CenterGeom.x + Vertices[PolygonSpheres[i].sphereIndex].x, geom.CenterGeom.y + Vertices[PolygonSpheres[i].sphereIndex].y, geom.CenterGeom.z + Vertices[PolygonSpheres[i].sphereIndex].z));
 				compound->addChildShape(localTrans, sphere);
 			}
@@ -155,7 +177,8 @@ void YbnLoader::Init(btDiscreteDynamicsWorld* world, memstream& file)
 			trishape = new btBvhTriangleMeshShape(VertIndicesArray, false);
 			trishape->setMargin(Bounds.Margin);
 
-			//localTrans effectively shifts the center of mass with respect to the chassis
+			btTransform localTrans;
+			localTrans.setIdentity();
 			localTrans.setOrigin(btVector3(geom.CenterGeom.x, geom.CenterGeom.y, geom.CenterGeom.z));
 			compound->addChildShape(localTrans, trishape);
 		}

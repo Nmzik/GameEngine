@@ -119,7 +119,7 @@ GameWorld::GameWorld()
 		memstream stream(outputBuffer.data(), outputBuffer.size());
 		playerYDD = new YddLoader(stream, element.SystemSize, dynamicsWorld);
 
-		player[0].Init(glm::vec3(2137, 3656, 100), playerYDD, dynamicsWorld);
+		player[0].Init(glm::vec3(51.90f, -1012.f, 100.f), playerYDD, dynamicsWorld);
 		player[0].getPhysCharacter()->setGravity(btVector3(0, 0, 0));
 		player[1].Init(glm::vec3(9.66, -1184.98, 75.74), playerYDD, dynamicsWorld);
 		player[1].getPhysCharacter()->setGravity(btVector3(0, 0, 0));
@@ -850,7 +850,7 @@ void GameWorld::ClearTestFunction()
 
 	for (auto it = ymapLoader.begin(); it != ymapLoader.end();)
 	{
-		delete it->second;
+		ymapPool.Remove(it->second);
 		it = ymapLoader.erase(it);
 	}
 

@@ -14,8 +14,6 @@ void YdrLoader::Init(memstream & file, int32_t systemSize, btDiscreteDynamicsWor
 {
 	Loaded = true;
 
-	Material material(0, 0, 0, 0);
-
 	ResourceFileBase resourceFileBase;
 	file.read((char*)&resourceFileBase, sizeof(ResourceFileBase));
 
@@ -291,13 +289,8 @@ void YdrLoader::Init(memstream & file, int32_t systemSize, btDiscreteDynamicsWor
 
 				TranslatePTR(indexbuffer.IndicesPointer);
 
-				if (materials.size() == 0) {
-					meshes.emplace_back(file._buffer.p, vertbuffer.DataPointer1, vertbuffer.VertexCount * vertbuffer.VertexStride, indexbuffer.IndicesPointer, indexbuffer.IndicesCount, (VertexType)decl.Flags, material);
-				}
-				else {
-					meshes.emplace_back(file._buffer.p, vertbuffer.DataPointer1, vertbuffer.VertexCount * vertbuffer.VertexStride, indexbuffer.IndicesPointer, indexbuffer.IndicesCount, (VertexType)decl.Flags, materials[ShaderMapping[i]]);
-
-				}
+				
+				meshes.emplace_back(file._buffer.p, vertbuffer.DataPointer1, vertbuffer.VertexCount * vertbuffer.VertexStride, indexbuffer.IndicesPointer, indexbuffer.IndicesCount, (VertexType)decl.Flags, materials[ShaderMapping[i]]);
 
 				file.seekg(pos);
 			}
