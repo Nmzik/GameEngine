@@ -74,7 +74,7 @@
       <SDLCheck>
       </SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)\gl3w\include;$(ProjectDir)\zlib;C:\Program Files %28x86%29\OpenAL 1.1 SDK\include;$(ProjectDir)\glm;$(ProjectDir)\sdl2\include;$(ProjectDir)\bullet;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\zlib;C:\Program Files %28x86%29\OpenAL 1.1 SDK\include;$(ProjectDir)\glm;$(ProjectDir)\sdl2\include;$(ProjectDir)\bullet;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>B3_USE_CLEW;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpp14</LanguageStandard>
@@ -94,7 +94,6 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameData.cpp" />
     <ClCompile Include="GameWorld.cpp" />
-    <ClCompile Include="gl3w\src\gl3w.c" />
     <ClCompile Include="GTAEncryption.cpp" />
     <ClCompile Include="InGameState.cpp" />
     <ClCompile Include="InputManager.cpp" />
@@ -105,6 +104,7 @@
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MeshManager.cpp" />
     <ClCompile Include="Object.cpp" />
+    <ClCompile Include="opengl.cpp" />
     <ClCompile Include="PauseState.cpp" />
     <ClCompile Include="PhysicsDebugDrawer.cpp" />
     <ClCompile Include="Player.cpp" />
@@ -151,6 +151,7 @@
     <ClInclude Include="MeshManager.h" />
     <ClInclude Include="Meta.h" />
     <ClInclude Include="Object.h" />
+    <ClInclude Include="opengl.h" />
     <ClInclude Include="PauseState.h" />
     <ClInclude Include="PhysicsDebugDrawer.h" />
     <ClInclude Include="Player.h" />

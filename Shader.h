@@ -1,5 +1,5 @@
 #pragma once
-#include <GL/gl3w.h>
+#include "opengl.h"
 #include <glm.hpp>
 #include <fstream>
 #include <sstream>

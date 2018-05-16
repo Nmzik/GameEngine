@@ -1,6 +1,6 @@
 #pragma once
 #include "LinearMath/btIDebugDraw.h"
-#include <GL/gl3w.h>
+#include "opengl.h"
 #include "glm.hpp"
 #include <vector>
 

@@ -1,5 +1,4 @@
 #pragma once
-#define NOMINMAX
 
 #include "includes.h"
 #include "SoundManager.h"

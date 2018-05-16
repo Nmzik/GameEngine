@@ -1,6 +1,6 @@
 #pragma once
 #include <unordered_map>
-#include <GL/gl3w.h>
+#include "opengl.h"
 
 class ShaderManager
 {

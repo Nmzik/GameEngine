@@ -39,10 +39,7 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 
 	SDL_GL_SetSwapInterval(0); //ZERO - no vsync
 
-	if (gl3wInit()) {
-		printf("failed to initialize OpenGL\n");
-		return;
-	}
+	OpenGL_Init();
 
 	//if (!GLEW_ARB_texture_compression_bptc) printf("NOT INITALIZED BPTC\n");
 	//if (!GLEW_EXT_texture_compression_s3tc) printf("NOT INITALIZED s3tc\n");

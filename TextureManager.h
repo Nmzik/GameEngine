@@ -1,7 +1,7 @@
 #pragma once
 #include <iostream>
 #include "glm.hpp"
-#include <GL/gl3w.h>
+#include "opengl.h"
 #include "stb_image.h"
 #include <unordered_map>
 #include <string>

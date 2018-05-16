@@ -2,7 +2,7 @@
 
 #include <vector>
 #include "glm.hpp"
-#include <GL/gl3w.h>
+#include "opengl.h"
 #include "Material.h"
 #include "MeshManager.h"
 
