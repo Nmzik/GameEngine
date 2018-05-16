@@ -14,13 +14,3 @@ Material::Material(uint32_t DiffuseHash, uint32_t BumpHash, uint32_t SpecularHas
 Material::~Material()
 {
 }
-
-void Material::bind(Shader* shader)
-{
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, diffuseTextureID);
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, bumpTextureID);
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, specularTextureID);
-}

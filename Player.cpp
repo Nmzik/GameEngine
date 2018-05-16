@@ -95,7 +95,8 @@ void Player::Draw(Shader* shader)
 		for (auto &mesh : ydr->meshes)
 		{
 			glBindVertexArray(mesh.VAO);
-			mesh.material.bind(shader);
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, mesh.material.diffuseTextureID);
 			glDrawElements(GL_TRIANGLES, mesh.num_indices, GL_UNSIGNED_SHORT, 0);
 		}
 	}

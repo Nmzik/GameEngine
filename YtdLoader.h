@@ -1,4 +1,6 @@
 #pragma once
+#define NOMINMAX
+
 #include "YdrLoader.h"
 
 struct ResourceSimpleList64Ptr

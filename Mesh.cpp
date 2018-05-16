@@ -212,6 +212,7 @@ Mesh::~Mesh()
 void Mesh::Draw(Shader* shader)
 {
 	glBindVertexArray(VAO);
-	material.bind(shader);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, material.diffuseTextureID);
 	glDrawElements(GL_TRIANGLES, num_indices, GL_UNSIGNED_SHORT, 0);
 }

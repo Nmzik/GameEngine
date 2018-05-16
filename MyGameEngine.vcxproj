@@ -74,7 +74,7 @@
       <SDLCheck>
       </SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)\zlib;C:\Program Files %28x86%29\OpenAL 1.1 SDK\include;$(ProjectDir)\glm;$(ProjectDir)\sdl2\include;$(ProjectDir)\glew\include\GL;$(ProjectDir)\bullet;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\gl3w\include;$(ProjectDir)\zlib;C:\Program Files %28x86%29\OpenAL 1.1 SDK\include;$(ProjectDir)\glm;$(ProjectDir)\sdl2\include;$(ProjectDir)\bullet;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>B3_USE_CLEW;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpp14</LanguageStandard>
@@ -84,7 +84,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Console</SubSystem>
       <AdditionalLibraryDirectories>C:\Users\nmzik\source\repos\MyGameEngine\MyGameEngine\zlib;$(ProjectDir)\bullet\lib;C:\Program Files %28x86%29\OpenAL 1.1 SDK\libs\Win64;C:\Users\nmzik\source\repos\MyGameEngine\MyGameEngine\sdl2\lib\x64;C:\Users\nmzik\source\repos\MyGameEngine\MyGameEngine\glew\lib\Release\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;BulletDynamics.lib;BulletCollision.lib;LinearMath.lib;glew32.lib;opengl32.lib;zlibwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;BulletDynamics.lib;BulletCollision.lib;LinearMath.lib;opengl32.lib;zlibwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -94,6 +94,7 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameData.cpp" />
     <ClCompile Include="GameWorld.cpp" />
+    <ClCompile Include="gl3w\src\gl3w.c" />
     <ClCompile Include="GTAEncryption.cpp" />
     <ClCompile Include="InGameState.cpp" />
     <ClCompile Include="InputManager.cpp" />
@@ -137,6 +138,8 @@
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameData.h" />
     <ClInclude Include="GameWorld.h" />
+    <ClInclude Include="gl3w\include\GL\gl3w.h" />
+    <ClInclude Include="gl3w\include\GL\glcorearb.h" />
     <ClInclude Include="GTAEncryption.h" />
     <ClInclude Include="includes.h" />
     <ClInclude Include="InGameState.h" />

@@ -39,12 +39,14 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 
 	SDL_GL_SetSwapInterval(0); //ZERO - no vsync
 
-	glewExperimental = GL_TRUE;
-	glewInit();
+	if (gl3wInit()) {
+		printf("failed to initialize OpenGL\n");
+		return;
+	}
 
-	if (!GLEW_ARB_texture_compression_bptc) printf("NOT INITALIZED BPTC\n");
-	if (!GLEW_EXT_texture_compression_s3tc) printf("NOT INITALIZED s3tc\n");
-	if (!GLEW_EXT_texture_compression_rgtc) printf("NOT INITALIZED rgtc\n");
+	//if (!GLEW_ARB_texture_compression_bptc) printf("NOT INITALIZED BPTC\n");
+	//if (!GLEW_EXT_texture_compression_s3tc) printf("NOT INITALIZED s3tc\n");
+	//if (!GLEW_EXT_texture_compression_rgtc) printf("NOT INITALIZED rgtc\n");
 
 	//glEnable(GL_DEBUG_OUTPUT);
 	//glDebugMessageCallback(myDebugCallback, nullptr);
@@ -350,7 +352,8 @@ void RenderingSystem::render(GameWorld* world)
 	for (auto &mesh : world->skydome->YdrFiles[2640562617]->meshes)
 	{
 		glBindVertexArray(mesh.VAO);
-		mesh.material.bind(gbuffer);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, mesh.material.diffuseTextureID);
 		glDrawElements(GL_TRIANGLES, mesh.num_indices, GL_UNSIGNED_SHORT, 0);
 	}
 	glDepthMask(GL_TRUE);
@@ -383,8 +386,10 @@ void RenderingSystem::render(GameWorld* world)
 		for (auto &mesh : model.ydr->meshes)
 		{
 			gbuffer->setMat4(ModelUniformLoc, model.modelMatrix);
+
 			glBindVertexArray(mesh.VAO);
-			mesh.material.bind(gbuffer);
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, mesh.material.diffuseTextureID);
 			glDrawElements(GL_TRIANGLES, mesh.num_indices, GL_UNSIGNED_SHORT, 0);
 		}
 	}

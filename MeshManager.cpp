@@ -15,11 +15,11 @@ MeshManager::~MeshManager()
 
 void MeshManager::Initialize()
 {
-	VAOs.resize(15000);
-	VBOs.resize(15000);
-	EBOs.resize(15000);
+	VAOs.resize(20000);
+	VBOs.resize(20000);
+	EBOs.resize(20000);
 
-	glGenVertexArrays(15000, &VAOs[0]);
-	glGenBuffers(15000, &VBOs[0]);
-	glGenBuffers(15000, &EBOs[0]);
+	glGenVertexArrays(20000, &VAOs[0]);
+	glGenBuffers(20000, &VBOs[0]);
+	glGenBuffers(20000, &EBOs[0]);
 }

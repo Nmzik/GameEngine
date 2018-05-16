@@ -1,6 +1,6 @@
 #pragma once
 
-#include "glew.h"
+#include <GL/gl3w.h>
 #include "TextureManager.h"
 #include "Shader.h"
 
@@ -14,7 +14,5 @@ public:
 	GLuint bumpTextureID; //Normal
 	GLuint specularTextureID;
 	GLuint detailTextureID;
-
-	void bind(Shader* shader);
 };
 

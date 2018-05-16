@@ -152,15 +152,15 @@ void YtdLoader::Init(memstream & file, int32_t systemSize)
 				break;
 			case D3DFMT_A8:
 				InternalFormat = GL_RGB8;
-				format = GL_COMPRESSED_RED_GREEN_RGTC2_EXT;
+				format = GL_COMPRESSED_RG_RGTC2;
 				break;
 			case D3DFMT_A8B8G8R8:
 				InternalFormat = GL_RGBA8;
-				format = GL_COMPRESSED_RED_GREEN_RGTC2_EXT;
+				format = GL_COMPRESSED_RG_RGTC2;
 				break;
 			case D3DFMT_L8:
-				InternalFormat = GL_LUMINANCE8;
-				format = GL_COMPRESSED_RED_GREEN_RGTC2_EXT;
+				InternalFormat = GL_RG;
+				format = GL_COMPRESSED_RG_RGTC2;
 				break;
 			default:
 				printf("UNSUPPORTED FORMAT\n");

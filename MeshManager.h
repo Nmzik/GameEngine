@@ -1,5 +1,5 @@
 #pragma once
-#include "glew.h"
+#include <GL/gl3w.h>
 #include <vector>
 
 class MeshManager
