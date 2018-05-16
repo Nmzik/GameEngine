@@ -2,10 +2,10 @@
 
 Mesh::Mesh(const uint8_t* meshData, uint64_t VertexPointer, uint32_t VertexSize, uint64_t IndicesPointer, uint32_t IndicesSize, VertexType type, Material mat) : material(mat), num_indices(IndicesSize)
 {
-	glGenVertexArrays(1, &VAO);
+	VAO = MeshManager::GetVAO();
 	glBindVertexArray(VAO);
 
-	glGenBuffers(1, &VBO);
+	VBO = MeshManager::GetVBO();
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, VertexSize, &meshData[VertexPointer], GL_STATIC_DRAW);
 
@@ -192,16 +192,16 @@ Mesh::Mesh(const uint8_t* meshData, uint64_t VertexPointer, uint32_t VertexSize,
 		break;
 	}
 
-	glGenBuffers(1, &EBO);
+	EBO = MeshManager::GetEBO();
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, IndicesSize * sizeof(uint16_t), &meshData[IndicesPointer], GL_STATIC_DRAW); //16 BIT INDICES max 65536
 }
 
 void Mesh::Cleanup()
 {
-	glDeleteVertexArrays(1, &VAO);
-	glDeleteBuffers(1, &VBO);
-	glDeleteBuffers(1, &EBO);
+	MeshManager::VAOs.push_back(VAO);
+	MeshManager::VBOs.push_back(VBO);
+	MeshManager::EBOs.push_back(EBO);
 }
 
 Mesh::~Mesh()

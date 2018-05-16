@@ -21,6 +21,7 @@
 #include "Shader.h"
 #include "Camera.h"
 #include "SDL.h"
+#include "MeshManager.h"
 
 class ResourceManager;
 

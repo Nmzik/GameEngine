@@ -105,6 +105,9 @@ GameWorld::GameWorld()
 	dynamicsWorld->setDebugDrawer(&debug);
 	//LoadYDR(3186271474, glm::vec3(), glm::quat(), glm::vec3());
 
+	MeshManager::Initialize();
+	TextureManager::Initialize();
+
 	auto itPlayer = data.YddEntries.find(4096714883);
 	if (itPlayer != data.YddEntries.end())
 	{
@@ -452,6 +455,9 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 		LoadYmap(cacheFile.AllCInteriorProxies[Proxy].Parent, camera);
 	}*/
 
+	//printf("FREE VAO %zd\n",MeshManager::VAOs.size());
+	//printf("FREE VBO %zd\n",MeshManager::VBOs.size());
+	//printf("FREE Textures %zd\n", TextureManager::TexturesID.size());
 
 
 	/*glm::i32vec2 test = nodeGrid.GetCellPos(camera->Position);

@@ -1,6 +1,13 @@
 #include "TextureManager.h"
 
+std::vector<GLuint> TextureManager::TexturesID;
 std::unordered_map<uint32_t, GLuint> TextureManager::TexturesMap;
+
+void TextureManager::Initialize()
+{
+	TexturesID.resize(10000);
+	glGenTextures(10000, &TexturesID[0]);
+}
 
 GLuint TextureManager::GetTexture(uint32_t textureHash)
 {
@@ -36,10 +43,10 @@ void TextureManager::RemoveTexture(uint32_t Hash)
 	std::unordered_map<uint32_t, GLuint>::iterator it = TexturesMap.find(Hash);
 	if (it != TexturesMap.end())
 	{
+		TexturesID.push_back(it->second);
 		//it->second.referenceCount--;
 		//if (it->second.referenceCount == 0) {
-			glDeleteTextures(1, &it->second);
-			TexturesMap.erase(it);
+		TexturesMap.erase(it);
 		//}
 	}
 }

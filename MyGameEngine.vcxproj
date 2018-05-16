@@ -102,6 +102,7 @@
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="MenuState.cpp" />
     <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="MeshManager.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="PauseState.cpp" />
     <ClCompile Include="PhysicsDebugDrawer.cpp" />
@@ -144,6 +145,7 @@
     <ClInclude Include="Material.h" />
     <ClInclude Include="membuf.h" />
     <ClInclude Include="MenuState.h" />
+    <ClInclude Include="MeshManager.h" />
     <ClInclude Include="Meta.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="PauseState.h" />

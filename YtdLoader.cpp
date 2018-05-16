@@ -170,9 +170,7 @@ void YtdLoader::Init(memstream & file, int32_t systemSize)
 		std::unordered_map<uint32_t, GLuint>::iterator it = TextureManager::TexturesMap.find(TextureNameHashes[i]);
 		if (it == TextureManager::TexturesMap.end())
 		{
-			GLuint textureID;
-
-			glGenTextures(1, &textureID);
+			GLuint textureID = TextureManager::GetTextureID();
 
 			glBindTexture(GL_TEXTURE_2D, textureID);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, Texture.Levels - 1);

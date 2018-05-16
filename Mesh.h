@@ -4,6 +4,7 @@
 #include "glm.hpp"
 #include "glew.h"
 #include "Material.h"
+#include "MeshManager.h"
 
 enum VertexType : uint32_t
 {
