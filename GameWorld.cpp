@@ -151,7 +151,6 @@ GameWorld::GameWorld()
 		}
 	}
 
-
 	//ClearTestFunction();
 	/*std::unordered_map<uint32_t, CMloArchetypeDef>::iterator it;
 	it = data.MloDictionary.find(210892389);
@@ -368,10 +367,7 @@ YtdLoader* GameWorld::LoadYTD(uint32_t hash)
 		return it->second;
 	}
 	else {
-		if (hash == 2562720956) {
-			printf("");
-		}
-		//LoadGtxd(hash);
+		LoadGtxd(hash);
 
 		ytdLoader[hash] = new YtdLoader();
 		ytdLoader[hash]->time = SDL_GetTicks();
@@ -479,7 +475,7 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 
 	//printf("FREE VAO %zd\n",MeshManager::VAOs.size());
 	//printf("FREE VBO %zd\n",MeshManager::VBOs.size());
-	printf("FREE Textures %zd\n", TextureManager::TexturesID.size());
+	//printf("FREE Textures %zd\n", TextureManager::TexturesID.size());
 
 
 	/*glm::i32vec2 test = nodeGrid.GetCellPos(camera->Position);

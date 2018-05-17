@@ -38,6 +38,7 @@ GameData::GameData()
 	LoadHandlingData();
 	LoadWaterQuads();
 	LoadGtxd();
+
 	YdrEntries.reserve(110223);
 	YddEntries.reserve(17500);
 	YtdEntries.reserve(51008);
@@ -165,6 +166,7 @@ void GameData::LoadGtxd()
 	{
 		tinyxml2::XMLElement* element = e->FirstChildElement("parent");
 		std::string ParentName = element->FirstChild()->Value();
+		std::transform(ParentName.begin(), ParentName.end(), ParentName.begin(), tolower);
 
 		element = e->FirstChildElement("child");
 		std::string childName = element->FirstChild()->Value();
