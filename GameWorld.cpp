@@ -346,6 +346,19 @@ bool GameWorld::LoadYTYP(uint32_t hash)
 	}
 }
 
+void GameWorld::LoadGtxd(uint32_t hash)
+{
+	auto iter = data.GtxdEntries.find(hash);
+	if (iter != data.GtxdEntries.end()) {
+		auto it = ytdLoader.find(iter->second);
+		if (it == ytdLoader.end()) {
+			ytdLoader[iter->second] = new YtdLoader();
+			ytdLoader[iter->second]->time = SDL_GetTicks();
+			GetResourceManager()->AddToWaitingList(new Resource(ytd, iter->second));
+		}
+	}
+}
+
 YtdLoader* GameWorld::LoadYTD(uint32_t hash)
 {
 	auto it = ytdLoader.find(hash);
@@ -355,6 +368,11 @@ YtdLoader* GameWorld::LoadYTD(uint32_t hash)
 		return it->second;
 	}
 	else {
+		if (hash == 2562720956) {
+			printf("");
+		}
+		//LoadGtxd(hash);
+
 		ytdLoader[hash] = new YtdLoader();
 		ytdLoader[hash]->time = SDL_GetTicks();
 		GetResourceManager()->AddToWaitingList(new Resource(ytd, hash));
@@ -461,7 +479,7 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 
 	//printf("FREE VAO %zd\n",MeshManager::VAOs.size());
 	//printf("FREE VBO %zd\n",MeshManager::VBOs.size());
-	//printf("FREE Textures %zd\n", TextureManager::TexturesID.size());
+	printf("FREE Textures %zd\n", TextureManager::TexturesID.size());
 
 
 	/*glm::i32vec2 test = nodeGrid.GetCellPos(camera->Position);
@@ -557,7 +575,7 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 		}
 	}
 
-	for (auto it = ytdLoader.begin(); it != ytdLoader.end();)
+	/*for (auto it = ytdLoader.begin(); it != ytdLoader.end();)
 	{
 		if (curTime - (it->second)->time > UnloadTime)
 		{
@@ -568,7 +586,7 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 		{
 			++it;
 		}
-	}
+	}*/
 
 	LoadQueuedResources();
 }

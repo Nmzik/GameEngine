@@ -91,6 +91,7 @@ public:
 	bool LoadYTYP(uint32_t hash);
 
 	YtdLoader* LoadYTD(uint32_t hash);
+	void LoadGtxd(uint32_t hash);
 
 	YdrLoader* GetYdr(uint32_t hash, uint32_t TextureDictionaryHash);
 	YddLoader* GetYdd(uint32_t hash, uint32_t TextureDictionaryHash);

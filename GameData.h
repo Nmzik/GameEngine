@@ -49,13 +49,14 @@ public:
 	std::unordered_map<uint32_t, RpfResourceFileEntry*> YbnEntries;
 	std::unordered_map<uint32_t, RpfResourceFileEntry*> YndEntries;
 
+	std::unordered_map<uint32_t, uint32_t> GtxdEntries;
 	std::vector<CarHandling> Vehicles;
 
 	GameData();
 	~GameData();
 
 	void LoadHandlingData();
-
+	void LoadGtxd();
 	void LoadWaterQuads();
 	void LoadRpf(std::string& RpfPath);
 	void LoadRpf(std::ifstream& rpf, std::string& FullPath_, std::string FileName_, uint32_t FileSize_, uint64_t FileOffset);

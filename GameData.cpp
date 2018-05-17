@@ -37,7 +37,7 @@ GameData::GameData()
 
 	LoadHandlingData();
 	LoadWaterQuads();
-
+	LoadGtxd();
 	YdrEntries.reserve(110223);
 	YddEntries.reserve(17500);
 	YtdEntries.reserve(51008);
@@ -146,6 +146,29 @@ void GameData::LoadHandlingData()
 		car.file = nullptr;
 
 		Vehicles.push_back(car);
+	}
+}
+
+void GameData::LoadGtxd()
+{
+	tinyxml2::XMLDocument doc;
+	tinyxml2::XMLError eResult = doc.LoadFile("C:\\Users\\nmzik\\Desktop\\gtxd.ymt.rbf.xml");
+
+	tinyxml2::XMLElement * root = doc.FirstChildElement("CMapParentTxds");
+
+	if (root == nullptr) printf("ERROR");
+
+	tinyxml2::XMLElement* element = root->FirstChildElement("txdRelationships");
+	if (element == nullptr) printf("ERROR ELEMENT");
+
+	for (tinyxml2::XMLElement* e = element->FirstChildElement("item"); e != NULL; e = e->NextSiblingElement("item"))
+	{
+		tinyxml2::XMLElement* element = e->FirstChildElement("parent");
+		std::string ParentName = element->FirstChild()->Value();
+
+		element = e->FirstChildElement("child");
+		std::string childName = element->FirstChild()->Value();
+		GtxdEntries[GenHash(childName)] = GenHash(ParentName);
 	}
 }
 

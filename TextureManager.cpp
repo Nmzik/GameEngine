@@ -5,8 +5,8 @@ std::unordered_map<uint32_t, TextureManager::Texture> TextureManager::TexturesMa
 
 void TextureManager::Initialize()
 {
-	TexturesID.resize(10000);
-	glGenTextures(10000, &TexturesID[0]);
+	TexturesID.resize(30000);
+	glGenTextures(30000, &TexturesID[0]);
 }
 
 GLuint TextureManager::GetTexture(uint32_t textureHash)
