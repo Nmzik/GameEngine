@@ -9,6 +9,9 @@ class Object : public Entity
 public:
 	//bool loaded = false;
 	uint8_t type = 0;
+
+	glm::vec3 BoundPos;
+	float BoundRadius;
 	CEntityDef CEntity;
 	CTimeArchetypeDef Archetype;
 

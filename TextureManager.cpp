@@ -1,7 +1,7 @@
 #include "TextureManager.h"
 
 std::vector<GLuint> TextureManager::TexturesID;
-std::unordered_map<uint32_t, GLuint> TextureManager::TexturesMap;
+std::unordered_map<uint32_t, TextureManager::Texture> TextureManager::TexturesMap;
 
 void TextureManager::Initialize()
 {
@@ -11,18 +11,14 @@ void TextureManager::Initialize()
 
 GLuint TextureManager::GetTexture(uint32_t textureHash)
 {
-	std::unordered_map<uint32_t, GLuint>::iterator it = TexturesMap.find(textureHash);
+	std::unordered_map<uint32_t, Texture>::iterator it = TexturesMap.find(textureHash);
 	if (it != TexturesMap.end())
 	{
-		//std::cout << "FOUND Texture " << it->first << std::endl;
-		//auto& element = it->second;
-		//element.referenceCount++;
-
-		return it->second;
+		return it->second.TextureID;
 	}
 	else {
 		it = TexturesMap.find(0);
-		return it->second;
+		return it->second.TextureID;
 	}
 }
 
@@ -33,21 +29,21 @@ void TextureManager::LoadTexture(uint32_t Hash, GLuint TextureID)
 	{
 		printf("HERE");
 	}*/
-	TexturesMap[Hash] = TextureID;
+	TexturesMap[Hash] = Texture{TextureID, 1};
 	//TexturesMap.insert(std::pair<uint32_t, Texture>(Hash, Texture{ TextureID, 0 }));
 
 }
 
 void TextureManager::RemoveTexture(uint32_t Hash)
 {
-	std::unordered_map<uint32_t, GLuint>::iterator it = TexturesMap.find(Hash);
+	std::unordered_map<uint32_t, Texture>::iterator it = TexturesMap.find(Hash);
 	if (it != TexturesMap.end())
 	{
-		TexturesID.push_back(it->second);
-		//it->second.referenceCount--;
-		//if (it->second.referenceCount == 0) {
-		TexturesMap.erase(it);
-		//}
+		it->second.referenceCount--;
+		if (it->second.referenceCount == 0) {
+			TexturesID.push_back(it->second.TextureID);
+			TexturesMap.erase(it);
+		}
 	}
 }
 

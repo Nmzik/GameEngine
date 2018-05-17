@@ -1,4 +1,5 @@
 #pragma once
+#include "TextureManager.h"
 #include "YdrLoader.h"
 
 struct ResourceSimpleList64Ptr

@@ -90,86 +90,86 @@ void YtdLoader::Init(memstream & file, int32_t systemSize)
 		file.read((char*)&data_pointer, sizeof(data_pointer));
 		uint64_t posOriginal = file.tellg();
 
-		TranslatePTR(data_pointer);
-
-		file.seekg(data_pointer);
-
-		TextureBase texBase;
-
-		file.read((char*)&texBase, sizeof(TextureBase));
-		file.read((char*)&Texture, sizeof(Texture));
-
-		//READ ACTUAL DATA
-		TranslatePTR(Texture.DataPointer);
-
-		Texture.DataPointer += systemSize;
-
-		int fullLength = 0;
-		int length = Texture.Stride * Texture.Height;
-		for (int i = 0; i < Texture.Levels; i++)
-		{
-			fullLength += length;
-			length /= 4;
-		}
-
-		unsigned int format;
-		unsigned int InternalFormat;
-		bool compressed = false;
-
-		switch (Texture.Format)
-		{
-			case D3DFMT_DXT1:
-				compressed = true;
-				format = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
-				break;
-			case D3DFMT_DXT3:
-				compressed = true;
-				format = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
-				break;
-			case D3DFMT_DXT5:
-				compressed = true;
-				format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
-				break;
-			case D3DFMT_BC7:
-				compressed = true;
-				format = GL_COMPRESSED_RGBA_BPTC_UNORM;
-				break;
-			case D3DFMT_ATI1:
-				compressed = true;
-				format = GL_COMPRESSED_RED_RGTC1;
-				break;
-			case D3DFMT_ATI2:
-				compressed = true;
-				format = GL_COMPRESSED_RG_RGTC2;
-				break;
-			case D3DFMT_A8R8G8B8:
-				InternalFormat = GL_RGBA8;
-				format = GL_UNSIGNED_INT_8_8_8_8_REV;
-				break;
-			case D3DFMT_A1R5G5B5:
-				InternalFormat = GL_RGB5_A1;
-				format = GL_UNSIGNED_SHORT_1_5_5_5_REV;
-				break;
-			case D3DFMT_A8:
-				InternalFormat = GL_RGB8;
-				format = GL_COMPRESSED_RG_RGTC2;
-				break;
-			case D3DFMT_A8B8G8R8:
-				InternalFormat = GL_RGBA8;
-				format = GL_COMPRESSED_RG_RGTC2;
-				break;
-			case D3DFMT_L8:
-				InternalFormat = GL_RG;
-				format = GL_COMPRESSED_RG_RGTC2;
-				break;
-			default:
-				printf("UNSUPPORTED FORMAT\n");
-				break;
-		}
-
-		std::unordered_map<uint32_t, GLuint>::iterator it = TextureManager::TexturesMap.find(TextureNameHashes[i]);
+		std::unordered_map<uint32_t, TextureManager::Texture>::iterator it = TextureManager::TexturesMap.find(TextureNameHashes[i]);
 		if (it == TextureManager::TexturesMap.end())
 		{
+			TranslatePTR(data_pointer);
+
+			file.seekg(data_pointer);
+
+			TextureBase texBase;
+
+			file.read((char*)&texBase, sizeof(TextureBase));
+			file.read((char*)&Texture, sizeof(Texture));
+
+			//READ ACTUAL DATA
+			TranslatePTR(Texture.DataPointer);
+
+			Texture.DataPointer += systemSize;
+
+			int fullLength = 0;
+			int length = Texture.Stride * Texture.Height;
+			for (int i = 0; i < Texture.Levels; i++)
+			{
+				fullLength += length;
+				length /= 4;
+			}
+
+			unsigned int format;
+			unsigned int InternalFormat;
+			bool compressed = false;
+
+			switch (Texture.Format)
+			{
+				case D3DFMT_DXT1:
+					compressed = true;
+					format = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
+					break;
+				case D3DFMT_DXT3:
+					compressed = true;
+					format = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
+					break;
+				case D3DFMT_DXT5:
+					compressed = true;
+					format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+					break;
+				case D3DFMT_BC7:
+					compressed = true;
+					format = GL_COMPRESSED_RGBA_BPTC_UNORM;
+					break;
+				case D3DFMT_ATI1:
+					compressed = true;
+					format = GL_COMPRESSED_RED_RGTC1;
+					break;
+				case D3DFMT_ATI2:
+					compressed = true;
+					format = GL_COMPRESSED_RG_RGTC2;
+					break;
+				case D3DFMT_A8R8G8B8:
+					InternalFormat = GL_RGBA8;
+					format = GL_UNSIGNED_INT_8_8_8_8_REV;
+					break;
+				case D3DFMT_A1R5G5B5:
+					InternalFormat = GL_RGB5_A1;
+					format = GL_UNSIGNED_SHORT_1_5_5_5_REV;
+					break;
+				case D3DFMT_A8:
+					InternalFormat = GL_RGB8;
+					format = GL_COMPRESSED_RG_RGTC2;
+					break;
+				case D3DFMT_A8B8G8R8:
+					InternalFormat = GL_RGBA8;
+					format = GL_COMPRESSED_RG_RGTC2;
+					break;
+				case D3DFMT_L8:
+					InternalFormat = GL_RG;
+					format = GL_COMPRESSED_RG_RGTC2;
+					break;
+				default:
+					printf("UNSUPPORTED FORMAT\n");
+					break;
+			}
+
 			GLuint textureID = TextureManager::GetTextureID();
 
 			glBindTexture(GL_TEXTURE_2D, textureID);
@@ -220,6 +220,9 @@ void YtdLoader::Init(memstream & file, int32_t systemSize)
 
 
 			TextureManager::LoadTexture(TextureNameHashes[i], textureID);
+		}
+		else {
+			it->second.referenceCount++;
 		}
 
 		file.seekg(posOriginal);

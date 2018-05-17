@@ -200,6 +200,8 @@ void GameWorld::LoadYmap(uint32_t hash, Camera* camera)
 					{
 						object.Archetype._BaseArchetypeDef = it->second;
 
+						object.BoundPos = object.Archetype._BaseArchetypeDef.bsCentre + object.CEntity.position;
+						object.BoundRadius = object.Archetype._BaseArchetypeDef.bsRadius * std::max(object.CEntity.scaleXY, object.CEntity.scaleZ);
 						//if (object.CEntity.lodDist <= 0) object.CEntity.lodDist = 30.0f;
 						//if (object.CEntity.childLodDist <= 0) object.CEntity.childLodDist = 30.0f;
 
@@ -211,6 +213,8 @@ void GameWorld::LoadYmap(uint32_t hash, Camera* camera)
 						{
 							object.Archetype = it->second;
 
+							object.BoundPos = object.Archetype._BaseArchetypeDef.bsCentre + object.CEntity.position;
+							object.BoundRadius = object.Archetype._BaseArchetypeDef.bsRadius * std::max(object.CEntity.scaleXY, object.CEntity.scaleZ);
 							//if (object.CEntity.lodDist <= 0) object.CEntity.lodDist = it->second._BaseArchetypeDef.lodDist;
 							//if (object.CEntity.childLodDist <= 0) object.CEntity.childLodDist = it->second._BaseArchetypeDef.lodDist;
 
@@ -238,7 +242,7 @@ void GameWorld::LoadYmap(uint32_t hash, Camera* camera)
 						case ASSET_TYPE_DRAWABLE: {
 							YdrLoader* file = GetYdr(object.CEntity.archetypeName, object.Archetype._BaseArchetypeDef.textureDictionary);
 							if (file->Loaded) {
-								if (camera->intersects(object.Archetype._BaseArchetypeDef.bsCentre + object.CEntity.position, object.Archetype._BaseArchetypeDef.bsRadius * std::max(object.CEntity.scaleXY, object.CEntity.scaleZ))) {
+								if (camera->intersects(object.BoundPos, object.BoundRadius)) {
 									renderList.emplace_back(file, object.getMatrix());
 								}
 							}
@@ -250,7 +254,7 @@ void GameWorld::LoadYmap(uint32_t hash, Camera* camera)
 								std::unordered_map<uint32_t, YdrLoader*>::iterator iter2 = file->YdrFiles.find(object.CEntity.archetypeName);
 								if (iter2 != file->YdrFiles.end())
 								{
-									if (camera->intersects(object.Archetype._BaseArchetypeDef.bsCentre + object.CEntity.position, object.Archetype._BaseArchetypeDef.bsRadius * std::max(object.CEntity.scaleXY, object.CEntity.scaleZ))) {
+									if (camera->intersects(object.BoundPos, object.BoundRadius)) {
 										renderList.emplace_back(iter2->second, object.getMatrix());
 									}
 								}
@@ -260,7 +264,7 @@ void GameWorld::LoadYmap(uint32_t hash, Camera* camera)
 						case ASSET_TYPE_FRAGMENT: {
 							YftLoader* file = GetYft(object.CEntity.archetypeName, object.Archetype._BaseArchetypeDef.textureDictionary);
 							if (file->Loaded) {
-								if (camera->intersects(object.Archetype._BaseArchetypeDef.bsCentre + object.CEntity.position, object.Archetype._BaseArchetypeDef.bsRadius * std::max(object.CEntity.scaleXY, object.CEntity.scaleZ))) {
+								if (camera->intersects(object.BoundPos, object.BoundRadius)) {
 									renderList.emplace_back(file->YdrFile, object.getMatrix());
 								}
 							}
