@@ -165,7 +165,7 @@ void YdrLoader::Init(memstream & file, int32_t systemSize, btDiscreteDynamicsWor
 
 			for (int i = 0; i < ShaderHashes.size(); i++)
 			{
-				if (ShaderHashes[i] == 4059966321) { //DiffuseSampler
+				if (ShaderHashes[i] == 4059966321 || (ShaderHashes[i] == 3576369631)) { //DiffuseSampler
 					DiffuseSampler = TexturesHashes[i];
 				}
 				if (ShaderHashes[i] == 1186448975) { //BumpSampler

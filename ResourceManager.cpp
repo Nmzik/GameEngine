@@ -91,9 +91,6 @@ void ResourceManager::update()
 					gameworld->resources.push_back(res);
 					gameworld->resources_lock.unlock();
 				}
-				else {
-						printf("HERE");
-				}
 			}
 			break;
 			case ybn:

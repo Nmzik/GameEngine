@@ -103,7 +103,6 @@ GameWorld::GameWorld()
 
 	debug.setDebugMode(btIDebugDraw::DBG_DrawWireframe);
 	dynamicsWorld->setDebugDrawer(&debug);
-	//LoadYDR(3186271474, glm::vec3(), glm::quat(), glm::vec3());
 
 	MeshManager::Initialize();
 	TextureManager::Initialize();
@@ -123,7 +122,7 @@ GameWorld::GameWorld()
 		player[0].getPhysCharacter()->setGravity(btVector3(0, 0, 0));
 		player[1].Init(glm::vec3(9.66, -1184.98, 75.74), playerYDD, dynamicsWorld);
 		player[1].getPhysCharacter()->setGravity(btVector3(0, 0, 0));
-		player[2].Init(glm::vec3(1983.69f, 3825.26, 66.38), playerYDD, dynamicsWorld);
+		player[2].Init(glm::vec3(2250.18f, 3471.40f, 56.50f), playerYDD, dynamicsWorld);
 		player[2].getPhysCharacter()->setGravity(btVector3(0, 0, 0));
 	}
 
@@ -149,6 +148,11 @@ GameWorld::GameWorld()
 
 			YtdLoader* file = new YtdLoader(stream, element.SystemSize);
 		}
+	}
+
+	for (auto& ytd : data.GtxdEntries)
+	{
+		LoadYTD(ytd.second);
 	}
 
 	//ClearTestFunction();
