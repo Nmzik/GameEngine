@@ -138,9 +138,6 @@
     <ClCompile Include="MeshManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="gl3w\src\gl3w.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="opengl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

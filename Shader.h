@@ -131,7 +131,7 @@ public:
 		glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
 	}
 	// ------------------------------------------------------------------------
-	void setMat4(const uint32_t &UniformValue, const glm::mat4 &mat) const
+	inline void setMat4(const uint32_t &UniformValue, const glm::mat4 &mat) const
 	{
 		glUniformMatrix4fv(UniformValue, 1, GL_FALSE, &mat[0][0]);
 	}
