@@ -74,7 +74,7 @@
       <SDLCheck>
       </SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)\zlib;C:\Program Files %28x86%29\OpenAL 1.1 SDK\include;$(ProjectDir)\glm;$(ProjectDir)\sdl2\include;$(ProjectDir)\bullet;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\recastnavigation\Detour\Include;$(ProjectDir)\zlib;C:\Program Files %28x86%29\OpenAL 1.1 SDK\include;$(ProjectDir)\glm;$(ProjectDir)\sdl2\include;$(ProjectDir)\bullet;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>B3_USE_CLEW;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpp14</LanguageStandard>
@@ -84,8 +84,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Console</SubSystem>
-      <AdditionalLibraryDirectories>C:\Users\nmzik\source\repos\MyGameEngine\MyGameEngine\zlib;$(ProjectDir)\bullet\lib;C:\Program Files %28x86%29\OpenAL 1.1 SDK\libs\Win64;C:\Users\nmzik\source\repos\MyGameEngine\MyGameEngine\sdl2\lib\x64;C:\Users\nmzik\source\repos\MyGameEngine\MyGameEngine\glew\lib\Release\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;BulletDynamics.lib;BulletCollision.lib;LinearMath.lib;opengl32.lib;zlibwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\nmzik\source\repos\MyGameEngine\MyGameEngine\recastnavigation\lib;C:\Users\nmzik\source\repos\MyGameEngine\MyGameEngine\zlib;$(ProjectDir)\bullet\lib;C:\Program Files %28x86%29\OpenAL 1.1 SDK\libs\Win64;C:\Users\nmzik\source\repos\MyGameEngine\MyGameEngine\sdl2\lib\x64;C:\Users\nmzik\source\repos\MyGameEngine\MyGameEngine\glew\lib\Release\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;BulletDynamics.lib;BulletCollision.lib;LinearMath.lib;opengl32.lib;zlibwapi.lib;Detour.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -127,6 +127,7 @@
     <ClCompile Include="YftLoader.cpp" />
     <ClCompile Include="YmapLoader.cpp" />
     <ClCompile Include="YndLoader.cpp" />
+    <ClCompile Include="YnvLoader.cpp" />
     <ClCompile Include="YtdLoader.cpp" />
     <ClCompile Include="YtypLoader.cpp" />
   </ItemGroup>
@@ -180,6 +181,7 @@
     <ClInclude Include="YftLoader.h" />
     <ClInclude Include="YmapLoader.h" />
     <ClInclude Include="YndLoader.h" />
+    <ClInclude Include="YnvLoader.h" />
     <ClInclude Include="YtdLoader.h" />
     <ClInclude Include="YtypLoader.h" />
   </ItemGroup>
