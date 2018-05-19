@@ -71,6 +71,34 @@ void YmapLoader::Init(memstream& file)
 			}
 		}
 	}
+
+	for (int i = 0; i < Objects.size(); i++)
+	{
+		Object d = Objects[i];
+		int pind = Objects[i].CEntity.parentIndex;
+
+		bool isroot = false;
+
+		if ((pind < 0) || (pind >= Objects.size()) || (pind >= i)) //index check? might be a problem
+		{
+			isroot = true;
+		}
+		else
+		{
+			Object p = Objects[pind];
+			if ((p.CEntity.lodLevel <= d.CEntity.lodLevel) ||
+				((p.CEntity.lodLevel == Unk_1264241711::LODTYPES_DEPTH_ORPHANHD) &&
+				(d.CEntity.lodLevel != Unk_1264241711::LODTYPES_DEPTH_ORPHANHD)))
+			{
+				isroot = true;
+			}
+		}
+
+		if (isroot) {
+			RootObjects.push_back(Objects[i]);
+		}
+	}
+
 }
 
 YmapPool::YmapPool()

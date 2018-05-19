@@ -191,11 +191,11 @@ void GameWorld::LoadYmap(uint32_t hash, Camera* camera)
 {
 	YmapLoader *map = GetYmap(hash);
 	if (map->Loaded) {
-		for (auto& object : map->Objects)
+		for (auto& object : map->RootObjects)
 		{
-			float Dist = glm::length(camera->Position - object.position);
-			bool IsVisible = Dist <= object.CEntity.lodDist * LODMultiplier;
-			bool childrenVisible = (Dist <= object.CEntity.childLodDist * LODMultiplier) && (object.CEntity.numChildren > 0);
+			float Dist = glm::length2(camera->Position - object.position);
+			bool IsVisible = Dist <= object.CEntity.lodDist * object.CEntity.lodDist * LODMultiplier;
+			bool childrenVisible = (Dist <= object.CEntity.childLodDist * object.CEntity.childLodDist * LODMultiplier) && (object.CEntity.numChildren > 0);
 			if (IsVisible && !childrenVisible) {
 				if (object.type == 0) {
 					std::unordered_map<uint32_t, CBaseArchetypeDef>::iterator it = data.CBaseArchetypeDefs.find(object.CEntity.archetypeName);

@@ -1,5 +1,7 @@
 #pragma once
 
+#define GLM_ENABLE_EXPERIMENTAL
+
 #include "Mesh.h"
 #include "fstream"
 #include <iostream>
@@ -7,6 +9,7 @@
 #include "glm.hpp"
 #include "gtc/matrix_transform.hpp"
 #include "gtc/quaternion.hpp"
+#include "glm/gtx/norm.hpp"
 #include "membuf.h"
 #include "GtaEncryption.h"
 #include "YtdLoader.h"
