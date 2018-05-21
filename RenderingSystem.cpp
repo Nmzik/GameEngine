@@ -33,7 +33,7 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 
 	//SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
 
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 0);
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
 	glcontext = SDL_GL_CreateContext(window);
 
@@ -85,13 +85,16 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 	gbuffer->setInt("BumpSampler", 1);
 	gbuffer->setInt("SpecSampler", 2);
 
+	ModelUniformLoc = glGetUniformLocation(gbuffer->ID, "model");
+	ViewUniformLoc = glGetUniformLocation(gbuffer->ID, "view");
+	ProjUniformLoc = glGetUniformLocation(gbuffer->ID, "projection");
+
 	shaderSSAO->use();
 	shaderSSAO->setInt("gDepth", 0);
 	shaderSSAO->setInt("gNormal", 1);
 	shaderSSAO->setInt("texNoise", 2);
 	for (unsigned int i = 0; i < 64; ++i)
 		shaderSSAO->setVec3("samples[" + std::to_string(i) + "]", ssaoKernel[i]);
-
 	ssaoProjection = glGetUniformLocation(shaderSSAO->ID, "projection");
 	ssaoInverseProjectionMatrix = glGetUniformLocation(shaderSSAO->ID, "InverseProjectionMatrix");
 
@@ -144,7 +147,6 @@ Camera & RenderingSystem::getCamera()
 {
 	return *camera;
 }
-
 
 float lerp(float a, float b, float f)
 {
@@ -292,16 +294,12 @@ void RenderingSystem::createHDRFBO()
 
 }
 
-void RenderingSystem::renderQuad()
+inline void RenderingSystem::renderQuad()
 {
 	glBindVertexArray(quadVAO);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	glBindVertexArray(0);
 }
-
-#define ModelUniformLoc 0
-#define ViewUniformLoc 1
-#define ProjUniformLoc 2
 
 void RenderingSystem::render(GameWorld* world)
 {

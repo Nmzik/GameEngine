@@ -21,9 +21,13 @@ private:
 
 	Shader* SkyboxShader;
 	Shader* ourShader;
-	Shader* gbuffer;
-	Shader* shaderSSAO;
 
+	Shader* gbuffer;
+	GLuint ModelUniformLoc;
+	GLuint ViewUniformLoc;
+	GLuint ProjUniformLoc;
+
+	Shader* shaderSSAO;
 	GLuint ssaoProjection;
 	GLuint ssaoInverseProjectionMatrix;
 
