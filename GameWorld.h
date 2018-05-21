@@ -77,6 +77,8 @@ public:
 	std::vector<Resource*> resources;
 	RenderList renderList;
 
+	float accumulatedTime = 0.0f;
+
 	bool EnableStreaming = true;
 	uint8_t gameMinute;
 	uint8_t gameHour;

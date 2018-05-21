@@ -837,13 +837,21 @@ void GameWorld::DetectWeaponHit(glm::vec3 CameraPosition, glm::vec3 lookDirectio
 	}
 }
 
-
+constexpr float deltaTime = 1.f / 60.f;
 
 void GameWorld::update(float delta_time, Camera* camera)
 {
 	Update();
 	//UpdateTraffic(camera, camera->Position);
-	dynamicsWorld->stepSimulation(delta_time);
+
+	accumulatedTime += delta_time;
+
+	while (accumulatedTime >= deltaTime) {
+		dynamicsWorld->stepSimulation(deltaTime, 2, deltaTime);
+
+		accumulatedTime -= deltaTime;
+	}
+
 	if (EnableStreaming) {
 		renderList.clear();
 		GetVisibleYmaps(camera);
