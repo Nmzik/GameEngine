@@ -14,6 +14,7 @@
 #include "YndLoader.h"
 #include "YbnLoader.h"
 #include "YtdLoader.h"
+#include "YnvLoader.h"
 #include "GameData.h"
 #include "Material.h"
 #include "CacheDatFile.h"

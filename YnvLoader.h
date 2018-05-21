@@ -5,7 +5,7 @@
 class YnvLoader
 {
 public:
-	YnvLoader();
+	YnvLoader(memstream& file);
 	~YnvLoader();
 };
 

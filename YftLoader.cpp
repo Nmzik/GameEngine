@@ -262,5 +262,6 @@ YftLoader::YftLoader(memstream& file, int32_t systemSize, bool need, btDiscreteD
 
 YftLoader::~YftLoader()
 {
-	delete YdrFile;
+	if (YdrFile)
+		delete YdrFile;
 }

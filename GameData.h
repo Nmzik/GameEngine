@@ -48,6 +48,7 @@ public:
 	std::unordered_map<uint32_t, RpfResourceFileEntry*> YtypEntries;
 	std::unordered_map<uint32_t, RpfResourceFileEntry*> YbnEntries;
 	std::unordered_map<uint32_t, RpfResourceFileEntry*> YndEntries;
+	std::unordered_map<uint32_t, RpfResourceFileEntry*> YnvEntries;
 
 	std::unordered_map<uint32_t, uint32_t> GtxdEntries;
 	std::vector<CarHandling> Vehicles;

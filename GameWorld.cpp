@@ -11,6 +11,7 @@ GameWorld::GameWorld()
 	dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
 
 	dynamicsWorld->setGravity(btVector3(0, 0, -9.8f));
+	dynamicsWorld->setForceUpdateAllAabbs(false);
 
 	//Default texture
 	TextureManager::LoadTexture(0, TextureManager::loadTexture("blank.jpg"));
@@ -148,6 +149,14 @@ GameWorld::GameWorld()
 
 			YtdLoader* file = new YtdLoader(stream, element.SystemSize);
 		}
+	}
+
+	auto YnvIt = data.YnvEntries.find(592547765);
+	if (YnvIt != data.YnvEntries.end()) {
+		std::vector<uint8_t> Buffer;
+		data.ExtractFileResource(*(it->second), Buffer);
+		memstream stream(Buffer.data(), Buffer.size());
+		//YnvLoader ynv(stream);
 	}
 
 	for (auto& ytd : data.GtxdEntries)
