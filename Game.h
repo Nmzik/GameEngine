@@ -3,6 +3,8 @@
 #include <memory>
 #include <sstream>
 #include "SDL.h"
+#include "ft2build.h"
+#include FT_FREETYPE_H
 
 #include "RenderingSystem.h"
 #include "GameData.h"

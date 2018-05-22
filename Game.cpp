@@ -1,4 +1,4 @@
-#include "Game.h"
+﻿#include "Game.h"
 
 Game::Game() {
 
@@ -27,6 +27,10 @@ Game::Game() {
 	input = new InputManager();
 
 	StateManager::get().enter<InGameState>(this);
+
+	FT_Library library;
+	FT_Init_FreeType(&library);
+
 }
 
 
