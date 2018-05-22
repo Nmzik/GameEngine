@@ -15,6 +15,7 @@ InputManager::~InputManager()
 
 void InputManager::Update()
 {
+	SDL_PumpEvents();
 	memcpy(PreviousInput, CurrentInput, sizeof(Uint8)*SDL_NUM_SCANCODES);
 	memcpy(CurrentInput, SDL_GetKeyboardState(NULL), sizeof(Uint8)*SDL_NUM_SCANCODES);
 }

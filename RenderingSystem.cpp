@@ -525,8 +525,6 @@ void RenderingSystem::render(GameWorld* world)
 			mWaiting = false;
 		}
 	}
-
-	SDL_GL_SwapWindow(window);
 }
 
 void RenderingSystem::skyboxPass()

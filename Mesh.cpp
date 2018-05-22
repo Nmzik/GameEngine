@@ -192,7 +192,7 @@ Mesh::Mesh(const uint8_t* meshData, uint64_t VertexPointer, uint32_t VertexSize,
 		break;
 	}
 
-	EBO = MeshManager::GetEBO();
+	EBO = MeshManager::GetVBO();
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, IndicesSize * sizeof(uint16_t), &meshData[IndicesPointer], GL_STATIC_DRAW); //16 BIT INDICES max 65536
 }
@@ -201,7 +201,7 @@ void Mesh::Cleanup()
 {
 	MeshManager::VAOs.push_back(VAO);
 	MeshManager::VBOs.push_back(VBO);
-	MeshManager::EBOs.push_back(EBO);
+	MeshManager::VBOs.push_back(EBO);
 }
 
 Mesh::~Mesh()

@@ -61,20 +61,24 @@ void Game::run() {
 	auto current_time = std::chrono::steady_clock::now();
 	
 	while (running) {
-		while (SDL_PollEvent(&event)) {
+		input->Update();
+
+		if (input->IsKeyPressed(SDL_SCANCODE_ESCAPE))
+			running = false;
+		/*while (SDL_PollEvent(&event)) {
 			StateManager::get().currentState()->handleEvent(event);
-			if (event.type == SDL_QUIT) running = false;
-		}
+			//if (event.type == SDL_QUIT) running = false;
+		}*/
 
 		auto old_time = current_time;
 		current_time = std::chrono::steady_clock::now();
 		float delta_time = std::chrono::duration<float>(current_time - old_time).count();
 
-		input->Update();
 		if (!paused) {
 			gameWorld->update(delta_time, &rendering_system->getCamera());
 			StateManager::get().tick(delta_time);
 			rendering_system->render(gameWorld.get());
+			SDL_GL_SwapWindow(window);
 		}
 
 		updateFPS(delta_time);
