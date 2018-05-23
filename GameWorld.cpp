@@ -200,7 +200,7 @@ void GameWorld::LoadYmap(uint32_t hash, Camera* camera)
 {
 	YmapLoader *map = GetYmap(hash);
 	if (map->Loaded) {
-		for (auto& object : map->RootObjects)
+		for (auto& object : map->Objects)
 		{
 			float Dist = glm::length2(camera->Position - object.position);
 			bool IsVisible = Dist <= object.CEntity.lodDist * object.CEntity.lodDist * LODMultiplier;

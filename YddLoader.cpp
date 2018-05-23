@@ -30,7 +30,7 @@ void YddLoader::Init(memstream & file, int32_t systemSize, btDiscreteDynamicsWor
 
 	YdrFiles.reserve(DrawableDictionary.DrawablesCount1);
 
-	TranslatePTR(DrawableDictionary.HashesPointer);
+	SYSTEM_BASE_PTR(DrawableDictionary.HashesPointer);
 
 	file.seekg(DrawableDictionary.HashesPointer);
 
@@ -39,7 +39,7 @@ void YddLoader::Init(memstream & file, int32_t systemSize, btDiscreteDynamicsWor
 
 	file.read((char*)&Hashes[0], sizeof(uint32_t) * DrawableDictionary.HashesCount1);
 
-	TranslatePTR(DrawableDictionary.DrawablesPointer);
+	SYSTEM_BASE_PTR(DrawableDictionary.DrawablesPointer);
 
 	file.seekg(DrawableDictionary.DrawablesPointer);
 
@@ -53,7 +53,7 @@ void YddLoader::Init(memstream & file, int32_t systemSize, btDiscreteDynamicsWor
 
 		uint64_t DrawablePointer = file.tellg();
 
-		TranslatePTR(DataPointer);
+		SYSTEM_BASE_PTR(DataPointer);
 
 		file.seekg(DataPointer);
 

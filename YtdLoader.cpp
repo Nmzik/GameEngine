@@ -66,7 +66,7 @@ void YtdLoader::Init(memstream & file, int32_t systemSize)
 
 	TextureNameHashes.resize(texDictionary.TextureNameHashesPtr.EntriesCount);
 
-	TranslatePTR(texDictionary.TextureNameHashesPtr.EntriesPointer);
+	SYSTEM_BASE_PTR(texDictionary.TextureNameHashesPtr.EntriesPointer);
 
 	uint64_t pos = file.tellg();
 
@@ -80,7 +80,7 @@ void YtdLoader::Init(memstream & file, int32_t systemSize)
 
 	file.read((char*)&resourcePointerList, sizeof(ResourcePointerList64));
 
-	TranslatePTR(resourcePointerList.EntriesPointer);
+	SYSTEM_BASE_PTR(resourcePointerList.EntriesPointer);
 
 	file.seekg(resourcePointerList.EntriesPointer);
 
@@ -93,7 +93,7 @@ void YtdLoader::Init(memstream & file, int32_t systemSize)
 		std::unordered_map<uint32_t, TextureManager::Texture>::iterator it = TextureManager::TexturesMap.find(TextureNameHashes[i]);
 		if (it == TextureManager::TexturesMap.end())
 		{
-			TranslatePTR(data_pointer);
+			SYSTEM_BASE_PTR(data_pointer);
 
 			file.seekg(data_pointer);
 
@@ -103,7 +103,7 @@ void YtdLoader::Init(memstream & file, int32_t systemSize)
 			file.read((char*)&Texture, sizeof(Texture));
 
 			//READ ACTUAL DATA
-			TranslatePTR(Texture.DataPointer);
+			GRAPHICS_BASE_PTR(Texture.DataPointer);
 
 			Texture.DataPointer += systemSize;
 

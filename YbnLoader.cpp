@@ -33,7 +33,7 @@ void YbnLoader::Init(btDiscreteDynamicsWorld* world, memstream& file)
 		std::vector<BoundPolygonBox> PolygonBoxes;
 		std::vector<BoundPolygonCylinder> PolygonCylinders;
 
-		TranslatePTR(geom.PolygonsPointer);
+		SYSTEM_BASE_PTR(geom.PolygonsPointer);
 
 		file.seekg(geom.PolygonsPointer);
 
@@ -81,7 +81,7 @@ void YbnLoader::Init(btDiscreteDynamicsWorld* world, memstream& file)
 
 
 		///////////////////
-		TranslatePTR(geom.VerticesPointer);
+		SYSTEM_BASE_PTR(geom.VerticesPointer);
 
 		file.seekg(geom.VerticesPointer);
 
@@ -193,7 +193,7 @@ void YbnLoader::Init(btDiscreteDynamicsWorld* world, memstream& file)
 
 		file.read((char*)&BoundComposite, sizeof(BoundComposite));
 
-		TranslatePTR(BoundComposite.ChildrenPointer);
+		SYSTEM_BASE_PTR(BoundComposite.ChildrenPointer);
 
 		file.seekg(BoundComposite.ChildrenPointer);
 		ybns.reserve(BoundComposite.ChildrenCount1);
@@ -205,7 +205,7 @@ void YbnLoader::Init(btDiscreteDynamicsWorld* world, memstream& file)
 
 			uint64_t BoundsPointer = file.tellg();
 
-			TranslatePTR(DataPointer);
+			SYSTEM_BASE_PTR(DataPointer);
 
 			file.seekg(DataPointer);
 

@@ -131,7 +131,7 @@ YnvLoader::YnvLoader(memstream& file)
 
 	navMeshVertices.reserve(navmesh.VerticesCount);
 
-	TranslatePTR(navmesh.VerticesPointer);
+	SYSTEM_BASE_PTR(navmesh.VerticesPointer);
 	file.seekg(navmesh.VerticesPointer);
 	///NOT SURE
 
@@ -146,7 +146,7 @@ YnvLoader::YnvLoader(memstream& file)
 		//????????
 		for (int i = 0; i < navMeshListPart.Count; i++)
 		{
-			TranslatePTR(navMeshListPart.Pointer);
+			SYSTEM_BASE_PTR(navMeshListPart.Pointer);
 			file.seekg(navMeshListPart.Pointer);
 
 			NavMeshVertex navMeshVertex;

@@ -59,7 +59,7 @@ void Game::updateFPS(float delta_time) {
 
 void Game::run() {
 
-	SDL_Event event;
+	//SDL_Event event;
 
 	bool running = true;
 	auto current_time = std::chrono::steady_clock::now();

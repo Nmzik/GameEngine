@@ -75,7 +75,7 @@ void YftLoader::Init(memstream & file, int32_t systemSize, bool need, btDiscrete
 
 	file.read((char*)&FragType, sizeof(FragType));
 
-	TranslatePTR(FragType.DrawablePointer);
+	SYSTEM_BASE_PTR(FragType.DrawablePointer);
 
 	file.seekg(FragType.DrawablePointer);
 
@@ -202,19 +202,19 @@ void YftLoader::Init(memstream & file, int32_t systemSize, bool need, btDiscrete
 		uint32_t Unknown_FCh; // 0x00000000
 	} FragPhysTypeChild;
 
-	TranslatePTR(FragType.PhysicsLODGroupPointer);
+	SYSTEM_BASE_PTR(FragType.PhysicsLODGroupPointer);
 
 	file.seekg(FragType.PhysicsLODGroupPointer);
 
 	file.read((char*)&FragPhysicsLODGroup, sizeof(FragPhysicsLODGroup));
 
-	TranslatePTR(FragPhysicsLODGroup.PhysicsLOD1Pointer);
+	SYSTEM_BASE_PTR(FragPhysicsLODGroup.PhysicsLOD1Pointer);
 
 	file.seekg(FragPhysicsLODGroup.PhysicsLOD1Pointer);
 
 	file.read((char*)&FragPhysicsLOD, sizeof(FragPhysicsLOD));
 
-	TranslatePTR(FragPhysicsLOD.ChildrenPointer);
+	SYSTEM_BASE_PTR(FragPhysicsLOD.ChildrenPointer);
 
 	file.seekg(FragPhysicsLOD.ChildrenPointer);
 	/*if (need) {
@@ -226,13 +226,13 @@ void YftLoader::Init(memstream & file, int32_t systemSize, bool need, btDiscrete
 
 	uint64_t ChildrenPointer = file.tellg();
 
-	TranslatePTR(DataPointer);
+	SYSTEM_BASE_PTR(DataPointer);
 
 	file.seekg(DataPointer);
 
 	file.read((char*)&FragPhysTypeChild, sizeof(FragPhysTypeChild));
 
-	TranslatePTR(FragPhysTypeChild.Drawable1Pointer);
+	SYSTEM_BASE_PTR(FragPhysTypeChild.Drawable1Pointer);
 
 	file.seekg(FragPhysTypeChild.Drawable1Pointer);
 
@@ -249,7 +249,7 @@ void YftLoader::Init(memstream & file, int32_t systemSize, bool need, btDiscrete
 	}
 	}*/
 
-	//TranslatePTR(FragPhysicsLOD.BoundPointer);
+	//SYSTEM_BASE_PTR(FragPhysicsLOD.BoundPointer);
 
 	//YbnLoader* loader = new YbnLoader(world, file, hash);*/
 }

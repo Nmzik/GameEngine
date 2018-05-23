@@ -1,5 +1,14 @@
 #include "YdrLoader.h"
 
+/*void TranslatePTR(uint64_t& pointer) {
+	if ((pointer & SYSTEM_BASE) == SYSTEM_BASE) {
+		pointer = pointer & ~0x50000000;
+	}
+	if ((pointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
+		pointer = pointer & ~0x60000000;
+	}
+}*/
+
 YdrLoader::YdrLoader()
 {
 
@@ -28,7 +37,7 @@ void YdrLoader::Init(memstream & file, int32_t systemSize, btDiscreteDynamicsWor
 			file.read((char*)&fragDrawable, sizeof(FragDrawable));
 
 			if (fragDrawable.BoundPointer != 0) {
-				TranslatePTR(fragDrawable.BoundPointer);
+				SYSTEM_BASE_PTR(fragDrawable.BoundPointer);
 				file.seekg(fragDrawable.BoundPointer);
 
 				//ybnfile = new YbnLoader(world, file);
@@ -39,7 +48,7 @@ void YdrLoader::Init(memstream & file, int32_t systemSize, btDiscreteDynamicsWor
 			file.read((char*)&drawable, sizeof(Drawable));
 
 			if (drawable.LightAttributesPointer != 0) {
-				TranslatePTR(drawable.LightAttributesPointer);
+				SYSTEM_BASE_PTR(drawable.LightAttributesPointer);
 
 				file.seekg(drawable.LightAttributesPointer);
 
@@ -54,7 +63,7 @@ void YdrLoader::Init(memstream & file, int32_t systemSize, btDiscreteDynamicsWor
 				}
 			}
 			if (drawable.BoundPointer != 0) {
-				TranslatePTR(drawable.BoundPointer);
+				SYSTEM_BASE_PTR(drawable.BoundPointer);
 				file.seekg(drawable.BoundPointer);
 
 				//ybnfile = new YbnLoader(world, file);
@@ -63,7 +72,7 @@ void YdrLoader::Init(memstream & file, int32_t systemSize, btDiscreteDynamicsWor
 
 		//Shader stuff
 
-		TranslatePTR(drawBase.ShaderGroupPointer);
+		SYSTEM_BASE_PTR(drawBase.ShaderGroupPointer);
 
 		file.seekg(drawBase.ShaderGroupPointer);
 
@@ -72,12 +81,12 @@ void YdrLoader::Init(memstream & file, int32_t systemSize, btDiscreteDynamicsWor
 		file.read((char*)&_ShaderGroup, sizeof(ShaderGroup));
 
 		if (_ShaderGroup.TextureDictionaryPointer != 0) {
-			TranslatePTR(_ShaderGroup.TextureDictionaryPointer);
+			SYSTEM_BASE_PTR(_ShaderGroup.TextureDictionaryPointer);
 			file.seekg(_ShaderGroup.TextureDictionaryPointer);
 			Ytd = new YtdLoader(file, systemSize);
 		}
 
-		TranslatePTR(_ShaderGroup.ShadersPointer);
+		SYSTEM_BASE_PTR(_ShaderGroup.ShadersPointer);
 		file.seekg(_ShaderGroup.ShadersPointer);
 
 		for (int i = 0; i < _ShaderGroup.ShadersCount1; i++)
@@ -86,13 +95,13 @@ void YdrLoader::Init(memstream & file, int32_t systemSize, btDiscreteDynamicsWor
 			file.read((char*)&data_pointer, sizeof(data_pointer));
 			uint64_t posOriginal = file.tellg();
 
-			TranslatePTR(data_pointer);
+			SYSTEM_BASE_PTR(data_pointer);
 			file.seekg(data_pointer);
 
 			ShaderFX shaderFX;
 			file.read((char*)&shaderFX, sizeof(shaderFX));
 
-			TranslatePTR(shaderFX.ParametersPointer);
+			SYSTEM_BASE_PTR(shaderFX.ParametersPointer);
 
 			file.seekg(shaderFX.ParametersPointer);
 
@@ -119,14 +128,14 @@ void YdrLoader::Init(memstream & file, int32_t systemSize, btDiscreteDynamicsWor
 
 							uint64_t Pos = file.tellg();
 
-							TranslatePTR(param.DataPointer);
+							SYSTEM_BASE_PTR(param.DataPointer);
 
 							file.seekg(param.DataPointer);
 
 							TextureBase texBase;
 							file.read((char*)&texBase, sizeof(TextureBase));
 
-							TranslatePTR(texBase.NamePointer);
+							SYSTEM_BASE_PTR(texBase.NamePointer);
 
 							file.seekg(texBase.NamePointer);
 
@@ -186,7 +195,7 @@ void YdrLoader::Init(memstream & file, int32_t systemSize, btDiscreteDynamicsWor
 
 		}
 
-		TranslatePTR(drawBase.DrawableModelsXPointer);
+		SYSTEM_BASE_PTR(drawBase.DrawableModelsXPointer);
 
 		file.seekg(drawBase.DrawableModelsXPointer);
 
@@ -194,7 +203,7 @@ void YdrLoader::Init(memstream & file, int32_t systemSize, btDiscreteDynamicsWor
 
 		file.read((char*)&resourcePointerList, sizeof(ResourcePointerList64));
 
-		TranslatePTR(resourcePointerList.EntriesPointer);
+		SYSTEM_BASE_PTR(resourcePointerList.EntriesPointer);
 
 		file.seekg(resourcePointerList.EntriesPointer);
 
@@ -204,7 +213,7 @@ void YdrLoader::Init(memstream & file, int32_t systemSize, btDiscreteDynamicsWor
 			file.read((char*)&data_pointer, sizeof(data_pointer));
 			uint64_t posOriginal = file.tellg();
 
-			TranslatePTR(data_pointer);
+			SYSTEM_BASE_PTR(data_pointer);
 
 			file.seekg(data_pointer);
 
@@ -212,7 +221,7 @@ void YdrLoader::Init(memstream & file, int32_t systemSize, btDiscreteDynamicsWor
 
 			file.read((char*)&drawModel, sizeof(drawModel));
 
-			TranslatePTR(drawModel.ShaderMappingPointer);
+			SYSTEM_BASE_PTR(drawModel.ShaderMappingPointer);
 
 			file.seekg(drawModel.ShaderMappingPointer);
 
@@ -220,7 +229,7 @@ void YdrLoader::Init(memstream & file, int32_t systemSize, btDiscreteDynamicsWor
 			ShaderMapping.resize(sizeof(uint16_t) * drawModel.GeometriesCount1);
 			file.read((char*)&ShaderMapping[0], sizeof(uint16_t) * drawModel.GeometriesCount1);
 
-			TranslatePTR(drawModel.GeometriesPointer);
+			SYSTEM_BASE_PTR(drawModel.GeometriesPointer);
 
 			file.seekg(drawModel.GeometriesPointer);
 
@@ -233,7 +242,7 @@ void YdrLoader::Init(memstream & file, int32_t systemSize, btDiscreteDynamicsWor
 				file.read((char*)&data_pointer, sizeof(data_pointer));
 				uint64_t pos = file.tellg();
 
-				TranslatePTR(data_pointer);
+				SYSTEM_BASE_PTR(data_pointer);
 
 				file.seekg(data_pointer);
 
@@ -241,16 +250,16 @@ void YdrLoader::Init(memstream & file, int32_t systemSize, btDiscreteDynamicsWor
 
 				file.read((char*)&drawGeom, sizeof(DrawableGeometry));
 
-				TranslatePTR(drawGeom.VertexBufferPointer);
+				SYSTEM_BASE_PTR(drawGeom.VertexBufferPointer);
 
 				file.seekg(drawGeom.VertexBufferPointer);
 
 				VertexBuffer vertbuffer;
 				file.read((char*)&vertbuffer, sizeof(VertexBuffer));
 
-				TranslatePTR(vertbuffer.DataPointer1);
+				SYSTEM_BASE_PTR(vertbuffer.DataPointer1);
 
-				TranslatePTR(vertbuffer.InfoPointer);
+				SYSTEM_BASE_PTR(vertbuffer.InfoPointer);
 
 				file.seekg(vertbuffer.InfoPointer);
 
@@ -280,14 +289,14 @@ void YdrLoader::Init(memstream & file, int32_t systemSize, btDiscreteDynamicsWor
 						break;
 				}
 
-				TranslatePTR(drawGeom.IndexBufferPointer);
+				SYSTEM_BASE_PTR(drawGeom.IndexBufferPointer);
 
 				file.seekg(drawGeom.IndexBufferPointer);
 
 				IndexBuffer indexbuffer;
 				file.read((char*)&indexbuffer, sizeof(IndexBuffer));
 
-				TranslatePTR(indexbuffer.IndicesPointer);
+				SYSTEM_BASE_PTR(indexbuffer.IndicesPointer);
 
 				
 				meshes.emplace_back(file._buffer.p, vertbuffer.DataPointer1, vertbuffer.VertexCount * vertbuffer.VertexStride, indexbuffer.IndicesPointer, indexbuffer.IndicesCount, (VertexType)decl.Flags, materials[ShaderMapping[i]]);

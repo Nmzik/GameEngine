@@ -18,13 +18,10 @@
 #define SYSTEM_BASE 0x50000000
 #define GRAPHICS_BASE 0x60000000
 
-#define TranslatePTR(NAME)                       \
-if ((NAME & SYSTEM_BASE) == SYSTEM_BASE) { \
-	NAME = NAME & ~0x50000000; \
-}    \
-if ((NAME & GRAPHICS_BASE) == GRAPHICS_BASE) { \
-	NAME = NAME & ~0x60000000; \
-} \
+//void TranslatePTR(uint64_t& pointer);
+
+#define SYSTEM_BASE_PTR(NAME) NAME = NAME & ~0x50000000;
+#define GRAPHICS_BASE_PTR(NAME) NAME = NAME & ~0x60000000;
 
 struct Array_Structure //16 bytes - pointer for a structure array
 {
