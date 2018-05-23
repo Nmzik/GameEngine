@@ -52,41 +52,41 @@ GameData::GameData()
 		{
 			std::string extension = entry.Name.substr(entry.Name.length() - 4);
 			std::transform(entry.Name.begin(), entry.Name.end(), entry.Name.begin(), tolower);
-			entry.NameHash = GenHash(entry.Name);
+			//entry.NameHash = GenHash(entry.Name);
 			size_t index = entry.Name.find_last_of('.');
 			entry.ShortNameHash = GenHash(entry.Name.substr(0, index));
 
 			if (extension == ".ydr") {
 				//YdrEntries[GenHash(entry.Name.substr(0, entry.Name.length() - 4) + "_lod")] = &entry; //WHY????
-				YdrEntries[entry.NameHash] = &entry;
+				//YdrEntries[entry.NameHash] = &entry;
 				YdrEntries[entry.ShortNameHash] = &entry;
 			}
 			if (extension == ".ydd") {
-				YddEntries[entry.NameHash] = &entry;
+				//YddEntries[entry.NameHash] = &entry;
 				YddEntries[entry.ShortNameHash] = &entry;
 			}
 			if (extension == ".yft") {
-				YftEntries[entry.NameHash] = &entry;
+				//YftEntries[entry.NameHash] = &entry;
 				YftEntries[entry.ShortNameHash] = &entry;
 			}
 			if (extension == ".ynd") {
-				YndEntries[entry.NameHash] = &entry;
+				//YndEntries[entry.NameHash] = &entry;
 				YndEntries[entry.ShortNameHash] = &entry;
 			}
 			if (extension == ".ynv") {
-				YnvEntries[entry.NameHash] = &entry;
+				//YnvEntries[entry.NameHash] = &entry;
 				YnvEntries[entry.ShortNameHash] = &entry;
 			}
 			if (extension == ".ytd") {
-				YtdEntries[entry.NameHash] = &entry;
+				//YtdEntries[entry.NameHash] = &entry;
 				YtdEntries[entry.ShortNameHash] = &entry;
 			}
 			if (extension == ".ybn") {
-				YbnEntries[entry.NameHash] = &entry;
+				//YbnEntries[entry.NameHash] = &entry;
 				YbnEntries[entry.ShortNameHash] = &entry;
 			}
 			if (entry.Name.substr(entry.Name.length() - 5) == ".ymap") {
-				YmapEntries[entry.NameHash] = &entry;
+				//YmapEntries[entry.NameHash] = &entry;
 				YmapEntries[entry.ShortNameHash] = &entry;
 			}
 			if (entry.Name.substr(entry.Name.length() - 5) == ".ytyp") {
