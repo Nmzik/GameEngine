@@ -61,35 +61,35 @@ GameData::GameData()
 				//YdrEntries[entry.NameHash] = &entry;
 				YdrEntries[entry.ShortNameHash] = &entry;
 			}
-			if (extension == ".ydd") {
+			else if (extension == ".ydd") {
 				//YddEntries[entry.NameHash] = &entry;
 				YddEntries[entry.ShortNameHash] = &entry;
 			}
-			if (extension == ".yft") {
+			else if (extension == ".yft") {
 				//YftEntries[entry.NameHash] = &entry;
 				YftEntries[entry.ShortNameHash] = &entry;
 			}
-			if (extension == ".ynd") {
+			else if (extension == ".ynd") {
 				//YndEntries[entry.NameHash] = &entry;
 				YndEntries[entry.ShortNameHash] = &entry;
 			}
-			if (extension == ".ynv") {
+			else if (extension == ".ynv") {
 				//YnvEntries[entry.NameHash] = &entry;
 				YnvEntries[entry.ShortNameHash] = &entry;
 			}
-			if (extension == ".ytd") {
+			else if (extension == ".ytd") {
 				//YtdEntries[entry.NameHash] = &entry;
 				YtdEntries[entry.ShortNameHash] = &entry;
 			}
-			if (extension == ".ybn") {
+			else if (extension == ".ybn") {
 				//YbnEntries[entry.NameHash] = &entry;
 				YbnEntries[entry.ShortNameHash] = &entry;
 			}
-			if (entry.Name.substr(entry.Name.length() - 5) == ".ymap") {
+			else if (entry.Name.substr(entry.Name.length() - 5) == ".ymap") {
 				//YmapEntries[entry.NameHash] = &entry;
 				YmapEntries[entry.ShortNameHash] = &entry;
 			}
-			if (entry.Name.substr(entry.Name.length() - 5) == ".ytyp") {
+			else if (entry.Name.substr(entry.Name.length() - 5) == ".ytyp") {
 				//YtypEntries[entry.NameHash] = &entry;
 				//YtypEntries[entry.ShortNameHash] = &entry;
 

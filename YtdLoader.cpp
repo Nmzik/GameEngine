@@ -171,13 +171,14 @@ void YtdLoader::Init(memstream & file, int32_t systemSize)
 			}
 
 			GLuint textureID = TextureManager::GetTextureID();
-
 			glBindTexture(GL_TEXTURE_2D, textureID);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, Texture.Levels - 1);
+			glTexStorage2D(GL_TEXTURE_2D, Texture.Levels, InternalFormat, Texture.Width, Texture.Height);
+
+			//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, Texture.Levels - 1);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, Texture.Levels <= 1 ? GL_LINEAR : GL_LINEAR_MIPMAP_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_LOD, 0);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LOD, 12);
+			//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_LOD, 0);
+			//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LOD, 12);
 			//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 			//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 			/*glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -194,8 +195,8 @@ void YtdLoader::Init(memstream & file, int32_t systemSize)
 				for (unsigned int level = 0; level < Texture.Levels; ++level)
 				{
 					unsigned int size = ((Texture.Width + 3) / 4)*((Texture.Height + 3) / 4)*blockSize;
-
-					glCompressedTexImage2D(GL_TEXTURE_2D, level, InternalFormat, Texture.Width, Texture.Height, 0, size, &file._buffer.p[Texture.DataPointer] + offset);
+					glCompressedTexSubImage2D(GL_TEXTURE_2D, level, 0, 0, Texture.Width, Texture.Height, InternalFormat, size, &file._buffer.p[Texture.DataPointer] + offset);
+					//glCompressedTexImage2D(GL_TEXTURE_2D, level, InternalFormat, Texture.Width, Texture.Height, 0, size, &file._buffer.p[Texture.DataPointer] + offset);
 
 					offset += size;
 					Texture.Width = std::max(Texture.Width / 2, 1);
@@ -210,11 +211,11 @@ void YtdLoader::Init(memstream & file, int32_t systemSize)
 				{
 					unsigned int size = ((Texture.Width + 1) >> 1)  * ((Texture.Height + 1) >> 1) * 4;
 
-					glTexImage2D(GL_TEXTURE_2D, level, InternalFormat, Texture.Width, Texture.Height, 0, GL_BGRA, format, &file._buffer.p[Texture.DataPointer] + offset);
+					glTexSubImage2D(GL_TEXTURE_2D, Texture.Levels, 0, 0, Texture.Width, Texture.Height, GL_BGRA, format, &file._buffer.p[Texture.DataPointer] + offset);
 
 					offset += size;
-					Texture.Width /= 2;
-					Texture.Height /= 2;
+					Texture.Width = std::max(Texture.Width / 2, 1);
+					Texture.Height = std::max(Texture.Height / 2, 1);
 				}
 			}
 
