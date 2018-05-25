@@ -35,12 +35,7 @@ public:
 
 		uint64_t pos = file.tellg();
 
-		if ((MetaStructureInfo_struct.EntriesPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-			MetaStructureInfo_struct.EntriesPointer = MetaStructureInfo_struct.EntriesPointer & ~0x50000000;
-		}
-		if ((MetaStructureInfo_struct.EntriesPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-			MetaStructureInfo_struct.EntriesPointer = MetaStructureInfo_struct.EntriesPointer & ~0x60000000;
-		}
+		SYSTEM_BASE_PTR(MetaStructureInfo_struct.EntriesPointer);
 
 		file.seekg(MetaStructureInfo_struct.EntriesPointer);
 
@@ -70,12 +65,7 @@ public:
 	MetaEnumInfo(memstream& file) {
 		file.read((char*)&MetaEnumInfo_struct, sizeof(MetaEnumInfo_struct));
 
-		if ((MetaEnumInfo_struct.EntriesPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-			MetaEnumInfo_struct.EntriesPointer = MetaEnumInfo_struct.EntriesPointer & ~0x50000000;
-		}
-		if ((MetaEnumInfo_struct.EntriesPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-			MetaEnumInfo_struct.EntriesPointer = MetaEnumInfo_struct.EntriesPointer & ~0x60000000;
-		}
+		SYSTEM_BASE_PTR(MetaEnumInfo_struct.EntriesPointer);
 
 		uint64_t pos = file.tellg();
 
@@ -108,12 +98,7 @@ public:
 
 		Data = new uint8_t[MetaDataBlock_struct.DataLength];
 
-		if ((MetaDataBlock_struct.DataPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-			MetaDataBlock_struct.DataPointer = MetaDataBlock_struct.DataPointer & ~0x50000000;
-		}
-		if ((MetaDataBlock_struct.DataPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-			MetaDataBlock_struct.DataPointer = MetaDataBlock_struct.DataPointer & ~0x60000000;
-		}
+		TranslatePTR(MetaDataBlock_struct.DataPointer);
 
 		file.seekg(MetaDataBlock_struct.DataPointer);
 
@@ -158,12 +143,7 @@ public:
 	Meta(memstream& file) {
 		file.read((char*)&Meta_struct, sizeof(Meta_struct));
 
-		if ((Meta_struct.StructureInfosPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-			Meta_struct.StructureInfosPointer = Meta_struct.StructureInfosPointer & ~0x50000000;
-		}
-		if ((Meta_struct.StructureInfosPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-			Meta_struct.StructureInfosPointer = Meta_struct.StructureInfosPointer & ~0x60000000;
-		}
+		SYSTEM_BASE_PTR(Meta_struct.StructureInfosPointer);
 
 		file.seekg(Meta_struct.StructureInfosPointer);
 
@@ -173,12 +153,7 @@ public:
 			MetaInfos.push_back(info);
 		}
 
-		if ((Meta_struct.EnumInfosPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-			Meta_struct.EnumInfosPointer = Meta_struct.EnumInfosPointer & ~0x50000000;
-		}
-		if ((Meta_struct.EnumInfosPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-			Meta_struct.EnumInfosPointer = Meta_struct.EnumInfosPointer & ~0x60000000;
-		}
+		SYSTEM_BASE_PTR(Meta_struct.EnumInfosPointer);
 
 		file.seekg(Meta_struct.EnumInfosPointer);
 
@@ -188,12 +163,7 @@ public:
 			EnumInfos.push_back(info);
 		}
 
-		if ((Meta_struct.DataBlocksPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-			Meta_struct.DataBlocksPointer = Meta_struct.DataBlocksPointer & ~0x50000000;
-		}
-		if ((Meta_struct.DataBlocksPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-			Meta_struct.DataBlocksPointer = Meta_struct.DataBlocksPointer & ~0x60000000;
-		}
+		SYSTEM_BASE_PTR(Meta_struct.DataBlocksPointer);
 
 		file.seekg(Meta_struct.DataBlocksPointer);
 

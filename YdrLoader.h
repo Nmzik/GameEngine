@@ -18,7 +18,14 @@
 #define SYSTEM_BASE 0x50000000
 #define GRAPHICS_BASE 0x60000000
 
-//void TranslatePTR(uint64_t& pointer);
+inline void TranslatePTR(uint64_t& pointer) {
+	if ((pointer & SYSTEM_BASE) == SYSTEM_BASE) {
+		pointer = pointer & ~0x50000000;
+	}
+	if ((pointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
+		pointer = pointer & ~0x60000000;
+	}
+}
 
 #define SYSTEM_BASE_PTR(NAME) NAME = NAME & ~0x50000000;
 #define GRAPHICS_BASE_PTR(NAME) NAME = NAME & ~0x60000000;

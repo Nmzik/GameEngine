@@ -7,12 +7,7 @@ YndLoader::YndLoader(memstream& file)
 
 	file.read((char*)&NodeDictionary, sizeof(NodeDictionary));
 
-	if ((NodeDictionary.NodesPointer & SYSTEM_BASE) == SYSTEM_BASE) {
-		NodeDictionary.NodesPointer = NodeDictionary.NodesPointer & ~0x50000000;
-	}
-	if ((NodeDictionary.NodesPointer & GRAPHICS_BASE) == GRAPHICS_BASE) {
-		NodeDictionary.NodesPointer = NodeDictionary.NodesPointer & ~0x60000000;
-	}
+	TranslatePTR(NodeDictionary.NodesPointer);
 
 	file.seekg(NodeDictionary.NodesPointer);
 	nodes.resize(NodeDictionary.NodesCount);
@@ -23,12 +18,7 @@ YndLoader::YndLoader(memstream& file)
 	}
 
 	////////////////
-	if ((NodeDictionary.LinksPtr & SYSTEM_BASE) == SYSTEM_BASE) {
-		NodeDictionary.LinksPtr = NodeDictionary.LinksPtr & ~0x50000000;
-	}
-	if ((NodeDictionary.LinksPtr & GRAPHICS_BASE) == GRAPHICS_BASE) {
-		NodeDictionary.LinksPtr = NodeDictionary.LinksPtr & ~0x60000000;
-	}
+	TranslatePTR(NodeDictionary.LinksPtr);
 
 	file.seekg(NodeDictionary.LinksPtr);
 	nodeLinks.resize(NodeDictionary.LinksCount);
@@ -39,12 +29,7 @@ YndLoader::YndLoader(memstream& file)
 	}
 
 	/////////////////
-	if ((NodeDictionary.JunctionsPtr & SYSTEM_BASE) == SYSTEM_BASE) {
-		NodeDictionary.JunctionsPtr = NodeDictionary.JunctionsPtr & ~0x50000000;
-	}
-	if ((NodeDictionary.JunctionsPtr & GRAPHICS_BASE) == GRAPHICS_BASE) {
-		NodeDictionary.JunctionsPtr = NodeDictionary.JunctionsPtr & ~0x60000000;
-	}
+	TranslatePTR(NodeDictionary.JunctionsPtr);
 
 	file.seekg(NodeDictionary.JunctionsPtr);
 	nodeJunctions.resize(NodeDictionary.JunctionsCount);
@@ -55,24 +40,14 @@ YndLoader::YndLoader(memstream& file)
 	}
 
 	//////////////////
-	if ((NodeDictionary.JunctionHeightmapBytesPtr & SYSTEM_BASE) == SYSTEM_BASE) {
-		NodeDictionary.JunctionHeightmapBytesPtr = NodeDictionary.JunctionHeightmapBytesPtr & ~0x50000000;
-	}
-	if ((NodeDictionary.JunctionHeightmapBytesPtr & GRAPHICS_BASE) == GRAPHICS_BASE) {
-		NodeDictionary.JunctionHeightmapBytesPtr = NodeDictionary.JunctionHeightmapBytesPtr & ~0x60000000;
-	}
+	TranslatePTR(NodeDictionary.JunctionHeightmapBytesPtr);
 
 	file.seekg(NodeDictionary.JunctionHeightmapBytesPtr);
 	JunctionHeightmapBytes.resize(NodeDictionary.JunctionHeightmapBytesCount);
 	file.read((char*)&JunctionHeightmapBytes[0], NodeDictionary.JunctionHeightmapBytesCount);
 
 	///////////////////
-	if ((NodeDictionary.JunctionRefsPtr & SYSTEM_BASE) == SYSTEM_BASE) {
-		NodeDictionary.JunctionRefsPtr = NodeDictionary.JunctionRefsPtr & ~0x50000000;
-	}
-	if ((NodeDictionary.JunctionRefsPtr & GRAPHICS_BASE) == GRAPHICS_BASE) {
-		NodeDictionary.JunctionRefsPtr = NodeDictionary.JunctionRefsPtr & ~0x60000000;
-	}
+	TranslatePTR(NodeDictionary.JunctionRefsPtr);
 
 	file.seekg(NodeDictionary.JunctionRefsPtr);
 	NodeJunctionRefs.resize(NodeDictionary.JunctionRefsCount1);

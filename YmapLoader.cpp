@@ -15,12 +15,12 @@ void YmapLoader::Init(memstream& file)
 		if (Block.MetaDataBlock_struct.StructureNameHash == 3545841574)
 		{
 			std::memcpy(&_CMapData, Block.Data, sizeof(CMapData));
+
+			//Optimization
+			Objects.reserve(_CMapData.entities.Count1);
 		}
 
-		//Optimization
-		Objects.reserve(_CMapData.entities.Count1);
-
-		if (Block.MetaDataBlock_struct.StructureNameHash == 3461354627)
+		else if (Block.MetaDataBlock_struct.StructureNameHash == 3461354627)
 		{
 			for (int i = 0; i < Block.MetaDataBlock_struct.DataLength / sizeof(CEntityDef); i++)
 			{
@@ -51,7 +51,7 @@ void YmapLoader::Init(memstream& file)
 			}
 		}
 
-		if (Block.MetaDataBlock_struct.StructureNameHash == 164374718) //CMloInstanceDef
+		else if (Block.MetaDataBlock_struct.StructureNameHash == 164374718) //CMloInstanceDef
 		{
 			for (int i = 0; i < Block.MetaDataBlock_struct.DataLength / sizeof(CMloInstanceDef); i++)
 			{
@@ -61,7 +61,7 @@ void YmapLoader::Init(memstream& file)
 			}
 		}
 
-		if (Block.MetaDataBlock_struct.StructureNameHash == 1860713439) //CCarGen
+		else if (Block.MetaDataBlock_struct.StructureNameHash == 1860713439) //CCarGen
 		{
 			for (int i = 0; i < Block.MetaDataBlock_struct.DataLength / sizeof(CCarGen); i++)
 			{
