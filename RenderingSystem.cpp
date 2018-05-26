@@ -359,7 +359,27 @@ void RenderingSystem::render(GameWorld* world)
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	//glDisable(GL_BLEND);
 
-	for (int i = 0; i < 20; i++) {
+	for (auto& ped : world->pedestrians)
+	{
+		//if ped loaded
+		auto& model = ped.getPosition();
+		if (camera->intersects(glm::vec3(model[3]), 1.0f)) {
+			gbuffer->setMat4(ModelUniformLoc, model);
+
+			for (auto& ydr : ped.playerModel)
+			{
+				for (auto &mesh : ydr->meshes)
+				{
+					glBindVertexArray(mesh.VAO);
+					glActiveTexture(GL_TEXTURE0);
+					glBindTexture(GL_TEXTURE_2D, mesh.material.diffuseTextureID);
+					glDrawElements(GL_TRIANGLES, mesh.num_indices, GL_UNSIGNED_SHORT, 0);
+				}
+			}
+		}
+	}
+
+	/*for (int i = 0; i < 20; i++) {
 		if (world->pedPool.peds[i].loaded) {
 			auto& model = world->pedPool.peds[i].getPosition();
 			if (camera->intersects(glm::vec3(model[3]), 1.0f)) {
@@ -367,7 +387,7 @@ void RenderingSystem::render(GameWorld* world)
 				world->pedPool.peds[i].Draw(gbuffer);
 			}
 		}
-	}
+	}*/
 
 	for (int i = 0; i < world->vehicles.size(); i++) {
 		auto modelVehicle = world->vehicles[i]->GetMat4();
@@ -399,13 +419,6 @@ void RenderingSystem::render(GameWorld* world)
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, 0);
-
-	for (int i = 0; i < 3; i++)
-	{
-		auto modelMatrix = world->player[i].getPosition();
-		gbuffer->setMat4(ModelUniformLoc, modelMatrix);
-		world->player[i].Draw(gbuffer);
-	}
 
 	glDisable(GL_CULL_FACE);
 	for (auto& waterMesh : world->WaterMeshes)

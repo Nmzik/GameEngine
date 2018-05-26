@@ -108,19 +108,21 @@ GameWorld::GameWorld()
 	MeshManager::Initialize();
 	TextureManager::Initialize();
 
-	playerYDD = GetYdd(4096714883, 0);
+	YddLoader* playerYDD = GetYdd(4096714883, 0);
 	skydome = GetYdd(2640562617, 2640562617);
 
 	while (!skydome->Loaded || !playerYDD->Loaded) {
 		LoadQueuedResources();
 	}
 
-	player[0].Init(glm::vec3(51.90f, -1012.f, 100.f), playerYDD, dynamicsWorld);
-	player[0].getPhysCharacter()->setGravity(btVector3(0, 0, 0));
-	player[1].Init(glm::vec3(9.66, -1184.98, 75.74), playerYDD, dynamicsWorld);
-	player[1].getPhysCharacter()->setGravity(btVector3(0, 0, 0));
-	player[2].Init(glm::vec3(2250.18f, 3471.40f, 56.50f), playerYDD, dynamicsWorld);
-	player[2].getPhysCharacter()->setGravity(btVector3(0, 0, 0));
+	pedestrians.resize(3);
+
+	pedestrians[0].Init(glm::vec3(51.90f, -1012.f, 100.f), playerYDD, dynamicsWorld);
+	pedestrians[0].getPhysCharacter()->setGravity(btVector3(0, 0, 0));
+	pedestrians[1].Init(glm::vec3(9.66, -1184.98, 75.74), playerYDD, dynamicsWorld);
+	pedestrians[1].getPhysCharacter()->setGravity(btVector3(0, 0, 0));
+	pedestrians[2].Init(glm::vec3(2250.18f, 3471.40f, 56.50f), playerYDD, dynamicsWorld);
+	pedestrians[2].getPhysCharacter()->setGravity(btVector3(0, 0, 0));
 
 	auto YnvIt = data.YnvEntries.find(592547765);
 	if (YnvIt != data.YnvEntries.end()) {
@@ -706,7 +708,7 @@ void GameWorld::Update()
 {
 	for (auto& pedestrian : pedestrians)
 	{
-		pedestrian->PhysicsTick();
+		pedestrian.PhysicsTick();
 	}
 
 	for (auto& vehicle : vehicles)
@@ -720,7 +722,7 @@ void GameWorld::UpdateTraffic(Camera* camera, glm::vec3 pos)
 	float radiusTraffic = 20.0f;
 	//PEDESTRIANS
 	
-	if (pedPool.firstAvailable_ == nullptr) {
+	/*if (pedPool.firstAvailable_ == nullptr) {
 		for (auto& ped : pedPool.peds)
 		{
 			if (glm::distance(camera->Position, glm::vec3(ped.getPhysCharacter()->getWorldTransform().getOrigin().getX(), ped.getPhysCharacter()->getWorldTransform().getOrigin().getY(), ped.getPhysCharacter()->getWorldTransform().getOrigin().getZ())) >= 100.0f) {
@@ -734,9 +736,9 @@ void GameWorld::UpdateTraffic(Camera* camera, glm::vec3 pos)
 		float xRandom = RandomFloat(camera->Position.x - radiusTraffic, camera->Position.x + radiusTraffic);
 		float yRandom = RandomFloat(camera->Position.y - radiusTraffic, camera->Position.y + radiusTraffic);
 		//if (!camera->intersects(glm::vec3(xRandom, yRandom, camera->Position.z + 3.0f), 1.0f)) {
-			pedPool.Add(glm::vec3(xRandom, yRandom, camera->Position.z + 3.0f), playerYDD, dynamicsWorld);
+			//pedPool.Add(glm::vec3(xRandom, yRandom, camera->Position.z + 3.0f), playerYDD, dynamicsWorld);
 		//}
-	}
+	}*/
 	//CARS
 	for (int i = 0; i < vehicles.size(); i++) {
 		glm::vec3 vehiclePosition(vehicles[i]->m_carChassis->getWorldTransform().getOrigin().getX(), vehicles[i]->m_carChassis->getWorldTransform().getOrigin().getY(), vehicles[i]->m_carChassis->getWorldTransform().getOrigin().getZ());
@@ -767,7 +769,7 @@ Vehicle* GameWorld::FindNearestVehicle()
 
 	for (auto& vehicle : vehicles)
 	{
-		glm::vec3 PlayerPosition(player[currentPlayerID].getPhysCharacter()->getWorldTransform().getOrigin().getX(), player[currentPlayerID].getPhysCharacter()->getWorldTransform().getOrigin().getY(), player[currentPlayerID].getPhysCharacter()->getWorldTransform().getOrigin().getZ());
+		glm::vec3 PlayerPosition(pedestrians[currentPlayerID].getPhysCharacter()->getWorldTransform().getOrigin().getX(), pedestrians[currentPlayerID].getPhysCharacter()->getWorldTransform().getOrigin().getY(), pedestrians[currentPlayerID].getPhysCharacter()->getWorldTransform().getOrigin().getZ());
 		glm::vec3 VehiclePosition(vehicle->m_carChassis->getWorldTransform().getOrigin().getX(), vehicle->m_carChassis->getWorldTransform().getOrigin().getY(), vehicle->m_carChassis->getWorldTransform().getOrigin().getZ());
 		float vd = glm::length(PlayerPosition - VehiclePosition);
 		if (vd < d) {

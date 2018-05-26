@@ -23,11 +23,12 @@ class Player
 	btDiscreteDynamicsWorld* World;
 	Vehicle* vehicle;
 	YddLoader* player;
-	std::vector<YdrLoader*> playerModel;
 	glm::mat4 model;
 public:
 	Player();
 	~Player();
+
+	std::vector<YdrLoader*> playerModel;
 	Player* next;
 	bool on_ground = false;
 	bool isAlive() {
@@ -46,7 +47,6 @@ public:
 	void setActiveWeapon(uint32_t slot);
 	void Jump();
 	btRigidBody* getPhysCharacter();
-	void Draw(Shader* shader);
 	void Init(glm::vec3 position, YddLoader* ydd, btDiscreteDynamicsWorld* world);
 	void Remove();
 };

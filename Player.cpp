@@ -1,18 +1,18 @@
 #include "Player.h"
 
-Player::Player()
+Player::Player() : vehicle(nullptr)
 {
 }
 
 Player::~Player()
 {
-	delete body->getMotionState();
+	/*delete body->getMotionState();
 
 	delete physShape;
 
 	World->removeRigidBody(body);
 
-	delete body;
+	delete body;*/
 }
 
 btRigidBody* Player::getPhysCharacter()
@@ -85,20 +85,6 @@ void Player::Jump()
 	if (rayCallback.hasHit())
 	{//JUMP!
 		body->applyCentralImpulse(btVector3(0.f, 0.f, 40.0f));
-	}
-}
-
-void Player::Draw(Shader* shader)
-{
-	for (auto& ydr : playerModel)
-	{
-		for (auto &mesh : ydr->meshes)
-		{
-			glBindVertexArray(mesh.VAO);
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, mesh.material.diffuseTextureID);
-			glDrawElements(GL_TRIANGLES, mesh.num_indices, GL_UNSIGNED_SHORT, 0);
-		}
 	}
 }
 

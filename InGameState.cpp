@@ -66,31 +66,31 @@ void InGameState::tick(float delta_time)
 	}
 	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_B)) {
 		game->getWorld()->currentPlayerID = 0;
-		game->getWorld()->player[game->getWorld()->currentPlayerID].getPhysCharacter()->setGravity(game->getWorld()->GetDynamicsWorld()->getGravity());
+		game->getWorld()->pedestrians[game->getWorld()->currentPlayerID].getPhysCharacter()->setGravity(game->getWorld()->GetDynamicsWorld()->getGravity());
 		for (int i = 0; i < 3; i++)
 		{
 			if (game->getWorld()->currentPlayerID != i) {
-				game->getWorld()->player[i].getPhysCharacter()->setGravity(btVector3(0, 0, 0));
+				game->getWorld()->pedestrians[i].getPhysCharacter()->setGravity(btVector3(0, 0, 0));
 			}
 		}
 	}
 	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_N)) {
 		game->getWorld()->currentPlayerID = 1;
-		game->getWorld()->player[game->getWorld()->currentPlayerID].getPhysCharacter()->setGravity(game->getWorld()->GetDynamicsWorld()->getGravity());
+		game->getWorld()->pedestrians[game->getWorld()->currentPlayerID].getPhysCharacter()->setGravity(game->getWorld()->GetDynamicsWorld()->getGravity());
 		for (int i = 0; i < 3; i++)
 		{
 			if (game->getWorld()->currentPlayerID != i) {
-				game->getWorld()->player[i].getPhysCharacter()->setGravity(btVector3(0, 0, 0));
+				game->getWorld()->pedestrians[i].getPhysCharacter()->setGravity(btVector3(0, 0, 0));
 			}
 		}
 	}
 	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_M)) {
 		game->getWorld()->currentPlayerID = 2;
-		game->getWorld()->player[game->getWorld()->currentPlayerID].getPhysCharacter()->setGravity(game->getWorld()->GetDynamicsWorld()->getGravity());
+		game->getWorld()->pedestrians[game->getWorld()->currentPlayerID].getPhysCharacter()->setGravity(game->getWorld()->GetDynamicsWorld()->getGravity());
 		for (int i = 0; i < 3; i++)
 		{
 			if (game->getWorld()->currentPlayerID != i) {
-				game->getWorld()->player[i].getPhysCharacter()->setGravity(btVector3(0, 0, 0));
+				game->getWorld()->pedestrians[i].getPhysCharacter()->setGravity(btVector3(0, 0, 0));
 			}
 		}
 	}
@@ -98,7 +98,7 @@ void InGameState::tick(float delta_time)
 		game->getRenderer()->RenderDebugWorld = !game->getRenderer()->RenderDebugWorld;
 	}
 
-	Player* player = &game->getWorld()->player[game->getWorld()->currentPlayerID];
+	Player* player = &game->getWorld()->pedestrians[game->getWorld()->currentPlayerID];
 
 	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_F)) {
 		DebugPressed = !DebugPressed;
