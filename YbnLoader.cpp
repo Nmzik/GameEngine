@@ -1,15 +1,5 @@
 #include "YbnLoader.h"
 
-YbnLoader::YbnLoader()
-{
-
-}
-
-YbnLoader::YbnLoader(btDiscreteDynamicsWorld * world, memstream & file)
-{
-	Init(world, file);
-}
-
 void YbnLoader::Init(btDiscreteDynamicsWorld* world, memstream& file)
 {
 	CollisionWorld = world;
@@ -196,6 +186,7 @@ void YbnLoader::Init(btDiscreteDynamicsWorld* world, memstream& file)
 		SYSTEM_BASE_PTR(BoundComposite.ChildrenPointer);
 
 		file.seekg(BoundComposite.ChildrenPointer);
+
 		ybns.reserve(BoundComposite.ChildrenCount1);
 
 		for (int i = 0; i < BoundComposite.ChildrenCount1; i++)
@@ -209,7 +200,8 @@ void YbnLoader::Init(btDiscreteDynamicsWorld* world, memstream& file)
 
 			file.seekg(DataPointer);
 
-			YbnLoader* ybn = new YbnLoader(world, file);
+			YbnLoader* ybn = new YbnLoader();
+			ybn->Init(world, file);
 			ybns.push_back(ybn);
 
 			file.seekg(BoundsPointer);

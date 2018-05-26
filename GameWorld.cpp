@@ -108,53 +108,24 @@ GameWorld::GameWorld()
 	MeshManager::Initialize();
 	TextureManager::Initialize();
 
-	auto itPlayer = data.YddEntries.find(4096714883);
-	if (itPlayer != data.YddEntries.end())
-	{
-		std::cout << "PLAYER Found " << itPlayer->second->Name << std::endl;
-		auto& element = *(itPlayer->second);
-		std::vector<uint8_t> outputBuffer;
-		data.ExtractFileResource(element, outputBuffer);
+	playerYDD = GetYdd(4096714883, 0);
+	skydome = GetYdd(2640562617, 2640562617);
 
-		memstream stream(outputBuffer.data(), outputBuffer.size());
-		playerYDD = new YddLoader(stream, element.SystemSize, dynamicsWorld);
-
-		player[0].Init(glm::vec3(51.90f, -1012.f, 100.f), playerYDD, dynamicsWorld);
-		player[0].getPhysCharacter()->setGravity(btVector3(0, 0, 0));
-		player[1].Init(glm::vec3(9.66, -1184.98, 75.74), playerYDD, dynamicsWorld);
-		player[1].getPhysCharacter()->setGravity(btVector3(0, 0, 0));
-		player[2].Init(glm::vec3(2250.18f, 3471.40f, 56.50f), playerYDD, dynamicsWorld);
-		player[2].getPhysCharacter()->setGravity(btVector3(0, 0, 0));
+	while (!skydome->Loaded || !playerYDD->Loaded) {
+		LoadQueuedResources();
 	}
 
-	auto it = data.YddEntries.find(2640562617);
-	if (it != data.YddEntries.end())
-	{
-		std::cout << "SKYDOME Found " << it->second->Name << std::endl;
-		auto& element = *(it->second);
-		std::vector<uint8_t> outputBuffer;
-		data.ExtractFileResource(element, outputBuffer);
-
-		memstream stream(outputBuffer.data(), outputBuffer.size());
-		skydome = new YddLoader(stream, element.SystemSize, dynamicsWorld);
-		auto iter = data.YtdEntries.find(2640562617);
-		if (iter != data.YtdEntries.end())
-		{
-			std::cout << "YTD Found " << iter->second->Name << std::endl;
-			auto& element = *(iter->second);
-			std::vector<uint8_t> outputBuffer;
-			data.ExtractFileResource(element, outputBuffer);
-
-			memstream stream(outputBuffer.data(), outputBuffer.size());
-
-			YtdLoader* file = new YtdLoader(stream, element.SystemSize);
-		}
-	}
+	player[0].Init(glm::vec3(51.90f, -1012.f, 100.f), playerYDD, dynamicsWorld);
+	player[0].getPhysCharacter()->setGravity(btVector3(0, 0, 0));
+	player[1].Init(glm::vec3(9.66, -1184.98, 75.74), playerYDD, dynamicsWorld);
+	player[1].getPhysCharacter()->setGravity(btVector3(0, 0, 0));
+	player[2].Init(glm::vec3(2250.18f, 3471.40f, 56.50f), playerYDD, dynamicsWorld);
+	player[2].getPhysCharacter()->setGravity(btVector3(0, 0, 0));
 
 	auto YnvIt = data.YnvEntries.find(592547765);
 	if (YnvIt != data.YnvEntries.end()) {
 		std::vector<uint8_t> Buffer;
-		data.ExtractFileResource(*(it->second), Buffer);
+		data.ExtractFileResource(*(YnvIt->second), Buffer);
 		memstream stream(Buffer.data(), Buffer.size());
 		//YnvLoader ynv(stream);
 	}
@@ -163,7 +134,6 @@ GameWorld::GameWorld()
 	{
 		LoadYTD(ytd.second);
 	}
-
 	//ClearTestFunction();
 	/*std::unordered_map<uint32_t, CMloArchetypeDef>::iterator it;
 	it = data.MloDictionary.find(210892389);
@@ -558,7 +528,7 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 		}
 	}
 
-	for (auto it = yddLoader.begin(); it != yddLoader.end();)
+	/*for (auto it = yddLoader.begin(); it != yddLoader.end();)
 	{
 		if (curTime - (it->second)->time > UnloadTime)
 		{
@@ -569,7 +539,7 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 		{
 			++it;
 		}
-	}
+	}*/
 
 	for (auto it = yftLoader.begin(); it != yftLoader.end();)
 	{

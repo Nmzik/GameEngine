@@ -1,9 +1,5 @@
 #include "YftLoader.h"
 
-YftLoader::YftLoader()
-{
-}
-
 void YftLoader::Init(memstream & file, int32_t systemSize, bool need, btDiscreteDynamicsWorld * world)
 {
 	Loaded = true;
@@ -79,7 +75,8 @@ void YftLoader::Init(memstream & file, int32_t systemSize, bool need, btDiscrete
 
 	file.seekg(FragType.DrawablePointer);
 
-	YdrFile = new YdrLoader(file, systemSize, world, true);
+	YdrFile = new YdrLoader();
+	YdrFile->Init(file, systemSize, world, true);
 
 	struct {
 		uint32_t VFT;
@@ -252,11 +249,6 @@ void YftLoader::Init(memstream & file, int32_t systemSize, bool need, btDiscrete
 	//SYSTEM_BASE_PTR(FragPhysicsLOD.BoundPointer);
 
 	//YbnLoader* loader = new YbnLoader(world, file, hash);*/
-}
-
-YftLoader::YftLoader(memstream& file, int32_t systemSize, bool need, btDiscreteDynamicsWorld* world)
-{
-	Init(file, systemSize, need, world);
 }
 
 

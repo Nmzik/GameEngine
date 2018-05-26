@@ -445,8 +445,6 @@ public:
 	uint32_t time;
 	bool Loaded = false;
 
-	YdrLoader();
-	YdrLoader(memstream& file, int32_t systemSize, btDiscreteDynamicsWorld* world, bool isYft = false);
 	void Init(memstream& file, int32_t systemSize, btDiscreteDynamicsWorld* world, bool isYft = false);
 	~YdrLoader();
 

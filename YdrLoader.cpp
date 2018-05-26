@@ -1,15 +1,5 @@
 #include "YdrLoader.h"
 
-YdrLoader::YdrLoader()
-{
-
-}
-
-YdrLoader::YdrLoader(memstream& file, int32_t systemSize, btDiscreteDynamicsWorld* world, bool isYft)
-{
-	Init(file, systemSize, world, isYft);
-}
-
 void YdrLoader::Init(memstream & file, int32_t systemSize, btDiscreteDynamicsWorld * world, bool isYft)
 {
 	Loaded = true;
@@ -74,7 +64,8 @@ void YdrLoader::Init(memstream & file, int32_t systemSize, btDiscreteDynamicsWor
 		if (_ShaderGroup.TextureDictionaryPointer != 0) {
 			SYSTEM_BASE_PTR(_ShaderGroup.TextureDictionaryPointer);
 			file.seekg(_ShaderGroup.TextureDictionaryPointer);
-			Ytd = new YtdLoader(file, systemSize);
+			Ytd = new YtdLoader();
+			Ytd->Init(file, systemSize);
 		}
 
 		SYSTEM_BASE_PTR(_ShaderGroup.ShadersPointer);

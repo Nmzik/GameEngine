@@ -149,8 +149,6 @@ class YbnLoader
 public:
 	uint32_t time;
 
-	YbnLoader();
-	YbnLoader(btDiscreteDynamicsWorld* world, memstream& file);
 	void Init(btDiscreteDynamicsWorld* world, memstream& file);
 	~YbnLoader();
 };

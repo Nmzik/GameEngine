@@ -1,14 +1,5 @@
 #include "YtdLoader.h"
 
-YtdLoader::YtdLoader()
-{
-}
-
-YtdLoader::YtdLoader(memstream& file, int32_t systemSize)
-{
-	Init(file, systemSize);
-}
-
 void YtdLoader::Init(memstream & file, int32_t systemSize)
 {
 	enum TextureFormat
