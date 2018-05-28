@@ -276,42 +276,42 @@ void GameData::ExtractFileResource(RpfResourceFileEntry entry, std::vector<uint8
 
 	rpf->seekg(entry.File->startPos + ((long)entry.FileOffset * 512));
 
-	if (entry.FileSize > 0) {
-		uint32_t offset = 0x10;
-		uint32_t totlen = entry.FileSize - offset;
+	//if (entry.FileSize > 0) {
+	uint32_t offset = 0x10;
+	uint32_t totlen = entry.FileSize - offset;
 
-		uint8_t* tbytes = new uint8_t[totlen];
+	uint8_t* tbytes = new uint8_t[totlen];
 
-		rpf->seekg(offset, std::ios::cur);
-		rpf->read((char*)&tbytes[0], (int)totlen);
+	rpf->seekg(offset, std::ios::cur);
+	rpf->read((char*)&tbytes[0], (int)totlen);
 
-		//uint8_t* decr = tbytes;
-		//if (entry.IsEncrypted)
-		//{
-			/*if (IsAESEncrypted)
-			{
-				decr = GTACrypto.DecryptAES(tbytes);
-			}
-			else //if (IsNGEncrypted) //assume the archive is set to NG encryption if not AES... (comment: fix for openIV modded files)
-			{*/
-			//decr = GTACrypto.DecryptNG(tbytes, entry.Name, entry.FileSize);
-		//}
-		//else
-		//{ }
-	//}
-
-		GTAEncryption::DecompressBytes(tbytes, totlen, output);
-		delete[] tbytes;
-		/*if (deflated != nullptr)
+	//uint8_t* decr = tbytes;
+	//if (entry.IsEncrypted)
+	//{
+		/*if (IsAESEncrypted)
 		{
-			//return deflated;
+			decr = GTACrypto.DecryptAES(tbytes);
 		}
-		else
-		{
-			entry.FileSize -= offset;
-			return decr;
-		}*/
+		else //if (IsNGEncrypted) //assume the archive is set to NG encryption if not AES... (comment: fix for openIV modded files)
+		{*/
+		//decr = GTACrypto.DecryptNG(tbytes, entry.Name, entry.FileSize);
+	//}
+	//else
+	//{ }
+//}
+
+	GTAEncryption::DecompressBytes(tbytes, totlen, output);
+	delete[] tbytes;
+	/*if (deflated != nullptr)
+	{
+		//return deflated;
 	}
+	else
+	{
+		entry.FileSize -= offset;
+		return decr;
+	}*/
+	//}
 
 	//return nullptr;
 }

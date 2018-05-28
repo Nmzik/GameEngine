@@ -74,18 +74,18 @@ void Game::run() {
 			//if (event.type == SDL_QUIT) running = false;
 		}*/
 
-		auto old_time = current_time;
-		current_time = std::chrono::steady_clock::now();
-		float delta_time = std::chrono::duration<float>(current_time - old_time).count();
-
 		if (!paused) {
+			auto old_time = current_time;
+			current_time = std::chrono::steady_clock::now();
+			float delta_time = std::chrono::duration<float>(current_time - old_time).count();
+
 			gameWorld->update(delta_time, &rendering_system->getCamera());
 			StateManager::get().tick(delta_time);
 			rendering_system->render(gameWorld.get());
 			SDL_GL_SwapWindow(window);
-		}
 
-		updateFPS(delta_time);
+			updateFPS(delta_time);
+		}
 	}
 
 	//if (event.key.keysym.sym == SDLK_ESCAPE || event.type == SDL_QUIT) break;
