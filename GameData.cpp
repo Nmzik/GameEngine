@@ -93,7 +93,7 @@ GameData::GameData()
 				//YtypEntries[entry.NameHash] = &entry;
 				//YtypEntries[entry.ShortNameHash] = &entry;
 
-				std::vector<uint8_t> outputBuffer;
+				std::vector<uint8_t> outputBuffer(1024 * 1024);
 				ExtractFileResource(entry, outputBuffer);
 
 				memstream stream(outputBuffer.data(), outputBuffer.size());

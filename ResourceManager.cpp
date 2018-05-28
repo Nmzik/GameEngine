@@ -27,6 +27,7 @@ void ResourceManager::update()
 				auto it = gameworld->getGameData()->YmapEntries.find(res->Hash);
 				if (it != gameworld->getGameData()->YmapEntries.end())
 				{
+					res->Buffer.resize(it->second->SystemSize + it->second->GraphicsSize);
 					gameworld->getGameData()->ExtractFileResource(*(it->second), res->Buffer);
 					res->SystemSize = it->second->SystemSize;
 					gameworld->resources_lock.lock();
@@ -40,6 +41,7 @@ void ResourceManager::update()
 				auto it = gameworld->getGameData()->YdrEntries.find(res->Hash);
 				if (it != gameworld->getGameData()->YdrEntries.end())
 				{
+					res->Buffer.resize(it->second->SystemSize + it->second->GraphicsSize);
 					gameworld->getGameData()->ExtractFileResource(*(it->second), res->Buffer);
 					res->SystemSize = it->second->SystemSize;
 					gameworld->resources_lock.lock();
@@ -56,6 +58,7 @@ void ResourceManager::update()
 				auto it = gameworld->getGameData()->YddEntries.find(res->Hash);
 				if (it != gameworld->getGameData()->YddEntries.end())
 				{
+					res->Buffer.resize(it->second->SystemSize + it->second->GraphicsSize);
 					gameworld->getGameData()->ExtractFileResource(*(it->second), res->Buffer);
 					res->SystemSize = it->second->SystemSize;
 					gameworld->resources_lock.lock();
@@ -72,6 +75,7 @@ void ResourceManager::update()
 				auto it = gameworld->getGameData()->YftEntries.find(res->Hash);
 				if (it != gameworld->getGameData()->YftEntries.end())
 				{
+					res->Buffer.resize(it->second->SystemSize + it->second->GraphicsSize);
 					gameworld->getGameData()->ExtractFileResource(*(it->second), res->Buffer);
 					res->SystemSize = it->second->SystemSize;
 					gameworld->resources_lock.lock();
@@ -85,6 +89,7 @@ void ResourceManager::update()
 				auto it = gameworld->getGameData()->YtdEntries.find(res->Hash);
 				if (it != gameworld->getGameData()->YtdEntries.end())
 				{
+					res->Buffer.resize(it->second->SystemSize + it->second->GraphicsSize);
 					gameworld->getGameData()->ExtractFileResource(*(it->second), res->Buffer);
 					res->SystemSize = it->second->SystemSize;
 					gameworld->resources_lock.lock();
@@ -98,6 +103,7 @@ void ResourceManager::update()
 				auto it = gameworld->getGameData()->YbnEntries.find(res->Hash);
 				if (it != gameworld->getGameData()->YbnEntries.end())
 				{
+					res->Buffer.resize(it->second->SystemSize + it->second->GraphicsSize);
 					gameworld->getGameData()->ExtractFileResource(*(it->second), res->Buffer);
 					res->SystemSize = it->second->SystemSize;
 					gameworld->resources_lock.lock();

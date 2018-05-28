@@ -273,35 +273,40 @@ uint8_t* GTAEncryption::DecryptNGRoundB(uint8_t* data, uint32_t* key, uint32_t t
 
 void GTAEncryption::DecompressBytes(uint8_t * data, uint32_t dataLength, std::vector<uint8_t>& output)
 {
-	output.resize(1024 * 1024);
-
 	strm.avail_in = dataLength;
 	strm.next_in = data;
 	strm.avail_out = output.size();
 	strm.next_out = &output[0];
 
-	int ret;
+	int ret = inflate(&strm, Z_FINISH);
 
-	do {
-		ret = inflate(&strm, Z_NO_FLUSH);
-
-		if (ret < 0) {
-			(void)inflateReset(&strm);
-			printf("Error %d in zlib uncompress\n", ret);
-		}
-
-		if (ret != Z_STREAM_END) {
-			uint32_t oldSize = output.size();
-			output.resize(output.size() * 2);
-
-			strm.avail_out = oldSize;
-			strm.next_out = output.data() + oldSize;
-		}
-
-	} while (ret != Z_STREAM_END);
+	if (ret < 0) {
+		(void)inflateReset(&strm);
+		printf("Error %d in zlib uncompress\n", ret);
+	}
 
 	(void)inflateReset(&strm);
 }
+
+/*
+do {
+ret = inflate(&strm, Z_NO_FLUSH);
+
+if (ret < 0) {
+(void)inflateReset(&strm);
+printf("Error %d in zlib uncompress\n", ret);
+}
+
+if (ret != Z_STREAM_END) {
+uint32_t oldSize = output.size();
+output.resize(output.size() * 2);
+
+strm.avail_out = oldSize;
+strm.next_out = output.data() + oldSize;
+}
+
+} while (ret != Z_STREAM_END);
+*/
 
 uint32_t GenHash(std::string Name)
 {
