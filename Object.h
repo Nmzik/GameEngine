@@ -1,5 +1,6 @@
 #pragma once
-#include "YdrLoader.h"
+#include "YddLoader.h"
+#include "YftLoader.h"
 #include "YtypLoader.h"
 #include "Entity.h"
 
@@ -7,7 +8,13 @@ class Object : public Entity
 {
 	glm::mat4 ModelMatrix;
 public:
-	//bool loaded = false;
+	YdrLoader* ydr;
+	YddLoader* ydd;
+	YftLoader* yft;
+	bool Loaded = false;
+	bool FoundArchetype = false;
+	bool FoundModel = false;
+	bool FoundBaseModel = false;
 	uint8_t type = 0;
 
 	glm::vec3 BoundPos;

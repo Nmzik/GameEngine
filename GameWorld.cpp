@@ -178,33 +178,84 @@ void GameWorld::LoadYmap(uint32_t hash, Camera* camera)
 			bool IsVisible = Dist <= object.CEntity.lodDist * object.CEntity.lodDist * LODMultiplier;
 			bool childrenVisible = (Dist <= object.CEntity.childLodDist * object.CEntity.childLodDist * LODMultiplier) && (object.CEntity.numChildren > 0);
 			if (IsVisible && !childrenVisible) {
-				if (object.type == 0) {
-					std::unordered_map<uint32_t, CBaseArchetypeDef>::iterator it = data.CBaseArchetypeDefs.find(object.CEntity.archetypeName);
-					if (it != data.CBaseArchetypeDefs.end())
-					{
-						object.Archetype._BaseArchetypeDef = it->second;
-
-						object.BoundPos = object.Archetype._BaseArchetypeDef.bsCentre + object.CEntity.position;
-						object.BoundRadius = object.Archetype._BaseArchetypeDef.bsRadius * std::max(object.CEntity.scaleXY, object.CEntity.scaleZ);
-						//if (object.CEntity.lodDist <= 0) object.CEntity.lodDist = 30.0f;
-						//if (object.CEntity.childLodDist <= 0) object.CEntity.childLodDist = 30.0f;
-
-						object.type = 1;
-					}
-					else {
-						std::unordered_map<uint32_t, CTimeArchetypeDef>::iterator it = data.CTimeArchetypeDefs.find(object.CEntity.archetypeName);
-						if (it != data.CTimeArchetypeDefs.end())
+				if (!object.Loaded) {
+					if (!object.FoundArchetype) {
+						std::unordered_map<uint32_t, CBaseArchetypeDef>::iterator it = data.CBaseArchetypeDefs.find(object.CEntity.archetypeName);
+						if (it != data.CBaseArchetypeDefs.end())
 						{
-							object.Archetype = it->second;
+							object.Archetype._BaseArchetypeDef = it->second;
 
 							object.BoundPos = object.Archetype._BaseArchetypeDef.bsCentre + object.CEntity.position;
 							object.BoundRadius = object.Archetype._BaseArchetypeDef.bsRadius * std::max(object.CEntity.scaleXY, object.CEntity.scaleZ);
-							//if (object.CEntity.lodDist <= 0) object.CEntity.lodDist = it->second._BaseArchetypeDef.lodDist;
-							//if (object.CEntity.childLodDist <= 0) object.CEntity.childLodDist = it->second._BaseArchetypeDef.lodDist;
+							//if (object.CEntity.lodDist <= 0) object.CEntity.lodDist = 30.0f;
+							//if (object.CEntity.childLodDist <= 0) object.CEntity.childLodDist = 30.0f;
 
-							object.type = 2;
+							object.type = 1;
+
+							object.FoundArchetype = true;
+						}
+						else {
+							std::unordered_map<uint32_t, CTimeArchetypeDef>::iterator it = data.CTimeArchetypeDefs.find(object.CEntity.archetypeName);
+							if (it != data.CTimeArchetypeDefs.end())
+							{
+								object.Archetype = it->second;
+
+								object.BoundPos = object.Archetype._BaseArchetypeDef.bsCentre + object.CEntity.position;
+								object.BoundRadius = object.Archetype._BaseArchetypeDef.bsRadius * std::max(object.CEntity.scaleXY, object.CEntity.scaleZ);
+								//if (object.CEntity.lodDist <= 0) object.CEntity.lodDist = it->second._BaseArchetypeDef.lodDist;
+								//if (object.CEntity.childLodDist <= 0) object.CEntity.childLodDist = it->second._BaseArchetypeDef.lodDist;
+
+								object.type = 2;
+
+								object.FoundArchetype = true;
+							}
 						}
 					}
+
+					if (!object.FoundModel || !object.FoundBaseModel) {
+
+						switch (object.Archetype._BaseArchetypeDef.assetType)
+						{
+							case ASSET_TYPE_DRAWABLE: {
+								if (!object.FoundModel) {
+									object.ydr = GetYdr(object.CEntity.archetypeName, object.Archetype._BaseArchetypeDef.textureDictionary);
+									object.FoundModel = true;
+								}
+								if (object.ydr->Loaded)
+									object.FoundBaseModel = true;
+								break;
+							}
+							case ASSET_TYPE_DRAWABLEDICTIONARY: {
+								if (!object.FoundModel) {
+									object.ydd = GetYdd(object.Archetype._BaseArchetypeDef.drawableDictionary, object.Archetype._BaseArchetypeDef.textureDictionary);
+									object.FoundModel = true;
+								}
+								if (object.ydd->Loaded) {
+									std::unordered_map<uint32_t, YdrLoader*>::iterator iter2 = object.ydd->YdrFiles.find(object.CEntity.archetypeName);
+									if (iter2 != object.ydd->YdrFiles.end())
+									{
+										object.ydr = iter2->second;
+										object.FoundBaseModel = true;
+									}
+								}
+								break;
+							}
+							case ASSET_TYPE_FRAGMENT: {
+								if (!object.FoundModel) {
+									object.yft = GetYft(object.CEntity.archetypeName, object.Archetype._BaseArchetypeDef.textureDictionary);
+									object.FoundModel = true;
+								}
+								if (object.yft->Loaded) {
+									object.ydr = object.yft->YdrFile;
+									object.FoundBaseModel = true;
+								}
+								break;
+							}
+						}
+					}
+					if (object.FoundArchetype && object.FoundModel && object.FoundBaseModel)
+						object.Loaded = true;//IS it really?
+
 				}
 				else {
 
@@ -221,41 +272,9 @@ void GameWorld::LoadYmap(uint32_t hash, Camera* camera)
 						}
 					}
 
-					switch (object.Archetype._BaseArchetypeDef.assetType)
-					{
-						case ASSET_TYPE_DRAWABLE: {
-							YdrLoader* file = GetYdr(object.CEntity.archetypeName, object.Archetype._BaseArchetypeDef.textureDictionary);
-							if (file->Loaded) {
-								if (camera->intersects(object.BoundPos, object.BoundRadius)) {
-									renderList.emplace_back(file, object.getMatrix());
-								}
-							}
-							break;
+						if (camera->intersects(object.BoundPos, object.BoundRadius)) {
+							renderList.emplace_back(object.ydr, object.getMatrix());
 						}
-						case ASSET_TYPE_DRAWABLEDICTIONARY: {
-							YddLoader* file = GetYdd(object.Archetype._BaseArchetypeDef.drawableDictionary, object.Archetype._BaseArchetypeDef.textureDictionary);
-							if (file->Loaded) {
-								std::unordered_map<uint32_t, YdrLoader*>::iterator iter2 = file->YdrFiles.find(object.CEntity.archetypeName);
-								if (iter2 != file->YdrFiles.end())
-								{
-									if (camera->intersects(object.BoundPos, object.BoundRadius)) {
-										renderList.emplace_back(iter2->second, object.getMatrix());
-									}
-								}
-							}
-							break;
-						}
-						case ASSET_TYPE_FRAGMENT: {
-							YftLoader* file = GetYft(object.CEntity.archetypeName, object.Archetype._BaseArchetypeDef.textureDictionary);
-							if (file->Loaded) {
-								if (camera->intersects(object.BoundPos, object.BoundRadius)) {
-									renderList.emplace_back(file->YdrFile, object.getMatrix());
-								}
-							}
-							break;
-						}
-					}
-
 				}
 			}
 		}
@@ -369,12 +388,12 @@ YdrLoader * GameWorld::GetYdr(uint32_t hash, uint32_t TextureDictionaryHash)
 	{
 		if (iter->second->externalYtd)
 			iter->second->externalYtd->time = SDL_GetTicks();
-		iter->second->time = SDL_GetTicks();
+		iter->second->RefCount++;
 		return iter->second;
 	}
 	else {
 		ydrLoader[hash] = new YdrLoader();
-		ydrLoader[hash]->time = SDL_GetTicks();
+		ydrLoader[hash]->RefCount++;
 		GetResourceManager()->AddToWaitingList(new Resource(ydr, hash, TextureDictionaryHash));
 		LoadYTD(TextureDictionaryHash);
 
@@ -389,12 +408,12 @@ YddLoader * GameWorld::GetYdd(uint32_t hash, uint32_t TextureDictionaryHash)
 	{
 		if (iter->second->externalYtd)
 			iter->second->externalYtd->time = SDL_GetTicks();
-		iter->second->time = SDL_GetTicks();
+		iter->second->RefCount++;
 		return iter->second;
 	}
 	else {
 		yddLoader[hash] = new YddLoader();
-		yddLoader[hash]->time = SDL_GetTicks();
+		yddLoader[hash]->RefCount++;
 		GetResourceManager()->AddToWaitingList(new Resource(ydd, hash, TextureDictionaryHash));
 		LoadYTD(TextureDictionaryHash);
 
@@ -409,12 +428,12 @@ YftLoader * GameWorld::GetYft(uint32_t hash, uint32_t TextureDictionaryHash)
 	{
 		//if (iter->second->YdrFile->externalYtd)
 			//iter->second->YdrFile->externalYtd->time = SDL_GetTicks();
-		iter->second->time = SDL_GetTicks();
+		iter->second->RefCount++;
 		return iter->second;
 	}
 	else {
 		yftLoader[hash] = new YftLoader();
-		yftLoader[hash]->time = SDL_GetTicks();
+		yftLoader[hash]->RefCount++;
 		GetResourceManager()->AddToWaitingList(new Resource(yft, hash, TextureDictionaryHash));
 		LoadYTD(TextureDictionaryHash);
 
@@ -486,7 +505,7 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 	//LoadYBN(Proxy->Name);
 	//LoadYmap(Proxy->Parent, Position);
 
-	//printf("CULLED :%d\n", culled);
+	printf("CULLED :%d\n", ydrLoader.size());
 	//culled = 0;
 
 	uint32_t curTime = SDL_GetTicks();
@@ -519,7 +538,7 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 
 	for (auto it = ydrLoader.begin(); it != ydrLoader.end();)
 	{
-		if (curTime - (it->second)->time > UnloadTime)
+		if ((it->second)->RefCount == 0)
 		{
 			delete it->second;
 			it = ydrLoader.erase(it);
@@ -530,9 +549,9 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 		}
 	}
 
-	/*for (auto it = yddLoader.begin(); it != yddLoader.end();)
+	for (auto it = yddLoader.begin(); it != yddLoader.end();)
 	{
-		if (curTime - (it->second)->time > UnloadTime)
+		if ((it->second)->RefCount == 0)
 		{
 			delete it->second;
 			it = yddLoader.erase(it);
@@ -541,11 +560,11 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 		{
 			++it;
 		}
-	}*/
+	}
 
 	for (auto it = yftLoader.begin(); it != yftLoader.end();)
 	{
-		if (curTime - (it->second)->time > UnloadTime)
+		if ((it->second)->RefCount == 0)
 		{
 			delete it->second;
 			it = yftLoader.erase(it);
@@ -601,7 +620,6 @@ void GameWorld::LoadQueuedResources()
 				{
 					YtdLoader* ytd = LoadYTD((*it)->TextureDictionaryHash);
 					iter->second->Init(stream, (*it)->SystemSize, dynamicsWorld);
-					iter->second->time = SDL_GetTicks();
 					if (ytd) {
 						iter->second->externalYtd = ytd;
 						iter->second->externalYtd->time = SDL_GetTicks();
@@ -619,7 +637,6 @@ void GameWorld::LoadQueuedResources()
 				{
 					YtdLoader * ytd = LoadYTD((*it)->TextureDictionaryHash);
 					iter->second->Init(stream, (*it)->SystemSize, dynamicsWorld);
-					iter->second->time = SDL_GetTicks();
 					if (ytd) {
 						iter->second->externalYtd = ytd;
 						iter->second->externalYtd->time = SDL_GetTicks();
@@ -637,7 +654,6 @@ void GameWorld::LoadQueuedResources()
 				{
 					YtdLoader* ytd = LoadYTD((*it)->TextureDictionaryHash);
 					iter->second->Init(stream, (*it)->SystemSize, false, dynamicsWorld);
-					iter->second->time = SDL_GetTicks();
 					if (ytd) {
 						iter->second->YdrFile->externalYtd = ytd;
 						iter->second->YdrFile->externalYtd->time = SDL_GetTicks();
@@ -698,7 +714,6 @@ void GameWorld::createVehicle(glm::vec3 position)
 		it->second.file = GetYft(it->first, 0);
 	}
 	else {
-		it->second.file->time = SDL_GetTicks();
 		Vehicle *newVehicle = new Vehicle(position, it->second.mass, it->second.file, dynamicsWorld);
 		vehicles.emplace_back(newVehicle);
 	}

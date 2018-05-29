@@ -10,4 +10,18 @@ Object::Object(CEntityDef def)
 
 Object::~Object()
 {
+	if (Loaded) {
+		switch (Archetype._BaseArchetypeDef.assetType)
+		{
+			case ASSET_TYPE_DRAWABLE:
+				ydr->RefCount--;
+				break;
+			case ASSET_TYPE_DRAWABLEDICTIONARY:
+				ydd->RefCount--;
+				break;
+			case ASSET_TYPE_FRAGMENT:
+				yft->RefCount--;
+				break;
+		}
+	}
 }

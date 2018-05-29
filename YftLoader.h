@@ -5,7 +5,7 @@ class YftLoader
 {
 public:
 	YdrLoader * YdrFile = nullptr;
-	uint32_t time;
+	uint32_t RefCount = 0;
 	std::vector<YdrLoader*> wheels;
 	bool Loaded = false;
 
