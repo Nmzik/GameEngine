@@ -79,6 +79,9 @@ public:
 
 	float accumulatedTime = 0.0f;
 
+	glm::i32vec2 CurCell;
+	std::vector<YmapLoader*> CurYmaps;
+	std::vector<YbnLoader*> CurYbns;
 	bool EnableStreaming = true;
 	uint8_t gameMinute;
 	uint8_t gameHour;
@@ -87,7 +90,7 @@ public:
 	GameWorld();
 	~GameWorld();
 
-	void LoadYmap(uint32_t hash, Camera* camera);
+	void LoadYmap(YmapLoader* map, Camera* camera);
 	YmapLoader* GetYmap(uint32_t hash);
 	bool LoadYTYP(uint32_t hash);
 
@@ -98,7 +101,7 @@ public:
 	YddLoader* GetYdd(uint32_t hash, uint32_t TextureDictionaryHash);
 	YftLoader* GetYft(uint32_t hash, uint32_t TextureDictionaryHash);
 
-	void LoadYBN(uint32_t hash);
+	YbnLoader* GetYBN(uint32_t hash);
 
 	void GetVisibleYmaps(Camera* camera);
 

@@ -168,9 +168,8 @@ float RandomFloat(float min, float max) {
 	return  (max - min) * ((((float)rand()) / (float)RAND_MAX)) + min;
 }
 
-void GameWorld::LoadYmap(uint32_t hash, Camera* camera)
+void GameWorld::LoadYmap(YmapLoader* map, Camera* camera)
 {
-	YmapLoader *map = GetYmap(hash);
 	if (map->Loaded) {
 		for (auto& object : map->Objects)
 		{
@@ -319,12 +318,12 @@ YmapLoader* GameWorld::GetYmap(uint32_t hash)
 {
 	auto it = ymapLoader.find(hash);
 	if (it != ymapLoader.end()) {
-		it->second->time = SDL_GetTicks();
+		it->second->RefCount++;
 		return it->second;
 	}
 	else {
 		ymapLoader[hash] = ymapPool.Load();
-		ymapLoader[hash]->time = SDL_GetTicks();
+		ymapLoader[hash]->RefCount++;
 		GetResourceManager()->AddToWaitingList(new Resource(ymap, hash));
 		return ymapLoader[hash];
 	}
@@ -356,7 +355,6 @@ void GameWorld::LoadGtxd(uint32_t hash)
 		auto it = ytdLoader.find(iter->second);
 		if (it == ytdLoader.end()) {
 			ytdLoader[iter->second] = new YtdLoader();
-			ytdLoader[iter->second]->time = SDL_GetTicks();
 			GetResourceManager()->AddToWaitingList(new Resource(ytd, iter->second));
 		}
 	}
@@ -367,14 +365,14 @@ YtdLoader* GameWorld::LoadYTD(uint32_t hash)
 	auto it = ytdLoader.find(hash);
 	if (it != ytdLoader.end())
 	{
-		it->second->time = SDL_GetTicks();
+		it->second->RefCount++;
 		return it->second;
 	}
 	else {
 		LoadGtxd(hash);
 
 		ytdLoader[hash] = new YtdLoader();
-		ytdLoader[hash]->time = SDL_GetTicks();
+		ytdLoader[hash]->RefCount++;
 		GetResourceManager()->AddToWaitingList(new Resource(ytd, hash));
 
 		return ytdLoader[hash];
@@ -386,8 +384,6 @@ YdrLoader * GameWorld::GetYdr(uint32_t hash, uint32_t TextureDictionaryHash)
 	auto iter = ydrLoader.find(hash);
 	if (iter != ydrLoader.end())
 	{
-		if (iter->second->externalYtd)
-			iter->second->externalYtd->time = SDL_GetTicks();
 		iter->second->RefCount++;
 		return iter->second;
 	}
@@ -406,8 +402,6 @@ YddLoader * GameWorld::GetYdd(uint32_t hash, uint32_t TextureDictionaryHash)
 	auto iter = yddLoader.find(hash);
 	if (iter != yddLoader.end())
 	{
-		if (iter->second->externalYtd)
-			iter->second->externalYtd->time = SDL_GetTicks();
 		iter->second->RefCount++;
 		return iter->second;
 	}
@@ -426,8 +420,6 @@ YftLoader * GameWorld::GetYft(uint32_t hash, uint32_t TextureDictionaryHash)
 	auto iter = yftLoader.find(hash);
 	if (iter != yftLoader.end())
 	{
-		//if (iter->second->YdrFile->externalYtd)
-			//iter->second->YdrFile->externalYtd->time = SDL_GetTicks();
 		iter->second->RefCount++;
 		return iter->second;
 	}
@@ -441,35 +433,62 @@ YftLoader * GameWorld::GetYft(uint32_t hash, uint32_t TextureDictionaryHash)
 	}
 }
 
-void GameWorld::LoadYBN(uint32_t hash)
+YbnLoader* GameWorld::GetYBN(uint32_t hash)
 {
 	std::unordered_map<uint32_t, YbnLoader*>::iterator iter = ybnLoader.find(hash);
 	if (iter != ybnLoader.end())
 	{
-		iter->second->time = SDL_GetTicks();
-		return;
+		iter->second->RefCount++;
+		return iter->second;
 	}
 	else {
 		ybnLoader[hash] = new YbnLoader();
-		ybnLoader[hash]->time = SDL_GetTicks();
+		ybnLoader[hash]->RefCount++;
 		GetResourceManager()->AddToWaitingList(new Resource(ybn, hash));
+		return ybnLoader[hash];
 	}
 }
 
 void GameWorld::GetVisibleYmaps(Camera* camera)
 {
-	SpaceGridCell& cell = spaceGrid.GetCell(camera->Position);
+	auto cellID = spaceGrid.GetCellPos(camera->Position);
 
-	//DetectInWater(Position);
+	SpaceGridCell& cell = spaceGrid.GetCell(cellID);
 
-	for (auto& BoundsItem : cell.BoundsStoreItems)
+	if (CurCell != cellID)
 	{
-		LoadYBN(cacheFile.AllBoundsStoreItems[BoundsItem].Name);
+		for (auto& ybn : CurYbns)
+		{
+			ybn->RefCount--;
+		}
+
+		for (auto& map : CurYmaps)
+		{
+			map->RefCount--;
+		}
+
+		CurYbns.clear();
+		CurYmaps.clear();
+		//Clear previous Ybns
+
+		//printf("NEW CELL\n");
+		CurCell = cellID;
+
+
+		for (auto& BoundsItem : cell.BoundsStoreItems)
+		{
+			CurYbns.emplace_back(GetYBN(cacheFile.AllBoundsStoreItems[BoundsItem].Name));
+		}
+
+		for (auto& mapNode : cell.MapNodes)
+		{
+			CurYmaps.emplace_back(GetYmap(cacheFile.AllMapNodes[mapNode].Name));
+		}
 	}
 
-	for (auto& mapNode : cell.MapNodes)
+	for (auto& mapNode : CurYmaps)
 	{
-		LoadYmap(cacheFile.AllMapNodes[mapNode].Name, camera);
+		LoadYmap(mapNode, camera);
 	}
 
 	/*for (auto& Proxy : cell.CInteriorProxies)
@@ -505,14 +524,12 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 	//LoadYBN(Proxy->Name);
 	//LoadYmap(Proxy->Parent, Position);
 
-	printf("CULLED :%d\n", ydrLoader.size());
+	//printf("CULLED :%d\n", ydrLoader.size());
 	//culled = 0;
-
-	uint32_t curTime = SDL_GetTicks();
 
 	for (auto it = ybnLoader.begin(); it != ybnLoader.end();)
 	{
-		if (curTime - (it->second)->time > UnloadTime)
+		if ((it->second)->RefCount == 0)
 		{
 			delete it->second;
 			it = ybnLoader.erase(it);
@@ -525,7 +542,7 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 
 	for (auto it = ymapLoader.begin(); it != ymapLoader.end();)
 	{
-		if (curTime - (it->second)->time > UnloadTime)
+		if ((it->second)->RefCount == 0)
 		{
 			ymapPool.Remove(it->second);
 			it = ymapLoader.erase(it);
@@ -575,9 +592,9 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 		}
 	}
 
-	/*for (auto it = ytdLoader.begin(); it != ytdLoader.end();)
+	for (auto it = ytdLoader.begin(); it != ytdLoader.end();)
 	{
-		if (curTime - (it->second)->time > UnloadTime)
+		if ((it->second)->RefCount == 0)
 		{
 			delete it->second;
 			it = ytdLoader.erase(it);
@@ -586,7 +603,7 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 		{
 			++it;
 		}
-	}*/
+	}
 
 	LoadQueuedResources();
 }
@@ -606,7 +623,6 @@ void GameWorld::LoadQueuedResources()
 				if (iter != ymapLoader.end())
 				{
 					iter->second->Init(stream);
-					iter->second->time = SDL_GetTicks();
 				}
 				else {
 					printf("");
@@ -620,10 +636,6 @@ void GameWorld::LoadQueuedResources()
 				{
 					YtdLoader* ytd = LoadYTD((*it)->TextureDictionaryHash);
 					iter->second->Init(stream, (*it)->SystemSize, dynamicsWorld);
-					if (ytd) {
-						iter->second->externalYtd = ytd;
-						iter->second->externalYtd->time = SDL_GetTicks();
-					}
 				}
 				else {
 					printf("");
@@ -637,10 +649,6 @@ void GameWorld::LoadQueuedResources()
 				{
 					YtdLoader * ytd = LoadYTD((*it)->TextureDictionaryHash);
 					iter->second->Init(stream, (*it)->SystemSize, dynamicsWorld);
-					if (ytd) {
-						iter->second->externalYtd = ytd;
-						iter->second->externalYtd->time = SDL_GetTicks();
-					}
 				}
 				else {
 					printf("");
@@ -654,10 +662,6 @@ void GameWorld::LoadQueuedResources()
 				{
 					YtdLoader* ytd = LoadYTD((*it)->TextureDictionaryHash);
 					iter->second->Init(stream, (*it)->SystemSize, false, dynamicsWorld);
-					if (ytd) {
-						iter->second->YdrFile->externalYtd = ytd;
-						iter->second->YdrFile->externalYtd->time = SDL_GetTicks();
-					}
 				}
 				else {
 					printf("");
@@ -670,7 +674,6 @@ void GameWorld::LoadQueuedResources()
 				if (iter != ytdLoader.end())
 				{
 					iter->second->Init(stream, 0);
-					iter->second->time = SDL_GetTicks();
 				}
 				else {
 					printf("");
@@ -683,12 +686,11 @@ void GameWorld::LoadQueuedResources()
 				if (iter != ybnLoader.end())
 				{
 					iter->second->Init(dynamicsWorld, stream);
-					iter->second->time = SDL_GetTicks();
-					break;
 				}
 				else {
 					printf("");
 				}
+				break;
 			}
 		}
 

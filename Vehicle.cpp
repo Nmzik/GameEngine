@@ -131,7 +131,6 @@ void Vehicle::PhysicsTick()
 
 void Vehicle::Draw(Shader* shader) 
 {
-	vehicle->time = SDL_GetTicks();
 	for (auto &mesh : vehicle->YdrFile->meshes)
 	{
 		glBindVertexArray(mesh.VAO);

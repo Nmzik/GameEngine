@@ -147,7 +147,7 @@ class YbnLoader
 	btBvhTriangleMeshShape* trishape = nullptr;
 	std::vector<YbnLoader*> ybns;
 public:
-	uint32_t time;
+	uint32_t RefCount = 0;
 
 	void Init(btDiscreteDynamicsWorld* world, memstream& file);
 	~YbnLoader();

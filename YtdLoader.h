@@ -41,7 +41,7 @@ struct TextureBase{
 class YtdLoader
 {
 public:
-	uint32_t time;
+	uint32_t RefCount = 0;
 	std::vector<uint32_t> TextureNameHashes;
 
 	void Init(memstream& file, int32_t systemSize);
