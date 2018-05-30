@@ -35,7 +35,7 @@ void ResourceManager::update()
 					gameworld->resources_lock.unlock();
 				}
 			}
-					   break;
+			break;
 			case ydr:
 			{
 				auto it = gameworld->getGameData()->YdrEntries.find(res->Hash);
@@ -47,9 +47,6 @@ void ResourceManager::update()
 					gameworld->resources_lock.lock();
 					gameworld->resources.push_back(res);
 					gameworld->resources_lock.unlock();
-				}
-				else {
-					printf("");
 				}
 			}
 			break;
@@ -64,9 +61,6 @@ void ResourceManager::update()
 					gameworld->resources_lock.lock();
 					gameworld->resources.push_back(res);
 					gameworld->resources_lock.unlock();
-				}
-				else {
-					printf("");
 				}
 			}
 			break;

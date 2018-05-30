@@ -265,10 +265,10 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera)
 					}
 
 					if (object.type == 2) {
-						if ((object.Archetype._TimeArchetypeDef.timeFlags >> gameHour) & 1)
-						{
+						//if ((object.Archetype._TimeArchetypeDef.timeFlags >> gameHour) & 1)
+						//{
 							continue;
-						}
+						//}
 					}
 
 						if (camera->intersects(object.BoundPos, object.BoundRadius)) {
@@ -499,7 +499,7 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 	//printf("FREE VAO %zd\n",MeshManager::VAOs.size());
 	//printf("FREE VBO %zd\n",MeshManager::VBOs.size());
 	//printf("FREE Textures %zd\n", TextureManager::TexturesID.size());
-
+	printf("Textures %zd\n",ytdLoader.size());
 
 	/*glm::i32vec2 test = nodeGrid.GetCellPos(camera->Position);
 
@@ -673,7 +673,7 @@ void GameWorld::LoadQueuedResources()
 				auto iter = ytdLoader.find((*it)->Hash);
 				if (iter != ytdLoader.end())
 				{
-					iter->second->Init(stream, 0);
+					iter->second->Init(stream, (*it)->SystemSize);
 				}
 				else {
 					printf("");
