@@ -499,7 +499,7 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 	//printf("FREE VAO %zd\n",MeshManager::VAOs.size());
 	//printf("FREE VBO %zd\n",MeshManager::VBOs.size());
 	//printf("FREE Textures %zd\n", TextureManager::TexturesID.size());
-	printf("Textures %zd\n",ytdLoader.size());
+	printf("Textures %zd\n",ydrLoader.size());
 
 	/*glm::i32vec2 test = nodeGrid.GetCellPos(camera->Position);
 
@@ -634,7 +634,6 @@ void GameWorld::LoadQueuedResources()
 				auto iter = ydrLoader.find((*it)->Hash);
 				if (iter != ydrLoader.end())
 				{
-					YtdLoader* ytd = LoadYTD((*it)->TextureDictionaryHash);
 					iter->second->Init(stream, (*it)->SystemSize, dynamicsWorld);
 				}
 				else {
@@ -647,7 +646,6 @@ void GameWorld::LoadQueuedResources()
 				auto iter = yddLoader.find((*it)->Hash);
 				if (iter != yddLoader.end())
 				{
-					YtdLoader * ytd = LoadYTD((*it)->TextureDictionaryHash);
 					iter->second->Init(stream, (*it)->SystemSize, dynamicsWorld);
 				}
 				else {
@@ -660,7 +658,6 @@ void GameWorld::LoadQueuedResources()
 				auto iter = yftLoader.find((*it)->Hash);
 				if (iter != yftLoader.end())
 				{
-					YtdLoader* ytd = LoadYTD((*it)->TextureDictionaryHash);
 					iter->second->Init(stream, (*it)->SystemSize, false, dynamicsWorld);
 				}
 				else {

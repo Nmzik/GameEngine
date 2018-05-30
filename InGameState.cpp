@@ -44,11 +44,13 @@ void InGameState::tick(float delta_time)
 	//KEYBOARD
 
 	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_Q)) {
-		game->getRenderer()->gpuTimer = !game->getRenderer()->gpuTimer;
+		game->getWorld()->LODMultiplier -= 0.05f;
+		//game->getRenderer()->gpuTimer = !game->getRenderer()->gpuTimer;
 	}
 
 	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_E)) {
-		game->getWorld()->EnableStreaming = !game->getWorld()->EnableStreaming;
+		game->getWorld()->LODMultiplier += 0.05f;
+		//game->getWorld()->EnableStreaming = !game->getWorld()->EnableStreaming;
 	}
 
 	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_Z)) {
