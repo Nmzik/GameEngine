@@ -35,6 +35,10 @@ public:
 		return health > 0;
 	}
 
+	float getCurrentHealth() {
+		return health;
+	}
+
 	bool loaded = false;
 
 	void TakeDamage(float dmg);

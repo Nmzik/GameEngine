@@ -835,6 +835,44 @@ void GameWorld::update(float delta_time, Camera* camera)
 	while (accumulatedTime >= deltaTime) {
 		dynamicsWorld->stepSimulation(deltaTime, 2, deltaTime);
 
+		int numManifolds = dynamicsWorld->getDispatcher()->getNumManifolds();
+		for (int i = 0; i<numManifolds; ++i)
+		{
+			btPersistentManifold* contactManifold = dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);
+			btCollisionObject* obA = const_cast<btCollisionObject*>(contactManifold->getBody0());
+			btCollisionObject* obB = const_cast<btCollisionObject*>(contactManifold->getBody1());
+
+			int numContacts = contactManifold->getNumContacts();
+			for (int j = 0; j<numContacts; j++)
+			{
+
+				btManifoldPoint& pt = contactManifold->getContactPoint(j);
+				if (pt.getAppliedImpulse() > 1) {
+
+					Player* player1 = static_cast<Player*>(obA->getUserPointer());
+					Player* player2 = static_cast<Player*>(obB->getUserPointer());
+
+					if (player1 != nullptr) {
+						player1->TakeDamage(pt.getAppliedImpulse());
+					}
+					else {
+						player2->TakeDamage(pt.getAppliedImpulse());
+					}
+				}
+				/*if (pt.getDistance()<0.f)
+				{
+					if (pt.getAppliedImpulse() != 0) {
+						printf("");
+					}
+					
+				}*/
+			}
+
+		}
+
+
+
+
 		accumulatedTime -= deltaTime;
 	}
 

@@ -1,6 +1,6 @@
 #include "Player.h"
 
-Player::Player() : vehicle(nullptr)
+Player::Player() : vehicle(nullptr), health(200)
 {
 }
 
@@ -22,7 +22,10 @@ btRigidBody* Player::getPhysCharacter()
 
 void Player::TakeDamage(float dmg)
 {
-	health -= dmg;
+	if (dmg > health)
+		health = 0;
+	else
+		health -= dmg;
 }
 
 glm::mat4& Player::getPosition()
@@ -115,6 +118,9 @@ void Player::Init(glm::vec3 position, YddLoader * ydd, btDiscreteDynamicsWorld *
 	rbInfo.m_friction = 1.0;
 
 	body = new btRigidBody(rbInfo);
+
+	body->setUserPointer(this);
+
 	body->setSleepingThresholds(0.0, 0.0);
 	body->setAngularFactor(0.0);
 	body->forceActivationState(DISABLE_DEACTIVATION);

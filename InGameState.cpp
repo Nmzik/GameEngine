@@ -102,6 +102,8 @@ void InGameState::tick(float delta_time)
 
 	Player* player = &game->getWorld()->pedestrians[game->getWorld()->currentPlayerID];
 
+	//printf("CURRENT HEALTH %f\n", player->getCurrentHealth());
+
 	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_F)) {
 		DebugPressed = !DebugPressed;
 		if (DebugPressed)
