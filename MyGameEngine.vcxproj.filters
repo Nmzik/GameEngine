@@ -310,36 +310,6 @@
     <Text Include="TODO.txt">
       <Filter>Source Files</Filter>
     </Text>
-    <Text Include="skybox.shader">
-      <Filter>Source Files</Filter>
-    </Text>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="ssao.shader">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="ssao_blur.shader">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="debug_quad.shader">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="gbuffer.shader">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="gbufferLighting.shader">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="hdrShader.shader">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="forward.shader">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="DepthTexture.shader">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="water.shader" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="skybox_textures\back.jpg">
