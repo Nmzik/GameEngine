@@ -131,31 +131,33 @@ void Vehicle::PhysicsTick()
 
 void Vehicle::Draw(Shader* shader) 
 {
-	for (auto &mesh : vehicle->YdrFile->meshes)
-	{
-		glBindVertexArray(mesh.VAO);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, mesh.material.diffuseTextureID);
-		glDrawElements(GL_TRIANGLES, mesh.num_indices, GL_UNSIGNED_SHORT, 0);
-	}
-
-	for (int i = 0; i < m_vehicle->getNumWheels(); i++)
-	{
-		glm::mat4 model;
-
-		m_vehicle->getWheelTransformWS(i).getOpenGLMatrix(&model[0][0]);
-		for (auto& wheel : vehicle->wheels)
+	if (vehicle->Loaded) {
+		for (auto &mesh : vehicle->YdrFile->meshes)
 		{
-			shader->setMat4(3, model);
+			glBindVertexArray(mesh.VAO);
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, mesh.material.diffuseTextureID);
+			glDrawElements(GL_TRIANGLES, mesh.num_indices, GL_UNSIGNED_SHORT, 0);
+		}
 
-			for (auto &mesh : wheel->meshes)
+		for (int i = 0; i < m_vehicle->getNumWheels(); i++)
+		{
+			glm::mat4 model;
+
+			m_vehicle->getWheelTransformWS(i).getOpenGLMatrix(&model[0][0]);
+			for (auto& wheel : vehicle->wheels)
 			{
-				glBindVertexArray(mesh.VAO);
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, mesh.material.diffuseTextureID);
-				glDrawElements(GL_TRIANGLES, mesh.num_indices, GL_UNSIGNED_SHORT, 0);
-			}
+				shader->setMat4(3, model);
 
+				for (auto &mesh : wheel->meshes)
+				{
+					glBindVertexArray(mesh.VAO);
+					glActiveTexture(GL_TEXTURE0);
+					glBindTexture(GL_TEXTURE_2D, mesh.material.diffuseTextureID);
+					glDrawElements(GL_TRIANGLES, mesh.num_indices, GL_UNSIGNED_SHORT, 0);
+				}
+
+			}
 		}
 	}
 }

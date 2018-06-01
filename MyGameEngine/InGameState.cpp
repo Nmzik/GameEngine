@@ -170,7 +170,7 @@ void InGameState::tick(float delta_time)
 			float steering = 0.0f;
 
 			if (game->getInput()->IsKeyPressed(SDL_SCANCODE_A) != game->getInput()->IsKeyPressed(SDL_SCANCODE_D)) {
-				steering = (game->getInput()->IsKeyPressed(SDL_SCANCODE_A) ? 0.3 : -0.3);
+				steering = (game->getInput()->IsKeyPressed(SDL_SCANCODE_A) ? 0.3f : -0.3f);
 			}
 
 			player->GetCurrentVehicle()->steeringValue = steering;

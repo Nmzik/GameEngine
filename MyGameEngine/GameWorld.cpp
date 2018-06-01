@@ -111,6 +111,8 @@ GameWorld::GameWorld()
 	YddLoader* playerYDD = GetYdd(4096714883, 0);
 	skydome = GetYdd(2640562617, 2640562617);
 
+
+
 	for (auto& ytd : data.GtxdEntries)
 	{
 		while (!LoadYTD(ytd.second)->Loaded)
@@ -780,7 +782,7 @@ void GameWorld::UpdateTraffic(Camera* camera, glm::vec3 pos)
 			float xRandom = RandomFloat(pos.x - radiusTraffic, pos.x + radiusTraffic);
 			float yRandom = RandomFloat(pos.y - radiusTraffic, pos.y + radiusTraffic);
 			if (!camera->intersects(glm::vec3(xRandom, yRandom, pos.z), 1.0f)) {
-				//createVehicle(glm::vec3(xRandom, yRandom, pos.z));
+				createVehicle(glm::vec3(xRandom, yRandom, pos.z));
 			}
 		}
 	}
@@ -866,7 +868,7 @@ void GameWorld::update(float delta_time, Camera* camera)
 					if (player1 != nullptr) {
 						player1->TakeDamage(pt.getAppliedImpulse());
 					}
-					else {
+					else if (player2 != nullptr){
 						player2->TakeDamage(pt.getAppliedImpulse());
 					}
 				}
