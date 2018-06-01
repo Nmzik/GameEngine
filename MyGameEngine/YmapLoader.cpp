@@ -135,6 +135,7 @@ YmapLoader* YmapPool::Load()
 void YmapPool::Remove(YmapLoader* ymap)
 {
 	ymap->Loaded = false;
+	ymap->RootObjects.clear();
 	ymap->Objects.clear();
 	ymap->next = firstAvailable_;
 	firstAvailable_ = ymap;

@@ -41,6 +41,7 @@ struct TextureBase{
 class YtdLoader
 {
 public:
+	bool Loaded = false;
 	uint32_t RefCount = 0;
 	std::vector<uint32_t> TextureNameHashes;
 

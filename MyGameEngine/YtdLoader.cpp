@@ -2,6 +2,8 @@
 
 void YtdLoader::Init(memstream & file, int32_t systemSize)
 {
+	Loaded = true;
+
 	enum TextureFormat
 	{
 		D3DFMT_A8R8G8B8 = 21,

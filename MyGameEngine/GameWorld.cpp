@@ -111,6 +111,14 @@ GameWorld::GameWorld()
 	YddLoader* playerYDD = GetYdd(4096714883, 0);
 	skydome = GetYdd(2640562617, 2640562617);
 
+	for (auto& ytd : data.GtxdEntries)
+	{
+		while (!LoadYTD(ytd.second)->Loaded)
+		{
+			LoadQueuedResources();
+		}
+	}
+
 	while (!skydome->Loaded || !playerYDD->Loaded) {
 		LoadQueuedResources();
 	}
@@ -130,11 +138,6 @@ GameWorld::GameWorld()
 		data.ExtractFileResource(*(YnvIt->second), Buffer);
 		memstream stream(Buffer.data(), Buffer.size());
 		//YnvLoader ynv(stream);
-	}
-
-	for (auto& ytd : data.GtxdEntries)
-	{
-		LoadYTD(ytd.second);
 	}
 	//ClearTestFunction();
 	/*std::unordered_map<uint32_t, CMloArchetypeDef>::iterator it;
@@ -171,12 +174,12 @@ float RandomFloat(float min, float max) {
 void GameWorld::LoadYmap(YmapLoader* map, Camera* camera)
 {
 	if (map->Loaded) {
-		for (auto& object : map->Objects)
+		for (auto& object : map->RootObjects)
 		{
 			float Dist = glm::length2(camera->Position - object.position);
 			bool IsVisible = Dist <= object.CEntity.lodDist * object.CEntity.lodDist * LODMultiplier;
 			bool childrenVisible = (Dist <= object.CEntity.childLodDist * object.CEntity.childLodDist * LODMultiplier) && (object.CEntity.numChildren > 0);
-			if (IsVisible && !childrenVisible) {
+			if (IsVisible) {
 				if (!object.Loaded) {
 					if (!object.FoundArchetype) {
 						std::unordered_map<uint32_t, CBaseArchetypeDef>::iterator it = data.CBaseArchetypeDefs.find(object.CEntity.archetypeName);
@@ -499,7 +502,7 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 	//printf("FREE VAO %zd\n",MeshManager::VAOs.size());
 	//printf("FREE VBO %zd\n",MeshManager::VBOs.size());
 	//printf("FREE Textures %zd\n", TextureManager::TexturesID.size());
-	printf("Textures %zd\n",ydrLoader.size());
+	printf("SIZE OBJECTS %zd\n",renderList.size());
 
 	/*glm::i32vec2 test = nodeGrid.GetCellPos(camera->Position);
 
@@ -615,6 +618,13 @@ void GameWorld::LoadQueuedResources()
 	{
 		memstream stream((*it)->Buffer.data(), (*it)->Buffer.size());
 
+		if ((*it)->type == ydr) {
+			if (!LoadYTD((*it)->TextureDictionaryHash)->Loaded) {
+				++it;
+				continue;
+			}
+		}
+
 		switch ((*it)->type)
 		{
 			case ymap:
@@ -631,6 +641,7 @@ void GameWorld::LoadQueuedResources()
 			}
 			case ydr:
 			{
+
 				auto iter = ydrLoader.find((*it)->Hash);
 				if (iter != ydrLoader.end())
 				{

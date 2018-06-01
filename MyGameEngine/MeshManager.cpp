@@ -14,9 +14,9 @@ MeshManager::~MeshManager()
 
 void MeshManager::Initialize()
 {
-	VAOs.resize(20000);
-	VBOs.resize(40000);
+	VAOs.resize(40000);
+	VBOs.resize(80000);
 
-	glGenVertexArrays(20000, &VAOs[0]);
-	glGenBuffers(40000, &VBOs[0]);
+	glGenVertexArrays(40000, &VAOs[0]);
+	glGenBuffers(80000, &VBOs[0]);
 }
