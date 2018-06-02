@@ -276,7 +276,7 @@ void RenderingSystem::createHDRFBO()
 	// create floating point color buffer
 	glGenTextures(1, &colorBuffer);
 	glBindTexture(GL_TEXTURE_2D, colorBuffer);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, ScreenResWidth, ScreenResHeight, 0, GL_RGBA, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, ScreenResWidth, ScreenResHeight, 0, GL_RGBA, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	// create depth buffer (renderbuffer)
@@ -298,7 +298,7 @@ inline void RenderingSystem::renderQuad()
 {
 	glBindVertexArray(quadVAO);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-	glBindVertexArray(0);
+	//glBindVertexArray(0);
 }
 
 void RenderingSystem::render(GameWorld* world)
@@ -342,7 +342,7 @@ void RenderingSystem::render(GameWorld* world)
 	gbuffer->setMat4(ViewUniformLoc, view);
 	gbuffer->setMat4(ProjUniformLoc, projection);
 
-	glDepthMask(GL_FALSE); //SKYDOME IS STATIONARY - SHOULD BE RENDERED LAST - PLAYER CAN GO OUT OF SKYDOME IF HE IS TOO FAR FROM IT
+	/*glDepthMask(GL_FALSE); //SKYDOME IS STATIONARY - SHOULD BE RENDERED LAST - PLAYER CAN GO OUT OF SKYDOME IF HE IS TOO FAR FROM IT
 	glm::mat4 SkydomeMatrix = glm::translate(glm::mat4(1.0f), camera->Position) * glm::mat4_cast(glm::quat(-1, 0, 0, 0)) * glm::scale(glm::mat4(1.0f), glm::vec3(10, 10, 10));
 	gbuffer->setMat4(ModelUniformLoc, SkydomeMatrix);
 
@@ -353,11 +353,7 @@ void RenderingSystem::render(GameWorld* world)
 		glBindTexture(GL_TEXTURE_2D, mesh.material.diffuseTextureID);
 		glDrawElements(GL_TRIANGLES, mesh.num_indices, GL_UNSIGNED_SHORT, 0);
 	}
-	glDepthMask(GL_TRUE);
-
-	//glEnable(GL_BLEND);
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	//glDisable(GL_BLEND);
+	glDepthMask(GL_TRUE);*/
 
 	for (auto& ped : world->pedestrians)
 	{
@@ -417,16 +413,16 @@ void RenderingSystem::render(GameWorld* world)
 		world->getDebugDrawer()->render();
 	}
 
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, 0);
+	//glActiveTexture(GL_TEXTURE0);
+	//glBindTexture(GL_TEXTURE_2D, 0);
 
-	glDisable(GL_CULL_FACE);
+	/*glDisable(GL_CULL_FACE);
 	for (auto& waterMesh : world->WaterMeshes)
 	{
 		gbuffer->setMat4(ModelUniformLoc, glm::mat4(1.0));
 		waterMesh.Draw();
 	}
-	glEnable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);*/
 
 	//glDisable(GL_CULL_FACE);
 
@@ -487,7 +483,6 @@ void RenderingSystem::render(GameWorld* world)
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, ssaoColorBuffer);
 	renderQuad();
-	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	// --------------------------------LightingPass Deferred Rendering----------------------------------
 	glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
@@ -506,7 +501,7 @@ void RenderingSystem::render(GameWorld* world)
 	glBindTexture(GL_TEXTURE_2D, ssaoColorBufferBlur);
 
 	gbufferLighting->setVec3("light.direction", dirLight.direction);
-	gbufferLighting->setInt("type", type);
+	gbufferLighting->setInt("type", 0);
 	gbufferLighting->setVec3("viewPos", camera->Position);
 	gbufferLighting->setMat4("InverseProjectionMatrix", InverseProjMatrix);
 	//gbufferLighting->setMat4("lightSpaceMatrix", lightSpaceMatrix);

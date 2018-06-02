@@ -178,6 +178,11 @@ void InGameState::tick(float delta_time)
 			player->getPhysCharacter()->setWorldTransform(player->GetCurrentVehicle()->m_carChassis->getWorldTransform());
 		}
 		else {
+
+			if (player->getPhysCharacter()->getWorldTransform().getOrigin().getZ() <= -150) {
+				player->getPhysCharacter()->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), player->getPhysCharacter()->getWorldTransform().getOrigin() + btVector3(0, 0, 300)));
+			}
+
 			if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT))
 				game->getRenderer()->getCamera().Position = glm::vec3(player->getPhysCharacter()->getWorldTransform().getOrigin().getX(), player->getPhysCharacter()->getWorldTransform().getOrigin().getY() - 5.0f, player->getPhysCharacter()->getWorldTransform().getOrigin().getZ());
 			else

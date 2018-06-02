@@ -24,7 +24,7 @@ GameWorld::GameWorld()
 	{
 		for (int y = 0; y < nodeGrid.CellCountY; y++)
 		{
-			std::string filename = "nodes" + std::to_string(nodeGrid.cells[x * nodeGrid.CellCountX + y]->ID) + ".ynd";
+			std::string filename = "nodes" + std::to_string(nodeGrid.cells[x * nodeGrid.CellCountX + y]->ID);
 			uint32_t fnhash = GenHash(filename);
 
 			auto it = data.YndEntries.find(fnhash);
@@ -32,6 +32,7 @@ GameWorld::GameWorld()
 
 				auto& element = *(it->second);
 				std::vector<uint8_t> outputBuffer;
+				outputBuffer.resize(it->second->SystemSize + it->second->GraphicsSize);
 				data.ExtractFileResource(element, outputBuffer);
 
 				memstream stream(outputBuffer.data(), outputBuffer.size());
@@ -108,10 +109,14 @@ GameWorld::GameWorld()
 	MeshManager::Initialize();
 	TextureManager::Initialize();
 
-	YddLoader* playerYDD = GetYdd(4096714883, 0);
+	YddLoader* playerYDD = GetYdd(4096714883, 2640562617);
 	skydome = GetYdd(2640562617, 2640562617);
 
-
+	LoadYTD(GenHash("mapdetail"));
+	LoadYTD(GenHash("vehshare"));
+	LoadYTD(GenHash("vehshare_worn"));
+	LoadYTD(GenHash("vehshare_army"));
+	LoadYTD(GenHash("vehshare_truck"));
 
 	for (auto& ytd : data.GtxdEntries)
 	{
@@ -119,6 +124,11 @@ GameWorld::GameWorld()
 		{
 			LoadQueuedResources();
 		}
+	}
+
+	for (auto& vehicle : vehiclesPool)
+	{
+		LoadYTD(vehicle.first);
 	}
 
 	while (!skydome->Loaded || !playerYDD->Loaded) {
@@ -413,6 +423,8 @@ YddLoader * GameWorld::GetYdd(uint32_t hash, uint32_t TextureDictionaryHash)
 	else {
 		yddLoader[hash] = new YddLoader();
 		yddLoader[hash]->RefCount++;
+		if (TextureDictionaryHash == 0)
+			printf("");
 		GetResourceManager()->AddToWaitingList(new Resource(ydd, hash, TextureDictionaryHash));
 		LoadYTD(TextureDictionaryHash);
 
@@ -460,6 +472,12 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 
 	SpaceGridCell& cell = spaceGrid.GetCell(cellID);
 
+	auto NodeCell = nodeGrid.GetCellPos(camera->Position);
+
+	if (CurNodeCell != NodeCell) {
+		CurNodeCell = NodeCell;
+	}
+
 	if (CurCell != cellID)
 	{
 		for (auto& ybn : CurYbns)
@@ -504,7 +522,7 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 	//printf("FREE VAO %zd\n",MeshManager::VAOs.size());
 	//printf("FREE VBO %zd\n",MeshManager::VBOs.size());
 	//printf("FREE Textures %zd\n", TextureManager::TexturesID.size());
-	printf("SIZE OBJECTS %zd\n",renderList.size());
+	//printf("SIZE OBJECTS %zd\n",renderList.size());
 
 	/*glm::i32vec2 test = nodeGrid.GetCellPos(camera->Position);
 
@@ -620,7 +638,7 @@ void GameWorld::LoadQueuedResources()
 	{
 		memstream stream((*it)->Buffer.data(), (*it)->Buffer.size());
 
-		if ((*it)->type == ydr) {
+		if ((*it)->type == ydr || (*it)->type == ydd || (*it)->type == yft) {
 			if (!LoadYTD((*it)->TextureDictionaryHash)->Loaded) {
 				++it;
 				continue;
@@ -723,7 +741,7 @@ void GameWorld::createVehicle(glm::vec3 position)
 	auto it = vehiclesPool.begin();
 	std::advance(it, vehicleID);
 	if (it->second.file == nullptr) {
-		it->second.file = GetYft(it->first, 0);
+		it->second.file = GetYft(it->first, it->first);
 	}
 	else {
 		Vehicle *newVehicle = new Vehicle(position, it->second.mass, it->second.file, dynamicsWorld);
@@ -746,7 +764,7 @@ void GameWorld::Update()
 
 void GameWorld::UpdateTraffic(Camera* camera, glm::vec3 pos)
 {
-	float radiusTraffic = 20.0f;
+	float radiusTraffic = 5.0f;
 	//PEDESTRIANS
 	
 	/*if (pedPool.firstAvailable_ == nullptr) {
@@ -767,23 +785,32 @@ void GameWorld::UpdateTraffic(Camera* camera, glm::vec3 pos)
 		//}
 	}*/
 	//CARS
-	for (int i = 0; i < vehicles.size(); i++) {
-		glm::vec3 vehiclePosition(vehicles[i]->m_carChassis->getWorldTransform().getOrigin().getX(), vehicles[i]->m_carChassis->getWorldTransform().getOrigin().getY(), vehicles[i]->m_carChassis->getWorldTransform().getOrigin().getZ());
-		if (glm::distance(camera->Position, vehiclePosition) >= 100.0f) {
-			dynamicsWorld->removeVehicle((vehicles[i]->m_vehicle));
-			dynamicsWorld->removeRigidBody((vehicles[i]->m_carChassis));
-			delete vehicles[i];
-			vehicles.erase(vehicles.begin() + i);
-		}
-	}
-	uint32_t MaximumAvailableVehicles = 10 - vehicles.size(); //HARDCODED
-	if (camera->Position.z < 100.0f) {
-		for (uint32_t i = 0; i < MaximumAvailableVehicles; i++) {
-			float xRandom = RandomFloat(pos.x - radiusTraffic, pos.x + radiusTraffic);
-			float yRandom = RandomFloat(pos.y - radiusTraffic, pos.y + radiusTraffic);
-			if (!camera->intersects(glm::vec3(xRandom, yRandom, pos.z), 1.0f)) {
-				createVehicle(glm::vec3(xRandom, yRandom, pos.z));
+	if (nodeGrid.cells[CurNodeCell.x * 32 + CurNodeCell.y]->ynd) {
+
+		for (auto& node : nodeGrid.cells[CurNodeCell.x * 32 + CurNodeCell.y]->ynd->nodes)
+		{
+			pos = glm::vec3(node.PositionX / 4.0f, node.PositionY / 4.0f, node.PositionZ / 32.0f);
+
+			for (int i = 0; i < vehicles.size(); i++) {
+				glm::vec3 vehiclePosition(vehicles[i]->m_carChassis->getWorldTransform().getOrigin().getX(), vehicles[i]->m_carChassis->getWorldTransform().getOrigin().getY(), vehicles[i]->m_carChassis->getWorldTransform().getOrigin().getZ());
+				if (glm::distance(camera->Position, vehiclePosition) >= 100.0f) {
+					dynamicsWorld->removeVehicle((vehicles[i]->m_vehicle));
+					dynamicsWorld->removeRigidBody((vehicles[i]->m_carChassis));
+					delete vehicles[i];
+					vehicles.erase(vehicles.begin() + i);
+				}
 			}
+			uint32_t MaximumAvailableVehicles = 30 - vehicles.size(); //HARDCODED
+			if (camera->Position.z < 100.0f) {
+				for (uint32_t i = 0; i < MaximumAvailableVehicles; i++) {
+					float xRandom = RandomFloat(pos.x - radiusTraffic, pos.x + radiusTraffic);
+					float yRandom = RandomFloat(pos.y - radiusTraffic, pos.y + radiusTraffic);
+					if (!camera->intersects(glm::vec3(xRandom, yRandom, pos.z), 1.0f)) {
+						createVehicle(glm::vec3(xRandom, yRandom, pos.z));
+					}
+				}
+			}
+
 		}
 	}
 }
@@ -841,7 +868,7 @@ constexpr float deltaTime = 1.f / 60.f;
 void GameWorld::update(float delta_time, Camera* camera)
 {
 	Update();
-	//UpdateTraffic(camera, camera->Position);
+	UpdateTraffic(camera, camera->Position);
 
 	accumulatedTime += delta_time;
 
@@ -882,9 +909,6 @@ void GameWorld::update(float delta_time, Camera* camera)
 			}
 
 		}
-
-
-
 
 		accumulatedTime -= deltaTime;
 	}

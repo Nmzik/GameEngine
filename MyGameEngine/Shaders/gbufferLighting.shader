@@ -101,10 +101,7 @@ void main()
     vec3 Diffuse = texture(gAlbedoSpec, TexCoords).rgb;
     float Specular = texture(gAlbedoSpec, TexCoords).a;
     float AmbientOcclusion = texture(ssao, TexCoords).r;
-	vec4 FragPosLightSpace = lightSpaceMatrix * vec4(FragPos, 1.0);
-	vec3 ambient;
-	ambient  = light.ambient * Diffuse * AmbientOcclusion;
-	if (type == 1) ambient  = light.ambient * Diffuse;
+	vec3 ambient = light.ambient * Diffuse * AmbientOcclusion;
     // diffuse
     vec3 lightDir = normalize(-light.direction);
     float diff = max(dot(Normal, lightDir), 0.0);
@@ -113,10 +110,12 @@ void main()
 	vec3 viewDir  = normalize(viewPos - FragPos);
     vec3 halfwayDir = normalize(lightDir + viewDir);  
     float spec = pow(max(dot(Normal, halfwayDir), 0.0), 16.0);
-    vec3 specular = light.specular * spec * Specular;   
-
-	float shadow = ShadowCalculation(FragPosLightSpace, Normal, lightDir);
-
+    vec3 specular = light.specular * spec * Specular;
+	float shadow = 0.0f;
+	if (type == 1) {
+		vec4 FragPosLightSpace = lightSpaceMatrix * vec4(FragPos, 1.0);
+		shadow = ShadowCalculation(FragPosLightSpace, Normal, lightDir);
+	}
 	//vec4 fogColor = vec4(0.0118, 0.0510, 0.1215);
 	//float fogStart = 450.f;
 	//float fogEnd = 10000.f;

@@ -80,6 +80,7 @@ public:
 	float accumulatedTime = 0.0f;
 
 	glm::i32vec2 CurCell;
+	glm::i32vec2 CurNodeCell;
 	std::vector<YmapLoader*> CurYmaps;
 	std::vector<YbnLoader*> CurYbns;
 	bool EnableStreaming = true;

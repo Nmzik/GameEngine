@@ -59,7 +59,7 @@ public:
 	int X;
 	int Y;
 	int ID;
-	YndLoader* ynd;
+	YndLoader* ynd = nullptr;
 
 	NodeGridCell(int x, int y) : X(x), Y(y)
 	{
