@@ -198,12 +198,12 @@ float RandomFloat(float min, float max) {
 void GameWorld::LoadYmap(YmapLoader* map, Camera* camera)
 {
 	if (map->Loaded) {
-		for (auto& object : map->RootObjects)
+		for (auto& object : map->Objects)
 		{
 			float Dist = glm::length2(camera->Position - object.position);
-			bool IsVisible = Dist <= object.CEntity.lodDist * object.CEntity.lodDist * LODMultiplier;
-			bool childrenVisible = (Dist <= object.CEntity.childLodDist * object.CEntity.childLodDist * LODMultiplier) && (object.CEntity.numChildren > 0);
-			if (IsVisible) {
+			bool IsVisible = Dist <= object.CEntity.lodDist * LODMultiplier;
+			bool childrenVisible = (Dist <= object.CEntity.childLodDist * LODMultiplier) && (object.CEntity.numChildren > 0);
+			if (IsVisible && !childrenVisible) {
 				if (!object.Loaded) {
 					if (!object.FoundArchetype) {
 						std::unordered_map<uint32_t, CBaseArchetypeDef>::iterator it = data.CBaseArchetypeDefs.find(object.CEntity.archetypeName);
@@ -396,7 +396,7 @@ YtdLoader* GameWorld::LoadYTD(uint32_t hash)
 		return it->second;
 	}
 	else {
-		LoadGtxd(hash);
+		//LoadGtxd(hash);
 
 		ytdLoader[hash] = new YtdLoader();
 		ytdLoader[hash]->RefCount++;
@@ -417,8 +417,15 @@ YdrLoader * GameWorld::GetYdr(uint32_t hash, uint32_t TextureDictionaryHash)
 	else {
 		ydrLoader[hash] = new YdrLoader();
 		ydrLoader[hash]->RefCount++;
-		GetResourceManager()->AddToWaitingList(new Resource(ydr, hash, TextureDictionaryHash));
-		LoadYTD(TextureDictionaryHash);
+
+		auto ytdEntry = data.YtdEntries.find(TextureDictionaryHash);
+		if (ytdEntry != data.YtdEntries.end()) {
+			LoadYTD(TextureDictionaryHash);
+			GetResourceManager()->AddToWaitingList(new Resource(ydr, hash, TextureDictionaryHash));
+		}
+		else {
+			GetResourceManager()->AddToWaitingList(new Resource(ydr, hash, 0));
+		}
 
 		return ydrLoader[hash];
 	}
@@ -435,10 +442,15 @@ YddLoader * GameWorld::GetYdd(uint32_t hash, uint32_t TextureDictionaryHash)
 	else {
 		yddLoader[hash] = new YddLoader();
 		yddLoader[hash]->RefCount++;
-		if (TextureDictionaryHash == 0)
-			printf("");
-		GetResourceManager()->AddToWaitingList(new Resource(ydd, hash, TextureDictionaryHash));
-		LoadYTD(TextureDictionaryHash);
+		
+		auto ytdEntry = data.YtdEntries.find(TextureDictionaryHash);
+		if (ytdEntry != data.YtdEntries.end()) {
+			LoadYTD(TextureDictionaryHash);
+			GetResourceManager()->AddToWaitingList(new Resource(ydd, hash, TextureDictionaryHash));
+		}
+		else {
+			GetResourceManager()->AddToWaitingList(new Resource(ydd, hash, 0));
+		}
 
 		return yddLoader[hash];
 	}
@@ -455,8 +467,15 @@ YftLoader * GameWorld::GetYft(uint32_t hash, uint32_t TextureDictionaryHash)
 	else {
 		yftLoader[hash] = new YftLoader();
 		yftLoader[hash]->RefCount++;
-		GetResourceManager()->AddToWaitingList(new Resource(yft, hash, TextureDictionaryHash));
-		LoadYTD(TextureDictionaryHash);
+
+		auto ytdEntry = data.YtdEntries.find(TextureDictionaryHash);
+		if (ytdEntry != data.YtdEntries.end()) {
+			LoadYTD(TextureDictionaryHash);
+			GetResourceManager()->AddToWaitingList(new Resource(yft, hash, TextureDictionaryHash));
+		}
+		else {
+			GetResourceManager()->AddToWaitingList(new Resource(yft, hash, 0));
+		}
 
 		return yftLoader[hash];
 	}
@@ -650,10 +669,21 @@ void GameWorld::LoadQueuedResources()
 	{
 		memstream stream((*it)->Buffer.data(), (*it)->Buffer.size());
 
+		/*if ((*it)->Hash == 4143923005) {
+			printf("");
+		}*/
+
+		//Object hash equal to texture hash what should we do? there are +hi textures with the same name 
+
+
 		if ((*it)->type == ydr || (*it)->type == ydd || (*it)->type == yft) {
-			if (!LoadYTD((*it)->TextureDictionaryHash)->Loaded) {
-				++it;
-				continue;
+			if (!(*it)->TextureDictionaryHash == 0) {
+				if (!((*it)->Hash == (*it)->TextureDictionaryHash)) {
+					if (!LoadYTD((*it)->TextureDictionaryHash)->Loaded) {
+						++it;
+						continue;
+					}
+				}
 			}
 		}
 
