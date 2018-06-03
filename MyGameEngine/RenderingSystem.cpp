@@ -416,13 +416,13 @@ void RenderingSystem::render(GameWorld* world)
 	//glActiveTexture(GL_TEXTURE0);
 	//glBindTexture(GL_TEXTURE_2D, 0);
 
-	/*glDisable(GL_CULL_FACE);
+	glDisable(GL_CULL_FACE);
 	for (auto& waterMesh : world->WaterMeshes)
 	{
 		gbuffer->setMat4(ModelUniformLoc, glm::mat4(1.0));
 		waterMesh.Draw();
 	}
-	glEnable(GL_CULL_FACE);*/
+	glEnable(GL_CULL_FACE);
 
 	//glDisable(GL_CULL_FACE);
 

@@ -72,7 +72,7 @@ void YmapLoader::Init(memstream& file)
 		}
 	}
 
-	for (int i = 0; i < Objects.size(); i++)
+	/*for (int i = 0; i < Objects.size(); i++)
 	{
 		Object d = Objects[i];
 		int pind = Objects[i].CEntity.parentIndex;
@@ -83,7 +83,7 @@ void YmapLoader::Init(memstream& file)
 		{
 			isroot = true;
 		}
-		/*else
+		else
 		{
 			Object p = Objects[pind];
 			if ((p.CEntity.lodLevel <= d.CEntity.lodLevel) ||
@@ -92,12 +92,12 @@ void YmapLoader::Init(memstream& file)
 			{
 				isroot = true;
 			}
-		}*/
+		}
 
 		if (isroot) {
 			RootObjects.push_back(Objects[i]);
 		}
-	}
+	}*/
 
 }
 

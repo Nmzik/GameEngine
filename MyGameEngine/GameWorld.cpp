@@ -94,6 +94,15 @@ GameWorld::GameWorld()
 			}
 	}*/
 	//*LoadYTD(3523992128); //water.ytd
+
+	MeshManager::Initialize();
+	TextureManager::Initialize();
+
+	/*while (!LoadYTD(3154743001)->Loaded)
+	{
+		LoadQueuedResources();
+	}*/
+
 	for (auto& WaterQuad : data.WaterQuads)
 	{
 		Water water(WaterQuad);
@@ -106,10 +115,13 @@ GameWorld::GameWorld()
 	debug.setDebugMode(btIDebugDraw::DBG_DrawWireframe);
 	dynamicsWorld->setDebugDrawer(&debug);
 
-	MeshManager::Initialize();
-	TextureManager::Initialize();
+	YddLoader* playerYDD = GetYdd(4096714883, 4096714883);
 
-	YddLoader* playerYDD = GetYdd(4096714883, 2640562617);
+	while (!LoadYTD(4096714883)->Loaded)
+	{
+		LoadQueuedResources();
+	}
+
 	skydome = GetYdd(2640562617, 2640562617);
 
 	LoadYTD(GenHash("mapdetail"));
@@ -868,7 +880,7 @@ constexpr float deltaTime = 1.f / 60.f;
 void GameWorld::update(float delta_time, Camera* camera)
 {
 	Update();
-	UpdateTraffic(camera, camera->Position);
+	//UpdateTraffic(camera, camera->Position);
 
 	accumulatedTime += delta_time;
 
