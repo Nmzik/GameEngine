@@ -211,7 +211,7 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera)
 						{
 							object.Archetype._BaseArchetypeDef = it->second;
 
-							object.BoundPos = object.Archetype._BaseArchetypeDef.bsCentre + object.CEntity.position;
+							object.BoundPos = object.CEntity.position; //object.BoundPos = object.Archetype._BaseArchetypeDef.bsCentre + object.CEntity.position;
 							object.BoundRadius = object.Archetype._BaseArchetypeDef.bsRadius * std::max(object.CEntity.scaleXY, object.CEntity.scaleZ);
 							//if (object.CEntity.lodDist <= 0) object.CEntity.lodDist = 30.0f;
 							//if (object.CEntity.childLodDist <= 0) object.CEntity.childLodDist = 30.0f;
@@ -226,7 +226,7 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera)
 							{
 								object.Archetype = it->second;
 
-								object.BoundPos = object.Archetype._BaseArchetypeDef.bsCentre + object.CEntity.position;
+								object.BoundPos = object.CEntity.position; //object.BoundPos = object.Archetype._BaseArchetypeDef.bsCentre + object.CEntity.position;
 								object.BoundRadius = object.Archetype._BaseArchetypeDef.bsRadius * std::max(object.CEntity.scaleXY, object.CEntity.scaleZ);
 								//if (object.CEntity.lodDist <= 0) object.CEntity.lodDist = it->second._BaseArchetypeDef.lodDist;
 								//if (object.CEntity.childLodDist <= 0) object.CEntity.childLodDist = it->second._BaseArchetypeDef.lodDist;
