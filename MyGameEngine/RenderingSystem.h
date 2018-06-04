@@ -77,6 +77,7 @@ public:
 	bool gpuTimer = false;
 	bool mWaiting = false;
 	GLuint gpuTime = 0;
+	uint32_t DrawCalls;
 	glm::vec3 lightPos;
 	bool RenderDebugWorld = false;
 	Camera& getCamera();

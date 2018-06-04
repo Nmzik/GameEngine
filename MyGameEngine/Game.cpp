@@ -42,17 +42,13 @@ Game::~Game() {
 }
 
 void Game::updateFPS(float delta_time) {
-	const auto smooth_factor = 0.1f;
-	static auto delta_time_smoothed = 0.f;
 	static auto time_since_last_fps_output = 0.f;
-
-	delta_time_smoothed = (1.0f - smooth_factor) * delta_time_smoothed + smooth_factor * delta_time;
 
 	time_since_last_fps_output += delta_time;
 	if (time_since_last_fps_output >= 1.0f) {
 		time_since_last_fps_output = 0.0f;
 		std::ostringstream osstr;
-		osstr << "SDL2 window" << " (" << (int((1.0f / delta_time_smoothed) * 10.0f) / 10.0f) << " FPS, CPU time " << (int(delta_time_smoothed * 10000.0f) / 10.0f) << ") | GPU time " << rendering_system->gpuTime * 0.000001f << "ms " << gameWorld->renderList.size() << "Objects";
+		osstr << "SDL2 window" << " (" << (1.0f / delta_time) << " FPS, CPU time " << (delta_time * 1000.0f) << ") | GPU time " << rendering_system->gpuTime * 0.000001f << "ms " << gameWorld->renderList.size() << "Objects " << rendering_system->DrawCalls << "Draw Calls";
 		SDL_SetWindowTitle(window, osstr.str().c_str());
 	}
 }

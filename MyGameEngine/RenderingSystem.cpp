@@ -355,6 +355,8 @@ void RenderingSystem::render(GameWorld* world)
 	}
 	glDepthMask(GL_TRUE);*/
 
+	DrawCalls = 0;
+
 	for (auto& ped : world->pedestrians)
 	{
 		//if ped loaded
@@ -370,6 +372,8 @@ void RenderingSystem::render(GameWorld* world)
 					glActiveTexture(GL_TEXTURE0);
 					glBindTexture(GL_TEXTURE_2D, mesh.material.diffuseTextureID);
 					glDrawElements(GL_TRIANGLES, mesh.num_indices, GL_UNSIGNED_SHORT, 0);
+
+					DrawCalls++;
 				}
 			}
 		}
@@ -404,6 +408,8 @@ void RenderingSystem::render(GameWorld* world)
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, mesh.material.diffuseTextureID);
 			glDrawElements(GL_TRIANGLES, mesh.num_indices, GL_UNSIGNED_SHORT, 0);
+
+			DrawCalls++;
 		}
 	}
 
@@ -421,6 +427,8 @@ void RenderingSystem::render(GameWorld* world)
 	{
 		gbuffer->setMat4(ModelUniformLoc, glm::mat4(1.0));
 		waterMesh.Draw();
+
+		DrawCalls++;
 	}
 	glEnable(GL_CULL_FACE);
 

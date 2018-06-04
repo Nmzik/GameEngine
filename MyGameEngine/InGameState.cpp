@@ -45,7 +45,7 @@ void InGameState::tick(float delta_time)
 
 	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_Q)) {
 		//game->getWorld()->LODMultiplier -= 0.05f;
-		//game->getRenderer()->gpuTimer = !game->getRenderer()->gpuTimer;
+		game->getRenderer()->gpuTimer = !game->getRenderer()->gpuTimer;
 	}
 
 	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_E)) {
