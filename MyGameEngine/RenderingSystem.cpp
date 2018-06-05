@@ -413,16 +413,17 @@ void RenderingSystem::render(GameWorld* world)
 		}
 	}
 
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glDisable(GL_CULL_FACE);
+
 	if (RenderDebugWorld) {
 		world->GetDynamicsWorld()->debugDrawWorld();
 		gbuffer->setMat4(ModelUniformLoc, glm::mat4(1.0));
 		world->getDebugDrawer()->render();
 	}
 
-	//glActiveTexture(GL_TEXTURE0);
-	//glBindTexture(GL_TEXTURE_2D, 0);
-
-	glDisable(GL_CULL_FACE);
 	for (auto& waterMesh : world->WaterMeshes)
 	{
 		gbuffer->setMat4(ModelUniformLoc, glm::mat4(1.0));

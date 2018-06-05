@@ -79,7 +79,6 @@ void YbnLoader::Init(btDiscreteDynamicsWorld* world, memstream& file)
 		file.read((char*)&vertices[0], sizeof(glm::i16vec3) * geom.VerticesCount);
 
 		Vertices.resize(geom.VerticesCount);
-
 		for (uint32_t i = 0; i < geom.VerticesCount; i++)
 		{
 			Vertices[i] = glm::vec3(vertices[i].x, vertices[i].y, vertices[i].z) * geom.Quantum;
@@ -161,8 +160,24 @@ void YbnLoader::Init(btDiscreteDynamicsWorld* world, memstream& file)
 		}
 
 		if (indices.size() != 0) {
-			VertIndicesArray = new btTriangleIndexVertexArray(indices.size() / 3, (int*)indices.data(), 3 * sizeof(int32_t),
-				Vertices.size(), &Vertices[0][0], sizeof(glm::vec3));
+			btIndexedMesh mesh;
+			mesh.m_numTriangles = indices.size() / 3;
+			mesh.m_triangleIndexBase = (uint8_t*)indices.data();
+			mesh.m_triangleIndexStride = 3 * sizeof(uint16_t);
+			mesh.m_numVertices = Vertices.size();
+			mesh.m_vertexBase = (uint8_t*)Vertices.data();
+			mesh.m_vertexStride = sizeof(glm::vec3);
+
+			VertIndicesArray = new btTriangleIndexVertexArray();
+			VertIndicesArray->addIndexedMesh(mesh, PHY_SHORT);
+
+			/*btQuantizedBvh* quantizedBvh = new btQuantizedBvh();
+			quantizedBvh->setQuantizationValues(btVector3(Bounds.BoundingBoxMin.x, Bounds.BoundingBoxMin.y, Bounds.BoundingBoxMin.z), btVector3(Bounds.BoundingBoxMax.x, Bounds.BoundingBoxMax.y, Bounds.BoundingBoxMax.z));
+			QuantizedNodeArray&	nodes = quantizedBvh->getLeafNodeArray();
+			btOptimizedBvh *bvh = new btOptimizedBvh();
+			//bvh->build(VertIndicesArray, true, );
+			trishape->setOptimizedBvh(bvh);
+			btQuantizedBvhNode node;*/
 
 			trishape = new btBvhTriangleMeshShape(VertIndicesArray, false);
 			trishape->setMargin(Bounds.Margin);

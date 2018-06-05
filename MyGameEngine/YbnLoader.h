@@ -138,7 +138,7 @@ class YbnLoader
 	} BoundComposite;
 
 	std::vector<glm::vec3> Vertices;
-	std::vector<int32_t> indices;
+	std::vector<uint16_t> indices;
 
 	btRigidBody * rigidBody = nullptr;
 	btDiscreteDynamicsWorld* CollisionWorld;

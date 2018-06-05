@@ -13,6 +13,9 @@ GameWorld::GameWorld()
 	dynamicsWorld->setGravity(btVector3(0, 0, -9.8f));
 	dynamicsWorld->setForceUpdateAllAabbs(false);
 
+	debug.setDebugMode(btIDebugDraw::DBG_DrawWireframe);
+	dynamicsWorld->setDebugDrawer(&debug);
+
 	//Default texture
 	TextureManager::LoadTexture(0, TextureManager::loadTexture("blank.jpg"));
 	//////////////////////////////////////////////////////////////////////////////
@@ -111,9 +114,6 @@ GameWorld::GameWorld()
 
 	gameHour = 10;
 	gameMinute = 0;
-
-	debug.setDebugMode(btIDebugDraw::DBG_DrawWireframe);
-	dynamicsWorld->setDebugDrawer(&debug);
 
 	YddLoader* playerYDD = GetYdd(4096714883, 4096714883);
 
