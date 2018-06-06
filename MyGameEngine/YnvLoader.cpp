@@ -122,6 +122,7 @@ YnvLoader::YnvLoader(memstream& file)
 	};
 
 	std::vector<NavMeshVertex> navMeshVertices;
+	std::vector<uint16_t> navMeshIndices;
 
 	ResourceFileBase resourceFileBase;
 	file.read((char*)&resourceFileBase, sizeof(ResourceFileBase));
@@ -130,34 +131,77 @@ YnvLoader::YnvLoader(memstream& file)
 	file.read((char*)&navmesh, sizeof(Navmesh));
 
 	navMeshVertices.reserve(navmesh.VerticesCount);
+	navMeshIndices.reserve(navmesh.EdgesIndicesCount);
 
 	SYSTEM_BASE_PTR(navmesh.VerticesPointer);
+
+	SYSTEM_BASE_PTR(navmesh.IndicesPointer);
+
+	////
 	file.seekg(navmesh.VerticesPointer);
-	///NOT SURE
 
 	NavMeshList navMeshList;
 	file.read((char*)&navMeshList, sizeof(NavMeshList));
 
-	for (int i = 0; i < navMeshList.ListPartsCount; i++)
+	SYSTEM_BASE_PTR(navMeshList.ListPartsPointer);
+
+	file.seekg(navMeshList.ListPartsPointer);
+
+	for (uint32_t i = 0; i < navMeshList.ListPartsCount; i++)
 	{
 		NavMeshListPart navMeshListPart;
 		file.read((char*)&navMeshListPart, sizeof(NavMeshListPart));
 
-		//????????
-		for (int i = 0; i < navMeshListPart.Count; i++)
-		{
-			SYSTEM_BASE_PTR(navMeshListPart.Pointer);
-			file.seekg(navMeshListPart.Pointer);
+		uint64_t navMeshListPartPointer = file.tellg();
 
+		SYSTEM_BASE_PTR(navMeshListPart.Pointer);
+
+		file.seekg(navMeshListPart.Pointer);
+
+		for (uint32_t i = 0; i < navMeshListPart.Count; i++)
+		{
 			NavMeshVertex navMeshVertex;
 			file.read((char*)&navMeshVertex, sizeof(navMeshVertex));
 
 			navMeshVertices.push_back(navMeshVertex);
 		}
 
+		file.seekg(navMeshListPartPointer);
+
 	}
 
+	///
+	file.seekg(navmesh.IndicesPointer);
 
+	//NavMeshList navMeshList;
+	file.read((char*)&navMeshList, sizeof(NavMeshList));
+
+	SYSTEM_BASE_PTR(navMeshList.ListPartsPointer);
+
+	file.seekg(navMeshList.ListPartsPointer);
+
+	for (uint32_t i = 0; i < navMeshList.ListPartsCount; i++)
+	{
+		NavMeshListPart navMeshListPart;
+		file.read((char*)&navMeshListPart, sizeof(NavMeshListPart));
+
+		uint64_t navMeshListPartPointer = file.tellg();
+
+		SYSTEM_BASE_PTR(navMeshListPart.Pointer);
+
+		file.seekg(navMeshListPart.Pointer);
+
+		for (uint32_t i = 0; i < navMeshListPart.Count; i++)
+		{
+			uint16_t Index;
+			file.read((char*)&Index, sizeof(uint16_t));
+
+			navMeshIndices.push_back(Index);
+		}
+
+		file.seekg(navMeshListPartPointer);
+
+	}
 
 }
 

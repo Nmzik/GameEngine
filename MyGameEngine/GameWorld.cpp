@@ -22,6 +22,14 @@ GameWorld::GameWorld()
 
 	_ResourceManager = new ResourceManager(this);
 
+	auto YnvIt = data.YnvEntries.find(1471038032);
+	if (YnvIt != data.YnvEntries.end()) {
+		std::vector<uint8_t> Buffer(YnvIt->second->SystemSize + YnvIt->second->GraphicsSize);
+		data.ExtractFileResource(*(YnvIt->second), Buffer);
+		memstream stream(Buffer.data(), Buffer.size());
+		YnvLoader ynv(stream);
+	}
+
 	//Nodes
 	for (int x = 0; x < nodeGrid.CellCountX; x++)
 	{
@@ -156,13 +164,6 @@ GameWorld::GameWorld()
 	pedestrians[2].Init(glm::vec3(2250.18f, 3471.40f, 56.50f), playerYDD, dynamicsWorld);
 	pedestrians[2].getPhysCharacter()->setGravity(btVector3(0, 0, 0));
 
-	auto YnvIt = data.YnvEntries.find(592547765);
-	if (YnvIt != data.YnvEntries.end()) {
-		std::vector<uint8_t> Buffer;
-		data.ExtractFileResource(*(YnvIt->second), Buffer);
-		memstream stream(Buffer.data(), Buffer.size());
-		//YnvLoader ynv(stream);
-	}
 	//ClearTestFunction();
 	/*std::unordered_map<uint32_t, CMloArchetypeDef>::iterator it;
 	it = data.MloDictionary.find(210892389);
