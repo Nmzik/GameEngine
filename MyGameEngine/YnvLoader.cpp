@@ -121,6 +121,53 @@ YnvLoader::YnvLoader(memstream& file)
 		uint32_t Unknown_0Ch; // 0x00000000
 	};
 
+	struct NavMeshAABB
+	{
+		short MinX;
+		short MaxX;
+		short MinY;
+		short MaxY;
+		short MinZ;
+		short MaxZ;
+	};
+
+	struct NavMeshSector
+	{
+		glm::vec4 AABBMin; //W==NaN
+		glm::vec4 AABBMax; //W==NaN
+		NavMeshAABB CellAABB;
+		uint64_t DataPointer;
+		uint64_t SubTree1Pointer;
+		uint64_t SubTree2Pointer;
+		uint64_t SubTree3Pointer;
+		uint64_t SubTree4Pointer;
+		uint32_t Unused_54h; // 0x00000000
+		uint32_t Unused_58h; // 0x00000000
+		uint32_t Unused_5Ch; // 0x00000000
+	};
+
+	struct FlagsUint
+	{
+		uint32_t Value;
+	};
+
+	struct NavMeshPoly
+	{
+		uint16_t Unknown_00h;
+		uint16_t IndexFlags;
+		uint16_t IndexID;
+		uint16_t AreaID;
+		uint32_t Unused_08h; // 0x00000000
+		uint32_t Unused_0Ch; // 0x00000000
+		uint32_t Unused_10h; // 0x00000000
+		uint32_t Unused_14h; // 0x00000000
+		NavMeshAABB CellAABB;
+		FlagsUint Unknown_24h;
+		FlagsUint Unknown_28h;
+		uint16_t PartFlags;
+		uint16_t PortalLinkID;
+	};
+
 	std::vector<NavMeshVertex> navMeshVertices;
 	std::vector<uint16_t> navMeshIndices;
 
@@ -201,6 +248,326 @@ YnvLoader::YnvLoader(memstream& file)
 
 		file.seekg(navMeshListPartPointer);
 
+	}
+
+	NavMeshSector SectorTree;
+
+	SYSTEM_BASE_PTR(navmesh.SectorTreePointer);
+	file.seekg(navmesh.SectorTreePointer);
+	file.read((char*)&SectorTree, sizeof(NavMeshSector));
+
+	NavMeshPoly poly;
+	SYSTEM_BASE_PTR(navmesh.PolysPointer);
+	//file.seekg(navmesh.SectorTreePointer);
+	//file.read((char*)&SectorTree, sizeof(NavMeshSector));
+	//NEED TO LOAD POLYS TO MAKE IT WORK!
+
+
+	rcHeightfield *rcheightfield;
+
+	rcCompactHeightfield *rccompactheightfield;
+
+	rcContourSet *rccontourset;
+
+	rcPolyMesh *rcpolymesh;
+
+	rcPolyMeshDetail *rcpolymeshdetail;
+
+	struct NAVIGATIONCONFIGURATION
+	{
+		float cell_size;
+
+		float cell_height;
+
+		float agent_height;
+
+		float agent_radius;
+
+		float agent_max_climb;
+
+		float agent_max_slope;
+
+		float region_min_size;
+
+		float region_merge_size;
+
+		float edge_max_len;
+
+		float edge_max_error;
+
+		float vert_per_poly;
+
+		float detail_sample_dst;
+
+		float detail_sample_max_error;
+
+	};
+
+	std::vector<glm::vec3> VerticesVector;
+	std::vector<int32_t> IndicesVector;
+
+	const float ushortMaxValue = 65535;
+	//CONVERT USHORT TO float
+	for (int i = 0; i < navMeshVertices.size(); i++)
+	{
+		glm::vec3 posoffset(SectorTree.AABBMin.x, SectorTree.AABBMin.y, SectorTree.AABBMin.z);
+		glm::vec3 Vector(navMeshVertices[i].X / ushortMaxValue, navMeshVertices[i].Y / ushortMaxValue, navMeshVertices[i].Z / ushortMaxValue);
+		glm::vec3 result(posoffset + Vector * navmesh.AABBSize);
+		VerticesVector.push_back(result);
+	}
+
+	//convert indices
+	for (int i = 0; i < navMeshIndices.size(); i++)
+	{
+		IndicesVector.push_back(navMeshIndices[i]);
+	}
+
+
+	NAVIGATIONCONFIGURATION navigationconfiguration;
+
+	navigationconfiguration.cell_size = 0.3f;
+	navigationconfiguration.cell_height = 0.2f;
+	navigationconfiguration.agent_height = 2.0f;
+	navigationconfiguration.agent_radius = 0.4f;
+	navigationconfiguration.agent_max_climb = 0.9f;
+	navigationconfiguration.agent_max_slope = 45.0f;
+	navigationconfiguration.region_min_size = 50.0f;
+	navigationconfiguration.region_merge_size = 20.0f;
+	navigationconfiguration.edge_max_len = 12.0f;
+	navigationconfiguration.edge_max_error = 1.3f;
+	navigationconfiguration.vert_per_poly = 6.0f;
+	navigationconfiguration.detail_sample_dst = 6.0f;
+	navigationconfiguration.detail_sample_max_error = 1.0f;
+
+
+	// Step 1. Initialize build config.
+	rcConfig rcconfig;
+	memset(&rcconfig, 0, sizeof(rcConfig));
+	rcconfig.cs = navigationconfiguration.cell_size;
+	rcconfig.ch = navigationconfiguration.cell_height;
+	rcconfig.walkableHeight = (int)ceilf(navigationconfiguration.agent_height / rcconfig.ch);
+	rcconfig.walkableRadius = (int)ceilf(navigationconfiguration.agent_radius / rcconfig.cs);
+	rcconfig.walkableClimb = (int)floorf(navigationconfiguration.agent_max_climb / rcconfig.ch);
+	rcconfig.walkableSlopeAngle = navigationconfiguration.agent_max_slope;
+	rcconfig.minRegionArea = (int)rcSqr(navigationconfiguration.region_min_size);
+	rcconfig.mergeRegionArea = (int)rcSqr(navigationconfiguration.region_merge_size);
+	rcconfig.maxEdgeLen = (int)(navigationconfiguration.edge_max_len / rcconfig.cs);
+	rcconfig.maxSimplificationError = navigationconfiguration.edge_max_error;
+	rcconfig.maxVertsPerPoly = (int)navigationconfiguration.vert_per_poly;
+	rcconfig.detailSampleDist = rcconfig.cs * navigationconfiguration.detail_sample_dst;
+	rcconfig.detailSampleMaxError = rcconfig.ch * navigationconfiguration.detail_sample_max_error;
+	//
+	rcContext rc;
+	rcCalcBounds((float*)&VerticesVector[0],
+		VerticesVector.size(),
+		rcconfig.bmin,
+		rcconfig.bmax);
+
+
+	rcCalcGridSize(rcconfig.bmin,
+		rcconfig.bmax,
+		rcconfig.cs,
+		&rcconfig.width,
+		&rcconfig.height);
+
+
+	// Step 2. Rasterize input polygon soup.
+	// Allocate voxel heightfield where we rasterize our input data to.
+	rcheightfield = rcAllocHeightfield();
+
+	if (!rcCreateHeightfield(&rc, *rcheightfield,
+		rcconfig.width,
+		rcconfig.height,
+		rcconfig.bmin,
+		rcconfig.bmax,
+		rcconfig.cs,
+		rcconfig.ch)) {
+		printf("ERROR");
+	}
+
+
+	// Allocate array that can hold triangle area types.
+	// If you have multiple meshes you need to process, allocate
+	// and array which can hold the max number of triangles you need to process.
+
+	int ntris = IndicesVector.size() / 3;
+
+	uint8_t* triangle_flags = new uint8_t[ntris];
+	memset(triangle_flags, 0, ntris);
+	// Find triangles which are walkable based on their slope and rasterize them.
+	// If your input data is multiple meshes, you can transform them here, calculate
+	// the are type for each of the meshes and rasterize them.
+	rcMarkWalkableTriangles(&rc,
+		rcconfig.walkableSlopeAngle,
+		(float*)&VerticesVector[0],
+		VerticesVector.size(),
+		(int*)&IndicesVector[0],
+		ntris,
+		triangle_flags);
+
+
+	rcRasterizeTriangles(&rc,
+		(float*)&VerticesVector[0],
+		VerticesVector.size(),
+		(int*)&IndicesVector[0],
+		triangle_flags,
+		ntris,
+		*rcheightfield,
+		rcconfig.walkableClimb);
+
+
+	delete[] triangle_flags;
+	triangle_flags = NULL;
+
+	// Step 3. Filter walkables surfaces.
+	// Once all geoemtry is rasterized, we do initial pass of filtering to
+	// remove unwanted overhangs caused by the conservative rasterization
+	// as well as filter spans where the character cannot possibly stand.
+	rcFilterLowHangingWalkableObstacles(&rc,
+		rcconfig.walkableClimb,
+		*rcheightfield);
+	rcFilterLedgeSpans(&rc,
+		rcconfig.walkableHeight,
+		rcconfig.walkableClimb,
+		*rcheightfield);
+
+	rcFilterWalkableLowHeightSpans(&rc,
+		rcconfig.walkableHeight,
+		*rcheightfield);
+
+	// Step 4. Partition walkable surface to simple regions.
+	// Compact the heightfield so that it is faster to handle from now on.
+	// This will result more cache coherent data as well as the neighbours
+	// between walkable cells will be calculated.
+	rccompactheightfield = rcAllocCompactHeightfield();
+
+	rcBuildCompactHeightfield(&rc, rcconfig.walkableHeight,
+		rcconfig.walkableClimb,
+		*rcheightfield,
+		*rccompactheightfield);
+
+	rcFreeHeightField(rcheightfield);
+	rcheightfield = NULL;
+
+	// Erode the walkable area by agent radius.
+	rcErodeWalkableArea(&rc,
+		rcconfig.walkableRadius,
+		*rccompactheightfield);
+
+
+	// Prepare for region partitioning, by calculating distance field along the walkable surface.
+	rcBuildDistanceField(&rc, *rccompactheightfield);
+
+
+	// Partition the walkable surface into simple regions without holes.
+	rcBuildRegions(&rc, *rccompactheightfield,
+		0,
+		rcconfig.minRegionArea,
+		rcconfig.mergeRegionArea);
+
+
+	// Step 5. Trace and simplify region contours.
+	rccontourset = rcAllocContourSet();
+
+	rcBuildContours(&rc, *rccompactheightfield,
+		rcconfig.maxSimplificationError,
+		rcconfig.maxEdgeLen,
+		*rccontourset);
+
+
+	// Step 6. Build polygons mesh from contours.
+	rcpolymesh = rcAllocPolyMesh();
+
+	if (!rcBuildPolyMesh(&rc, *rccontourset,
+		rcconfig.maxVertsPerPoly,
+		*rcpolymesh)) {
+		printf("ERROR");
+	}
+
+
+	// Step 7. Create detail mesh which allows to access approximate height on each polygon.
+	rcpolymeshdetail = rcAllocPolyMeshDetail();
+	if (!rcBuildPolyMeshDetail(&rc, *rcpolymesh,
+		*rccompactheightfield,
+		rcconfig.detailSampleDist,
+		rcconfig.detailSampleMaxError,
+		*rcpolymeshdetail)) {
+		printf("ERROR");
+	}
+
+
+	rcFreeCompactHeightfield(rccompactheightfield);
+	rccompactheightfield = NULL;
+
+	rcFreeContourSet(rccontourset);
+	rccontourset = NULL;
+
+	int i = 0;
+	if (rcconfig.maxVertsPerPoly <= DT_VERTS_PER_POLYGON)
+	{
+		dtNavMeshCreateParams dtnavmeshcreateparams;
+
+		unsigned char *nav_data = NULL;
+
+		int nav_data_size = 0;
+
+		i = 0;
+		while (i != rcpolymesh->npolys)
+		{
+			if (rcpolymesh->areas[i] == RC_WALKABLE_AREA)
+			{
+				rcpolymesh->areas[i] = 0;
+				rcpolymesh->flags[i] = 0x01;
+			}
+
+			++i;
+		}
+
+
+		memset(&dtnavmeshcreateparams, 0, sizeof(dtNavMeshCreateParams));
+
+		dtnavmeshcreateparams.verts = rcpolymesh->verts;
+		dtnavmeshcreateparams.vertCount = rcpolymesh->nverts;
+		dtnavmeshcreateparams.polys = rcpolymesh->polys;
+		dtnavmeshcreateparams.polyAreas = rcpolymesh->areas;
+		dtnavmeshcreateparams.polyFlags = rcpolymesh->flags;
+		dtnavmeshcreateparams.polyCount = rcpolymesh->npolys;
+		dtnavmeshcreateparams.nvp = rcpolymesh->nvp;
+
+		dtnavmeshcreateparams.detailMeshes = rcpolymeshdetail->meshes;
+		dtnavmeshcreateparams.detailVerts = rcpolymeshdetail->verts;
+		dtnavmeshcreateparams.detailVertsCount = rcpolymeshdetail->nverts;
+		dtnavmeshcreateparams.detailTris = rcpolymeshdetail->tris;
+		dtnavmeshcreateparams.detailTriCount = rcpolymeshdetail->ntris;
+
+		dtnavmeshcreateparams.walkableHeight = navigationconfiguration.agent_height;
+		dtnavmeshcreateparams.walkableRadius = navigationconfiguration.agent_radius;
+		dtnavmeshcreateparams.walkableClimb = navigationconfiguration.agent_max_climb;
+
+		rcVcopy(dtnavmeshcreateparams.bmin, rcpolymesh->bmin);
+		rcVcopy(dtnavmeshcreateparams.bmax, rcpolymesh->bmax);
+
+		dtnavmeshcreateparams.cs = rcconfig.cs;
+		dtnavmeshcreateparams.ch = rcconfig.ch;
+
+
+		dtCreateNavMeshData(&dtnavmeshcreateparams,
+			&nav_data,
+			&nav_data_size);
+
+		if (!nav_data) printf("ERROR???");;
+
+		dtNavMesh *dtnavmesh = dtAllocNavMesh();
+
+		dtnavmesh->init(nav_data,
+			nav_data_size,
+			DT_TILE_FREE_DATA);
+
+		rcFreePolyMesh(rcpolymesh);
+		rcpolymesh = NULL;
+
+		rcFreePolyMeshDetail(rcpolymeshdetail);
+		rcpolymeshdetail = NULL;
 	}
 
 }

@@ -74,7 +74,7 @@
       <SDLCheck>
       </SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)\freetype\include;$(ProjectDir)\recastnavigation\Detour\Include;$(ProjectDir)\zlib;C:\Program Files %28x86%29\OpenAL 1.1 SDK\include;$(ProjectDir)\glm;$(ProjectDir)\sdl2\include;$(ProjectDir)\bullet;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\nmzik\source\repos\MyGameEngine\MyGameEngine\recastnavigation\Recast\Include;$(ProjectDir)\freetype\include;$(ProjectDir)\recastnavigation\Detour\Include;$(ProjectDir)\zlib;C:\Program Files %28x86%29\OpenAL 1.1 SDK\include;$(ProjectDir)\glm;$(ProjectDir)\sdl2\include;$(ProjectDir)\bullet;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpp14</LanguageStandard>
@@ -87,7 +87,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Console</SubSystem>
       <AdditionalLibraryDirectories>$(ProjectDir)\freetype\objs;$(ProjectDir)\recastnavigation\lib;$(ProjectDir)\zlib;$(ProjectDir)\bullet\lib;C:\Program Files %28x86%29\OpenAL 1.1 SDK\libs\Win64;C:\Users\nmzik\source\repos\MyGameEngine\MyGameEngine\sdl2\lib\x64;C:\Users\nmzik\source\repos\MyGameEngine\MyGameEngine\glew\lib\Release\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;BulletDynamics.lib;BulletCollision.lib;LinearMath.lib;opengl32.lib;zlibwapi.lib;Detour.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;BulletDynamics.lib;BulletCollision.lib;LinearMath.lib;opengl32.lib;zlibwapi.lib;Detour.lib;freetype.lib;Recast.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

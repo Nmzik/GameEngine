@@ -27,7 +27,7 @@ GameWorld::GameWorld()
 		std::vector<uint8_t> Buffer(YnvIt->second->SystemSize + YnvIt->second->GraphicsSize);
 		data.ExtractFileResource(*(YnvIt->second), Buffer);
 		memstream stream(Buffer.data(), Buffer.size());
-		YnvLoader ynv(stream);
+		//YnvLoader ynv(stream);
 	}
 
 	//Nodes
