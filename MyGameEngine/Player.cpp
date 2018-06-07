@@ -20,6 +20,15 @@ btRigidBody* Player::getPhysCharacter()
 	return body;
 }
 
+void Player::SetPosition(glm::vec3 & pos)
+{
+	btTransform transform;
+	transform.setIdentity();
+	transform.setOrigin(btVector3(pos.x, pos.y, pos.z));
+
+	body->setWorldTransform(transform);
+}
+
 void Player::TakeDamage(float dmg)
 {
 	if (dmg > health)

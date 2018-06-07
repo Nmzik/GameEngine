@@ -36,6 +36,7 @@ GameData::GameData()
 	}
 
 	LoadHandlingData();
+	LoadScenesSwitch();
 	LoadWaterQuads();
 	LoadGtxd();
 
@@ -238,6 +239,32 @@ void GameData::LoadWaterQuads()
 		element->QueryBoolAttribute("value", &waterQuad.NoStencil);
 
 		WaterQuads.push_back(waterQuad);
+	}
+}
+
+void GameData::LoadScenesSwitch()
+{
+	tinyxml2::XMLDocument doc;
+	tinyxml2::XMLError eResult = doc.LoadFile("C:\\Users\\nmzik\\Desktop\\playerswitchestablishingshots.meta");
+
+	tinyxml2::XMLElement * root = doc.FirstChildElement("CPlayerSwitchEstablishingShotMetadataStore");
+
+	if (root == nullptr) printf("ERROR");
+
+	tinyxml2::XMLElement* element = root->FirstChildElement("ShotList");
+	if (element == nullptr) printf("ERROR ELEMENT");
+
+	for (tinyxml2::XMLElement* e = element->FirstChildElement("Item"); e != NULL; e = e->NextSiblingElement("Item"))
+	{
+		tinyxml2::XMLElement* element = e->FirstChildElement("Name");
+		std::string Name = element->FirstChild()->Value();
+		///
+		element = element->NextSiblingElement("Position");
+		glm::vec3 Position;
+		element->QueryFloatAttribute("x", &Position.x);
+		element->QueryFloatAttribute("y", &Position.y);
+		element->QueryFloatAttribute("z", &Position.z);
+		Scenes.push_back(Position);
 	}
 }
 

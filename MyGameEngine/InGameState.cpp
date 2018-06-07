@@ -68,6 +68,8 @@ void InGameState::tick(float delta_time)
 	}
 	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_B)) {
 		game->getWorld()->currentPlayerID = 0;
+		uint32_t random = rand() % game->getWorld()->getGameData()->Scenes.size();
+		game->getWorld()->pedestrians[game->getWorld()->currentPlayerID].SetPosition(game->getWorld()->getGameData()->Scenes[random]);
 		game->getWorld()->pedestrians[game->getWorld()->currentPlayerID].getPhysCharacter()->setGravity(game->getWorld()->GetDynamicsWorld()->getGravity());
 		for (int i = 0; i < 3; i++)
 		{
@@ -78,6 +80,8 @@ void InGameState::tick(float delta_time)
 	}
 	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_N)) {
 		game->getWorld()->currentPlayerID = 1;
+		uint32_t random = rand() % game->getWorld()->getGameData()->Scenes.size();
+		game->getWorld()->pedestrians[game->getWorld()->currentPlayerID].SetPosition(game->getWorld()->getGameData()->Scenes[random]);
 		game->getWorld()->pedestrians[game->getWorld()->currentPlayerID].getPhysCharacter()->setGravity(game->getWorld()->GetDynamicsWorld()->getGravity());
 		for (int i = 0; i < 3; i++)
 		{
@@ -88,6 +92,8 @@ void InGameState::tick(float delta_time)
 	}
 	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_M)) {
 		game->getWorld()->currentPlayerID = 2;
+		uint32_t random = rand() % game->getWorld()->getGameData()->Scenes.size();
+		game->getWorld()->pedestrians[game->getWorld()->currentPlayerID].SetPosition(game->getWorld()->getGameData()->Scenes[random]);
 		game->getWorld()->pedestrians[game->getWorld()->currentPlayerID].getPhysCharacter()->setGravity(game->getWorld()->GetDynamicsWorld()->getGravity());
 		for (int i = 0; i < 3; i++)
 		{
@@ -106,10 +112,6 @@ void InGameState::tick(float delta_time)
 
 	if (game->getInput()->IsKeyTriggered(SDL_SCANCODE_F)) {
 		DebugPressed = !DebugPressed;
-		if (DebugPressed)
-			player->getPhysCharacter()->setGravity(btVector3(0, 0, 0));
-		else 
-			player->getPhysCharacter()->setGravity(game->getWorld()->GetDynamicsWorld()->getGravity());
 	}
 
 	if (DebugPressed) {

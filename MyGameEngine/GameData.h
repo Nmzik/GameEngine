@@ -52,6 +52,7 @@ public:
 
 	std::unordered_map<uint32_t, uint32_t> GtxdEntries;
 	std::vector<CarHandling> Vehicles;
+	std::vector<glm::vec3> Scenes;
 
 	GameData();
 	~GameData();
@@ -59,6 +60,7 @@ public:
 	void LoadHandlingData();
 	void LoadGtxd();
 	void LoadWaterQuads();
+	void LoadScenesSwitch();
 	void LoadRpf(std::string& RpfPath);
 	void LoadRpf(std::ifstream& rpf, std::string& FullPath_, std::string FileName_, uint32_t FileSize_, uint64_t FileOffset);
 

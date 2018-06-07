@@ -123,12 +123,12 @@ GameWorld::GameWorld()
 	gameHour = 10;
 	gameMinute = 0;
 
-	YddLoader* playerYDD = GetYdd(4096714883, 4096714883);
-
 	while (!LoadYTD(4096714883)->Loaded)
 	{
 		LoadQueuedResources();
 	}
+
+	YddLoader* playerYDD = GetYdd(4096714883, 4096714883);
 
 	skydome = GetYdd(2640562617, 2640562617);
 
@@ -157,7 +157,7 @@ GameWorld::GameWorld()
 
 	pedestrians.resize(3);
 
-	pedestrians[0].Init(glm::vec3(51.90f, -1012.f, 100.f), playerYDD, dynamicsWorld);
+	pedestrians[0].Init(glm::vec3(2951.2368, 5758.6641, 321.2991), playerYDD, dynamicsWorld);
 	pedestrians[0].getPhysCharacter()->setGravity(btVector3(0, 0, 0));
 	pedestrians[1].Init(glm::vec3(9.66, -1184.98, 75.74), playerYDD, dynamicsWorld);
 	pedestrians[1].getPhysCharacter()->setGravity(btVector3(0, 0, 0));
@@ -912,6 +912,10 @@ void GameWorld::update(float delta_time, Camera* camera)
 {
 	Update();
 	//UpdateTraffic(camera, camera->Position);
+
+	if (delta_time > 0.25f) {
+		delta_time = 0.25f;
+	}
 
 	accumulatedTime += delta_time;
 

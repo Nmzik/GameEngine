@@ -41,6 +41,8 @@ public:
 
 	bool loaded = false;
 
+	void SetPosition(glm::vec3& pos);
+
 	void TakeDamage(float dmg);
 	glm::mat4& getPosition();
 	void PhysicsTick();
