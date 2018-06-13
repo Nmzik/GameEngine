@@ -20,7 +20,6 @@ inline int GetSizeFromFlags(uint32_t flags)
 }
 
 class RpfEntry {
-	friend class RpfFile;
 public:
 	uint32_t NameHash;
 	uint32_t ShortNameHash;
@@ -51,6 +50,8 @@ public:
 
 	RpfBinaryFileEntry(memstream& stream);
 };
+
+class RpfFile;
 
 class RpfResourceFileEntry : public RpfFileEntry {
 public:

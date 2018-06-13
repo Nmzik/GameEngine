@@ -5,6 +5,7 @@
 #include "stb_image.h"
 #include <unordered_map>
 #include <string>
+#include <vector>
 
 class TextureManager
 {

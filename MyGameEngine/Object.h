@@ -1,8 +1,10 @@
 #pragma once
-#include "YddLoader.h"
-#include "YftLoader.h"
 #include "YtypLoader.h"
 #include "Entity.h"
+
+class YdrLoader;
+class YddLoader;
+class YftLoader;
 
 class Object : public Entity
 {

@@ -2,6 +2,7 @@
 
 #define GLM_ENABLE_EXPERIMENTAL
 
+#include <btBulletDynamicsCommon.h>
 #include "Mesh.h"
 #include "fstream"
 #include <iostream>
@@ -13,7 +14,6 @@
 #include "membuf.h"
 #include "GtaEncryption.h"
 #include "YtdLoader.h"
-#include "YbnLoader.h"
 
 #define SYSTEM_BASE 0x50000000
 #define GRAPHICS_BASE 0x60000000
@@ -430,11 +430,10 @@ struct DrawableModel {
 };
 
 class YtdLoader;
+class YbnLoader;
 
 class YdrLoader
 {
-	friend class YbnLoader;
-
 	YtdLoader* Ytd = nullptr;
 	YbnLoader* ybnfile = nullptr;
 	std::vector<Material> materials;
