@@ -14,7 +14,7 @@ void YmapLoader::Init(memstream& file)
 	{
 		if (Block.MetaDataBlock_struct.StructureNameHash == 3545841574)
 		{
-			std::memcpy(&_CMapData, Block.Data, sizeof(CMapData));
+			std::memcpy(&_CMapData, &file._buffer.p[Block.MetaDataBlock_struct.DataPointer], sizeof(CMapData));
 
 			//Optimization
 			Objects.reserve(_CMapData.entities.Count1);
@@ -25,7 +25,7 @@ void YmapLoader::Init(memstream& file)
 			for (int i = 0; i < Block.MetaDataBlock_struct.DataLength / sizeof(CEntityDef); i++)
 			{
 				CEntityDef def;
-				std::memcpy(&def, &Block.Data[i * sizeof(CEntityDef)], sizeof(CEntityDef));
+				std::memcpy(&def, &file._buffer.p[Block.MetaDataBlock_struct.DataPointer +  i * sizeof(CEntityDef)], sizeof(CEntityDef));
 
 				bool isreflproxy = false;
 				switch (def.flags)
@@ -59,7 +59,7 @@ void YmapLoader::Init(memstream& file)
 			for (int i = 0; i < Block.MetaDataBlock_struct.DataLength / sizeof(CMloInstanceDef); i++)
 			{
 				CMloInstanceDef def;
-				std::memcpy(&def, &Block.Data[i * sizeof(CMloInstanceDef)], sizeof(CMloInstanceDef));
+				std::memcpy(&def, &file._buffer.p[Block.MetaDataBlock_struct.DataPointer +  i * sizeof(CMloInstanceDef)], sizeof(CMloInstanceDef));
 				CMloInstanceDefs.push_back(def);
 			}
 		}
@@ -69,7 +69,7 @@ void YmapLoader::Init(memstream& file)
 			for (int i = 0; i < Block.MetaDataBlock_struct.DataLength / sizeof(CCarGen); i++)
 			{
 				CCarGen cargen;
-				std::memcpy(&cargen, &Block.Data[i * sizeof(CCarGen)], sizeof(CCarGen));
+				std::memcpy(&cargen, &file._buffer.p[Block.MetaDataBlock_struct.DataPointer +  i * sizeof(CCarGen)], sizeof(CCarGen));
 				CCarGens.push_back(cargen);
 			}
 		}

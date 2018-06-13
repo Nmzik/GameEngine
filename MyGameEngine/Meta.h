@@ -89,22 +89,10 @@ public:
 		uint64_t DataPointer;
 	} MetaDataBlock_struct;
 
-	uint8_t* Data;
-
 	MetaDataBlock(memstream& file) {
 		file.read((char*)&MetaDataBlock_struct, sizeof(MetaDataBlock_struct));
 
-		uint64_t curPos = file.tellg();
-
-		Data = new uint8_t[MetaDataBlock_struct.DataLength];
-
 		TranslatePTR(MetaDataBlock_struct.DataPointer);
-
-		file.seekg(MetaDataBlock_struct.DataPointer);
-
-		file.read((char*)&Data[0], MetaDataBlock_struct.DataLength);
-
-		file.seekg(curPos);
 	}
 };
 
@@ -175,9 +163,7 @@ public:
 	}
 
 	~Meta() {
-		for (auto& Block : MetaBlocks) {
-			delete[] Block.Data;
-		}
+		
 	}
 
 };
