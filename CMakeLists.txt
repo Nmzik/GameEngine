@@ -3,6 +3,7 @@ project(MyGameEngine)
 
 set(CMAKE_CXX_STANDARD 14)
 #set(CMAKE_CONFIGURATION_TYPES Debug Release)
+set(CMAKE_CXX_FLAGS_RELEASE "/MT")
 
 include_directories(MyGameEngine/recastnavigation/Recast/Include)
 include_directories(MyGameEngine/freetype/include)
@@ -16,15 +17,18 @@ link_directories(MyGameEngine/freetype/objs)
 link_directories(MyGameEngine/zlib)
 link_directories(MyGameEngine/bullet/lib)
 link_directories(MyGameEngine/sdl2/lib/x64)
+link_directories(MyGameEngine/recastnavigation/lib)
 link_directories(MyGameEngine/glew/lib/Release/x64)
 link_directories(MyGameEngine/freetype/objs)
 
 file(GLOB SOURCES
     MyGameEngine/*.h
     MyGameEngine/*.cpp
+    MyGameEngine/*.c
 )
 
 add_executable(MyGameEngine ${SOURCES})
+
 target_link_libraries(MyGameEngine SDL2.lib)
 target_link_libraries(MyGameEngine SDL2main.lib)
 target_link_libraries(MyGameEngine BulletDynamics.lib)

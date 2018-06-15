@@ -8,7 +8,7 @@ uint32_t GTAEncryption::PC_NG_DECRYPT_TABLES[17][16][256];
 
 void GTAEncryption::LoadKeys()
 {
-	std::ifstream aesFile("C:\\Users\\nmzik\\source\\repos\\MyGameEngine\\MyGameEngine\\gtav_aes_key.dat", std::ios::binary);
+	std::ifstream aesFile("gtav_aes_key.dat", std::ios::binary);
 
 	if (!aesFile.is_open()) {
 		printf("NOT FOUND AES!");
@@ -17,7 +17,7 @@ void GTAEncryption::LoadKeys()
 	aesFile.read((char*)&PC_AES_KEY[0], 32);
 	aesFile.close();
 
-	std::ifstream lutFile("C:\\Users\\nmzik\\source\\repos\\MyGameEngine\\MyGameEngine\\gtav_hash_lut.dat", std::ios::binary);
+	std::ifstream lutFile("gtav_hash_lut.dat", std::ios::binary);
 
 	if (!lutFile.is_open()) {
 		printf("NOT FOUND LUT!");
@@ -26,7 +26,7 @@ void GTAEncryption::LoadKeys()
 	lutFile.read((char*)&LUT[0], 256);
 	lutFile.close();
 
-	std::ifstream ngkeys("C:\\Users\\nmzik\\source\\repos\\MyGameEngine\\MyGameEngine\\gtav_ng_key.dat", std::ios::binary);
+	std::ifstream ngkeys("gtav_ng_key.dat", std::ios::binary);
 
 	if (!ngkeys.is_open()) {
 		printf("NOT FOUND NG!");
@@ -38,7 +38,7 @@ void GTAEncryption::LoadKeys()
 	}
 	ngkeys.close();
 
-	std::ifstream ngtables("C:\\Users\\nmzik\\source\\repos\\MyGameEngine\\MyGameEngine\\gtav_ng_decrypt_tables.dat", std::ios::binary);
+	std::ifstream ngtables("gtav_ng_decrypt_tables.dat", std::ios::binary);
 
 	if (!ngtables.is_open()) {
 		printf("NOT FOUND NG TABLES!");

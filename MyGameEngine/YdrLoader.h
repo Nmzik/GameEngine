@@ -1,11 +1,11 @@
 #pragma once
-
 #define GLM_ENABLE_EXPERIMENTAL
 
 #include <btBulletDynamicsCommon.h>
 #include "Mesh.h"
 #include "fstream"
 #include <iostream>
+#include <algorithm>
 #include "glm.hpp"
 #include "gtc/matrix_transform.hpp"
 #include "gtc/quaternion.hpp"
