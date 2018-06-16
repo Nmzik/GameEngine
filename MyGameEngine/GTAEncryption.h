@@ -3,7 +3,7 @@
 #include <iostream>
 #include <vector>
 #include "zlib.h"
-#include "aes.hpp"
+#include "aes.h"
 
 uint32_t GenHash(std::string Name);
 

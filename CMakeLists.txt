@@ -34,7 +34,6 @@ link_directories(MyGameEngine/freetype/objs)
 file(GLOB SOURCES
     MyGameEngine/*.h
     MyGameEngine/*.cpp
-    MyGameEngine/*.c
 )
 
 add_executable(MyGameEngine ${SOURCES})
