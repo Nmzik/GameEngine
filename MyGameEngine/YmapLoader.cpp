@@ -44,8 +44,8 @@ void YmapLoader::Init(memstream& file)
 
 				if (def.lodLevel == Unk_1264241711::LODTYPES_DEPTH_ORPHANHD) def.lodDist *= 1.5f;
 
-				if (def.lodDist <= 0) def.lodDist = 100.0f;
-				if (def.childLodDist <= 0) def.childLodDist = 100.0f;
+				if (def.lodDist <= 0) def.lodDist = 50.0f;
+				if (def.childLodDist <= 0) def.childLodDist = 50.0f;
 
 				def.lodDist *= def.lodDist;
 				def.childLodDist *= def.childLodDist;

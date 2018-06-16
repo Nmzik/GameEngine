@@ -301,16 +301,10 @@ void GameData::ExtractFileResource(RpfResourceFileEntry entry, std::vector<uint8
 {
 	auto& rpf = entry.File->rpf;
 
-	rpf->seekg(entry.File->startPos + ((long)entry.FileOffset * 512));
+	rpf->seekg(entry.FileOffset);
 
-	//if (entry.FileSize > 0) {
-	uint32_t offset = 0x10;
-	uint32_t totlen = entry.FileSize - offset;
-
-	uint8_t* tbytes = new uint8_t[totlen];
-
-	rpf->seekg(offset, std::ios::cur);
-	rpf->read((char*)&tbytes[0], (int)totlen);
+	uint8_t* tbytes = new uint8_t[entry.FileSize];
+	rpf->read((char*)&tbytes[0], entry.FileSize);
 
 	//uint8_t* decr = tbytes;
 	//if (entry.IsEncrypted)
@@ -327,7 +321,7 @@ void GameData::ExtractFileResource(RpfResourceFileEntry entry, std::vector<uint8
 	//{ }
 //}
 
-	GTAEncryption::DecompressBytes(tbytes, totlen, output);
+	GTAEncryption::DecompressBytes(tbytes, entry.FileSize, output);
 	delete[] tbytes;
 	/*if (deflated != nullptr)
 	{

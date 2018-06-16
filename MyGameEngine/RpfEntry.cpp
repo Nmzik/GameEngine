@@ -57,4 +57,8 @@ RpfResourceFileEntry::RpfResourceFileEntry(memstream & stream, std::istream & or
 		FileSize = ((uint32_t)buf[7] << 0) | ((uint32_t)buf[14] << 8) | ((uint32_t)buf[5] << 16) | ((uint32_t)buf[2] << 24);
 		originalFile.seekg(pos);
 	}
+
+	FileSize = FileSize - 0x10;
+	FileOffset = StartPos + ((long)FileOffset * 512) + 0x10;
+
 }
