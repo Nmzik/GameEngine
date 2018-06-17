@@ -138,7 +138,7 @@ public:
 	YmapLoader* Load();
 	void Remove(YmapLoader* ymap);
 
-	YmapLoader ymaps[500];
+	YmapLoader ymaps[1000];
 
 private:
 	YmapLoader * firstAvailable_;

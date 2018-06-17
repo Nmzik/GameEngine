@@ -575,9 +575,10 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 		return glm::distance(lhsPosition, camera->Position) < glm::distance(rhsPosition, camera->Position);
 	});
 
-	printf("SIZE YDR %zd\n", ydrLoader.size());
-	printf("SIZE YDD %zd\n", yddLoader.size());
-	printf("SIZE YFT %zd\n", yftLoader.size());
+	printf("SIZE YMAP %zd\n", ymapLoader.size());
+	//printf("SIZE YDR %zd\n", ydrLoader.size());
+	//printf("SIZE YDD %zd\n", yddLoader.size());
+	//printf("SIZE YFT %zd\n", yftLoader.size());
 	//LoadYBN(Proxy->Name);
 	//LoadYmap(Proxy->Parent, Position);
 

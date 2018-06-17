@@ -10,9 +10,9 @@ class Object : public Entity
 {
 	glm::mat4 ModelMatrix;
 public:
-	YdrLoader* ydr;
-	YddLoader* ydd;
-	YftLoader* yft;
+	YdrLoader* ydr = nullptr;
+	YddLoader* ydd = nullptr;
+	YftLoader* yft = nullptr;
 	bool Loaded = false;
 	bool FoundArchetype = false;
 	bool FoundModel = false;

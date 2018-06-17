@@ -254,8 +254,10 @@ void YftLoader::Init(memstream2 & file, int32_t systemSize, bool need, btDiscret
 void YftLoader::Remove()
 {
 	Loaded = false;
-	if (YdrFile)
+	if (YdrFile) {
 		delete YdrFile;
+		YdrFile = nullptr;
+	}
 }
 
 YftPool::YftPool()

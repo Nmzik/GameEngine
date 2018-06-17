@@ -107,12 +107,12 @@ YmapPool::YmapPool()
 {
 	firstAvailable_ = &ymaps[0];
 
-	for (int i = 0; i < 499; i++)
+	for (int i = 0; i < 999; i++)
 	{
 		ymaps[i].next = &ymaps[i + 1];
 	}
 
-	ymaps[499].next = NULL;
+	ymaps[999].next = NULL;
 }
 
 YmapPool::~YmapPool()
