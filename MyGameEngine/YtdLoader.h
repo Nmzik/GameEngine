@@ -45,7 +45,7 @@ public:
 	uint32_t RefCount = 0;
 	std::vector<uint32_t> TextureNameHashes;
 
-	void Init(memstream& file, int32_t systemSize);
+	void Init(memstream2& file, int32_t systemSize);
 	~YtdLoader();
 };
 

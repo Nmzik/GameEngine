@@ -243,41 +243,41 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera)
 
 						switch (object.Archetype._BaseArchetypeDef.assetType)
 						{
-							case ASSET_TYPE_DRAWABLE: {
-								if (!object.FoundModel) {
-									object.ydr = GetYdr(object.CEntity.archetypeName, object.Archetype._BaseArchetypeDef.textureDictionary);
-									object.FoundModel = true;
-								}
-								if (object.ydr->Loaded)
-									object.FoundBaseModel = true;
-								break;
+						case ASSET_TYPE_DRAWABLE: {
+							if (!object.FoundModel) {
+								object.ydr = GetYdr(object.CEntity.archetypeName, object.Archetype._BaseArchetypeDef.textureDictionary);
+								object.FoundModel = true;
 							}
-							case ASSET_TYPE_DRAWABLEDICTIONARY: {
-								if (!object.FoundModel) {
-									object.ydd = GetYdd(object.Archetype._BaseArchetypeDef.drawableDictionary, object.Archetype._BaseArchetypeDef.textureDictionary);
-									object.FoundModel = true;
-								}
-								if (object.ydd->Loaded) {
-									std::unordered_map<uint32_t, YdrLoader*>::iterator iter2 = object.ydd->YdrFiles.find(object.CEntity.archetypeName);
-									if (iter2 != object.ydd->YdrFiles.end())
-									{
-										object.ydr = iter2->second;
-										object.FoundBaseModel = true;
-									}
-								}
-								break;
+							if (object.ydr->Loaded)
+								object.FoundBaseModel = true;
+							break;
+						}
+						case ASSET_TYPE_DRAWABLEDICTIONARY: {
+							if (!object.FoundModel) {
+								object.ydd = GetYdd(object.Archetype._BaseArchetypeDef.drawableDictionary, object.Archetype._BaseArchetypeDef.textureDictionary);
+								object.FoundModel = true;
 							}
-							case ASSET_TYPE_FRAGMENT: {
-								if (!object.FoundModel) {
-									object.yft = GetYft(object.CEntity.archetypeName, object.Archetype._BaseArchetypeDef.textureDictionary);
-									object.FoundModel = true;
-								}
-								if (object.yft->Loaded) {
-									object.ydr = object.yft->YdrFile;
+							if (object.ydd->Loaded) {
+								std::unordered_map<uint32_t, YdrLoader*>::iterator iter2 = object.ydd->YdrFiles.find(object.CEntity.archetypeName);
+								if (iter2 != object.ydd->YdrFiles.end())
+								{
+									object.ydr = iter2->second;
 									object.FoundBaseModel = true;
 								}
-								break;
 							}
+							break;
+						}
+						case ASSET_TYPE_FRAGMENT: {
+							if (!object.FoundModel) {
+								object.yft = GetYft(object.CEntity.archetypeName, object.Archetype._BaseArchetypeDef.textureDictionary);
+								object.FoundModel = true;
+							}
+							if (object.yft->Loaded) {
+								object.ydr = object.yft->YdrFile;
+								object.FoundBaseModel = true;
+							}
+							break;
+						}
 						}
 					}
 					if (object.FoundArchetype && object.FoundModel && object.FoundBaseModel)
@@ -295,13 +295,13 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera)
 					if (object.type == 2) {
 						//if ((object.Archetype._TimeArchetypeDef.timeFlags >> gameHour) & 1)
 						//{
-							continue;
+						continue;
 						//}
 					}
 
-						if (camera->intersects(object.BoundPos, object.BoundRadius)) {
-							renderList.emplace_back(object.ydr, object.getMatrix());
-						}
+					if (camera->intersects(object.BoundPos, object.BoundRadius)) {
+						renderList.emplace_back(object.ydr, object.getMatrix());
+					}
 				}
 			}
 		}
@@ -367,7 +367,7 @@ bool GameWorld::LoadYTYP(uint32_t hash)
 		std::vector<uint8_t> outputBuffer;
 		data.ExtractFileResource(element, outputBuffer);
 
-		memstream stream(outputBuffer.data(), outputBuffer.size());
+		memstream2 stream(outputBuffer.data(), outputBuffer.size());
 
 		YtypLoader* file = new YtypLoader(stream);
 		ytypLoader.push_back(file);
@@ -443,7 +443,7 @@ YddLoader * GameWorld::GetYdd(uint32_t hash, uint32_t TextureDictionaryHash)
 	else {
 		yddLoader[hash] = new YddLoader();
 		yddLoader[hash]->RefCount++;
-		
+
 		auto ytdEntry = data.YtdEntries.find(TextureDictionaryHash);
 		if (ytdEntry != data.YtdEntries.end()) {
 			LoadYTD(TextureDictionaryHash);
@@ -668,7 +668,7 @@ void GameWorld::LoadQueuedResources()
 	resources_lock.lock();
 	for (auto it = resources.begin(); it != resources.end();)
 	{
-		memstream stream((*it)->Buffer.data(), (*it)->Buffer.size());
+		memstream2 stream((*it)->Buffer.data(), (*it)->Buffer.size());
 
 		/*if ((*it)->Hash == 4143923005) {
 			printf("");
@@ -690,79 +690,78 @@ void GameWorld::LoadQueuedResources()
 
 		switch ((*it)->type)
 		{
-			case ymap:
+		case ymap:
+		{
+			auto iter = ymapLoader.find((*it)->Hash);
+			if (iter != ymapLoader.end())
 			{
-				auto iter = ymapLoader.find((*it)->Hash);
-				if (iter != ymapLoader.end())
-				{
-					iter->second->Init(stream);
-				}
-				else {
-					printf("");
-				}
-				break;
+				iter->second->Init(stream);
 			}
-			case ydr:
+			else {
+				printf("");
+			}
+			break;
+		}
+		case ydr:
+		{
+			auto iter = ydrLoader.find((*it)->Hash);
+			if (iter != ydrLoader.end())
 			{
-
-				auto iter = ydrLoader.find((*it)->Hash);
-				if (iter != ydrLoader.end())
-				{
-					iter->second->Init(stream, (*it)->SystemSize, dynamicsWorld);
-				}
-				else {
-					printf("");
-				}
-				break;
+				iter->second->Init(stream, (*it)->SystemSize, dynamicsWorld);
 			}
-			case ydd:
+			else {
+				printf("");
+			}
+			break;
+		}
+		case ydd:
+		{
+			auto iter = yddLoader.find((*it)->Hash);
+			if (iter != yddLoader.end())
 			{
-				auto iter = yddLoader.find((*it)->Hash);
-				if (iter != yddLoader.end())
-				{
-					iter->second->Init(stream, (*it)->SystemSize, dynamicsWorld);
-				}
-				else {
-					printf("");
-				}
-				break;
+				iter->second->Init(stream, (*it)->SystemSize, dynamicsWorld);
 			}
-			case yft:
+			else {
+				printf("");
+			}
+			break;
+		}
+		case yft:
+		{
+			auto iter = yftLoader.find((*it)->Hash);
+			if (iter != yftLoader.end())
 			{
-				auto iter = yftLoader.find((*it)->Hash);
-				if (iter != yftLoader.end())
-				{
-					iter->second->Init(stream, (*it)->SystemSize, false, dynamicsWorld);
-				}
-				else {
-					printf("");
-				}
-				break;
+				iter->second->Init(stream, (*it)->SystemSize, false, dynamicsWorld);
 			}
-			case ytd:
+			else {
+				printf("");
+			}
+			break;
+		}
+		case ytd:
+		{
+			auto iter = ytdLoader.find((*it)->Hash);
+			if (iter != ytdLoader.end())
 			{
-				auto iter = ytdLoader.find((*it)->Hash);
-				if (iter != ytdLoader.end())
-				{
-					iter->second->Init(stream, (*it)->SystemSize);
-				}
-				else {
-					printf("");
-				}
-				break;
+				iter->second->Init(stream, (*it)->SystemSize);
 			}
-			case ybn:
+			else {
+				printf("");
+			}
+			break;
+		}
+		case ybn:
+		{
+			auto iter = ybnLoader.find((*it)->Hash);
+			if (iter != ybnLoader.end())
 			{
-				auto iter = ybnLoader.find((*it)->Hash);
-				if (iter != ybnLoader.end())
-				{
-					iter->second->Init(dynamicsWorld, stream);
-				}
-				else {
-					printf("");
-				}
-				break;
+				iter->second->Init(stream, dynamicsWorld);
 			}
+			else {
+				printf("");
+			}
+			break;
+		}
 		}
 
 		delete *it;
@@ -809,7 +808,7 @@ void GameWorld::UpdateTraffic(Camera* camera, glm::vec3 pos)
 {
 	float radiusTraffic = 5.0f;
 	//PEDESTRIANS
-	
+
 	/*if (pedPool.firstAvailable_ == nullptr) {
 		for (auto& ped : pedPool.peds)
 		{
@@ -923,14 +922,14 @@ void GameWorld::update(float delta_time, Camera* camera)
 		dynamicsWorld->stepSimulation(deltaTime, 2, deltaTime);
 
 		int numManifolds = dynamicsWorld->getDispatcher()->getNumManifolds();
-		for (int i = 0; i<numManifolds; ++i)
+		for (int i = 0; i < numManifolds; ++i)
 		{
 			btPersistentManifold* contactManifold = dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);
 			btCollisionObject* obA = const_cast<btCollisionObject*>(contactManifold->getBody0());
 			btCollisionObject* obB = const_cast<btCollisionObject*>(contactManifold->getBody1());
 
 			int numContacts = contactManifold->getNumContacts();
-			for (int j = 0; j<numContacts; j++)
+			for (int j = 0; j < numContacts; j++)
 			{
 
 				btManifoldPoint& pt = contactManifold->getContactPoint(j);
@@ -942,7 +941,7 @@ void GameWorld::update(float delta_time, Camera* camera)
 					if (player1 != nullptr) {
 						player1->TakeDamage(pt.getAppliedImpulse());
 					}
-					else if (player2 != nullptr){
+					else if (player2 != nullptr) {
 						player2->TakeDamage(pt.getAppliedImpulse());
 					}
 				}
@@ -951,7 +950,7 @@ void GameWorld::update(float delta_time, Camera* camera)
 					if (pt.getAppliedImpulse() != 0) {
 						printf("");
 					}
-					
+
 				}*/
 			}
 

@@ -1,69 +1,66 @@
 #include "YbnLoader.h"
 
-void YbnLoader::Init(btDiscreteDynamicsWorld* world, memstream& file)
+void YbnLoader::Init(memstream2& file, btDiscreteDynamicsWorld* world)
 {
 	CollisionWorld = world;
 
-	ResourceFileBase resourceFileBase;
-	file.read((char*)&resourceFileBase, sizeof(ResourceFileBase));
+	ResourceFileBase* resourceFileBase = (ResourceFileBase*)file.read(sizeof(ResourceFileBase));
 
-	file.read((char*)&Bounds, sizeof(Bounds));
+	Bounds* bounds = (Bounds*)file.read(sizeof(Bounds));
 
-	if (Bounds.Type == 8 || Bounds.Type == 4) {
+	if (bounds->Type == 8 || bounds->Type == 4) {
 		btCompoundShape* compound = new btCompoundShape();
 		Shapes.push_back(compound);
 
-		BoundGeometry geom;
-		file.read((char*)&geom, sizeof(BoundGeometry));
+		BoundGeometry* geom = (BoundGeometry*)file.read(sizeof(BoundGeometry));
 
-		indices.reserve(geom.PolygonsCount * 3);
+		indices.reserve(geom->PolygonsCount * 3);
 
-		std::vector<BoundPolygonSphere> PolygonSpheres;
-		std::vector<BoundPolygonCapsule> PolygonCapsules;
-		std::vector<BoundPolygonBox> PolygonBoxes;
-		std::vector<BoundPolygonCylinder> PolygonCylinders;
+		std::vector<BoundPolygonSphere*> PolygonSpheres;
+		std::vector<BoundPolygonCapsule*> PolygonCapsules;
+		std::vector<BoundPolygonBox*> PolygonBoxes;
+		std::vector<BoundPolygonCylinder*> PolygonCylinders;
 
-		SYSTEM_BASE_PTR(geom.PolygonsPointer);
+		SYSTEM_BASE_PTR(geom->PolygonsPointer);
 
-		file.seekg(geom.PolygonsPointer);
+		file.seekg(geom->PolygonsPointer);
 
-		for (uint32_t i = 0; i < geom.PolygonsCount; i++)  //PERFORMANCE IMPROVEMENT???
+		for (uint32_t i = 0; i < geom->PolygonsCount; i++)  //PERFORMANCE IMPROVEMENT???
 		{
-			uint8_t type;
-			file.read((char*)&type, sizeof(uint8_t));
-			file.seekg(-1, std::ios::cur);
+			uint8_t* type = (uint8_t*)file.read(sizeof(uint8_t));
+			file.seekCur(-1);
 
-			switch (type & 7)
+			switch (type[0] & 7)
 			{
-			case 0:
-				BoundPolygonTriangle PolygonTriangle;
-				file.read((char*)&PolygonTriangle, sizeof(BoundPolygonTriangle));
-				indices.push_back(PolygonTriangle.triIndex1 & 0x7FFF);
-				indices.push_back(PolygonTriangle.triIndex2 & 0x7FFF);
-				indices.push_back(PolygonTriangle.triIndex3 & 0x7FFF);
+			case 0: {
+				BoundPolygonTriangle* PolygonTriangle = (BoundPolygonTriangle*)file.read(sizeof(BoundPolygonTriangle));
+				indices.push_back(PolygonTriangle->triIndex1 & 0x7FFF);
+				indices.push_back(PolygonTriangle->triIndex2 & 0x7FFF);
+				indices.push_back(PolygonTriangle->triIndex3 & 0x7FFF);
 				break;
-			case 1:
-				BoundPolygonSphere PolygonSphere;
-				file.read((char*)&PolygonSphere, sizeof(BoundPolygonSphere));
+			}
+			case 1: {
+				BoundPolygonSphere* PolygonSphere = (BoundPolygonSphere*)file.read(sizeof(BoundPolygonSphere));
 				PolygonSpheres.push_back(PolygonSphere);
 				break;
-			case 2:
-				BoundPolygonCapsule PolygonCapsule;
-				file.read((char*)&PolygonCapsule, sizeof(BoundPolygonCapsule));
+			}
+			case 2: {
+				BoundPolygonCapsule* PolygonCapsule = (BoundPolygonCapsule*)file.read(sizeof(BoundPolygonCapsule));
 				PolygonCapsules.push_back(PolygonCapsule);
 				break;
-			case 3:
-				BoundPolygonBox PolygonBox;
-				file.read((char*)&PolygonBox, sizeof(BoundPolygonBox));
+			}
+			case 3: {
+				BoundPolygonBox* PolygonBox = (BoundPolygonBox*)file.read(sizeof(BoundPolygonBox));
 				PolygonBoxes.push_back(PolygonBox);
 				break;
-			case 4:
-				BoundPolygonCylinder PolygonCylinder;
-				file.read((char*)&PolygonCylinder, sizeof(BoundPolygonCylinder));
+			}
+			case 4: {
+				BoundPolygonCylinder* PolygonCylinder = (BoundPolygonCylinder*)file.read(sizeof(BoundPolygonCylinder));
 				PolygonCylinders.push_back(PolygonCylinder);
 				break;
+			}
 			default:
-				file.seekg(16, std::ios::cur);
+				file.seekCur(16);
 				//printf("ERROR NOT IMPLEMENTED!");
 				break;
 			}
@@ -71,17 +68,18 @@ void YbnLoader::Init(btDiscreteDynamicsWorld* world, memstream& file)
 
 
 		///////////////////
-		SYSTEM_BASE_PTR(geom.VerticesPointer);
+		SYSTEM_BASE_PTR(geom->VerticesPointer);
 
-		file.seekg(geom.VerticesPointer);
+		//file.seekg(geom->VerticesPointer);
 
-		glm::i16vec3 *vertices = new glm::i16vec3[geom.VerticesCount];
-		file.read((char*)&vertices[0], sizeof(glm::i16vec3) * geom.VerticesCount);
+		glm::i16vec3 *vertices = new glm::i16vec3[geom->VerticesCount];
+		memcpy(&vertices[0], &file.data[geom->VerticesPointer], sizeof(glm::i16vec3) * geom->VerticesCount);
+		//file.read((char*)&vertices[0], sizeof(glm::i16vec3) * geom->VerticesCount);
 
-		Vertices.resize(geom.VerticesCount);
-		for (uint32_t i = 0; i < geom.VerticesCount; i++)
+		Vertices.resize(geom->VerticesCount);
+		for (uint32_t i = 0; i < geom->VerticesCount; i++)
 		{
-			Vertices[i] = glm::vec3(vertices[i].x, vertices[i].y, vertices[i].z) * geom.Quantum;
+			Vertices[i] = glm::vec3(vertices[i].x, vertices[i].y, vertices[i].z) * geom->Quantum;
 		}
 
 		delete[] vertices;
@@ -94,7 +92,7 @@ void YbnLoader::Init(btDiscreteDynamicsWorld* world, memstream& file)
 
 				btTransform localTrans;
 				localTrans.setIdentity();
-				localTrans.setOrigin(btVector3(geom.CenterGeom.x + Vertices[PolygonCylinders[i].cylinderIndex1].x, geom.CenterGeom.y + Vertices[PolygonCylinders[i].cylinderIndex1].y, geom.CenterGeom.z + Vertices[PolygonCylinders[i].cylinderIndex1].z));
+				localTrans.setOrigin(btVector3(geom->CenterGeom.x + Vertices[PolygonCylinders[i]->cylinderIndex1].x, geom->CenterGeom.y + Vertices[PolygonCylinders[i]->cylinderIndex1].y, geom->CenterGeom.z + Vertices[PolygonCylinders[i]->cylinderIndex1].z));
 				compound->addChildShape(localTrans, shape);
 			}
 		}
@@ -103,10 +101,10 @@ void YbnLoader::Init(btDiscreteDynamicsWorld* world, memstream& file)
 			for (int i = 0; i < PolygonBoxes.size(); i++)
 			{
 
-				glm::vec3 p1 = Vertices[PolygonBoxes[i].boxIndex1];
-				glm::vec3 p2 = Vertices[PolygonBoxes[i].boxIndex2];
-				glm::vec3 p3 = Vertices[PolygonBoxes[i].boxIndex3];
-				glm::vec3 p4 = Vertices[PolygonBoxes[i].boxIndex4];
+				glm::vec3 p1 = Vertices[PolygonBoxes[i]->boxIndex1];
+				glm::vec3 p2 = Vertices[PolygonBoxes[i]->boxIndex2];
+				glm::vec3 p3 = Vertices[PolygonBoxes[i]->boxIndex3];
+				glm::vec3 p4 = Vertices[PolygonBoxes[i]->boxIndex4];
 
 				glm::vec3 test = glm::max(p1, p2);
 				glm::vec3 test1 = glm::max(p3, p4);
@@ -126,7 +124,7 @@ void YbnLoader::Init(btDiscreteDynamicsWorld* world, memstream& file)
 
 				btTransform localTrans;
 				localTrans.setIdentity();
-				localTrans.setOrigin(btVector3(geom.CenterGeom.x + mid.x, geom.CenterGeom.y + mid.y, geom.CenterGeom.z + mid.z));
+				localTrans.setOrigin(btVector3(geom->CenterGeom.x + mid.x, geom->CenterGeom.y + mid.y, geom->CenterGeom.z + mid.z));
 				compound->addChildShape(localTrans, shape);
 			}
 		}
@@ -134,14 +132,14 @@ void YbnLoader::Init(btDiscreteDynamicsWorld* world, memstream& file)
 		if (PolygonCapsules.size() != 0) {
 			for (int i = 0; i < PolygonCapsules.size(); i++) //Height is incorrect
 			{
-				auto mid = (Vertices[PolygonCapsules[i].capsuleIndex1] + Vertices[PolygonCapsules[i].capsuleIndex2]) / 2.f;
+				auto mid = (Vertices[PolygonCapsules[i]->capsuleIndex1] + Vertices[PolygonCapsules[i]->capsuleIndex2]) / 2.f;
 
-				btCapsuleShapeZ* capsule = new btCapsuleShapeZ(PolygonCapsules[i].capsuleRadius, 1.0f);
+				btCapsuleShapeZ* capsule = new btCapsuleShapeZ(PolygonCapsules[i]->capsuleRadius, 1.0f);
 				Shapes.push_back(capsule);
 
 				btTransform localTrans;
 				localTrans.setIdentity();
-				localTrans.setOrigin(btVector3(geom.CenterGeom.x + mid.x, geom.CenterGeom.y + mid.y, geom.CenterGeom.z + mid.z));
+				localTrans.setOrigin(btVector3(geom->CenterGeom.x + mid.x, geom->CenterGeom.y + mid.y, geom->CenterGeom.z + mid.z));
 				compound->addChildShape(localTrans, capsule);
 			}
 		}
@@ -149,12 +147,12 @@ void YbnLoader::Init(btDiscreteDynamicsWorld* world, memstream& file)
 		if (PolygonSpheres.size() != 0) {
 			for (int i = 0; i < PolygonSpheres.size(); i++) //works as expected
 			{
-				btSphereShape* sphere = new btSphereShape(PolygonSpheres[i].sphereRadius);
+				btSphereShape* sphere = new btSphereShape(PolygonSpheres[i]->sphereRadius);
 				Shapes.push_back(sphere);
 
 				btTransform localTrans;
 				localTrans.setIdentity();
-				localTrans.setOrigin(btVector3(geom.CenterGeom.x + Vertices[PolygonSpheres[i].sphereIndex].x, geom.CenterGeom.y + Vertices[PolygonSpheres[i].sphereIndex].y, geom.CenterGeom.z + Vertices[PolygonSpheres[i].sphereIndex].z));
+				localTrans.setOrigin(btVector3(geom->CenterGeom.x + Vertices[PolygonSpheres[i]->sphereIndex].x, geom->CenterGeom.y + Vertices[PolygonSpheres[i]->sphereIndex].y, geom->CenterGeom.z + Vertices[PolygonSpheres[i]->sphereIndex].z));
 				compound->addChildShape(localTrans, sphere);
 			}
 		}
@@ -180,11 +178,11 @@ void YbnLoader::Init(btDiscreteDynamicsWorld* world, memstream& file)
 			btQuantizedBvhNode node;*/
 
 			trishape = new btBvhTriangleMeshShape(VertIndicesArray, false);
-			trishape->setMargin(Bounds.Margin);
+			trishape->setMargin(bounds->Margin);
 
 			btTransform localTrans;
 			localTrans.setIdentity();
-			localTrans.setOrigin(btVector3(geom.CenterGeom.x, geom.CenterGeom.y, geom.CenterGeom.z));
+			localTrans.setOrigin(btVector3(geom->CenterGeom.x, geom->CenterGeom.y, geom->CenterGeom.z));
 			compound->addChildShape(localTrans, trishape);
 		}
 
@@ -194,29 +192,27 @@ void YbnLoader::Init(btDiscreteDynamicsWorld* world, memstream& file)
 		world->addRigidBody(rigidBody);
 	}
 
-	if (Bounds.Type == 10) {
+	if (bounds->Type == 10) {
+		BoundComposite* boundComposite = (BoundComposite*)file.read(sizeof(BoundComposite));
 
-		file.read((char*)&BoundComposite, sizeof(BoundComposite));
+		SYSTEM_BASE_PTR(boundComposite->ChildrenPointer);
 
-		SYSTEM_BASE_PTR(BoundComposite.ChildrenPointer);
+		file.seekg(boundComposite->ChildrenPointer);
 
-		file.seekg(BoundComposite.ChildrenPointer);
+		ybns.reserve(boundComposite->ChildrenCount1);
 
-		ybns.reserve(BoundComposite.ChildrenCount1);
-
-		for (int i = 0; i < BoundComposite.ChildrenCount1; i++)
+		for (int i = 0; i < boundComposite->ChildrenCount1; i++)
 		{
-			uint64_t DataPointer;
-			file.read((char*)&DataPointer, sizeof(uint64_t));
+			uint64_t* DataPointer = (uint64_t*)file.read(sizeof(uint64_t));
 
 			uint64_t BoundsPointer = file.tellg();
 
-			SYSTEM_BASE_PTR(DataPointer);
+			SYSTEM_BASE_PTR(DataPointer[0]);
 
-			file.seekg(DataPointer);
+			file.seekg(DataPointer[0]);
 
 			YbnLoader* ybn = new YbnLoader();
-			ybn->Init(world, file);
+			ybn->Init(file, world);
 			ybns.push_back(ybn);
 
 			file.seekg(BoundsPointer);

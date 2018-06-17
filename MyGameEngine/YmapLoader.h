@@ -126,7 +126,7 @@ public:
 	std::vector<Object> RootObjects;
 	std::vector<CCarGen> CCarGens;
 
-	void Init(memstream & file);
+	void Init(memstream2 & file);
 };
 
 class YmapPool

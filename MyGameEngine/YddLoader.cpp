@@ -1,13 +1,12 @@
 #include "YddLoader.h"
 
-void YddLoader::Init(memstream & file, int32_t systemSize, btDiscreteDynamicsWorld * world)
+void YddLoader::Init(memstream2 & file, int32_t systemSize, btDiscreteDynamicsWorld * world)
 {
 	Loaded = true;
 
-	ResourceFileBase resourceFileBase;
-	file.read((char*)&resourceFileBase, sizeof(ResourceFileBase));
+	ResourceFileBase* resourceFileBase = (ResourceFileBase*)file.read(sizeof(ResourceFileBase));
 
-	struct {
+	struct DrawableDictionary {
 		uint32_t Unknown_10h; // 0x00000000
 		uint32_t Unknown_14h; // 0x00000000
 		uint32_t Unknown_18h; // 0x00000001
@@ -20,38 +19,32 @@ void YddLoader::Init(memstream & file, int32_t systemSize, btDiscreteDynamicsWor
 		uint16_t DrawablesCount1;
 		uint16_t DrawablesCount2;
 		uint32_t Unknown_3Ch; // 0x00000000
-	} DrawableDictionary;
+	};
 
-	file.read((char*)&DrawableDictionary, sizeof(DrawableDictionary));
+	DrawableDictionary* drawableDictionary = (DrawableDictionary*)file.read(sizeof(DrawableDictionary));
 
-	YdrFiles.reserve(DrawableDictionary.DrawablesCount1);
+	YdrFiles.reserve(drawableDictionary->DrawablesCount1);
 
-	SYSTEM_BASE_PTR(DrawableDictionary.HashesPointer);
-
-	file.seekg(DrawableDictionary.HashesPointer);
-
+	SYSTEM_BASE_PTR(drawableDictionary->HashesPointer);
 	std::vector<uint32_t> Hashes;
-	Hashes.resize(DrawableDictionary.HashesCount1);
+	Hashes.resize(drawableDictionary->HashesCount1);
+	memcpy(&Hashes[0], &file.data[drawableDictionary->HashesPointer], sizeof(uint32_t) * drawableDictionary->HashesCount1);
 
-	file.read((char*)&Hashes[0], sizeof(uint32_t) * DrawableDictionary.HashesCount1);
-
-	SYSTEM_BASE_PTR(DrawableDictionary.DrawablesPointer);
-
-	file.seekg(DrawableDictionary.DrawablesPointer);
+	SYSTEM_BASE_PTR(drawableDictionary->DrawablesPointer);
+	file.seekg(drawableDictionary->DrawablesPointer);
 
 	//Optimization
-	YdrFiles.reserve(DrawableDictionary.DrawablesCount1);
+	YdrFiles.reserve(drawableDictionary->DrawablesCount1);
 
-	for (int i = 0; i < DrawableDictionary.DrawablesCount1; i++)
+	for (int i = 0; i < drawableDictionary->DrawablesCount1; i++)
 	{
-		uint64_t DataPointer;
-		file.read((char*)&DataPointer, sizeof(uint64_t));
+		uint64_t* data_pointer = (uint64_t*)file.read(sizeof(uint64_t));
 
 		uint64_t DrawablePointer = file.tellg();
 
-		SYSTEM_BASE_PTR(DataPointer);
+		SYSTEM_BASE_PTR(data_pointer[0]);
 
-		file.seekg(DataPointer);
+		file.seekg(data_pointer[0]);
 
 		YdrLoader* ydr = new YdrLoader();
 		ydr->Init(file, systemSize, world, false);

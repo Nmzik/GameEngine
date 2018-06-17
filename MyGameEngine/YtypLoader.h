@@ -82,7 +82,7 @@ public:
 	std::vector<CTimeArchetypeDef> CTimeArchetypeDefs;
 	std::vector<CMloArchetypeDef> CMloArchetypeDefs;
 	//std::vector<CEntityDef> CEntityDefs;
-	YtypLoader(memstream& file);
+	YtypLoader(memstream2& file);
 	~YtypLoader();
 };
 

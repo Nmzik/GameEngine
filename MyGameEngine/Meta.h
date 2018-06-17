@@ -17,7 +17,7 @@ struct MetaEnumEntryInfo_s {
 
 class MetaStructureInfo {
 public:
-	struct {
+	struct MetaStructureInfoStruct {
 		uint32_t StructureNameHash;
 		uint32_t StructureKey;
 		uint32_t Unknown_8h;
@@ -26,23 +26,22 @@ public:
 		int32_t StructureSize;
 		int16_t Unknown_1Ch; //0x0000;
 		int16_t EntriesCount;
-	} MetaStructureInfo_struct;
+	} *MetaStructureInfo_struct;
 
-	std::vector<MetaStructureEntryInfo_s> entryInfos;
+	std::vector<MetaStructureEntryInfo_s*> entryInfos;
 
-	MetaStructureInfo(memstream& file) {
-		file.read((char*)&MetaStructureInfo_struct, sizeof(MetaStructureInfo_struct));
+	MetaStructureInfo(memstream2& file) {
+		MetaStructureInfo_struct = (MetaStructureInfoStruct*)file.read(sizeof(MetaStructureInfoStruct));
 
 		uint64_t pos = file.tellg();
 
-		SYSTEM_BASE_PTR(MetaStructureInfo_struct.EntriesPointer);
+		SYSTEM_BASE_PTR(MetaStructureInfo_struct->EntriesPointer);
 
-		file.seekg(MetaStructureInfo_struct.EntriesPointer);
+		file.seekg(MetaStructureInfo_struct->EntriesPointer);
 
-		for (int i = 0; i < MetaStructureInfo_struct.EntriesCount; i++)
+		for (int i = 0; i < MetaStructureInfo_struct->EntriesCount; i++)
 		{
-			MetaStructureEntryInfo_s entry;
-			file.read((char*)&entry, sizeof(MetaStructureEntryInfo_s));
+			MetaStructureEntryInfo_s* entry = (MetaStructureEntryInfo_s*)file.read(sizeof(MetaStructureEntryInfo_s));
 			entryInfos.push_back(entry);
 		}
 		file.seekg(pos);
@@ -52,29 +51,28 @@ public:
 
 class MetaEnumInfo {
 public:
-	struct {
+	struct MetaEnumInfoStruct{
 		uint32_t EnumNameHash;
 		uint32_t EnumKey;
 		uint64_t EntriesPointer;
 		int32_t EntriesCount;
 		int32_t Unknown_14h; //0x00000000;
-	} MetaEnumInfo_struct;
+	} *MetaEnumInfo_struct;
 
-	std::vector<MetaEnumEntryInfo_s> infos;
+	std::vector<MetaEnumEntryInfo_s*> infos;
 
-	MetaEnumInfo(memstream& file) {
-		file.read((char*)&MetaEnumInfo_struct, sizeof(MetaEnumInfo_struct));
+	MetaEnumInfo(memstream2& file) {
+		MetaEnumInfo_struct = (MetaEnumInfoStruct*)file.read(sizeof(MetaEnumInfoStruct));
 
-		SYSTEM_BASE_PTR(MetaEnumInfo_struct.EntriesPointer);
+		SYSTEM_BASE_PTR(MetaEnumInfo_struct->EntriesPointer);
 
 		uint64_t pos = file.tellg();
 
-		file.seekg(MetaEnumInfo_struct.EntriesPointer);
+		file.seekg(MetaEnumInfo_struct->EntriesPointer);
 
-		for (uint32_t i = 0; i < (uint32_t)MetaEnumInfo_struct.EntriesCount; i++)
+		for (uint32_t i = 0; i < (uint32_t)MetaEnumInfo_struct->EntriesCount; i++)
 		{
-			MetaEnumEntryInfo_s info;
-			file.read((char*)&info, sizeof(MetaEnumEntryInfo_s));
+			MetaEnumEntryInfo_s* info = (MetaEnumEntryInfo_s*)file.read(sizeof(MetaEnumEntryInfo_s));
 			infos.push_back(info);
 		}
 		file.seekg(pos);
@@ -83,22 +81,22 @@ public:
 
 class MetaDataBlock {
 public:
-	struct {
+	struct MetaDataBlockStruct {
 		uint32_t StructureNameHash;
 		int32_t DataLength;
 		uint64_t DataPointer;
-	} MetaDataBlock_struct;
+	} *MetaDataBlock_struct;
 
-	MetaDataBlock(memstream& file) {
-		file.read((char*)&MetaDataBlock_struct, sizeof(MetaDataBlock_struct));
+	MetaDataBlock(memstream2& file) {
+		MetaDataBlock_struct = (MetaDataBlockStruct*)file.read(sizeof(MetaDataBlockStruct));
 
-		TranslatePTR(MetaDataBlock_struct.DataPointer);
+		TranslatePTR(MetaDataBlock_struct->DataPointer);
 	}
 };
 
 class Meta {
 public:
-	struct {
+	struct MetaStruct{
 		int32_t Unknown_10h;
 		uint16_t Unknown_14h;
 		uint8_t HasUselessData;
@@ -122,40 +120,40 @@ public:
 		uint32_t Unknown_64h;
 		uint32_t Unknown_68h;
 		uint32_t Unknown_6Ch;
-	} Meta_struct;
+	} *Meta_struct;
 
 	std::vector<MetaStructureInfo> MetaInfos;
 	std::vector<MetaEnumInfo> EnumInfos;
 	std::vector<MetaDataBlock> MetaBlocks;
 
-	Meta(memstream& file) {
-		file.read((char*)&Meta_struct, sizeof(Meta_struct));
+	Meta(memstream2& file) {
+		Meta_struct = (MetaStruct*)file.read(sizeof(MetaStruct));
 
-		SYSTEM_BASE_PTR(Meta_struct.StructureInfosPointer);
+		SYSTEM_BASE_PTR(Meta_struct->StructureInfosPointer);
 
-		file.seekg(Meta_struct.StructureInfosPointer);
+		file.seekg(Meta_struct->StructureInfosPointer);
 
-		for (int i = 0; i < Meta_struct.StructureInfosCount; i++)
+		for (int i = 0; i < Meta_struct->StructureInfosCount; i++)
 		{
 			MetaStructureInfo info(file);
 			MetaInfos.push_back(info);
 		}
 
-		SYSTEM_BASE_PTR(Meta_struct.EnumInfosPointer);
+		SYSTEM_BASE_PTR(Meta_struct->EnumInfosPointer);
 
-		file.seekg(Meta_struct.EnumInfosPointer);
+		file.seekg(Meta_struct->EnumInfosPointer);
 
-		for (size_t i = 0; i < Meta_struct.EnumInfosCount; i++)
+		for (size_t i = 0; i < Meta_struct->EnumInfosCount; i++)
 		{
 			MetaEnumInfo info(file);
 			EnumInfos.push_back(info);
 		}
 
-		SYSTEM_BASE_PTR(Meta_struct.DataBlocksPointer);
+		SYSTEM_BASE_PTR(Meta_struct->DataBlocksPointer);
 
-		file.seekg(Meta_struct.DataBlocksPointer);
+		file.seekg(Meta_struct->DataBlocksPointer);
 
-		for (int i = 0; i < Meta_struct.DataBlocksCount; i++)
+		for (int i = 0; i < Meta_struct->DataBlocksCount; i++)
 		{
 			MetaDataBlock block(file);
 			MetaBlocks.push_back(block);

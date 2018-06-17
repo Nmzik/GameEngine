@@ -443,7 +443,7 @@ public:
 	uint32_t RefCount = 0;
 	bool Loaded = false;
 
-	void Init(memstream& file, int32_t systemSize, btDiscreteDynamicsWorld* world, bool isYft = false);
+	void Init(memstream2& file, int32_t systemSize, btDiscreteDynamicsWorld* world, bool isYft = false);
 	~YdrLoader();
 
 	void UploadMeshes();

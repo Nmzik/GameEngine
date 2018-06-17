@@ -1,13 +1,12 @@
 #include "YftLoader.h"
 
-void YftLoader::Init(memstream & file, int32_t systemSize, bool need, btDiscreteDynamicsWorld * world)
+void YftLoader::Init(memstream2 & file, int32_t systemSize, bool need, btDiscreteDynamicsWorld * world)
 {
 	Loaded = true;
 
-	ResourceFileBase resourceFileBase;
-	file.read((char*)&resourceFileBase, sizeof(ResourceFileBase));
+	ResourceFileBase* resourceFileBase = (ResourceFileBase*)file.read(sizeof(ResourceFileBase));
 
-	struct {
+	struct FragType {
 		uint32_t Unknown_10h; // 0x00000000
 		uint32_t Unknown_14h; // 0x00000000
 		uint32_t Unknown_18h; // 0x00000000
@@ -67,18 +66,18 @@ void YftLoader::Init(memstream & file, int32_t systemSize, bool need, btDiscrete
 		uint64_t Unknown_120h_Pointer;
 		uint32_t Unknown_128h; // 0x00000000
 		uint32_t Unknown_12Ch; // 0x00000000
-	} FragType;
+	};
 
-	file.read((char*)&FragType, sizeof(FragType));
+	FragType* fragType = (FragType*)file.read(sizeof(FragType));
 
-	SYSTEM_BASE_PTR(FragType.DrawablePointer);
+	SYSTEM_BASE_PTR(fragType->DrawablePointer);
 
-	file.seekg(FragType.DrawablePointer);
+	file.seekg(fragType->DrawablePointer);
 
 	YdrFile = new YdrLoader();
 	YdrFile->Init(file, systemSize, world, true);
 
-	struct {
+	struct FragPhysicsLODGroup {
 		uint32_t VFT;
 		uint32_t Unknown_04h; // 0x00000001
 		uint32_t Unknown_08h; // 0x00000000
@@ -88,9 +87,9 @@ void YftLoader::Init(memstream & file, int32_t systemSize, bool need, btDiscrete
 		uint64_t PhysicsLOD3Pointer;
 		uint32_t Unknown_28h; // 0x00000000
 		uint32_t Unknown_2Ch; // 0x00000000
-	} FragPhysicsLODGroup;
+	};
 
-	struct {
+	struct FragPhysicsLOD {
 		uint32_t VFT;
 		uint32_t Unknown_04h; // 0x00000001
 		uint32_t Unknown_08h; // 0x00000000
@@ -133,9 +132,9 @@ void YftLoader::Init(memstream & file, int32_t systemSize, bool need, btDiscrete
 		uint32_t Unknown_124h; // 0x00000000
 		uint32_t Unknown_128h; // 0x00000000
 		uint32_t Unknown_12Ch; // 0x00000000
-	} FragPhysicsLOD;
+	};
 
-	struct {
+	struct FragPhysTypeChild {
 		uint32_t VFT;
 		uint32_t Unknown_04h; // 0x00000001
 		float Unknown_08h;
@@ -197,9 +196,9 @@ void YftLoader::Init(memstream & file, int32_t systemSize, bool need, btDiscrete
 		uint32_t Unknown_F4h; // 0x00000000
 		uint32_t Unknown_F8h; // 0x00000000
 		uint32_t Unknown_FCh; // 0x00000000
-	} FragPhysTypeChild;
+	};
 
-	SYSTEM_BASE_PTR(FragType.PhysicsLODGroupPointer);
+	/*SYSTEM_BASE_PTR(FragType.PhysicsLODGroupPointer);
 
 	file.seekg(FragType.PhysicsLODGroupPointer);
 

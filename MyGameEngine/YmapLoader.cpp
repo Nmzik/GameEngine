@@ -1,31 +1,30 @@
 #include "YmapLoader.h"
 
-void YmapLoader::Init(memstream& file)
+void YmapLoader::Init(memstream2& file)
 {
 	Loaded = true;
 	//Could be an additional extraction code here
 
-	ResourceFileBase resourceFileBase;
-	file.read((char*)&resourceFileBase, sizeof(ResourceFileBase));
+	ResourceFileBase* resourceFileBase = (ResourceFileBase*)file.read(sizeof(ResourceFileBase));
 
 	Meta meta(file);
 
 	for (auto& Block : meta.MetaBlocks)
 	{
-		if (Block.MetaDataBlock_struct.StructureNameHash == 3545841574)
+		if (Block.MetaDataBlock_struct->StructureNameHash == 3545841574)
 		{
-			std::memcpy(&_CMapData, &file._buffer.p[Block.MetaDataBlock_struct.DataPointer], sizeof(CMapData));
+			std::memcpy(&_CMapData, &file.data[Block.MetaDataBlock_struct->DataPointer], sizeof(CMapData));
 
 			//Optimization
 			Objects.reserve(_CMapData.entities.Count1);
 		}
 
-		else if (Block.MetaDataBlock_struct.StructureNameHash == 3461354627)
+		else if (Block.MetaDataBlock_struct->StructureNameHash == 3461354627)
 		{
-			for (int i = 0; i < Block.MetaDataBlock_struct.DataLength / sizeof(CEntityDef); i++)
+			for (int i = 0; i < Block.MetaDataBlock_struct->DataLength / sizeof(CEntityDef); i++)
 			{
 				CEntityDef def;
-				std::memcpy(&def, &file._buffer.p[Block.MetaDataBlock_struct.DataPointer +  i * sizeof(CEntityDef)], sizeof(CEntityDef));
+				std::memcpy(&def, &file.data[Block.MetaDataBlock_struct->DataPointer +  i * sizeof(CEntityDef)], sizeof(CEntityDef));
 
 				bool isreflproxy = false;
 				switch (def.flags)
@@ -54,22 +53,22 @@ void YmapLoader::Init(memstream& file)
 			}
 		}
 
-		else if (Block.MetaDataBlock_struct.StructureNameHash == 164374718) //CMloInstanceDef
+		else if (Block.MetaDataBlock_struct->StructureNameHash == 164374718) //CMloInstanceDef
 		{
-			for (int i = 0; i < Block.MetaDataBlock_struct.DataLength / sizeof(CMloInstanceDef); i++)
+			for (int i = 0; i < Block.MetaDataBlock_struct->DataLength / sizeof(CMloInstanceDef); i++)
 			{
 				CMloInstanceDef def;
-				std::memcpy(&def, &file._buffer.p[Block.MetaDataBlock_struct.DataPointer +  i * sizeof(CMloInstanceDef)], sizeof(CMloInstanceDef));
+				std::memcpy(&def, &file.data[Block.MetaDataBlock_struct->DataPointer +  i * sizeof(CMloInstanceDef)], sizeof(CMloInstanceDef));
 				CMloInstanceDefs.push_back(def);
 			}
 		}
 
-		else if (Block.MetaDataBlock_struct.StructureNameHash == 1860713439) //CCarGen
+		else if (Block.MetaDataBlock_struct->StructureNameHash == 1860713439) //CCarGen
 		{
-			for (int i = 0; i < Block.MetaDataBlock_struct.DataLength / sizeof(CCarGen); i++)
+			for (int i = 0; i < Block.MetaDataBlock_struct->DataLength / sizeof(CCarGen); i++)
 			{
 				CCarGen cargen;
-				std::memcpy(&cargen, &file._buffer.p[Block.MetaDataBlock_struct.DataPointer +  i * sizeof(CCarGen)], sizeof(CCarGen));
+				std::memcpy(&cargen, &file.data[Block.MetaDataBlock_struct->DataPointer +  i * sizeof(CCarGen)], sizeof(CCarGen));
 				CCarGens.push_back(cargen);
 			}
 		}

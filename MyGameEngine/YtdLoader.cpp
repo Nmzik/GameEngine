@@ -1,6 +1,6 @@
 #include "YtdLoader.h"
 
-void YtdLoader::Init(memstream & file, int32_t systemSize)
+void YtdLoader::Init(memstream2 & file, int32_t systemSize)
 {
 	Loaded = true;
 
@@ -23,7 +23,7 @@ void YtdLoader::Init(memstream & file, int32_t systemSize)
 		//UNKNOWN
 	};
 
-	struct {
+	struct Texture {
 		uint32_t Unknown_40h;
 		uint32_t Unknown_44h; // 0x00000000
 		uint32_t Unknown_48h;
@@ -47,62 +47,45 @@ void YtdLoader::Init(memstream & file, int32_t systemSize)
 		uint32_t Unknown_84h; // 0x00000000
 		uint32_t Unknown_88h; // 0x00000000
 		uint32_t Unknown_8Ch; // 0x00000000
-	} Texture;
+	};
 
-	ResourceFileBase resourceFileBase;
+	ResourceFileBase* resourceFileBase = (ResourceFileBase*)file.read(sizeof(ResourceFileBase));
 
-	file.read((char*)&resourceFileBase, sizeof(ResourceFileBase));
+	TextureDictionary* texDictionary = (TextureDictionary*)file.read(sizeof(TextureDictionary));
 
-	TextureDictionary texDictionary;
+	TextureNameHashes.resize(texDictionary->TextureNameHashesPtr.EntriesCount);
+	SYSTEM_BASE_PTR(texDictionary->TextureNameHashesPtr.EntriesPointer);
+	memcpy(&TextureNameHashes[0], &file.data[texDictionary->TextureNameHashesPtr.EntriesPointer], sizeof(uint32_t) * texDictionary->TextureNameHashesPtr.EntriesCount);
 
-	file.read((char*)&texDictionary, sizeof(TextureDictionary));
+	ResourcePointerList64* resourcePointerList = (ResourcePointerList64*)file.read(sizeof(ResourcePointerList64));
 
-	TextureNameHashes.resize(texDictionary.TextureNameHashesPtr.EntriesCount);
+	SYSTEM_BASE_PTR(resourcePointerList->EntriesPointer);
 
-	SYSTEM_BASE_PTR(texDictionary.TextureNameHashesPtr.EntriesPointer);
+	file.seekg(resourcePointerList->EntriesPointer);
 
-	uint64_t pos = file.tellg();
-
-	file.seekg(texDictionary.TextureNameHashesPtr.EntriesPointer);
-
-	file.read((char*)&TextureNameHashes[0], sizeof(uint32_t) * texDictionary.TextureNameHashesPtr.EntriesCount);
-
-	file.seekg(pos);
-
-	ResourcePointerList64 resourcePointerList;
-
-	file.read((char*)&resourcePointerList, sizeof(ResourcePointerList64));
-
-	SYSTEM_BASE_PTR(resourcePointerList.EntriesPointer);
-
-	file.seekg(resourcePointerList.EntriesPointer);
-
-	for (int i = 0; i < resourcePointerList.EntriesCount; i++)
+	for (int i = 0; i < resourcePointerList->EntriesCount; i++)
 	{
-		uint64_t data_pointer;
-		file.read((char*)&data_pointer, sizeof(data_pointer));
+		uint64_t* data_pointer = (uint64_t*)file.read(sizeof(uint64_t));
 		uint64_t posOriginal = file.tellg();
 
 		std::unordered_map<uint32_t, TextureManager::Texture>::iterator it = TextureManager::TexturesMap.find(TextureNameHashes[i]);
 		if (it == TextureManager::TexturesMap.end())
 		{
-			SYSTEM_BASE_PTR(data_pointer);
+			SYSTEM_BASE_PTR(data_pointer[0]);
 
-			file.seekg(data_pointer);
+			file.seekg(data_pointer[0]);
 
-			TextureBase texBase;
-
-			file.read((char*)&texBase, sizeof(TextureBase));
-			file.read((char*)&Texture, sizeof(Texture));
+			TextureBase* texBase = (TextureBase*)file.read(sizeof(TextureBase));
+			Texture* texture = (Texture*)file.read(sizeof(Texture));
 
 			//READ ACTUAL DATA
-			GRAPHICS_BASE_PTR(Texture.DataPointer);
+			GRAPHICS_BASE_PTR(texture->DataPointer);
 
-			Texture.DataPointer += systemSize;
+			texture->DataPointer += systemSize;
 
 			int fullLength = 0;
-			int length = Texture.Stride * Texture.Height;
-			for (int i = 0; i < Texture.Levels; i++)
+			int length = texture->Stride * texture->Height;
+			for (int i = 0; i < texture->Levels; i++)
 			{
 				fullLength += length;
 				length /= 4;
@@ -112,7 +95,7 @@ void YtdLoader::Init(memstream & file, int32_t systemSize)
 			unsigned int InternalFormat;
 			bool compressed = false;
 
-			switch (Texture.Format)
+			switch (texture->Format)
 			{
 				case D3DFMT_DXT1:
 					compressed = true;
@@ -165,10 +148,10 @@ void YtdLoader::Init(memstream & file, int32_t systemSize)
 
 			GLuint textureID = TextureManager::GetTextureID();
 			glBindTexture(GL_TEXTURE_2D, textureID);
-			glTexStorage2D(GL_TEXTURE_2D, Texture.Levels, InternalFormat, Texture.Width, Texture.Height);
+			glTexStorage2D(GL_TEXTURE_2D, texture->Levels, InternalFormat, texture->Width, texture->Height);
 
-			//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, Texture.Levels - 1);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, Texture.Levels <= 1 ? GL_LINEAR : GL_LINEAR_MIPMAP_LINEAR);
+			//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, texture->Levels - 1);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, texture->Levels <= 1 ? GL_LINEAR : GL_LINEAR_MIPMAP_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_LOD, 0);
 			//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LOD, 12);
@@ -185,30 +168,30 @@ void YtdLoader::Init(memstream & file, int32_t systemSize)
 				unsigned int blockSize = (InternalFormat == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT || InternalFormat == GL_COMPRESSED_RED_RGTC1) ? 8 : 16;
 				unsigned int offset = 0;
 
-				for (unsigned int level = 0; level < Texture.Levels; ++level)
+				for (unsigned int level = 0; level < texture->Levels; ++level)
 				{
-					unsigned int size = ((Texture.Width + 3) / 4)*((Texture.Height + 3) / 4)*blockSize;
-					glCompressedTexSubImage2D(GL_TEXTURE_2D, level, 0, 0, Texture.Width, Texture.Height, InternalFormat, size, &file._buffer.p[Texture.DataPointer] + offset);
-					//glCompressedTexImage2D(GL_TEXTURE_2D, level, InternalFormat, Texture.Width, Texture.Height, 0, size, &file._buffer.p[Texture.DataPointer] + offset);
+					unsigned int size = ((texture->Width + 3) / 4)*((texture->Height + 3) / 4)*blockSize;
+					glCompressedTexSubImage2D(GL_TEXTURE_2D, level, 0, 0, texture->Width, texture->Height, InternalFormat, size, &file.data[texture->DataPointer] + offset);
+					//glCompressedTexImage2D(GL_TEXTURE_2D, level, InternalFormat, texture->Width, texture->Height, 0, size, &file._buffer.p[texture->DataPointer] + offset);
 
 					offset += size;
-					Texture.Width = std::max(Texture.Width / 2, 1);
-					Texture.Height = std::max(Texture.Height / 2, 1);
+					texture->Width = std::max(texture->Width / 2, 1);
+					texture->Height = std::max(texture->Height / 2, 1);
 				}
 
 			}
 			else {
 				unsigned int offset = 0;
 
-				for (unsigned int level = 0; level < Texture.Levels; ++level)
+				for (unsigned int level = 0; level < texture->Levels; ++level)
 				{
-					unsigned int size = ((Texture.Width + 1) >> 1)  * ((Texture.Height + 1) >> 1) * 4;
+					unsigned int size = ((texture->Width + 1) >> 1)  * ((texture->Height + 1) >> 1) * 4;
 
-					glTexSubImage2D(GL_TEXTURE_2D, Texture.Levels, 0, 0, Texture.Width, Texture.Height, GL_BGRA, format, &file._buffer.p[Texture.DataPointer] + offset);
+					glTexSubImage2D(GL_TEXTURE_2D, texture->Levels, 0, 0, texture->Width, texture->Height, GL_BGRA, format, &file.data[texture->DataPointer] + offset);
 
 					offset += size;
-					Texture.Width = std::max(Texture.Width / 2, 1);
-					Texture.Height = std::max(Texture.Height / 2, 1);
+					texture->Width = std::max(texture->Width / 2, 1);
+					texture->Height = std::max(texture->Height / 2, 1);
 				}
 			}
 

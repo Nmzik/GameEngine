@@ -1,9 +1,8 @@
 #include "YtypLoader.h"
 
-YtypLoader::YtypLoader(memstream& file)
+YtypLoader::YtypLoader(memstream2& file)
 {
-	ResourceFileBase resourceFileBase;
-	file.read((char*)&resourceFileBase, sizeof(ResourceFileBase));
+	ResourceFileBase* resourceFileBase = (ResourceFileBase*)file.read(sizeof(ResourceFileBase));
 
 	Meta meta(file);
 
@@ -21,37 +20,37 @@ YtypLoader::YtypLoader(memstream& file)
 
 	for (auto& Block : meta.MetaBlocks)
 	{
-		if (Block.MetaDataBlock_struct.StructureNameHash == 3649811809)
+		if (Block.MetaDataBlock_struct->StructureNameHash == 3649811809)
 		{
-			std::memcpy(&_CMapTypes, &file._buffer.p[Block.MetaDataBlock_struct.DataPointer], sizeof(CMapTypes));
+			std::memcpy(&_CMapTypes, &file.data[Block.MetaDataBlock_struct->DataPointer], sizeof(CMapTypes));
 		}
 
-		if (Block.MetaDataBlock_struct.StructureNameHash == 2195127427) //CBaseArchetypeDef
+		if (Block.MetaDataBlock_struct->StructureNameHash == 2195127427) //CBaseArchetypeDef
 		{
-			for (int i = 0; i < Block.MetaDataBlock_struct.DataLength / sizeof(CBaseArchetypeDef); i++)
+			for (int i = 0; i < Block.MetaDataBlock_struct->DataLength / sizeof(CBaseArchetypeDef); i++)
 			{
 				CBaseArchetypeDef def;
-				std::memcpy(&def, &file._buffer.p[Block.MetaDataBlock_struct.DataPointer +  i * sizeof(CBaseArchetypeDef)], sizeof(CBaseArchetypeDef));
+				std::memcpy(&def, &file.data[Block.MetaDataBlock_struct->DataPointer +  i * sizeof(CBaseArchetypeDef)], sizeof(CBaseArchetypeDef));
 				CBaseArchetypeDefs.push_back(def);
 			}
 		}
 
-		if (Block.MetaDataBlock_struct.StructureNameHash == 1991296364) //CTimeArchetypeDef
+		if (Block.MetaDataBlock_struct->StructureNameHash == 1991296364) //CTimeArchetypeDef
 		{
-			for (int i = 0; i < Block.MetaDataBlock_struct.DataLength / sizeof(CTimeArchetypeDef); i++)
+			for (int i = 0; i < Block.MetaDataBlock_struct->DataLength / sizeof(CTimeArchetypeDef); i++)
 			{
 				CTimeArchetypeDef def;
-				std::memcpy(&def, &file._buffer.p[Block.MetaDataBlock_struct.DataPointer +  i * sizeof(CTimeArchetypeDef)], sizeof(CTimeArchetypeDef));
+				std::memcpy(&def, &file.data[Block.MetaDataBlock_struct->DataPointer +  i * sizeof(CTimeArchetypeDef)], sizeof(CTimeArchetypeDef));
 				CTimeArchetypeDefs.push_back(def);
 			}
 		}
 
-		if (Block.MetaDataBlock_struct.StructureNameHash == 273704021) //CMloArchetypeDef
+		if (Block.MetaDataBlock_struct->StructureNameHash == 273704021) //CMloArchetypeDef
 		{
-			for (int i = 0; i < Block.MetaDataBlock_struct.DataLength / sizeof(CMloArchetypeDef); i++)
+			for (int i = 0; i < Block.MetaDataBlock_struct->DataLength / sizeof(CMloArchetypeDef); i++)
 			{
 				CMloArchetypeDef def;
-				std::memcpy(&def, &file._buffer.p[Block.MetaDataBlock_struct.DataPointer +  i * sizeof(CMloArchetypeDef)], sizeof(CMloArchetypeDef));
+				std::memcpy(&def, &file.data[Block.MetaDataBlock_struct->DataPointer +  i * sizeof(CMloArchetypeDef)], sizeof(CMloArchetypeDef));
 				CMloArchetypeDefs.push_back(def);
 			}
 		}

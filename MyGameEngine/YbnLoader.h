@@ -4,7 +4,7 @@
 
 class YbnLoader
 {
-	struct {
+	struct Bounds {
 		uint8_t Type;
 		uint8_t Unknown_11h;
 		uint16_t Unknown_12h;
@@ -28,7 +28,7 @@ class YbnLoader
 		float Unknown_64h;
 		float Unknown_68h;
 		float BoundingBoxVolume;
-	} Bounds;
+	};
 
 	struct BoundGeometry {
 		uint32_t Unknown_70h;
@@ -124,7 +124,7 @@ class YbnLoader
 		uint32_t unused1;
 	};
 
-	struct {
+	struct BoundComposite {
 		uint64_t ChildrenPointer;
 		uint64_t ChildrenTransformation1Pointer;
 		uint64_t ChildrenTransformation2Pointer;
@@ -135,7 +135,7 @@ class YbnLoader
 		uint16_t ChildrenCount2;
 		uint32_t Unknown_A4h; // 0x00000000
 		uint64_t BVHPointer;
-	} BoundComposite;
+	};
 
 	std::vector<glm::vec3> Vertices;
 	std::vector<uint16_t> indices;
@@ -149,7 +149,7 @@ class YbnLoader
 public:
 	uint32_t RefCount = 0;
 
-	void Init(btDiscreteDynamicsWorld* world, memstream& file);
+	void Init(memstream2 & file, btDiscreteDynamicsWorld * world);
 	~YbnLoader();
 };
 

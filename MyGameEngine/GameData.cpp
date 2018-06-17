@@ -94,10 +94,10 @@ GameData::GameData()
 				//YtypEntries[entry.NameHash] = &entry;
 				//YtypEntries[entry.ShortNameHash] = &entry;
 
-				std::vector<uint8_t> outputBuffer(1024 * 1024);
+				std::vector<uint8_t> outputBuffer(entry.SystemSize + entry.GraphicsSize);
 				ExtractFileResource(entry, outputBuffer);
 
-				memstream stream(outputBuffer.data(), outputBuffer.size());
+				memstream2 stream(outputBuffer.data(), outputBuffer.size());
 
 				YtypLoader file(stream);
 				for (auto& def : file.CBaseArchetypeDefs)
