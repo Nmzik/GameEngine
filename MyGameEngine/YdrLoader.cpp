@@ -274,16 +274,23 @@ void YdrLoader::Init(memstream2 & file, int32_t systemSize, btDiscreteDynamicsWo
 	}
 }
 
-
-YdrLoader::~YdrLoader()
+void YdrLoader::Remove()
 {
-	if (ybnfile)
+	Loaded = false;
+	if (ybnfile) {
 		delete ybnfile;
-	delete Ytd;
+		ybnfile = nullptr;
+	}
+	if (Ytd) {
+		delete Ytd;
+		Ytd = nullptr;
+	}
 	for (auto& mesh : meshes)
 	{
 		mesh.Cleanup();
 	}
+	meshes.clear();
+	materials.clear();
 }
 
 void YdrLoader::UploadMeshes()
@@ -293,4 +300,39 @@ void YdrLoader::UploadMeshes()
 		//mesh->Upload();
 	}
 	Loaded = true;
+}
+
+YdrPool::YdrPool()
+{
+	firstAvailable_ = &ydrs[0];
+
+	for (int i = 0; i < 999; i++)
+	{
+		ydrs[i].next = &ydrs[i + 1];
+	}
+
+	ydrs[999].next = NULL;
+}
+
+YdrPool::~YdrPool()
+{
+}
+
+YdrLoader * YdrPool::Load()
+{
+	// Make sure the pool isn't full.
+	assert(firstAvailable_ != NULL);
+
+	// Remove it from the available list.
+	YdrLoader* newYdr = firstAvailable_;
+	firstAvailable_ = newYdr->next;
+
+	return newYdr;
+}
+
+void YdrPool::Remove(YdrLoader * ydr)
+{
+	ydr->Remove();
+	ydr->next = firstAvailable_;
+	firstAvailable_ = ydr;
 }

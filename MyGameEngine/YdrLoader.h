@@ -437,6 +437,7 @@ class YdrLoader
 	YbnLoader* ybnfile = nullptr;
 	std::vector<Material> materials;
 public:
+	YdrLoader * next;
 	std::vector<Mesh> meshes;
 	YtdLoader * externalYtd = nullptr;
 	bool isVisible = false;
@@ -444,8 +445,23 @@ public:
 	bool Loaded = false;
 
 	void Init(memstream2& file, int32_t systemSize, btDiscreteDynamicsWorld* world, bool isYft = false);
-	~YdrLoader();
+	void Remove();
 
 	void UploadMeshes();
+};
+
+class YdrPool
+{
+public:
+	YdrPool();
+	~YdrPool();
+
+	YdrLoader* Load();
+	void Remove(YdrLoader* ymap);
+
+	YdrLoader ydrs[1000];
+
+private:
+	YdrLoader * firstAvailable_;
 };
 

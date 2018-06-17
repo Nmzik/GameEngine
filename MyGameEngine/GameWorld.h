@@ -71,6 +71,9 @@ public:
 	std::vector<Player> pedestrians;
 	std::vector<Vehicle*> vehicles;
 	YmapPool ymapPool;
+	YdrPool ydrPool;
+	YddPool yddPool;
+	YftPool yftPool;
 	//PedPool pedPool;
 
 	std::mutex resources_lock;

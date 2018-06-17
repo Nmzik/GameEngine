@@ -54,11 +54,48 @@ void YddLoader::Init(memstream2 & file, int32_t systemSize, btDiscreteDynamicsWo
 	}
 }
 
-YddLoader::~YddLoader()
+void YddLoader::Remove()
 {
+	Loaded = false;
 	for (auto it = YdrFiles.begin(); it != YdrFiles.end();)
 	{
+		it->second->Remove();
 		delete it->second;
 		it = YdrFiles.erase(it);
 	}
+}
+
+YddPool::YddPool()
+{
+	firstAvailable_ = &ydds[0];
+
+	for (int i = 0; i < 999; i++)
+	{
+		ydds[i].next = &ydds[i + 1];
+	}
+
+	ydds[999].next = NULL;
+}
+
+YddPool::~YddPool()
+{
+}
+
+YddLoader * YddPool::Load()
+{
+	// Make sure the pool isn't full.
+	assert(firstAvailable_ != NULL);
+
+	// Remove it from the available list.
+	YddLoader* newYdd = firstAvailable_;
+	firstAvailable_ = newYdd->next;
+
+	return newYdd;
+}
+
+void YddPool::Remove(YddLoader * ydd)
+{
+	ydd->Remove();
+	ydd->next = firstAvailable_;
+	firstAvailable_ = ydd;
 }

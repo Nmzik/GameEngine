@@ -251,8 +251,44 @@ void YftLoader::Init(memstream2 & file, int32_t systemSize, bool need, btDiscret
 }
 
 
-YftLoader::~YftLoader()
+void YftLoader::Remove()
 {
+	Loaded = false;
 	if (YdrFile)
 		delete YdrFile;
+}
+
+YftPool::YftPool()
+{
+	firstAvailable_ = &yfts[0];
+
+	for (int i = 0; i < 999; i++)
+	{
+		yfts[i].next = &yfts[i + 1];
+	}
+
+	yfts[999].next = NULL;
+}
+
+YftPool::~YftPool()
+{
+}
+
+YftLoader * YftPool::Load()
+{
+	// Make sure the pool isn't full.
+	assert(firstAvailable_ != NULL);
+
+	// Remove it from the available list.
+	YftLoader* newYft = firstAvailable_;
+	firstAvailable_ = newYft->next;
+
+	return newYft;
+}
+
+void YftPool::Remove(YftLoader * yft)
+{
+	yft->Remove();
+	yft->next = firstAvailable_;
+	firstAvailable_ = yft;
 }

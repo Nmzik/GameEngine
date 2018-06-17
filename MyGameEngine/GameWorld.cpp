@@ -416,7 +416,7 @@ YdrLoader * GameWorld::GetYdr(uint32_t hash, uint32_t TextureDictionaryHash)
 		return iter->second;
 	}
 	else {
-		ydrLoader[hash] = new YdrLoader();
+		ydrLoader[hash] = ydrPool.Load();
 		ydrLoader[hash]->RefCount++;
 
 		auto ytdEntry = data.YtdEntries.find(TextureDictionaryHash);
@@ -441,7 +441,7 @@ YddLoader * GameWorld::GetYdd(uint32_t hash, uint32_t TextureDictionaryHash)
 		return iter->second;
 	}
 	else {
-		yddLoader[hash] = new YddLoader();
+		yddLoader[hash] = yddPool.Load();
 		yddLoader[hash]->RefCount++;
 
 		auto ytdEntry = data.YtdEntries.find(TextureDictionaryHash);
@@ -466,7 +466,7 @@ YftLoader * GameWorld::GetYft(uint32_t hash, uint32_t TextureDictionaryHash)
 		return iter->second;
 	}
 	else {
-		yftLoader[hash] = new YftLoader();
+		yftLoader[hash] = yftPool.Load();
 		yftLoader[hash]->RefCount++;
 
 		auto ytdEntry = data.YtdEntries.find(TextureDictionaryHash);
@@ -575,7 +575,9 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 		return glm::distance(lhsPosition, camera->Position) < glm::distance(rhsPosition, camera->Position);
 	});
 
-
+	printf("SIZE YDR %zd\n", ydrLoader.size());
+	printf("SIZE YDD %zd\n", yddLoader.size());
+	printf("SIZE YFT %zd\n", yftLoader.size());
 	//LoadYBN(Proxy->Name);
 	//LoadYmap(Proxy->Parent, Position);
 
@@ -612,7 +614,7 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 	{
 		if ((it->second)->RefCount == 0)
 		{
-			delete it->second;
+			ydrPool.Remove(it->second);
 			it = ydrLoader.erase(it);
 		}
 		else
@@ -625,7 +627,7 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 	{
 		if ((it->second)->RefCount == 0)
 		{
-			delete it->second;
+			yddPool.Remove(it->second);
 			it = yddLoader.erase(it);
 		}
 		else
@@ -638,7 +640,7 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 	{
 		if ((it->second)->RefCount == 0)
 		{
-			delete it->second;
+			yftPool.Remove(it->second);
 			it = yftLoader.erase(it);
 		}
 		else
@@ -986,49 +988,5 @@ bool GameWorld::DetectInWater(glm::vec3 Position) {
 
 void GameWorld::ClearTestFunction()
 {
-	printf("PRESSED");
-	for (auto it = ybnLoader.begin(); it != ybnLoader.end();)
-	{
-		delete it->second;
-		it = ybnLoader.erase(it);
-
-	}
-
-	for (auto it = ymapLoader.begin(); it != ymapLoader.end();)
-	{
-		ymapPool.Remove(it->second);
-		it = ymapLoader.erase(it);
-	}
-
-	for (auto it = ydrLoader.begin(); it != ydrLoader.end();)
-	{
-
-		delete it->second;
-		it = ydrLoader.erase(it);
-
-	}
-
-	for (auto it = yddLoader.begin(); it != yddLoader.end();)
-	{
-
-		delete it->second;
-		it = yddLoader.erase(it);
-
-	}
-
-	for (auto it = yftLoader.begin(); it != yftLoader.end();)
-	{
-
-		delete it->second;
-		it = yftLoader.erase(it);
-
-	}
-
-	for (auto it = ytdLoader.begin(); it != ytdLoader.end();)
-	{
-
-		delete it->second;
-		it = ytdLoader.erase(it);
-
-	}
+	
 }
