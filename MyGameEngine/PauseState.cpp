@@ -25,25 +25,3 @@ void PauseState::exit()
 	game->paused = false;
 	printf("WE ARE OUT OF PAUSE MENU\n");
 }
-
-void PauseState::tick(float delta_time)
-{
-
-}
-
-void PauseState::handleEvent(const SDL_Event & event)
-{
-	switch (event.type) {
-	case SDL_KEYDOWN:
-		switch (event.key.keysym.sym) {
-		case SDLK_ESCAPE:
-			StateManager::get().exit();
-			break;
-		default:
-			break;
-		}
-		break;
-	default:
-		break;
-	}
-}

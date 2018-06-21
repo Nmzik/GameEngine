@@ -22,10 +22,6 @@ public:
 		states.back()->enter();
 	}
 
-	void tick(float delta_time) {
-		states.back()->tick(delta_time);
-	}
-
 	void exit() {
 		states.back()->exit();
 		states.pop_back();

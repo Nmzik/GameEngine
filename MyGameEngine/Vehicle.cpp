@@ -61,7 +61,7 @@ Vehicle::Vehicle(glm::vec3 position, float mass, YftLoader* yft, btDiscreteDynam
 	//choose coordinate system
 	m_vehicle->setCoordinateSystem(0, 2, 1);
 
-	world->addVehicle(m_vehicle);
+	world->addAction(m_vehicle);
 
 	float connectionHeight = 0.5f;
 

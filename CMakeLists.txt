@@ -15,31 +15,52 @@ add_definitions(-D_HAS_EXCEPTIONS=0)
 #set(CMAKE_CONFIGURATION_TYPES Debug Release)
 set(CMAKE_CXX_FLAGS_RELEASE "/MT")
 
+IF(WIN32)
+   set(SDL2_ROOT CACHE PATH "Path where to find SDL2")
+   set(SDL2_ROOT "${SDL2_ROOT}")
+   set(SDL2_INCLUDE_DIR "${SDL2_ROOT}/include;${SDL2_ROOT}/include/SDL2;")
+   set(SDL2_LIBRARIES "${SDL2_ROOT}/lib/x64/SDL2.lib;${SDL2_ROOT}/lib/x64/SDL2main.lib;")
+ELSE (APPLE)
+   find_package(SDL2 REQUIRED)
+   include_directories(${SDL2_INCLUDE_DIR})
+ENDIF (WIN32)
+
+#if(WIN32)
+#set(SDL2_ROOT CACHE PATH "Path where to find SDL2")
+#if(NOT SDL2_ROOT)
+#message(FATAL_ERROR "Error: SDL2 not found")
+#else(NOT SDL2_ROOT)
+#set(SDL2_ROOT "${SDL2_ROOT}")
+#set(SDL2_INCLUDE_DIR "${SDL2_ROOT}/include;${SDL2_ROOT}/include/SDL2;")
+#set(SDL2_LIBRARIES "${SDL2_ROOT}/lib/x64/SDL2.lib;${SDL2_ROOT}/lib/x64/SDL2main.lib;")
+#endif(NOT SDL2_ROOT)
+#else(WIN32)
+#endif(WIN32)
+
+include_directories(${SDL2_INCLUDE_DIR})
 include_directories(MyGameEngine/recastnavigation/Recast/Include)
 include_directories(MyGameEngine/freetype/include)
 include_directories(MyGameEngine/recastnavigation/Detour/Include)
 include_directories(MyGameEngine/zlib)
 include_directories(MyGameEngine/glm)
-include_directories(MyGameEngine/sdl2/include)
 include_directories(MyGameEngine/bullet)
 
 link_directories(MyGameEngine/freetype/objs)
 link_directories(MyGameEngine/zlib)
 link_directories(MyGameEngine/bullet/lib)
-link_directories(MyGameEngine/sdl2/lib/x64)
+#link_directories(MyGameEngine/sdl2/lib/x64)
 link_directories(MyGameEngine/recastnavigation/lib)
 link_directories(MyGameEngine/glew/lib/Release/x64)
 link_directories(MyGameEngine/freetype/objs)
 
 file(GLOB SOURCES
-    MyGameEngine/*.h
-    MyGameEngine/*.cpp
+MyGameEngine/*.h
+MyGameEngine/*.cpp
 )
 
 add_executable(MyGameEngine ${SOURCES})
 
-target_link_libraries(MyGameEngine SDL2.lib)
-target_link_libraries(MyGameEngine SDL2main.lib)
+target_link_libraries(MyGameEngine ${SDL2_LIBRARIES})
 target_link_libraries(MyGameEngine BulletDynamics.lib)
 target_link_libraries(MyGameEngine BulletCollision.lib)
 target_link_libraries(MyGameEngine LinearMath.lib)

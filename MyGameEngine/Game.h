@@ -29,6 +29,8 @@ public:
 	void updateFPS(float delta_time);
 	void run();
 
+	void tick(float delta_time);
+
 	InputManager* getInput() {
 		return input;
 	}

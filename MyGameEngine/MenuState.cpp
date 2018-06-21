@@ -25,19 +25,3 @@ void MenuState::exit()
 	game->paused = false;
 	printf("WE ARE OUT OF MENU\n");
 }
-
-void MenuState::tick(float delta_time)
-{
-
-}
-
-void MenuState::handleEvent(const SDL_Event & event)
-{
-	switch (event.type) {
-	case SDL_MOUSEBUTTONDOWN:
-		StateManager::get().enter<InGameState>(game);
-		break;
-	default:
-		break;
-	}
-}
