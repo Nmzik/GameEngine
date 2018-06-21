@@ -184,8 +184,6 @@ void GameData::LoadWaterQuads()
 	tinyxml2::XMLDocument doc;
 	tinyxml2::XMLError eResult = doc.LoadFile("C:\\Users\\nmzik\\Desktop\\water.xml");
 
-	//tinyxml2::XMLNode* pRoot = doc.FirstChild();
-	//if(pRoot == nullptr) printf("ERRORMAIN");
 	tinyxml2::XMLElement * root = doc.FirstChildElement("WaterData");
 
 	if (root == nullptr) printf("ERROR");
