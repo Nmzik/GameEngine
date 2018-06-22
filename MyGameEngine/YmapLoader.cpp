@@ -2,7 +2,6 @@
 
 void YmapLoader::Init(memstream2& file)
 {
-	Loaded = true;
 	//Could be an additional extraction code here
 
 	ResourceFileBase* resourceFileBase = (ResourceFileBase*)file.read(sizeof(ResourceFileBase));
@@ -41,13 +40,7 @@ void YmapLoader::Init(memstream2& file)
 					continue;
 				}
 
-				if (def.lodLevel == Unk_1264241711::LODTYPES_DEPTH_ORPHANHD) def.lodDist *= 1.5f;
-
-				if (def.lodDist <= 0) def.lodDist = 50.0f;
-				if (def.childLodDist <= 0) def.childLodDist = 50.0f;
-
-				def.lodDist *= def.lodDist;
-				def.childLodDist *= def.childLodDist;
+				//if (def.lodLevel == Unk_1264241711::LODTYPES_DEPTH_ORPHANHD) def.lodDist *= 1.5f;
 
 				Objects.emplace_back(def);
 			}
@@ -101,6 +94,11 @@ void YmapLoader::Init(memstream2& file)
 		}
 	}*/
 
+}
+
+void YmapLoader::Finalize()
+{
+	Loaded = true;
 }
 
 YmapPool::YmapPool()

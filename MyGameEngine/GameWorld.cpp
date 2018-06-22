@@ -206,41 +206,7 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera)
 			bool childrenVisible = (Dist <= object.CEntity.childLodDist * LODMultiplier) && (object.CEntity.numChildren > 0);
 			if (IsVisible && !childrenVisible) {
 				if (!object.Loaded) {
-					if (!object.FoundArchetype) {
-						std::unordered_map<uint32_t, CBaseArchetypeDef>::iterator it = data.CBaseArchetypeDefs.find(object.CEntity.archetypeName);
-						if (it != data.CBaseArchetypeDefs.end())
-						{
-							object.Archetype._BaseArchetypeDef = it->second;
-
-							object.BoundPos = object.CEntity.position; //object.BoundPos = object.Archetype._BaseArchetypeDef.bsCentre + object.CEntity.position;
-							object.BoundRadius = object.Archetype._BaseArchetypeDef.bsRadius * std::max(object.CEntity.scaleXY, object.CEntity.scaleZ);
-							//if (object.CEntity.lodDist <= 0) object.CEntity.lodDist = 30.0f;
-							//if (object.CEntity.childLodDist <= 0) object.CEntity.childLodDist = 30.0f;
-
-							object.type = 1;
-
-							object.FoundArchetype = true;
-						}
-						else {
-							std::unordered_map<uint32_t, CTimeArchetypeDef>::iterator it = data.CTimeArchetypeDefs.find(object.CEntity.archetypeName);
-							if (it != data.CTimeArchetypeDefs.end())
-							{
-								object.Archetype = it->second;
-
-								object.BoundPos = object.CEntity.position; //object.BoundPos = object.Archetype._BaseArchetypeDef.bsCentre + object.CEntity.position;
-								object.BoundRadius = object.Archetype._BaseArchetypeDef.bsRadius * std::max(object.CEntity.scaleXY, object.CEntity.scaleZ);
-								//if (object.CEntity.lodDist <= 0) object.CEntity.lodDist = it->second._BaseArchetypeDef.lodDist;
-								//if (object.CEntity.childLodDist <= 0) object.CEntity.childLodDist = it->second._BaseArchetypeDef.lodDist;
-
-								object.type = 2;
-
-								object.FoundArchetype = true;
-							}
-						}
-					}
-
 					if (!object.FoundModel || !object.FoundBaseModel) {
-
 						switch (object.Archetype._BaseArchetypeDef.assetType)
 						{
 						case ASSET_TYPE_DRAWABLE: {
@@ -280,7 +246,7 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera)
 						}
 						}
 					}
-					if (object.FoundArchetype && object.FoundModel && object.FoundBaseModel)
+					if (object.FoundModel && object.FoundBaseModel)
 						object.Loaded = true;//IS it really?
 
 				}
@@ -502,8 +468,6 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 {
 	auto cellID = spaceGrid.GetCellPos(camera->Position);
 
-	SpaceGridCell& cell = spaceGrid.GetCell(cellID);
-
 	auto NodeCell = nodeGrid.GetCellPos(camera->Position);
 
 	if (CurNodeCell != NodeCell) {
@@ -529,6 +493,7 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 		//printf("NEW CELL\n");
 		CurCell = cellID;
 
+		SpaceGridCell& cell = spaceGrid.GetCell(cellID);
 
 		for (auto& BoundsItem : cell.BoundsStoreItems)
 		{
@@ -575,7 +540,7 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 		return glm::distance(lhsPosition, camera->Position) < glm::distance(rhsPosition, camera->Position);
 	});
 
-	printf("SIZE YMAP %zd\n", ymapLoader.size());
+	//printf("SIZE YMAP %zd\n", ymapLoader.size());
 	//printf("SIZE YDR %zd\n", ydrLoader.size());
 	//printf("SIZE YDD %zd\n", yddLoader.size());
 	//printf("SIZE YFT %zd\n", yftLoader.size());
@@ -698,7 +663,7 @@ void GameWorld::LoadQueuedResources()
 			auto iter = ymapLoader.find((*it)->Hash);
 			if (iter != ymapLoader.end())
 			{
-				iter->second->Init(stream);
+				iter->second->Finalize();
 			}
 			else {
 				printf("");

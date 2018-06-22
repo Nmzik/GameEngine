@@ -127,6 +127,7 @@ public:
 	std::vector<CCarGen> CCarGens;
 
 	void Init(memstream2 & file);
+	void Finalize();
 };
 
 class YmapPool
