@@ -47,6 +47,8 @@ GameData::GameData()
 	YmapEntries.reserve(9176);
 	YbnEntries.reserve(17418);
 
+	bool foundHandling = false;
+
 	for (auto& rpfFile : RpfFiles)
 	{
 		for (auto& entry : rpfFile->ResourceEntries)
@@ -116,6 +118,14 @@ GameData::GameData()
 				}*/
 			}
 		}
+		/*for (auto& entry : rpfFile->BinaryEntries)
+		{
+			if (entry.Name == "handling.meta" || !foundHandling) {
+				std::vector<uint8_t> Buffer;
+				ExtractFileResource(entry, Buffer);
+				foundHandling = true;
+			}
+		}*/
 	}
 }
 
@@ -276,7 +286,7 @@ void GameData::LoadRpf(std::string& RpfPath)
 		if (BinaryFileEntry.Name.substr(BinaryFileEntry.Name.length() - 4) == ".rpf")
 		{
 			uint32_t RealFileSize = (BinaryFileEntry.FileSize == 0) ? BinaryFileEntry.FileUncompressedSize : BinaryFileEntry.FileSize;
-			LoadRpf(*file->rpf, RpfPath, BinaryFileEntry.Name, RealFileSize, file->startPos + ((uint64_t)BinaryFileEntry.FileOffset * 512));
+			LoadRpf(*file->rpf, RpfPath, BinaryFileEntry.Name, RealFileSize, BinaryFileEntry.FileOffset);
 		}
 	}
 }
@@ -290,12 +300,29 @@ void GameData::LoadRpf(std::ifstream& rpf, std::string& FullPath_, std::string F
 		if (BinaryFileEntry.Name.substr(BinaryFileEntry.Name.length() - 4) == ".rpf")
 		{
 			uint32_t RealFileSize = (BinaryFileEntry.FileSize == 0) ? BinaryFileEntry.FileUncompressedSize : BinaryFileEntry.FileSize;
-			LoadRpf(rpf, FullPath_, BinaryFileEntry.Name, RealFileSize, file->startPos + ((uint64_t)BinaryFileEntry.FileOffset * 512));
+			LoadRpf(rpf, FullPath_, BinaryFileEntry.Name, RealFileSize, BinaryFileEntry.FileOffset);
 		}
 	}
 }
 
-void GameData::ExtractFileResource(RpfResourceFileEntry entry, std::vector<uint8_t>& output)
+void GameData::ExtractFileResource(RpfBinaryFileEntry& entry, std::vector<uint8_t>& output)
+{
+	auto& rpf = entry.File->rpf;
+
+	rpf->seekg(entry.FileOffset);
+
+	uint8_t* tbytes = new uint8_t[entry.FileSize];
+	rpf->read((char*)&tbytes[0], entry.FileSize);
+
+	tbytes = GTAEncryption::DecryptNG(tbytes, entry.FileSize, entry.Name, entry.FileUncompressedSize);
+
+	GTAEncryption::DecompressBytes(tbytes, entry.FileSize, output);
+
+	delete[] tbytes;
+
+}
+
+void GameData::ExtractFileResource(RpfResourceFileEntry& entry, std::vector<uint8_t>& output)
 {
 	auto& rpf = entry.File->rpf;
 

@@ -13,7 +13,7 @@ RpfDirectoryEntry::RpfDirectoryEntry(memstream & stream)
 	stream.read((char*)&EntriesCount, sizeof(uint32_t));
 }
 
-RpfBinaryFileEntry::RpfBinaryFileEntry(memstream & stream)
+RpfBinaryFileEntry::RpfBinaryFileEntry(memstream & stream, uint64_t StartPos)
 {
 	uint64_t buf;
 	stream.read((char*)&buf, sizeof(uint64_t));
@@ -23,6 +23,10 @@ RpfBinaryFileEntry::RpfBinaryFileEntry(memstream & stream)
 	stream.read((char*)&FileUncompressedSize, sizeof(uint32_t));
 
 	stream.read((char*)&EncryptionType, sizeof(uint32_t));
+
+	//if (EncryptionType == 1) IsEncrypted = true;
+
+	FileOffset = StartPos + ((uint64_t)FileOffset * 512);
 }
 
 RpfResourceFileEntry::RpfResourceFileEntry(memstream & stream, std::istream & originalFile, uint64_t StartPos)

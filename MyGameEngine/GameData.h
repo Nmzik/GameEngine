@@ -64,6 +64,8 @@ public:
 	void LoadRpf(std::string& RpfPath);
 	void LoadRpf(std::ifstream& rpf, std::string& FullPath_, std::string FileName_, uint32_t FileSize_, uint64_t FileOffset);
 
-	void ExtractFileResource(RpfResourceFileEntry entry, std::vector<uint8_t>& output);
+	void ExtractFileResource(RpfBinaryFileEntry & entry, std::vector<uint8_t>& output);
+
+	void ExtractFileResource(RpfResourceFileEntry& entry, std::vector<uint8_t>& output);
 };
 

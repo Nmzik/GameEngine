@@ -26,6 +26,7 @@ set(RECASTNAVIGATION_TESTS OFF CACHE STRING "" FORCE)
 add_subdirectory(3rdparty/recastnavigation)
 
 # Set up bullet
+#add_definitions(=BT_NO_PROFILE=1)
 set(BUILD_CLSOCKET OFF CACHE STRING "" FORCE)
 set(BUILD_ENET OFF CACHE STRING "" FORCE)
 set(BUILD_EXTRAS OFF CACHE STRING "" FORCE)

@@ -27,7 +27,7 @@ RpfFile::RpfFile(std::ifstream& rpf, std::string& FullPath_, std::string& FileNa
 }
 void RpfFile::LoadRpf(std::ifstream& rpf, std::string& FileName, uint32_t FileSize, std::string& FullPath)
 {
-	startPos = rpf.tellg();
+	uint64_t startPos = rpf.tellg();
 
 	uint32_t Version;
 	uint32_t EntryCount;
@@ -56,6 +56,7 @@ void RpfFile::LoadRpf(std::ifstream& rpf, std::string& FileName, uint32_t FileSi
 		//printf("AES\n");
 		entriesData = GTAEncryption::DecryptAES(entriesData, EntryCount * 16);
 		namesData = GTAEncryption::DecryptAES(namesData, NamesLength);
+		//IsAESEncrypted = true;
 		//printf("FILE===========================%s\n", FileName.c_str());
 		return;
 		break;
@@ -90,7 +91,7 @@ void RpfFile::LoadRpf(std::ifstream& rpf, std::string& FileName, uint32_t FileSi
 		else if ((x & 0x80000000) == 0)
 		{
 			//printf("BINARY\n");
-			RpfBinaryFileEntry entry(EntriesStream);
+			RpfBinaryFileEntry entry(EntriesStream, startPos);
 			NamesStream.seekg(entry.NameOffset);
 			std::getline(NamesStream, entry.Name, '\0');
 			//printf("%s\n", entry.Name.c_str());

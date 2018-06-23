@@ -10,7 +10,6 @@ class RpfFile
 {
 public:
 	std::ifstream* rpf;
-	uint64_t startPos;
 
 	std::vector<RpfResourceFileEntry> ResourceEntries;
 	std::vector<RpfBinaryFileEntry> BinaryEntries;

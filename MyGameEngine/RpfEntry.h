@@ -36,8 +36,12 @@ public:
 
 	RpfDirectoryEntry(memstream& stream);
 };
+
+class RpfFile;
+
 class RpfFileEntry : public RpfEntry {
 public:
+	RpfFile * File;
 	uint32_t FileOffset;
 	uint32_t FileSize;
 	bool IsEncrypted;
@@ -48,14 +52,11 @@ public:
 	uint32_t FileUncompressedSize;
 	uint32_t EncryptionType;
 
-	RpfBinaryFileEntry(memstream& stream);
+	RpfBinaryFileEntry(memstream& stream, uint64_t StartPos);
 };
-
-class RpfFile;
 
 class RpfResourceFileEntry : public RpfFileEntry {
 public:
-	RpfFile* File;
 	uint32_t SystemFlags;
 	uint32_t GraphicsFlags;
 
