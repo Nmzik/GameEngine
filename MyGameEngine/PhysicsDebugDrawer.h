@@ -1,7 +1,7 @@
 #pragma once
 #include "LinearMath/btIDebugDraw.h"
 #include "opengl.h"
-#include "glm.hpp"
+#include "glm/glm.hpp"
 #include <vector>
 
 class PhysicsDebugDrawer : public btIDebugDraw

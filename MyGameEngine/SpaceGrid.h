@@ -5,7 +5,7 @@
 #include <string>
 #include "membuf.h"
 #include "zlib.h"
-#include "glm.hpp"
+#include "glm/glm.hpp"
 #include "CacheDatFile.h"
 #include "YndLoader.h"
 

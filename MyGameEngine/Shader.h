@@ -1,6 +1,6 @@
 #pragma once
 #include "opengl.h"
-#include <glm.hpp>
+#include <glm/glm.hpp>
 #include <fstream>
 #include <sstream>
 #include "iostream"

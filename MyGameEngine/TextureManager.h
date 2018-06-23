@@ -1,6 +1,6 @@
 #pragma once
 #include <iostream>
-#include "glm.hpp"
+#include "glm/glm.hpp"
 #include "opengl.h"
 #include "stb_image.h"
 #include <unordered_map>

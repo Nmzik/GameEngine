@@ -7,3 +7,12 @@
 [submodule "3rdparty/glm"]
 	path = 3rdparty/glm
 	url = https://github.com/g-truc/glm.git
+[submodule "3rdparty/freetype"]
+	path = 3rdparty/freetype
+	url = https://github.com/aseprite/freetype2.git
+[submodule "3rdparty/recastnavigation"]
+	path = 3rdparty/recastnavigation
+	url = https://github.com/recastnavigation/recastnavigation.git
+[submodule "3rdparty/sdl"]
+	path = 3rdparty/sdl
+	url = https://github.com/spurious/SDL-mirror.git
