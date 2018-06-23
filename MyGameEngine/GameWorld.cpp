@@ -15,9 +15,6 @@ GameWorld::GameWorld()
 
 	debug.setDebugMode(btIDebugDraw::DBG_DrawWireframe);
 	dynamicsWorld->setDebugDrawer(&debug);
-
-	//Default texture
-	TextureManager::LoadTexture(0, TextureManager::loadTexture("blank.jpg"));
 	//////////////////////////////////////////////////////////////////////////////
 
 	_ResourceManager = new ResourceManager(this);
@@ -88,27 +85,16 @@ GameWorld::GameWorld()
 
 	//RenderList
 	renderList.reserve(2000);
-	/*{
-			//std::cout << "YTD Found " << std::endl;
-			auto iter;
-			iter = data.YtdEntries.find(3523992128);
-			if (iter != data.YtdEntries.end())
-			{
-				std::cout << "YTD Found " << iter->second->Name << std::endl;
-				auto& element = *(iter->second);
-				std::vector<uint8_t> outputBuffer;
-				data.ExtractFileResource(element, outputBuffer);
-
-				memstream stream(outputBuffer.data(), outputBuffer.size());
-
-				YtdLoader* file = new YtdLoader(stream, 3523992128);
-			}
-	}*/
-	//*LoadYTD(3523992128); //water.ytd
 
 	MeshManager::Initialize();
 	TextureManager::Initialize();
 
+	//Default texture
+	while (!LoadYTD(3570112701)->Loaded)
+	{
+		LoadQueuedResources();
+	}
+	//
 	/*while (!LoadYTD(3154743001)->Loaded)
 	{
 		LoadQueuedResources();

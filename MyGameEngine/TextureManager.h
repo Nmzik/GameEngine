@@ -2,7 +2,6 @@
 #include <iostream>
 #include "glm/glm.hpp"
 #include "opengl.h"
-#include "stb_image.h"
 #include <unordered_map>
 #include <string>
 #include <vector>
@@ -21,7 +20,6 @@ public:
 	static GLuint GetTexture(uint32_t textureHash);
 	static void LoadTexture(uint32_t Hash, GLuint TextureID);
 	static void RemoveTexture(uint32_t Hash);
-	static GLuint loadTexture(std::string path);
 
 	static void Initialize();
 
