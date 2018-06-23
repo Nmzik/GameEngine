@@ -19,7 +19,28 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${PROJECT_BINARY_DIR}/bin")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${PROJECT_BINARY_DIR}/bin")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO "${PROJECT_BINARY_DIR}/bin")
 
+set(RECASTNAVIGATION_DEMO OFF CACHE STRING "" FORCE)
+set(RECASTNAVIGATION_EXAMPLES OFF CACHE STRING "" FORCE)
+set(RECASTNAVIGATION_TESTS OFF CACHE STRING "" FORCE)
+
 add_subdirectory(3rdparty/recastnavigation)
+
+# Set up bullet
+set(BUILD_CLSOCKET OFF CACHE STRING "" FORCE)
+set(BUILD_ENET OFF CACHE STRING "" FORCE)
+set(BUILD_EXTRAS OFF CACHE STRING "" FORCE)
+set(USE_GRAPHICAL_BENCHMARK OFF CACHE STRING "" FORCE)
+set(USE_GLUT OFF CACHE STRING "" FORCE)
+set(USE_MSVC_RUNTIME_LIBRARY_DLL ON CACHE STRING "" FORCE) # Don't statically link this
+set(BUILD_BULLET2_DEMOS OFF CACHE STRING "" FORCE) # No samples
+set(BUILD_OPENGL3_DEMOS OFF CACHE STRING "" FORCE) # No samples
+set(BUILD_UNIT_TESTS OFF CACHE STRING "" FORCE) # No tests
+set(BUILD_CPU_DEMOS OFF CACHE STRING "" FORCE) # No samples
+set(GLFW_BUILD_EXAMPLES OFF CACHE STRING "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE STRING "" FORCE)
+set(GLFW_BUILD_DOCS OFF CACHE STRING "" FORCE)
+set(BUILD_BULLET3 OFF CACHE STRING "" FORCE) # Can use bullet2, bullet3 wants to build examples...
+
 add_subdirectory(3rdparty/bullet)
 add_subdirectory(3rdparty/zlib 3rdparty/zlib)
 add_subdirectory(3rdparty/freetype)
@@ -53,3 +74,5 @@ target_link_libraries(MyGameEngine zlibstatic.lib)
 target_link_libraries(MyGameEngine Detour.lib)
 target_link_libraries(MyGameEngine Recast.lib)
 target_link_libraries(MyGameEngine freetype.lib)
+
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT MyGameEngine)
