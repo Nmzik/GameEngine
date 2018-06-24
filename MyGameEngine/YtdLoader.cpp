@@ -66,11 +66,12 @@ void YtdLoader::Init(memstream2 & file, int32_t systemSize)
 	for (int i = 0; i < resourcePointerList->EntriesCount; i++)
 	{
 		uint64_t* data_pointer = (uint64_t*)file.read(sizeof(uint64_t));
-		uint64_t posOriginal = file.tellg();
 
 		std::unordered_map<uint32_t, TextureManager::Texture>::iterator it = TextureManager::TexturesMap.find(TextureNameHashes[i]);
 		if (it == TextureManager::TexturesMap.end())
 		{
+			uint64_t posOriginal = file.tellg();
+
 			SYSTEM_BASE_PTR(data_pointer[0]);
 
 			file.seekg(data_pointer[0]);
@@ -114,24 +115,24 @@ void YtdLoader::Init(memstream2 & file, int32_t systemSize)
 					InternalFormat = GL_COMPRESSED_RG_RGTC2;
 					break;
 				case D3DFMT_A8R8G8B8:
-					InternalFormat = GL_RGBA8;
+					InternalFormat = GL_RGBA8; //Working
 					format = GL_UNSIGNED_INT_8_8_8_8_REV;
 					break;
-				case D3DFMT_A1R5G5B5:
+				case D3DFMT_A1R5G5B5: //NOTHING???!!!
 					InternalFormat = GL_RGB5_A1;
 					format = GL_UNSIGNED_SHORT_1_5_5_5_REV;
 					break;
-				case D3DFMT_A8:
+				case D3DFMT_A8: //COLOR BLACK ALWAYS?
 					InternalFormat = GL_RGB8;
 					format = GL_COMPRESSED_RG_RGTC2;
 					break;
-				case D3DFMT_A8B8G8R8:
+				case D3DFMT_A8B8G8R8: //CANT Check!
 					InternalFormat = GL_RGBA8;
-					format = GL_COMPRESSED_RG_RGTC2;
+					format = GL_UNSIGNED_INT_8_8_8_8_REV;
 					break;
-				case D3DFMT_L8:
-					InternalFormat = GL_RG;
-					format = GL_COMPRESSED_RG_RGTC2;
+				case D3DFMT_L8: //FONTS?
+					InternalFormat = GL_RED;
+					format = GL_UNSIGNED_BYTE;
 					break;
 				default:
 					printf("UNSUPPORTED FORMAT\n");
@@ -189,12 +190,12 @@ void YtdLoader::Init(memstream2 & file, int32_t systemSize)
 			}
 
 			TextureManager::LoadTexture(TextureNameHashes[i], textureID);
+
+			file.seekg(posOriginal);
 		}
 		else {
 			it->second.referenceCount++;
 		}
-
-		file.seekg(posOriginal);
 
 	}
 }
@@ -205,6 +206,5 @@ YtdLoader::~YtdLoader()
 	for (auto& hash : TextureNameHashes)
 	{
 		TextureManager::RemoveTexture(hash);
-
 	}
 }

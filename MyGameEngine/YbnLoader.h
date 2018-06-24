@@ -138,7 +138,7 @@ class YbnLoader
 	};
 
 	std::vector<glm::vec3> Vertices;
-	std::vector<uint16_t> indices;
+	std::vector<glm::u16vec3> indices;
 
 	btRigidBody * rigidBody = nullptr;
 	btDiscreteDynamicsWorld* CollisionWorld;

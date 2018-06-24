@@ -255,6 +255,7 @@ void YftLoader::Remove()
 {
 	Loaded = false;
 	if (YdrFile) {
+		YdrFile->Remove();
 		delete YdrFile;
 		YdrFile = nullptr;
 	}

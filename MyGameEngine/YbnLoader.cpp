@@ -14,7 +14,7 @@ void YbnLoader::Init(memstream2& file, btDiscreteDynamicsWorld* world)
 
 		BoundGeometry* geom = (BoundGeometry*)file.read(sizeof(BoundGeometry));
 
-		indices.reserve(geom->PolygonsCount * 3);
+		indices.reserve(geom->PolygonsCount);
 
 		std::vector<BoundPolygonSphere*> PolygonSpheres;
 		std::vector<BoundPolygonCapsule*> PolygonCapsules;
@@ -34,9 +34,7 @@ void YbnLoader::Init(memstream2& file, btDiscreteDynamicsWorld* world)
 			{
 			case 0: {
 				BoundPolygonTriangle* PolygonTriangle = (BoundPolygonTriangle*)file.read(sizeof(BoundPolygonTriangle));
-				indices.push_back(PolygonTriangle->triIndex1 & 0x7FFF);
-				indices.push_back(PolygonTriangle->triIndex2 & 0x7FFF);
-				indices.push_back(PolygonTriangle->triIndex3 & 0x7FFF);
+				indices.emplace_back(PolygonTriangle->triIndex1 & 0x7FFF, PolygonTriangle->triIndex2 & 0x7FFF, PolygonTriangle->triIndex3 & 0x7FFF);
 				break;
 			}
 			case 1: {
@@ -69,12 +67,9 @@ void YbnLoader::Init(memstream2& file, btDiscreteDynamicsWorld* world)
 
 		///////////////////
 		SYSTEM_BASE_PTR(geom->VerticesPointer);
+		file.seekg(geom->VerticesPointer);
 
-		//file.seekg(geom->VerticesPointer);
-
-		glm::i16vec3 *vertices = new glm::i16vec3[geom->VerticesCount];
-		memcpy(&vertices[0], &file.data[geom->VerticesPointer], sizeof(glm::i16vec3) * geom->VerticesCount);
-		//file.read((char*)&vertices[0], sizeof(glm::i16vec3) * geom->VerticesCount);
+		glm::i16vec3 *vertices = (glm::i16vec3*)file.read(sizeof(glm::i16vec3));
 
 		Vertices.resize(geom->VerticesCount);
 		for (uint32_t i = 0; i < geom->VerticesCount; i++)
@@ -82,7 +77,7 @@ void YbnLoader::Init(memstream2& file, btDiscreteDynamicsWorld* world)
 			Vertices[i] = glm::vec3(vertices[i].x, vertices[i].y, vertices[i].z) * geom->Quantum;
 		}
 
-		delete[] vertices;
+		///////////////////
 
 		if (PolygonCylinders.size() != 0) {
 			for (int i = 0; i < PolygonCylinders.size(); i++)
@@ -159,7 +154,7 @@ void YbnLoader::Init(memstream2& file, btDiscreteDynamicsWorld* world)
 
 		if (indices.size() != 0) {
 			btIndexedMesh mesh;
-			mesh.m_numTriangles = indices.size() / 3;
+			mesh.m_numTriangles = indices.size();
 			mesh.m_triangleIndexBase = (uint8_t*)indices.data();
 			mesh.m_triangleIndexStride = 3 * sizeof(uint16_t);
 			mesh.m_numVertices = Vertices.size();
@@ -192,7 +187,7 @@ void YbnLoader::Init(memstream2& file, btDiscreteDynamicsWorld* world)
 		world->addRigidBody(rigidBody);
 	}
 
-	if (bounds->Type == 10) {
+	else if (bounds->Type == 10) {
 		BoundComposite* boundComposite = (BoundComposite*)file.read(sizeof(BoundComposite));
 
 		SYSTEM_BASE_PTR(boundComposite->ChildrenPointer);
