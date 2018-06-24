@@ -83,14 +83,6 @@ void YtdLoader::Init(memstream2 & file, int32_t systemSize)
 
 			texture->DataPointer += systemSize;
 
-			int fullLength = 0;
-			int length = texture->Stride * texture->Height;
-			for (int i = 0; i < texture->Levels; i++)
-			{
-				fullLength += length;
-				length /= 4;
-			}
-
 			unsigned int format;
 			unsigned int InternalFormat;
 			bool compressed = false;
@@ -172,11 +164,10 @@ void YtdLoader::Init(memstream2 & file, int32_t systemSize)
 				{
 					unsigned int size = ((texture->Width + 3) / 4)*((texture->Height + 3) / 4)*blockSize;
 					glCompressedTexSubImage2D(GL_TEXTURE_2D, level, 0, 0, texture->Width, texture->Height, InternalFormat, size, &file.data[texture->DataPointer] + offset);
-					//glCompressedTexImage2D(GL_TEXTURE_2D, level, InternalFormat, texture->Width, texture->Height, 0, size, &file._buffer.p[texture->DataPointer] + offset);
 
 					offset += size;
-					texture->Width = std::max(texture->Width / 2, 1);
-					texture->Height = std::max(texture->Height / 2, 1);
+					texture->Width  /= 2;
+					texture->Height /= 2;
 				}
 
 			}
@@ -187,14 +178,15 @@ void YtdLoader::Init(memstream2 & file, int32_t systemSize)
 				{
 					unsigned int size = ((texture->Width + 1) >> 1)  * ((texture->Height + 1) >> 1) * 4;
 
-					glTexSubImage2D(GL_TEXTURE_2D, texture->Levels, 0, 0, texture->Width, texture->Height, GL_BGRA, format, &file.data[texture->DataPointer] + offset);
+					glTexSubImage2D(GL_TEXTURE_2D, level, 0, 0, texture->Width, texture->Height, GL_BGRA, format, &file.data[texture->DataPointer] + offset);
 
 					offset += size;
-					texture->Width = std::max(texture->Width / 2, 1);
-					texture->Height = std::max(texture->Height / 2, 1);
+					//texture->Width = std::max(texture->Width / 2, 1);
+					//texture->Height = std::max(texture->Height / 2, 1);
+					texture->Width  /= 2;
+					texture->Height /= 2;
 				}
 			}
-
 
 			TextureManager::LoadTexture(TextureNameHashes[i], textureID);
 		}
@@ -210,8 +202,9 @@ void YtdLoader::Init(memstream2 & file, int32_t systemSize)
 
 YtdLoader::~YtdLoader()
 {
-	for (int i = 0; i < TextureNameHashes.size(); i++)
+	for (auto& hash : TextureNameHashes)
 	{
-		TextureManager::RemoveTexture(TextureNameHashes[i]);
+		TextureManager::RemoveTexture(hash);
+
 	}
 }

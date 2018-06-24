@@ -94,6 +94,8 @@ GameWorld::GameWorld()
 	{
 		LoadQueuedResources();
 	}
+	TextureManager::LoadTexture(1551155749, TextureManager::GetTexture(475118591));
+
 	//
 	/*while (!LoadYTD(3154743001)->Loaded)
 	{

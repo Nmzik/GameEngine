@@ -16,10 +16,6 @@ GLuint TextureManager::GetTexture(uint32_t textureHash)
 	{
 		return it->second.TextureID;
 	}
-	else if (textureHash == 1551155749){
-		it = TexturesMap.find(475118591);
-		return it->second.TextureID;
-	}
 	else {
 		it = TexturesMap.find(475118591);
 		return it->second.TextureID;
