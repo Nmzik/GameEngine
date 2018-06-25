@@ -633,16 +633,18 @@ void GameWorld::LoadQueuedResources()
 		memstream2 stream((*it)->Buffer.data(), (*it)->Buffer.size());
 
 		/*if ((*it)->Hash == 4143923005) {
-			printf("");
+		printf("");
 		}*/
+
 
 		//Object hash equal to texture hash what should we do? there are +hi textures with the same name 
 
-
 		if ((*it)->type == ydr || (*it)->type == ydd || (*it)->type == yft) {
 			if (!(*it)->TextureDictionaryHash == 0) {
-				if (!((*it)->Hash == (*it)->TextureDictionaryHash)) {
-					if (!LoadYTD((*it)->TextureDictionaryHash)->Loaded) {
+				auto iter = ytdLoader.find((*it)->TextureDictionaryHash);
+				if (iter != ytdLoader.end())
+				{
+					if (!iter->second->Loaded) {
 						++it;
 						continue;
 					}
@@ -948,5 +950,5 @@ bool GameWorld::DetectInWater(glm::vec3 Position) {
 
 void GameWorld::ClearTestFunction()
 {
-	
+
 }
