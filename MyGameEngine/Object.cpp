@@ -18,4 +18,6 @@ Object::~Object()
 		ydd->RefCount--;
 	if (yft)
 		yft->RefCount--;
+	if (ytd)
+		ytd->RefCount--;
 }

@@ -13,6 +13,7 @@ public:
 	YdrLoader* ydr = nullptr;
 	YddLoader* ydd = nullptr;
 	YftLoader* yft = nullptr;
+	YtdLoader* ytd = nullptr;
 	bool Loaded = false;
 	bool FoundModel = false;
 	bool FoundBaseModel = false;

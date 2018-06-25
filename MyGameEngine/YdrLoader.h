@@ -439,7 +439,6 @@ class YdrLoader
 public:
 	YdrLoader * next;
 	std::vector<Mesh> meshes;
-	YtdLoader * externalYtd = nullptr;
 	bool isVisible = false;
 	uint32_t RefCount = 0;
 	bool Loaded = false;

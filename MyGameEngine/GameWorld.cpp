@@ -200,6 +200,7 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera)
 						case ASSET_TYPE_DRAWABLE: {
 							if (!object.FoundModel) {
 								object.ydr = GetYdr(object.CEntity.archetypeName, object.Archetype._BaseArchetypeDef.textureDictionary);
+								object.ytd = LoadYTD(object.Archetype._BaseArchetypeDef.textureDictionary);
 								object.FoundModel = true;
 							}
 							if (object.ydr->Loaded)
@@ -209,6 +210,7 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera)
 						case ASSET_TYPE_DRAWABLEDICTIONARY: {
 							if (!object.FoundModel) {
 								object.ydd = GetYdd(object.Archetype._BaseArchetypeDef.drawableDictionary, object.Archetype._BaseArchetypeDef.textureDictionary);
+								object.ytd = LoadYTD(object.Archetype._BaseArchetypeDef.textureDictionary);
 								object.FoundModel = true;
 							}
 							if (object.ydd->Loaded) {
@@ -224,6 +226,7 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera)
 						case ASSET_TYPE_FRAGMENT: {
 							if (!object.FoundModel) {
 								object.yft = GetYft(object.CEntity.archetypeName, object.Archetype._BaseArchetypeDef.textureDictionary);
+								object.ytd = LoadYTD(object.Archetype._BaseArchetypeDef.textureDictionary);
 								object.FoundModel = true;
 							}
 							if (object.yft->Loaded) {
@@ -372,7 +375,6 @@ YdrLoader * GameWorld::GetYdr(uint32_t hash, uint32_t TextureDictionaryHash)
 		return iter->second;
 	}
 	else {
-		LoadYTD(TextureDictionaryHash);
 		GetResourceManager()->AddToWaitingList(new Resource(ydr, hash, TextureDictionaryHash));
 		YdrLoader* loader = ydrPool.Load();
 		loader->RefCount++;
@@ -391,7 +393,6 @@ YddLoader * GameWorld::GetYdd(uint32_t hash, uint32_t TextureDictionaryHash)
 		return iter->second;
 	}
 	else {
-		LoadYTD(TextureDictionaryHash);
 		GetResourceManager()->AddToWaitingList(new Resource(ydd, hash, TextureDictionaryHash));
 		YddLoader* loader = yddPool.Load();
 		loader->RefCount++;
@@ -410,7 +411,6 @@ YftLoader * GameWorld::GetYft(uint32_t hash, uint32_t TextureDictionaryHash)
 		return iter->second;
 	}
 	else {
-		LoadYTD(TextureDictionaryHash);
 		GetResourceManager()->AddToWaitingList(new Resource(yft, hash, TextureDictionaryHash));
 		YftLoader* loader = yftPool.Load();
 		loader->RefCount++;
@@ -517,6 +517,7 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 	//printf("SIZE YDR %zd\n", ydrLoader.size());
 	//printf("SIZE YDD %zd\n", yddLoader.size());
 	//printf("SIZE YFT %zd\n", yftLoader.size());
+	//printf("SIZE YTD %zd\n", ytdLoader.size());
 	//LoadYBN(Proxy->Name);
 	//LoadYmap(Proxy->Parent, Position);
 

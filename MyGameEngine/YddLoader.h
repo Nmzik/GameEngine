@@ -6,7 +6,6 @@ class YddLoader
 public:
 	YddLoader * next;
 	std::unordered_map<uint32_t, YdrLoader*> YdrFiles;
-	YtdLoader * externalYtd = nullptr;
 	uint32_t RefCount = 0;
 	bool Loaded = false;
 
