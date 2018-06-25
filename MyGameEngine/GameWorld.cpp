@@ -304,14 +304,16 @@ YmapLoader* GameWorld::GetYmap(uint32_t hash)
 		return it->second;
 	}
 	else {
-		ymapLoader[hash] = ymapPool.Load();
-		ymapLoader[hash]->RefCount++;
 		GetResourceManager()->AddToWaitingList(new Resource(ymap, hash));
-		return ymapLoader[hash];
+		YmapLoader* loader = ymapPool.Load();
+		loader->RefCount++;
+		ymapLoader[hash] = loader;
+
+		return loader;
 	}
 }
 
-bool GameWorld::LoadYTYP(uint32_t hash)
+/*bool GameWorld::LoadYTYP(uint32_t hash)
 {
 	auto it = data.YtypEntries.find(hash);
 	if (it != data.YtypEntries.end())
@@ -328,7 +330,7 @@ bool GameWorld::LoadYTYP(uint32_t hash)
 
 		return true;
 	}
-}
+}*/
 
 void GameWorld::LoadGtxd(uint32_t hash)
 {
@@ -352,12 +354,12 @@ YtdLoader* GameWorld::LoadYTD(uint32_t hash)
 	}
 	else {
 		//LoadGtxd(hash);
-
-		ytdLoader[hash] = new YtdLoader();
-		ytdLoader[hash]->RefCount++;
 		GetResourceManager()->AddToWaitingList(new Resource(ytd, hash));
+		YtdLoader* loader = new YtdLoader();
+		loader->RefCount++;
+		ytdLoader[hash] = loader;
 
-		return ytdLoader[hash];
+		return loader;
 	}
 }
 
@@ -370,8 +372,9 @@ YdrLoader * GameWorld::GetYdr(uint32_t hash, uint32_t TextureDictionaryHash)
 		return iter->second;
 	}
 	else {
-		ydrLoader[hash] = ydrPool.Load();
-		ydrLoader[hash]->RefCount++;
+		YdrLoader* loader = ydrPool.Load();
+		loader->RefCount++;
+		ydrLoader[hash] = loader;
 
 		auto ytdEntry = data.YtdEntries.find(TextureDictionaryHash);
 		if (ytdEntry != data.YtdEntries.end()) {
@@ -382,7 +385,7 @@ YdrLoader * GameWorld::GetYdr(uint32_t hash, uint32_t TextureDictionaryHash)
 			GetResourceManager()->AddToWaitingList(new Resource(ydr, hash, 0));
 		}
 
-		return ydrLoader[hash];
+		return loader;
 	}
 }
 
@@ -395,8 +398,9 @@ YddLoader * GameWorld::GetYdd(uint32_t hash, uint32_t TextureDictionaryHash)
 		return iter->second;
 	}
 	else {
-		yddLoader[hash] = yddPool.Load();
-		yddLoader[hash]->RefCount++;
+		YddLoader* loader = yddPool.Load();
+		loader->RefCount++;
+		yddLoader[hash] = loader;
 
 		auto ytdEntry = data.YtdEntries.find(TextureDictionaryHash);
 		if (ytdEntry != data.YtdEntries.end()) {
@@ -407,7 +411,7 @@ YddLoader * GameWorld::GetYdd(uint32_t hash, uint32_t TextureDictionaryHash)
 			GetResourceManager()->AddToWaitingList(new Resource(ydd, hash, 0));
 		}
 
-		return yddLoader[hash];
+		return loader;
 	}
 }
 
@@ -420,8 +424,9 @@ YftLoader * GameWorld::GetYft(uint32_t hash, uint32_t TextureDictionaryHash)
 		return iter->second;
 	}
 	else {
-		yftLoader[hash] = yftPool.Load();
-		yftLoader[hash]->RefCount++;
+		YftLoader* loader = yftPool.Load();
+		loader->RefCount++;
+		yftLoader[hash] = loader;
 
 		auto ytdEntry = data.YtdEntries.find(TextureDictionaryHash);
 		if (ytdEntry != data.YtdEntries.end()) {
@@ -432,7 +437,7 @@ YftLoader * GameWorld::GetYft(uint32_t hash, uint32_t TextureDictionaryHash)
 			GetResourceManager()->AddToWaitingList(new Resource(yft, hash, 0));
 		}
 
-		return yftLoader[hash];
+		return loader;
 	}
 }
 
@@ -445,10 +450,11 @@ YbnLoader* GameWorld::GetYBN(uint32_t hash)
 		return iter->second;
 	}
 	else {
-		ybnLoader[hash] = new YbnLoader();
-		ybnLoader[hash]->RefCount++;
 		GetResourceManager()->AddToWaitingList(new Resource(ybn, hash));
-		return ybnLoader[hash];
+		YbnLoader* loader = new YbnLoader();
+		loader->RefCount++;
+		ybnLoader[hash] = loader;
+		return loader;
 	}
 }
 

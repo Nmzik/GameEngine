@@ -81,6 +81,9 @@ void ResourceManager::update()
 					gameworld->resources.push_back(res);
 					gameworld->resources_lock.unlock();
 				}
+				else {
+					delete res;
+				}
 			}
 			break;
 			case ydr:
@@ -96,7 +99,7 @@ void ResourceManager::update()
 					gameworld->resources_lock.unlock();
 				}
 				else {
-					printf("");
+					delete res;
 				}
 			}
 			break;
@@ -111,6 +114,9 @@ void ResourceManager::update()
 					gameworld->resources_lock.lock();
 					gameworld->resources.push_back(res);
 					gameworld->resources_lock.unlock();
+				}
+				else {
+					delete res;
 				}
 			}
 			break;
@@ -127,7 +133,7 @@ void ResourceManager::update()
 					gameworld->resources_lock.unlock();
 				}
 				else {
-					printf("");
+					delete res;
 				}
 			}
 			break;
@@ -143,7 +149,11 @@ void ResourceManager::update()
 					gameworld->resources.push_back(res);
 					gameworld->resources_lock.unlock();
 				}
+				else {
+					delete res;
+				}
 			}
+
 			break;
 			case ybn:
 			{
@@ -156,6 +166,9 @@ void ResourceManager::update()
 					gameworld->resources_lock.lock();
 					gameworld->resources.push_back(res);
 					gameworld->resources_lock.unlock();
+				}
+				else {
+					delete res;
 				}
 			}
 			break;

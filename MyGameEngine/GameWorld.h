@@ -96,7 +96,7 @@ public:
 
 	void LoadYmap(YmapLoader* map, Camera* camera);
 	YmapLoader* GetYmap(uint32_t hash);
-	bool LoadYTYP(uint32_t hash);
+	//bool LoadYTYP(uint32_t hash);
 
 	YtdLoader* LoadYTD(uint32_t hash);
 	void LoadGtxd(uint32_t hash);
