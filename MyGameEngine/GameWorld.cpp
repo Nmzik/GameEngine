@@ -372,18 +372,11 @@ YdrLoader * GameWorld::GetYdr(uint32_t hash, uint32_t TextureDictionaryHash)
 		return iter->second;
 	}
 	else {
+		LoadYTD(TextureDictionaryHash);
+		GetResourceManager()->AddToWaitingList(new Resource(ydr, hash, TextureDictionaryHash));
 		YdrLoader* loader = ydrPool.Load();
 		loader->RefCount++;
 		ydrLoader[hash] = loader;
-
-		auto ytdEntry = data.YtdEntries.find(TextureDictionaryHash);
-		if (ytdEntry != data.YtdEntries.end()) {
-			LoadYTD(TextureDictionaryHash);
-			GetResourceManager()->AddToWaitingList(new Resource(ydr, hash, TextureDictionaryHash));
-		}
-		else {
-			GetResourceManager()->AddToWaitingList(new Resource(ydr, hash, 0));
-		}
 
 		return loader;
 	}
@@ -398,18 +391,11 @@ YddLoader * GameWorld::GetYdd(uint32_t hash, uint32_t TextureDictionaryHash)
 		return iter->second;
 	}
 	else {
+		LoadYTD(TextureDictionaryHash);
+		GetResourceManager()->AddToWaitingList(new Resource(ydd, hash, TextureDictionaryHash));
 		YddLoader* loader = yddPool.Load();
 		loader->RefCount++;
 		yddLoader[hash] = loader;
-
-		auto ytdEntry = data.YtdEntries.find(TextureDictionaryHash);
-		if (ytdEntry != data.YtdEntries.end()) {
-			LoadYTD(TextureDictionaryHash);
-			GetResourceManager()->AddToWaitingList(new Resource(ydd, hash, TextureDictionaryHash));
-		}
-		else {
-			GetResourceManager()->AddToWaitingList(new Resource(ydd, hash, 0));
-		}
 
 		return loader;
 	}
@@ -424,18 +410,11 @@ YftLoader * GameWorld::GetYft(uint32_t hash, uint32_t TextureDictionaryHash)
 		return iter->second;
 	}
 	else {
+		LoadYTD(TextureDictionaryHash);
+		GetResourceManager()->AddToWaitingList(new Resource(yft, hash, TextureDictionaryHash));
 		YftLoader* loader = yftPool.Load();
 		loader->RefCount++;
 		yftLoader[hash] = loader;
-
-		auto ytdEntry = data.YtdEntries.find(TextureDictionaryHash);
-		if (ytdEntry != data.YtdEntries.end()) {
-			LoadYTD(TextureDictionaryHash);
-			GetResourceManager()->AddToWaitingList(new Resource(yft, hash, TextureDictionaryHash));
-		}
-		else {
-			GetResourceManager()->AddToWaitingList(new Resource(yft, hash, 0));
-		}
 
 		return loader;
 	}

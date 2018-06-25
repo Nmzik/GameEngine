@@ -14,7 +14,6 @@ public:
 	YddLoader* ydd = nullptr;
 	YftLoader* yft = nullptr;
 	bool Loaded = false;
-	bool FoundArchetype = false;
 	bool FoundModel = false;
 	bool FoundBaseModel = false;
 	uint8_t type = 0;

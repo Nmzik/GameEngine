@@ -50,8 +50,6 @@ void ResourceManager::update()
 								if (object.CEntity.childLodDist <= 0) object.CEntity.childLodDist = it->second.lodDist;
 
 								object.type = 1;
-
-								//object.FoundArchetype = true;
 							}
 							else {
 								std::unordered_map<uint32_t, CTimeArchetypeDef>::iterator it = gameworld->getGameData()->CTimeArchetypeDefs.find(object.CEntity.archetypeName);
@@ -65,8 +63,6 @@ void ResourceManager::update()
 									if (object.CEntity.childLodDist <= 0) object.CEntity.childLodDist = it->second._BaseArchetypeDef.lodDist;
 
 									object.type = 2;
-
-									//object.FoundArchetype = true;
 								}
 							}
 
@@ -94,6 +90,13 @@ void ResourceManager::update()
 					res->Buffer.resize(it->second->SystemSize + it->second->GraphicsSize);
 					gameworld->getGameData()->ExtractFileResource(*(it->second), res->Buffer);
 					res->SystemSize = it->second->SystemSize;
+
+					auto it = gameworld->getGameData()->YtdEntries.find(res->TextureDictionaryHash);
+					if (it == gameworld->getGameData()->YtdEntries.end())
+					{
+						res->TextureDictionaryHash = 0;
+					}
+
 					gameworld->resources_lock.lock();
 					gameworld->resources.push_back(res);
 					gameworld->resources_lock.unlock();
@@ -111,6 +114,13 @@ void ResourceManager::update()
 					res->Buffer.resize(it->second->SystemSize + it->second->GraphicsSize);
 					gameworld->getGameData()->ExtractFileResource(*(it->second), res->Buffer);
 					res->SystemSize = it->second->SystemSize;
+
+					auto it = gameworld->getGameData()->YtdEntries.find(res->TextureDictionaryHash);
+					if (it == gameworld->getGameData()->YtdEntries.end())
+					{
+						res->TextureDictionaryHash = 0;
+					}
+
 					gameworld->resources_lock.lock();
 					gameworld->resources.push_back(res);
 					gameworld->resources_lock.unlock();
@@ -128,6 +138,13 @@ void ResourceManager::update()
 					res->Buffer.resize(it->second->SystemSize + it->second->GraphicsSize);
 					gameworld->getGameData()->ExtractFileResource(*(it->second), res->Buffer);
 					res->SystemSize = it->second->SystemSize;
+
+					auto it = gameworld->getGameData()->YtdEntries.find(res->TextureDictionaryHash);
+					if (it == gameworld->getGameData()->YtdEntries.end())
+					{
+						res->TextureDictionaryHash = 0;
+					}
+
 					gameworld->resources_lock.lock();
 					gameworld->resources.push_back(res);
 					gameworld->resources_lock.unlock();
