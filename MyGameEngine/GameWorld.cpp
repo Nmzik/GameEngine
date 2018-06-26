@@ -358,7 +358,7 @@ YtdLoader* GameWorld::LoadYTD(uint32_t hash)
 	else {
 		//LoadGtxd(hash);
 		GetResourceManager()->AddToWaitingList(new Resource(ytd, hash));
-		YtdLoader* loader = new YtdLoader();
+		YtdLoader* loader = ytdPool.Load();
 		loader->RefCount++;
 		ytdLoader[hash] = loader;
 
@@ -430,7 +430,7 @@ YbnLoader* GameWorld::GetYBN(uint32_t hash)
 	}
 	else {
 		GetResourceManager()->AddToWaitingList(new Resource(ybn, hash));
-		YbnLoader* loader = new YbnLoader();
+		YbnLoader* loader = ybnPool.Load();
 		loader->RefCount++;
 		ybnLoader[hash] = loader;
 		return loader;
@@ -528,7 +528,7 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 	{
 		if ((it->second)->RefCount == 0)
 		{
-			delete it->second;
+			ybnPool.Remove(it->second);
 			it = ybnLoader.erase(it);
 		}
 		else
@@ -593,7 +593,7 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 	{
 		if ((it->second)->RefCount == 0)
 		{
-			delete it->second;
+			ytdPool.Remove(it->second);
 			it = ytdLoader.erase(it);
 		}
 		else

@@ -147,9 +147,24 @@ class YbnLoader
 	btBvhTriangleMeshShape* trishape = nullptr;
 	std::vector<YbnLoader*> ybns;
 public:
+	YbnLoader * next;
 	uint32_t RefCount = 0;
 
 	void Init(memstream2 & file, btDiscreteDynamicsWorld * world);
-	~YbnLoader();
+	void Remove();
 };
 
+class YbnPool
+{
+public:
+	YbnPool();
+	~YbnPool();
+
+	YbnLoader* Load();
+	void Remove(YbnLoader* ybn);
+
+	YbnLoader ybns[50];
+
+private:
+	YbnLoader * firstAvailable_;
+};

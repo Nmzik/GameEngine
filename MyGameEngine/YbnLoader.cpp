@@ -215,27 +215,73 @@ void YbnLoader::Init(memstream2& file, btDiscreteDynamicsWorld* world)
 	}
 }
 
-YbnLoader::~YbnLoader()
+void YbnLoader::Remove()
 {
 	for (int i = 0; i < ybns.size(); i++)
 	{
 		delete ybns[i];
 	}
+	ybns.clear();
 
 	for (auto& shape : Shapes)
 	{
 		delete shape;
 	}
 
-	if (VertIndicesArray)
+	Shapes.clear();
+
+	if (trishape) {
 		delete VertIndicesArray;
-	if (trishape)
+		VertIndicesArray = nullptr;
 		delete trishape;
+		trishape = nullptr;
+	}
+
+	Vertices.clear();
+	indices.clear();
+
 	if (rigidBody) {
 		delete rigidBody->getMotionState();
 
 		CollisionWorld->removeRigidBody(rigidBody);
 
 		delete rigidBody;
+
+		rigidBody = nullptr;
 	}
+}
+
+YbnPool::YbnPool()
+{
+	firstAvailable_ = &ybns[0];
+
+	for (int i = 0; i < 49; i++)
+	{
+		ybns[i].next = &ybns[i + 1];
+	}
+
+	ybns[49].next = NULL;
+}
+
+YbnPool::~YbnPool()
+{
+}
+
+YbnLoader * YbnPool::Load()
+{
+	// Make sure the pool isn't full.
+	assert(firstAvailable_ != NULL);
+
+	// Remove it from the available list.
+	YbnLoader * newYbn = firstAvailable_;
+	firstAvailable_ = newYbn->next;
+
+	return newYbn;
+}
+
+void YbnPool::Remove(YbnLoader * ybn)
+{
+	ybn->Remove();
+	ybn->next = firstAvailable_;
+	firstAvailable_ = ybn;
 }

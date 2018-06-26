@@ -72,6 +72,8 @@ public:
 	YdrPool ydrPool;
 	YddPool yddPool;
 	YftPool yftPool;
+	YtdPool ytdPool;
+	YbnPool ybnPool;
 	//PedPool pedPool;
 
 	std::mutex resources_lock;

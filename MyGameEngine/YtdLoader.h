@@ -41,11 +41,27 @@ struct TextureBase{
 class YtdLoader
 {
 public:
+	YtdLoader * next;
 	bool Loaded = false;
 	uint32_t RefCount = 0;
 	std::vector<uint32_t> TextureNameHashes;
 
 	void Init(memstream2& file, int32_t systemSize);
-	~YtdLoader();
+	void Remove();
+};
+
+class YtdPool
+{
+public:
+	YtdPool();
+	~YtdPool();
+
+	YtdLoader* Load();
+	void Remove(YtdLoader* ytd);
+
+	YtdLoader ytds[1500];
+
+private:
+	YtdLoader * firstAvailable_;
 };
 
