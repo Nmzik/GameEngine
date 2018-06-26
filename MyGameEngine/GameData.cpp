@@ -38,12 +38,12 @@ GameData::GameData()
 
 	LoadGtxd();
 
-	YdrEntries.reserve(110223);
-	YddEntries.reserve(17500);
-	YtdEntries.reserve(51008);
-	YftEntries.reserve(12052);
-	YmapEntries.reserve(9176);
-	YbnEntries.reserve(17418);
+	YdrEntries.reserve(55112);
+	YddEntries.reserve(8582);
+	YtdEntries.reserve(25504);
+	YftEntries.reserve(6026);
+	YmapEntries.reserve(4588);
+	YbnEntries.reserve(8709);
 
 	bool foundHandling = false;
 	bool WaterFound = false;
@@ -52,8 +52,11 @@ GameData::GameData()
 	{
 		for (auto& entry : rpfFile->ResourceEntries)
 		{
-			std::transform(entry.Name.begin(), entry.Name.end(), entry.Name.begin(), tolower);
+			//NO FILES DETECTED WITH uppercase in their names
+			//also it seems that full name (with extension) is never used in game engine
+			//std::transform(entry.Name.begin(), entry.Name.end(), entry.Name.begin(), tolower);
 			//entry.NameHash = GenHash(entry.Name);
+
 			size_t index = entry.Name.find_last_of('.');
 			std::string extension = entry.Name.substr(index);
 			entry.ShortNameHash = GenHash(entry.Name.substr(0, index));

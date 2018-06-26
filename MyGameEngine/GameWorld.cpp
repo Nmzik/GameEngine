@@ -75,10 +75,10 @@ GameWorld::GameWorld()
 	ydrLoader.reserve(500);
 	yddLoader.reserve(500);;
 	yftLoader.reserve(500);
-	ytdLoader.reserve(500);
+	ytdLoader.reserve(1500);
 	//yndLoader.reserve(500);
-	ybnLoader.reserve(500);
-	ytypLoader.reserve(500);
+	ybnLoader.reserve(50);
+	//ytypLoader.reserve(500);
 	ymapLoader.reserve(500);
 
 	pedestrians.reserve(20);
