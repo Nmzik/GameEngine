@@ -210,6 +210,7 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera)
 									btTransform transform;
 									transform.setIdentity();
 									transform.setOrigin(btVector3(object.position.x, object.position.y, object.position.z));
+									transform.setRotation(btQuaternion(-object.rotation.x, object.rotation.y, object.rotation.z, object.rotation.w));
 									for (auto & ybn : object.ydr->ybnfile->ybns)
 									{
 										if (ybn->rigidBody) 
