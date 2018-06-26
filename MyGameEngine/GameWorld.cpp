@@ -203,8 +203,22 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera)
 								object.ytd = LoadYTD(object.Archetype._BaseArchetypeDef.textureDictionary);
 								object.FoundModel = true;
 							}
-							if (object.ydr->Loaded)
+							if (object.ydr->Loaded) {
+								//SUPER DIRTY NEED FIX URGENT! UGLY FIX!!!
+								if (object.ydr->ybnfile) {
+									//SET POSITION OF COLLISION TO OBJECT PLACE
+									btTransform transform;
+									transform.setIdentity();
+									transform.setOrigin(btVector3(object.position.x, object.position.y, object.position.z));
+									for (auto & ybn : object.ydr->ybnfile->ybns)
+									{
+										if (ybn->rigidBody) 
+											ybn->rigidBody->setWorldTransform(transform);
+									}
+								}
+
 								object.FoundBaseModel = true;
+							}
 							break;
 						}
 						case ASSET_TYPE_DRAWABLEDICTIONARY: {

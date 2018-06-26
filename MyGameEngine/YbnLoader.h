@@ -140,14 +140,15 @@ class YbnLoader
 	std::vector<glm::vec3> Vertices;
 	std::vector<glm::u16vec3> indices;
 
-	btRigidBody * rigidBody = nullptr;
 	btDiscreteDynamicsWorld* CollisionWorld;
 	std::vector<btCollisionShape*> Shapes;
 	btTriangleIndexVertexArray* VertIndicesArray = nullptr;
 	btBvhTriangleMeshShape* trishape = nullptr;
-	std::vector<YbnLoader*> ybns;
 public:
 	YbnLoader * next;
+
+	btRigidBody * rigidBody = nullptr;
+	std::vector<YbnLoader*> ybns;
 	uint32_t RefCount = 0;
 
 	void Init(memstream2 & file, btDiscreteDynamicsWorld * world);

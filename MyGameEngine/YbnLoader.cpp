@@ -8,6 +8,8 @@ void YbnLoader::Init(memstream2& file, btDiscreteDynamicsWorld* world)
 
 	Bounds* bounds = (Bounds*)file.read(sizeof(Bounds));
 
+	//Bounds->type = 3???? WTF IS THAT
+
 	if (bounds->Type == 8 || bounds->Type == 4) {
 		btCompoundShape* compound = new btCompoundShape();
 		Shapes.push_back(compound);
@@ -217,9 +219,10 @@ void YbnLoader::Init(memstream2& file, btDiscreteDynamicsWorld* world)
 
 void YbnLoader::Remove()
 {
-	for (int i = 0; i < ybns.size(); i++)
+	for (auto& ybn : ybns)
 	{
-		delete ybns[i];
+		ybn->Remove();
+		delete ybn;
 	}
 	ybns.clear();
 

@@ -102,7 +102,7 @@ void ResourceManager::update()
 					gameworld->resources_lock.unlock();
 				}
 				else {
-					delete res;
+					delete res; //RARELY HAPPENS
 				}
 			}
 			break;

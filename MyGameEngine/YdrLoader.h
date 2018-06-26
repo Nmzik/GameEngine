@@ -434,10 +434,10 @@ class YbnLoader;
 class YdrLoader
 {
 	YtdLoader* Ytd = nullptr;
-	YbnLoader* ybnfile = nullptr;
 	std::vector<Material> materials;
 public:
 	YdrLoader * next;
+	YbnLoader* ybnfile = nullptr;
 	std::vector<Mesh> meshes;
 	bool isVisible = false;
 	uint32_t RefCount = 0;
