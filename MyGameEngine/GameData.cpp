@@ -5,6 +5,7 @@ GameData::GameData()
 	GTAEncryption::LoadKeys();
 
 	std::vector <std::string> RpfsFiles = {
+		"common.rpf",
 		"x64a.rpf",
 		"x64b.rpf",
 		"x64c.rpf",
@@ -35,9 +36,6 @@ GameData::GameData()
 		LoadRpf(rpfFile);
 	}
 
-	LoadHandlingData();
-	LoadScenesSwitch();
-	LoadWaterQuads();
 	LoadGtxd();
 
 	YdrEntries.reserve(110223);
@@ -48,15 +46,16 @@ GameData::GameData()
 	YbnEntries.reserve(17418);
 
 	bool foundHandling = false;
+	bool WaterFound = false;
 
 	for (auto& rpfFile : RpfFiles)
 	{
 		for (auto& entry : rpfFile->ResourceEntries)
 		{
-			std::string extension = entry.Name.substr(entry.Name.length() - 4);
 			std::transform(entry.Name.begin(), entry.Name.end(), entry.Name.begin(), tolower);
 			//entry.NameHash = GenHash(entry.Name);
 			size_t index = entry.Name.find_last_of('.');
+			std::string extension = entry.Name.substr(index);
 			entry.ShortNameHash = GenHash(entry.Name.substr(0, index));
 
 			if (extension == ".ydr") {
@@ -88,11 +87,11 @@ GameData::GameData()
 				//YbnEntries[entry.NameHash] = &entry;
 				YbnEntries[entry.ShortNameHash] = &entry;
 			}
-			else if (entry.Name.substr(entry.Name.length() - 5) == ".ymap") {
+			else if (extension == ".ymap") {
 				//YmapEntries[entry.NameHash] = &entry;
 				YmapEntries[entry.ShortNameHash] = &entry;
 			}
-			else if (entry.Name.substr(entry.Name.length() - 5) == ".ytyp") {
+			else if (extension == ".ytyp") {
 				//YtypEntries[entry.NameHash] = &entry;
 				//YtypEntries[entry.ShortNameHash] = &entry;
 
@@ -118,14 +117,32 @@ GameData::GameData()
 				}*/
 			}
 		}
-		/*for (auto& entry : rpfFile->BinaryEntries)
+		for (auto& entry : rpfFile->BinaryEntries)
 		{
-			if (entry.Name == "handling.meta" || !foundHandling) {
-				std::vector<uint8_t> Buffer;
-				ExtractFileResource(entry, Buffer);
+			if (entry.Name == "handling.meta" && !foundHandling) {
+				std::vector<uint8_t> Buffer(entry.FileUncompressedSize);
+				ExtractFileBinary(entry, Buffer);
+				LoadHandlingData(Buffer);
 				foundHandling = true;
 			}
-		}*/
+			if (entry.Name == "gta5_cache_y.dat") {
+				std::vector<uint8_t> Buffer(entry.FileUncompressedSize);
+				ExtractFileBinary(entry, Buffer);
+
+				cacheFile = new CacheDatFile(Buffer);
+			}
+			if (entry.Name == "water.xml" && !WaterFound) {
+				std::vector<uint8_t> Buffer(entry.FileUncompressedSize);
+				ExtractFileBinary(entry, Buffer);
+				LoadWaterQuads(Buffer);
+				WaterFound = true;
+			}
+			if (entry.Name == "playerswitchestablishingshots.meta") {
+				std::vector<uint8_t> Buffer(entry.FileUncompressedSize);
+				ExtractFileBinary(entry, Buffer);
+				LoadScenesSwitch(Buffer);
+			}
+		}
 	}
 }
 
@@ -134,10 +151,10 @@ GameData::~GameData()
 {
 }
 
-void GameData::LoadHandlingData()
+void GameData::LoadHandlingData(std::vector<uint8_t>& Buffer)
 {
 	tinyxml2::XMLDocument doc;
-	tinyxml2::XMLError eResult = doc.LoadFile("C:\\Users\\nmzik\\Desktop\\handling.meta");
+	tinyxml2::XMLError eResult = doc.Parse((char*)&Buffer[0], Buffer.size());
 
 	tinyxml2::XMLElement * root = doc.FirstChildElement("CHandlingDataMgr");
 
@@ -189,10 +206,10 @@ void GameData::LoadGtxd()
 	}
 }
 
-void GameData::LoadWaterQuads()
+void GameData::LoadWaterQuads(std::vector<uint8_t>& Buffer)
 {
 	tinyxml2::XMLDocument doc;
-	tinyxml2::XMLError eResult = doc.LoadFile("C:\\Users\\nmzik\\Desktop\\water.xml");
+	tinyxml2::XMLError eResult = doc.Parse((char*)&Buffer[0], Buffer.size());
 
 	tinyxml2::XMLElement * root = doc.FirstChildElement("WaterData");
 
@@ -250,10 +267,10 @@ void GameData::LoadWaterQuads()
 	}
 }
 
-void GameData::LoadScenesSwitch()
+void GameData::LoadScenesSwitch(std::vector<uint8_t>& Buffer)
 {
 	tinyxml2::XMLDocument doc;
-	tinyxml2::XMLError eResult = doc.LoadFile("C:\\Users\\nmzik\\Desktop\\playerswitchestablishingshots.meta");
+	tinyxml2::XMLError eResult = doc.Parse((char*)&Buffer[0], Buffer.size());
 
 	tinyxml2::XMLElement * root = doc.FirstChildElement("CPlayerSwitchEstablishingShotMetadataStore");
 
@@ -305,7 +322,7 @@ void GameData::LoadRpf(std::ifstream& rpf, std::string& FullPath_, std::string F
 	}
 }
 
-void GameData::ExtractFileResource(RpfBinaryFileEntry& entry, std::vector<uint8_t>& output)
+void GameData::ExtractFileBinary(RpfBinaryFileEntry& entry, std::vector<uint8_t>& output)
 {
 	auto& rpf = entry.File->rpf;
 

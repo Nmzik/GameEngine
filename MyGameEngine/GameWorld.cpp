@@ -51,20 +51,20 @@ GameWorld::GameWorld()
 		}
 	}
 
-	for (int i = 0; i < cacheFile.AllMapNodes.size(); i++)
+	for (int i = 0; i < data.cacheFile->AllMapNodes.size(); i++)
 	{
-		if (cacheFile.AllMapNodes[i].Unk1 == 1) //NOT SURE
-			spaceGrid.AddMapNode(&cacheFile.AllMapNodes[i], i);
+		if (data.cacheFile->AllMapNodes[i].Unk1 == 1) //NOT SURE
+			spaceGrid.AddMapNode(&data.cacheFile->AllMapNodes[i], i);
 	}
 
-	for (int i = 0; i < cacheFile.AllBoundsStoreItems.size(); i++)
+	for (int i = 0; i < data.cacheFile->AllBoundsStoreItems.size(); i++)
 	{
-		spaceGrid.AddBoundsItem(&cacheFile.AllBoundsStoreItems[i], i);
+		spaceGrid.AddBoundsItem(&data.cacheFile->AllBoundsStoreItems[i], i);
 	}
 
-	for (int i = 0; i < cacheFile.AllCInteriorProxies.size(); i++)
+	for (int i = 0; i < data.cacheFile->AllCInteriorProxies.size(); i++)
 	{
-		spaceGrid.AddCInteriorProxy(&cacheFile.AllCInteriorProxies[i], i);
+		spaceGrid.AddCInteriorProxy(&data.cacheFile->AllCInteriorProxies[i], i);
 	}
 
 	for (auto& vehicle : data.Vehicles)
@@ -470,12 +470,12 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 
 		for (auto& BoundsItem : cell.BoundsStoreItems)
 		{
-			CurYbns.emplace_back(GetYBN(cacheFile.AllBoundsStoreItems[BoundsItem].Name));
+			CurYbns.emplace_back(GetYBN(data.cacheFile->AllBoundsStoreItems[BoundsItem].Name));
 		}
 
 		for (auto& mapNode : cell.MapNodes)
 		{
-			CurYmaps.emplace_back(GetYmap(cacheFile.AllMapNodes[mapNode].Name));
+			CurYmaps.emplace_back(GetYmap(data.cacheFile->AllMapNodes[mapNode].Name));
 		}
 	}
 

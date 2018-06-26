@@ -17,7 +17,6 @@
 #include "YnvLoader.h"
 #include "GameData.h"
 #include "Material.h"
-#include "CacheDatFile.h"
 #include "SpaceGrid.h"
 #include "Water.h"
 #include "Shader.h"
@@ -47,7 +46,6 @@ class GameWorld
 	btDiscreteDynamicsWorld* dynamicsWorld;
 
 	GameData data;
-	CacheDatFile cacheFile;
 	SpaceGrid spaceGrid;
 	NodeGrid nodeGrid;
 	ResourceManager* _ResourceManager;

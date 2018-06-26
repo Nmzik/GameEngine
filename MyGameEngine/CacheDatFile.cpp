@@ -1,35 +1,18 @@
 #include "CacheDatFile.h"
 
-CacheDatFile::CacheDatFile()
+CacheDatFile::CacheDatFile(std::vector<uint8_t>& Data)
 {
-	std::string Path("C:\\Program Files\\Rockstar Games\\Grand Theft Auto V\\");
-
-	std::ifstream CacheFile("C:\\Users\\nmzik\\Desktop\\gta5_cache_y.dat", std::ios::binary);
-	if (!CacheFile.is_open()) {
-		printf("NOT FOUND CACHE FILE!\n");
-		return;
-	}
-
-	std::vector<uint8_t> Data;
-
-	//read to memory all file
-	CacheFile.seekg(0, std::ios::end);
-	uint64_t FileSize = CacheFile.tellg();
-	CacheFile.seekg(0, std::ios::beg);
-
-	Data.resize(FileSize);
-
-	CacheFile.read((char*)&Data[0], sizeof(uint8_t) * FileSize);
-
-	memstream stream(Data.data(), FileSize);
+	memstream stream(Data.data(), Data.size());
 	stream.seekg(100);
 	
 	uint32_t modlen;
 	uint32_t structcount = 0;
 
+	size_t SizeData = Data.size();
+
 	std::string line;
 	//skip version
-	for (uint32_t i = 100; i < FileSize; i++)
+	for (uint32_t i = 100; i < SizeData; i++)
 	{
 		uint8_t b;
 		stream.read((char*)&b, sizeof(uint8_t));

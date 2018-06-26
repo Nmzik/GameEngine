@@ -94,6 +94,7 @@ void RpfFile::LoadRpf(std::ifstream& rpf, std::string& FileName, uint32_t FileSi
 			RpfBinaryFileEntry entry(EntriesStream, startPos);
 			NamesStream.seekg(entry.NameOffset);
 			std::getline(NamesStream, entry.Name, '\0');
+			entry.File = this;
 			//printf("%s\n", entry.Name.c_str());
 			BinaryEntries.push_back(entry);
 		}

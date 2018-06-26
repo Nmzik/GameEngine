@@ -54,7 +54,7 @@ public:
 	std::vector<CInteriorProxy> AllCInteriorProxies;
 	std::vector<BoundsStoreItem> AllBoundsStoreItems;
 
-	CacheDatFile();
+	CacheDatFile(std::vector<uint8_t>& Data);
 	~CacheDatFile();
 };
 

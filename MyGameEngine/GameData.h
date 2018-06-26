@@ -5,6 +5,7 @@
 #include "tinyxml2.h"
 #include "YtypLoader.h"
 #include "YftLoader.h"
+#include "CacheDatFile.h"
 
 struct WaterQuad
 {
@@ -36,6 +37,7 @@ class GameData
 
 public:
 	std::vector<WaterQuad> WaterQuads;
+	CacheDatFile* cacheFile;
 
 	std::unordered_map<uint32_t, CBaseArchetypeDef> CBaseArchetypeDefs;
 	std::unordered_map<uint32_t, CTimeArchetypeDef> CTimeArchetypeDefs;
@@ -57,14 +59,14 @@ public:
 	GameData();
 	~GameData();
 
-	void LoadHandlingData();
+	void LoadHandlingData(std::vector<uint8_t>& Buffer);
 	void LoadGtxd();
-	void LoadWaterQuads();
-	void LoadScenesSwitch();
+	void LoadWaterQuads(std::vector<uint8_t>& Buffer);
+	void LoadScenesSwitch(std::vector<uint8_t>& Buffer);
 	void LoadRpf(std::string& RpfPath);
 	void LoadRpf(std::ifstream& rpf, std::string& FullPath_, std::string FileName_, uint32_t FileSize_, uint64_t FileOffset);
 
-	void ExtractFileResource(RpfBinaryFileEntry & entry, std::vector<uint8_t>& output);
+	void ExtractFileBinary(RpfBinaryFileEntry & entry, std::vector<uint8_t>& output);
 
 	void ExtractFileResource(RpfResourceFileEntry& entry, std::vector<uint8_t>& output);
 };
