@@ -1,5 +1,9 @@
 #include "YbnLoader.h"
 
+void YbnLoader::LoadYbn(memstream2 & file)
+{
+}
+
 void YbnLoader::Init(memstream2& file, btDiscreteDynamicsWorld* world)
 {
 	CollisionWorld = world;
@@ -26,6 +30,8 @@ void YbnLoader::Init(memstream2& file, btDiscreteDynamicsWorld* world)
 		SYSTEM_BASE_PTR(geom->PolygonsPointer);
 
 		file.seekg(geom->PolygonsPointer);
+
+		std::vector<glm::u16vec3*> indices;
 
 		for (uint32_t i = 0; i < geom->PolygonsCount; i++)  //PERFORMANCE IMPROVEMENT???
 		{
@@ -73,11 +79,14 @@ void YbnLoader::Init(memstream2& file, btDiscreteDynamicsWorld* world)
 
 		glm::i16vec3 *vertices = (glm::i16vec3*)file.read(sizeof(glm::i16vec3));
 
-		Vertices.resize(geom->VerticesCount);
+		glm::vec3* Vertices = new glm::vec3[geom->VerticesCount];
 		for (uint32_t i = 0; i < geom->VerticesCount; i++)
 		{
 			Vertices[i] = glm::vec3(vertices[i].x, vertices[i].y, vertices[i].z) * geom->Quantum;
 		}
+
+		VerticesArray.push_back(Vertices);
+
 
 		///////////////////
 
@@ -174,8 +183,9 @@ void YbnLoader::Init(memstream2& file, btDiscreteDynamicsWorld* world)
 			trishape->setOptimizedBvh(bvh);
 			btQuantizedBvhNode node;*/
 
-			trishape = new btBvhTriangleMeshShape(VertIndicesArray, false);
+			btBvhTriangleMeshShape* trishape = new btBvhTriangleMeshShape(VertIndicesArray, false);
 			trishape->setMargin(bounds->Margin);
+			trishapes.push_back(trishape);
 
 			btTransform localTrans;
 			localTrans.setIdentity();
@@ -196,8 +206,6 @@ void YbnLoader::Init(memstream2& file, btDiscreteDynamicsWorld* world)
 
 		file.seekg(boundComposite->ChildrenPointer);
 
-		ybns.reserve(boundComposite->ChildrenCount1);
-
 		for (int i = 0; i < boundComposite->ChildrenCount1; i++)
 		{
 			uint64_t* DataPointer = (uint64_t*)file.read(sizeof(uint64_t));
@@ -208,9 +216,7 @@ void YbnLoader::Init(memstream2& file, btDiscreteDynamicsWorld* world)
 
 			file.seekg(DataPointer[0]);
 
-			YbnLoader* ybn = new YbnLoader();
-			ybn->Init(file, world);
-			ybns.push_back(ybn);
+			Init(file, world);
 
 			file.seekg(BoundsPointer);
 		}
@@ -240,7 +246,12 @@ void YbnLoader::Remove()
 		trishape = nullptr;
 	}
 
-	Vertices.clear();
+	for (auto & VertArray : VerticesArray)
+	{
+		delete VertArray;
+	}
+
+	VerticesArray.clear();
 	indices.clear();
 
 	if (rigidBody) {
