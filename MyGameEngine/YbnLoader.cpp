@@ -1,17 +1,10 @@
 #include "YbnLoader.h"
 
-void YbnLoader::Init(memstream2& file, btDiscreteDynamicsWorld* world)
+void YbnLoader::Init(memstream2& file)
 {
-	CollisionWorld = world;
-
-	compound = new btCompoundShape();
+	compound = new btCompoundShape(false);
 
 	ParseYbn(file);
-
-	btDefaultMotionState* MotionState = new btDefaultMotionState(btTransform(btQuaternion(0.f, 0.f, 0.f, 1.f), btVector3(0, 0, 0)));
-	btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(0, MotionState, compound, btVector3(0, 0, 0));
-	rigidBody = new btRigidBody(groundRigidBodyCI);
-	world->addRigidBody(rigidBody);
 }
 
 void YbnLoader::ParseYbn(memstream2 & file)
@@ -229,6 +222,16 @@ void YbnLoader::ParseYbn(memstream2 & file)
 			file.seekg(BoundsPointer);
 		}
 	}
+}
+
+void YbnLoader::Finalize(btDiscreteDynamicsWorld* world)
+{
+	CollisionWorld = world;
+
+	btDefaultMotionState* MotionState = new btDefaultMotionState(btTransform(btQuaternion(0.f, 0.f, 0.f, 1.f), btVector3(0, 0, 0)));
+	btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(0, MotionState, compound, btVector3(0, 0, 0));
+	rigidBody = new btRigidBody(groundRigidBodyCI);
+	CollisionWorld->addRigidBody(rigidBody);
 }
 
 void YbnLoader::Remove()

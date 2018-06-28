@@ -180,6 +180,14 @@ void ResourceManager::update()
 					res->Buffer.resize(it->second->SystemSize + it->second->GraphicsSize);
 					gameworld->getGameData()->ExtractFileResource(*(it->second), res->Buffer);
 					res->SystemSize = it->second->SystemSize;
+
+					auto iter = gameworld->ybnLoader.find(res->Hash);
+					if (iter != gameworld->ybnLoader.end())
+					{
+						memstream2 stream(res->Buffer.data(), res->Buffer.size());
+						iter->second->Init(stream);
+					}
+
 					gameworld->resources_lock.lock();
 					gameworld->resources.push_back(res);
 					gameworld->resources_lock.unlock();

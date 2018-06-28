@@ -522,7 +522,7 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 		glm::vec3 lhsPosition = glm::vec3(a.modelMatrix[3]);
 		glm::vec3 rhsPosition = glm::vec3(b.modelMatrix[3]);
 
-		return glm::distance(lhsPosition, camera->Position) < glm::distance(rhsPosition, camera->Position);
+		return glm::distance2(lhsPosition, camera->Position) < glm::distance2(rhsPosition, camera->Position);
 	});
 
 	//printf("SIZE YMAP %zd\n", ymapLoader.size());
@@ -711,7 +711,7 @@ void GameWorld::LoadQueuedResources()
 			auto iter = ybnLoader.find((*it)->Hash);
 			if (iter != ybnLoader.end())
 			{
-				iter->second->Init(stream, dynamicsWorld);
+				iter->second->Finalize(dynamicsWorld);
 			}
 			else {
 				printf("");

@@ -151,8 +151,9 @@ public:
 	btRigidBody * rigidBody = nullptr;
 	uint32_t RefCount = 0;
 
-	void Init(memstream2 & file, btDiscreteDynamicsWorld * world);
+	void Init(memstream2 & file);
 	void ParseYbn(memstream2& file);
+	void Finalize(btDiscreteDynamicsWorld* world);
 	void Remove();
 };
 

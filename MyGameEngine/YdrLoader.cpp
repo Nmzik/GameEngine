@@ -44,7 +44,8 @@ void YdrLoader::Init(memstream2 & file, int32_t systemSize, btDiscreteDynamicsWo
 				file.seekg(drawable->BoundPointer);
 
 				ybnfile = new YbnLoader();
-				ybnfile->Init(file, world);
+				ybnfile->Init(file);
+				ybnfile->Finalize(world);
 			}
 		}
 
