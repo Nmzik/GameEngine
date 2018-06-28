@@ -136,13 +136,14 @@ class YbnLoader
 		uint32_t Unknown_A4h; // 0x00000000
 		uint64_t BVHPointer;
 	};
-	
+
+	std::vector<glm::u16vec3*> IndicesArray;
 	std::vector<glm::vec3*> VerticesArray;
-	std::vector<glm::u16vec3*> indicesArray;
 
 	btDiscreteDynamicsWorld* CollisionWorld;
+	btCompoundShape* compound = nullptr;
 	std::vector<btCollisionShape*> Shapes;
-	btTriangleIndexVertexArray* VertIndicesArray = nullptr;
+	std::vector<btTriangleIndexVertexArray*> VertIndicesArray;
 	std::vector<btBvhTriangleMeshShape*> trishapes;
 public:
 	YbnLoader * next;
@@ -150,9 +151,8 @@ public:
 	btRigidBody * rigidBody = nullptr;
 	uint32_t RefCount = 0;
 
-	void LoadYbn(memstream2& file);
-
 	void Init(memstream2 & file, btDiscreteDynamicsWorld * world);
+	void ParseYbn(memstream2& file);
 	void Remove();
 };
 

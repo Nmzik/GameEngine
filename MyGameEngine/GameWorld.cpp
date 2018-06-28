@@ -211,11 +211,8 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera)
 									transform.setIdentity();
 									transform.setOrigin(btVector3(object.position.x, object.position.y, object.position.z));
 									transform.setRotation(btQuaternion(-object.rotation.x, object.rotation.y, object.rotation.z, object.rotation.w));
-									for (auto & ybn : object.ydr->ybnfile->ybns)
-									{
-										if (ybn->rigidBody) 
-											ybn->rigidBody->setWorldTransform(transform);
-									}
+									if (object.ydr->ybnfile->rigidBody)
+										object.ydr->ybnfile->rigidBody->setWorldTransform(transform);
 								}
 
 								object.FoundBaseModel = true;
