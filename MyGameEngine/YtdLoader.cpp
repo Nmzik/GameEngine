@@ -139,7 +139,8 @@ void YtdLoader::Init(memstream2 & file, int32_t systemSize)
 					break;
 			}
 
-			GLuint textureID = TextureManager::GetTextureID();
+			GLuint textureID;
+			glGenTextures(1, &textureID);
 			glBindTexture(GL_TEXTURE_2D, textureID);
 			glTexStorage2D(GL_TEXTURE_2D, texture->Levels, InternalFormat, texture->Width, texture->Height);
 

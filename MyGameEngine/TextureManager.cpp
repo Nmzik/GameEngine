@@ -41,7 +41,7 @@ void TextureManager::RemoveTexture(uint32_t Hash)
 	{
 		it->second.referenceCount--;
 		if (it->second.referenceCount == 0) {
-			TexturesID.push_back(it->second.TextureID);
+			glDeleteTextures(1, &it->second.TextureID);
 			TexturesMap.erase(it);
 		}
 	}

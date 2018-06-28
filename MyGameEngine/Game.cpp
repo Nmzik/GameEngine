@@ -135,7 +135,7 @@ void Game::tick(float delta_time)
 	if (getInput()->IsKeyTriggered(SDL_SCANCODE_B)) {
 		getWorld()->currentPlayerID = 0;
 		uint32_t random = rand() % getWorld()->getGameData()->Scenes.size();
-		getWorld()->pedestrians[getWorld()->currentPlayerID].SetPosition(getWorld()->getGameData()->Scenes[random]);
+		getWorld()->pedestrians[getWorld()->currentPlayerID].SetPosition(glm::vec3(2951.2368, 5758.6641, 321.2991));
 		getWorld()->pedestrians[getWorld()->currentPlayerID].getPhysCharacter()->setGravity(getWorld()->GetDynamicsWorld()->getGravity());
 		for (int i = 0; i < 3; i++)
 		{

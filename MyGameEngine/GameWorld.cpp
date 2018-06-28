@@ -87,7 +87,7 @@ GameWorld::GameWorld()
 	renderList.reserve(2000);
 
 	MeshManager::Initialize();
-	TextureManager::Initialize();
+	//TextureManager::Initialize();
 
 	//Default texture
 	while (!LoadYTD(3570112701)->Loaded)
@@ -530,6 +530,7 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 	//printf("SIZE YDD %zd\n", yddLoader.size());
 	//printf("SIZE YFT %zd\n", yftLoader.size());
 	//printf("SIZE YTD %zd\n", ytdLoader.size());
+	//printf("TexturesMapsSize %zd\n", TextureManager::TexturesMap.size());
 	//LoadYBN(Proxy->Name);
 	//LoadYmap(Proxy->Parent, Position);
 
