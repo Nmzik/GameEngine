@@ -654,7 +654,7 @@ void GameWorld::LoadQueuedResources()
 				iter->second->Finalize();
 			}
 			else {
-				printf("");
+				int i = 5;
 			}
 			break;
 		}
@@ -666,7 +666,7 @@ void GameWorld::LoadQueuedResources()
 				iter->second->Init(stream, (*it)->SystemSize, dynamicsWorld);
 			}
 			else {
-				printf("");
+				int i = 5;
 			}
 			break;
 		}
@@ -678,7 +678,7 @@ void GameWorld::LoadQueuedResources()
 				iter->second->Init(stream, (*it)->SystemSize, dynamicsWorld);
 			}
 			else {
-				printf("");
+				int i = 5;
 			}
 			break;
 		}
@@ -690,7 +690,7 @@ void GameWorld::LoadQueuedResources()
 				iter->second->Init(stream, (*it)->SystemSize, false, dynamicsWorld);
 			}
 			else {
-				printf("");
+				int i = 5;
 			}
 			break;
 		}
@@ -702,7 +702,7 @@ void GameWorld::LoadQueuedResources()
 				iter->second->Init(stream, (*it)->SystemSize);
 			}
 			else {
-				printf("");
+				int i = 5;
 			}
 			break;
 		}
@@ -714,7 +714,7 @@ void GameWorld::LoadQueuedResources()
 				iter->second->Finalize(dynamicsWorld);
 			}
 			else {
-				printf("");
+				int i = 5;
 			}
 			break;
 		}
