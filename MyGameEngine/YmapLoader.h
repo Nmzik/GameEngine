@@ -137,7 +137,7 @@ public:
 	~YmapPool();
 
 	YmapLoader* Load();
-	void Remove(YmapLoader* ymap);
+	void Remove(YmapLoader* ymap, btDynamicsWorld* world);
 
 	YmapLoader ymaps[1000];
 

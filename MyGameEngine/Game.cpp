@@ -131,12 +131,12 @@ void Game::tick(float delta_time)
 	}
 
 	if (getInput()->IsKeyTriggered(SDL_SCANCODE_V)) {
-		getWorld()->TestFunction(getRenderer()->getCamera().Position);
+		getWorld()->TestFunction(getRenderer()->getCamera().position);
 	}
 	if (getInput()->IsKeyTriggered(SDL_SCANCODE_B)) {
 		getWorld()->currentPlayerID = 0;
 		uint32_t random = rand() % getWorld()->getGameData()->Scenes.size();
-		getWorld()->pedestrians[getWorld()->currentPlayerID].SetPosition(glm::vec3(2951.2368, 5758.6641, 321.2991));
+		getWorld()->pedestrians[getWorld()->currentPlayerID].SetPosition(glm::vec3(-205.28, 6432.15, 36.87));
 		getWorld()->pedestrians[getWorld()->currentPlayerID].getPhysCharacter()->setGravity(getWorld()->GetDynamicsWorld()->getGravity());
 		for (int i = 0; i < 3; i++)
 		{
@@ -182,10 +182,7 @@ void Game::tick(float delta_time)
 	}
 
 	if (DebugPressed) {
-		if (getInput()->IsKeyPressed(SDL_SCANCODE_W)) getRenderer()->getCamera().ProcessKeyboard(FORWARD, delta_time);
-		if (getInput()->IsKeyPressed(SDL_SCANCODE_S)) getRenderer()->getCamera().ProcessKeyboard(BACKWARD, delta_time);
-		if (getInput()->IsKeyPressed(SDL_SCANCODE_A)) getRenderer()->getCamera().ProcessKeyboard(LEFT, delta_time);
-		if (getInput()->IsKeyPressed(SDL_SCANCODE_D)) getRenderer()->getCamera().ProcessKeyboard(RIGHT, delta_time);
+		
 		//player->getPhysCharacter()->warp(btVector3(getRenderer()->getCamera().Position.x, getRenderer()->getCamera().Position.y, getRenderer()->getCamera().Position.z));
 	}
 	else {
@@ -226,7 +223,7 @@ void Game::tick(float delta_time)
 				player->GetCurrentVehicle()->m_carChassis->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), player->GetCurrentVehicle()->m_carChassis->getWorldTransform().getOrigin() + btVector3(0, 0, 300)));
 			}
 
-			getRenderer()->getCamera().Position = glm::vec3(player->GetCurrentVehicle()->m_carChassis->getWorldTransform().getOrigin().getX(), player->GetCurrentVehicle()->m_carChassis->getWorldTransform().getOrigin().getY(), player->GetCurrentVehicle()->m_carChassis->getWorldTransform().getOrigin().getZ());
+			getRenderer()->getCamera().position = glm::vec3(player->GetCurrentVehicle()->m_carChassis->getWorldTransform().getOrigin().getX(), player->GetCurrentVehicle()->m_carChassis->getWorldTransform().getOrigin().getY(), player->GetCurrentVehicle()->m_carChassis->getWorldTransform().getOrigin().getZ());
 			if (getInput()->IsKeyPressed(SDL_SCANCODE_W)) {
 				player->GetCurrentVehicle()->SetThrottle(1.0);
 			}
@@ -253,12 +250,41 @@ void Game::tick(float delta_time)
 				player->getPhysCharacter()->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), player->getPhysCharacter()->getWorldTransform().getOrigin() + btVector3(0, 0, 300)));
 			}
 
-			if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT))
+			/*if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT))
 				getRenderer()->getCamera().Position = glm::vec3(player->getPhysCharacter()->getWorldTransform().getOrigin().getX(), player->getPhysCharacter()->getWorldTransform().getOrigin().getY() - 5.0f, player->getPhysCharacter()->getWorldTransform().getOrigin().getZ());
 			else
 				getRenderer()->getCamera().Position = glm::vec3(player->getPhysCharacter()->getWorldTransform().getOrigin().getX(), player->getPhysCharacter()->getWorldTransform().getOrigin().getY(), player->getPhysCharacter()->getWorldTransform().getOrigin().getZ());
-
+*/
 			float speed = getInput()->IsKeyPressed(SDL_SCANCODE_LSHIFT) ? 2.0f : 1.0f;
+
+			//MOUSE
+			int x;
+			int y;
+			SDL_GetMouseState(&x, &y);
+
+			glm::vec3 targetPosition = glm::vec3(player->getPhysCharacter()->getWorldTransform().getOrigin().getX(), player->getPhysCharacter()->getWorldTransform().getOrigin().getY(), player->getPhysCharacter()->getWorldTransform().getOrigin().getZ());
+
+			auto look = glm::vec2(x * 0.01f, y * 0.01f);
+			// Determine the "ideal" camera position for the current view angles
+			auto yaw = glm::angleAxis(-look.x - glm::half_pi<float>(),
+				glm::vec3(0.f, 0.f, 1.f));
+			auto pitch = glm::angleAxis(look.y, glm::vec3(0.f, 1.f, 0.f));
+			auto cameraOffset = yaw * pitch * glm::vec3(0.f, 0.f, 5.0f);
+			glm::vec3 cameraPosition = targetPosition + cameraOffset;
+
+			glm::vec3 lookTargetPosition(targetPosition);
+			targetPosition += glm::vec3(0.f, 0.f, 1.f);
+			lookTargetPosition += glm::vec3(0.f, 0.f, 0.5f);
+
+			auto lookdir = glm::normalize(lookTargetPosition - cameraPosition);
+			// Calculate the angles to look at the target position
+			float len2d = glm::length(glm::vec2(lookdir));
+			float anglePitch = glm::atan(lookdir.z, len2d);
+			float angleYaw = glm::atan(lookdir.y, lookdir.x);
+			glm::quat angle(glm::vec3(0.f, -anglePitch, angleYaw));
+
+			getRenderer()->getCamera().position = cameraPosition;
+			getRenderer()->getCamera().rotation = angle;
 
 			/*bool inWater = false;
 			if (getWorld()->DetectInWater(glm::vec3(player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getX(), player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getY(), player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getZ())))
@@ -273,15 +299,11 @@ void Game::tick(float delta_time)
 			}
 			}*/
 
-			float length = glm::length(movement);
+			/*float length = glm::length(movement);
 			if (length > 0.1f) {
 				auto move = speed * glm::normalize(movement);
-				//move *= delta_time;
-				player->getPhysCharacter()->setLinearVelocity(btVector3(move.x * 30, move.z * 30, player->getPhysCharacter()->getLinearVelocity().z()));
-			}
-			else {
-				player->getPhysCharacter()->setLinearVelocity(btVector3(0.f, 0.f, player->getPhysCharacter()->getLinearVelocity().z()));
-			}
+				//move *= delta_time;*/
+				player->getPhysCharacter()->setLinearVelocity(btVector3(movement.x * 30.0f, movement.z * 30.0f, player->getPhysCharacter()->getLinearVelocity().z()));
 
 			if (getInput()->IsKeyTriggered(SDL_SCANCODE_SPACE)) player->Jump();
 		}
@@ -304,10 +326,7 @@ void Game::tick(float delta_time)
 	0.1f;
 	}*/
 
-	//MOUSE
-	int x;
-	int y;
-	SDL_GetRelativeMouseState(&x, &y);
-	getRenderer()->getCamera().ProcessMouseMovement(-x, -y);
+	
+	//getRenderer()->getCamera().ProcessMouseMovement(-x, -y);
 
 }

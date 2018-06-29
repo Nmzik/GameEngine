@@ -182,7 +182,7 @@ void ResourceManager::update()
 					res->SystemSize = it->second->SystemSize;
 
 					auto iter = gameworld->ybnLoader.find(res->Hash);
-					if (iter != gameworld->ybnLoader.end())
+					if (iter != gameworld->ybnLoader.end()) //CAN BE A CRASH HERE!!!
 					{
 						memstream2 stream(res->Buffer.data(), res->Buffer.size());
 						iter->second->Init(stream);

@@ -12,6 +12,12 @@ Object::Object(CEntityDef def)
 
 Object::~Object()
 {
+	if (rigidBody) {
+		delete rigidBody->getMotionState();
+		delete rigidBody;
+		rigidBody = nullptr;
+	}
+
 	if (ydr)
 		ydr->RefCount--;
 	if (ydd)

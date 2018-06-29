@@ -129,6 +129,7 @@ public:
 
 	void createPedestrian();
 	void createVehicle(glm::vec3 position);
+	void UpdateDynamicObjects();
 	void Update();
 	void UpdateTraffic(Camera* camera, glm::vec3 pos);
 	Vehicle* FindNearestVehicle();

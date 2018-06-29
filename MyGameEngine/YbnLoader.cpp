@@ -98,7 +98,7 @@ void YbnLoader::ParseYbn(memstream2 & file)
 			}
 		}
 
-		if (PolygonBoxes.size() != 0) {
+		/*if (PolygonBoxes.size() != 0) {
 			for (int i = 0; i < PolygonBoxes.size(); i++)
 			{
 
@@ -128,7 +128,7 @@ void YbnLoader::ParseYbn(memstream2 & file)
 				localTrans.setOrigin(btVector3(geom->CenterGeom.x + mid.x, geom->CenterGeom.y + mid.y, geom->CenterGeom.z + mid.z));
 				compound->addChildShape(localTrans, shape);
 			}
-		}
+		}*/
 
 		if (PolygonCapsules.size() != 0) {
 			for (int i = 0; i < PolygonCapsules.size(); i++) //Height is incorrect

@@ -53,7 +53,7 @@ GameWorld::GameWorld()
 
 	for (int i = 0; i < data.cacheFile->AllMapNodes.size(); i++)
 	{
-		if (data.cacheFile->AllMapNodes[i].Unk1 == 1) //NOT SURE
+		//if (data.cacheFile->AllMapNodes[i].Unk1 == 1 || data.cacheFile->AllMapNodes[i].ContentFlags == 1) //NOT SURE
 			spaceGrid.AddMapNode(&data.cacheFile->AllMapNodes[i], i);
 	}
 
@@ -189,7 +189,7 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera)
 	if (map->Loaded) {
 		for (auto& object : map->Objects)
 		{
-			float Dist = glm::length2(camera->Position - object.position);
+			float Dist = glm::length2(camera->position - object.position);
 			bool IsVisible = Dist <= object.CEntity.lodDist * LODMultiplier;
 			bool childrenVisible = (Dist <= object.CEntity.childLodDist * LODMultiplier) && (object.CEntity.numChildren > 0);
 			if (IsVisible && !childrenVisible) {
@@ -207,12 +207,16 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera)
 								//SUPER DIRTY NEED FIX URGENT! UGLY FIX!!!
 								if (object.ydr->ybnfile) {
 									//SET POSITION OF COLLISION TO OBJECT PLACE
-									btTransform transform;
-									transform.setIdentity();
-									transform.setOrigin(btVector3(object.position.x, object.position.y, object.position.z));
-									transform.setRotation(btQuaternion(-object.rotation.x, object.rotation.y, object.rotation.z, object.rotation.w));
-									if (object.ydr->ybnfile->rigidBody)
-										object.ydr->ybnfile->rigidBody->setWorldTransform(transform);
+									btVector3 localInertia(0, 0, 0);
+									float mass = 0.0f;
+									if (object.Archetype._BaseArchetypeDef.flags == 549584896) { //DYNAMIC???
+										mass = 1.0f;
+										object.ydr->ybnfile->compound->calculateLocalInertia(mass, localInertia);
+									}
+									btDefaultMotionState* MotionState = new btDefaultMotionState(btTransform(btQuaternion(-object.rotation.x, object.rotation.y, object.rotation.z, object.rotation.w), btVector3(object.position.x, object.position.y, object.position.z + 10.0f)));
+									btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(mass, MotionState, object.ydr->ybnfile->compound, localInertia);
+									object.rigidBody = new btRigidBody(groundRigidBodyCI);
+									dynamicsWorld->addRigidBody(object.rigidBody);
 								}
 
 								object.FoundBaseModel = true;
@@ -451,9 +455,9 @@ YbnLoader* GameWorld::GetYBN(uint32_t hash)
 
 void GameWorld::GetVisibleYmaps(Camera* camera)
 {
-	auto cellID = spaceGrid.GetCellPos(camera->Position);
+	auto cellID = spaceGrid.GetCellPos(camera->position);
 
-	auto NodeCell = nodeGrid.GetCellPos(camera->Position);
+	auto NodeCell = nodeGrid.GetCellPos(camera->position);
 
 	if (CurNodeCell != NodeCell) {
 		CurNodeCell = NodeCell;
@@ -506,7 +510,7 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 	//printf("FREE Textures %zd\n", TextureManager::TexturesID.size());
 	//printf("SIZE OBJECTS %zd\n",renderList.size());
 
-	/*glm::i32vec2 test = nodeGrid.GetCellPos(camera->Position);
+	/*glm::i32vec2 test = nodeGrid.GetCellPos(camera->position);
 
 	if (nodeGrid.cells[test.x * 32 + test.y]->ynd) {
 
@@ -522,7 +526,7 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 		glm::vec3 lhsPosition = glm::vec3(a.modelMatrix[3]);
 		glm::vec3 rhsPosition = glm::vec3(b.modelMatrix[3]);
 
-		return glm::distance2(lhsPosition, camera->Position) < glm::distance2(rhsPosition, camera->Position);
+		return glm::distance2(lhsPosition, camera->position) < glm::distance2(rhsPosition, camera->position);
 	});
 
 	//printf("SIZE YMAP %zd\n", ymapLoader.size());
@@ -554,7 +558,7 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 	{
 		if ((it->second)->RefCount == 0)
 		{
-			ymapPool.Remove(it->second);
+			ymapPool.Remove(it->second, dynamicsWorld);
 			it = ymapLoader.erase(it);
 		}
 		else
@@ -748,6 +752,23 @@ void GameWorld::createVehicle(glm::vec3 position)
 	}
 }
 
+void GameWorld::UpdateDynamicObjects()
+{
+	for (auto & map : CurYmaps)
+	{
+		if (map->Loaded) {
+			for (auto & object : map->Objects)
+			{
+				if (object.Loaded) {
+					if (object.Archetype._BaseArchetypeDef.flags == 549584896 && object.rigidBody) {
+						object.rigidBody->getWorldTransform().getOpenGLMatrix(&object.ModelMatrix[0][0]);
+					}
+				}
+			}
+		}
+	}
+}
+
 void GameWorld::Update()
 {
 	for (auto& pedestrian : pedestrians)
@@ -769,7 +790,7 @@ void GameWorld::UpdateTraffic(Camera* camera, glm::vec3 pos)
 	/*if (pedPool.firstAvailable_ == nullptr) {
 		for (auto& ped : pedPool.peds)
 		{
-			if (glm::distance(camera->Position, glm::vec3(ped.getPhysCharacter()->getWorldTransform().getOrigin().getX(), ped.getPhysCharacter()->getWorldTransform().getOrigin().getY(), ped.getPhysCharacter()->getWorldTransform().getOrigin().getZ())) >= 100.0f) {
+			if (glm::distance(camera->position, glm::vec3(ped.getPhysCharacter()->getWorldTransform().getOrigin().getX(), ped.getPhysCharacter()->getWorldTransform().getOrigin().getY(), ped.getPhysCharacter()->getWorldTransform().getOrigin().getZ())) >= 100.0f) {
 				pedPool.Remove(&ped);
 			}
 		}
@@ -777,10 +798,10 @@ void GameWorld::UpdateTraffic(Camera* camera, glm::vec3 pos)
 
 	while (pedPool.firstAvailable_ != nullptr)
 	{
-		float xRandom = RandomFloat(camera->Position.x - radiusTraffic, camera->Position.x + radiusTraffic);
-		float yRandom = RandomFloat(camera->Position.y - radiusTraffic, camera->Position.y + radiusTraffic);
-		//if (!camera->intersects(glm::vec3(xRandom, yRandom, camera->Position.z + 3.0f), 1.0f)) {
-			//pedPool.Add(glm::vec3(xRandom, yRandom, camera->Position.z + 3.0f), playerYDD, dynamicsWorld);
+		float xRandom = RandomFloat(camera->position.x - radiusTraffic, camera->position.x + radiusTraffic);
+		float yRandom = RandomFloat(camera->position.y - radiusTraffic, camera->position.y + radiusTraffic);
+		//if (!camera->intersects(glm::vec3(xRandom, yRandom, camera->position.z + 3.0f), 1.0f)) {
+			//pedPool.Add(glm::vec3(xRandom, yRandom, camera->position.z + 3.0f), playerYDD, dynamicsWorld);
 		//}
 	}*/
 	//CARS
@@ -792,7 +813,7 @@ void GameWorld::UpdateTraffic(Camera* camera, glm::vec3 pos)
 
 			for (int i = 0; i < vehicles.size(); i++) {
 				glm::vec3 vehiclePosition(vehicles[i]->m_carChassis->getWorldTransform().getOrigin().getX(), vehicles[i]->m_carChassis->getWorldTransform().getOrigin().getY(), vehicles[i]->m_carChassis->getWorldTransform().getOrigin().getZ());
-				if (glm::distance(camera->Position, vehiclePosition) >= 100.0f) {
+				if (glm::distance(camera->position, vehiclePosition) >= 100.0f) {
 					dynamicsWorld->removeVehicle((vehicles[i]->m_vehicle));
 					dynamicsWorld->removeRigidBody((vehicles[i]->m_carChassis));
 					delete vehicles[i];
@@ -800,7 +821,7 @@ void GameWorld::UpdateTraffic(Camera* camera, glm::vec3 pos)
 				}
 			}
 			uint32_t MaximumAvailableVehicles = 30 - vehicles.size(); //HARDCODED
-			if (camera->Position.z < 100.0f) {
+			if (camera->position.z < 100.0f) {
 				for (uint32_t i = 0; i < MaximumAvailableVehicles; i++) {
 					float xRandom = RandomFloat(pos.x - radiusTraffic, pos.x + radiusTraffic);
 					float yRandom = RandomFloat(pos.y - radiusTraffic, pos.y + radiusTraffic);
@@ -867,7 +888,8 @@ constexpr float deltaTime = 1.f / 60.f;
 void GameWorld::update(float delta_time, Camera* camera)
 {
 	Update();
-	//UpdateTraffic(camera, camera->Position);
+	UpdateDynamicObjects();
+	//UpdateTraffic(camera, camera->position);
 
 	if (delta_time > 0.25f) {
 		delta_time = 0.25f;

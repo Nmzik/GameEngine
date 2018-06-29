@@ -45,7 +45,7 @@ void YdrLoader::Init(memstream2 & file, int32_t systemSize, btDiscreteDynamicsWo
 
 				ybnfile = new YbnLoader();
 				ybnfile->Init(file);
-				ybnfile->Finalize(world);
+				//ybnfile->Finalize(world);
 			}
 		}
 

@@ -8,12 +8,13 @@ class YftLoader;
 
 class Object : public Entity
 {
-	glm::mat4 ModelMatrix;
 public:
+	glm::mat4 ModelMatrix;
 	YdrLoader* ydr = nullptr;
 	YddLoader* ydd = nullptr;
 	YftLoader* yft = nullptr;
 	YtdLoader* ytd = nullptr;
+	btRigidBody* rigidBody = nullptr;
 	bool Loaded = false;
 	bool FoundModel = false;
 	bool FoundBaseModel = false;

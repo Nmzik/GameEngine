@@ -73,7 +73,7 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 	debugDepthQuad->use();
 	debugDepthQuad->setInt("depthMap", 0);
 
-	camera = new Camera();
+	camera = new Camera(glm::vec3(1982.886353, 3833.829102, 32.140667));
 
 	createDepthFBO();
 	createGBuffer();
@@ -343,7 +343,7 @@ void RenderingSystem::render(GameWorld* world)
 	gbuffer->setMat4(ProjUniformLoc, projection);
 
 	/*glDepthMask(GL_FALSE); //SKYDOME IS STATIONARY - SHOULD BE RENDERED LAST - PLAYER CAN GO OUT OF SKYDOME IF HE IS TOO FAR FROM IT
-	glm::mat4 SkydomeMatrix = glm::translate(glm::mat4(1.0f), camera->Position) * glm::mat4_cast(glm::quat(-1, 0, 0, 0)) * glm::scale(glm::mat4(1.0f), glm::vec3(10, 10, 10));
+	glm::mat4 SkydomeMatrix = glm::translate(glm::mat4(1.0f), camera->position) * glm::mat4_cast(glm::quat(-1, 0, 0, 0)) * glm::scale(glm::mat4(1.0f), glm::vec3(10, 10, 10));
 	gbuffer->setMat4(ModelUniformLoc, SkydomeMatrix);
 
 	for (auto &mesh : world->skydome->YdrFiles[2640562617]->meshes)
@@ -445,7 +445,7 @@ void RenderingSystem::render(GameWorld* world)
 	glm::mat4 lightSpaceMatrix;
 	float near_plane = 1.f, far_plane = 5000.f;
 	lightProjection = glm::ortho(-50.0f, 50.0f, -50.0f, 50.0f, 0.f, 200.f);
-	lightView = glm::lookAt(dirLight.direction + camera->Position, camera->Position, glm::vec3(0, 0, 1));
+	lightView = glm::lookAt(dirLight.direction + camera->position, camera->position, glm::vec3(0, 0, 1));
 	lightSpaceMatrix = lightProjection * lightView;
 	// render scene from light's point of view
 	DepthTexture->use();
@@ -511,7 +511,7 @@ void RenderingSystem::render(GameWorld* world)
 
 	gbufferLighting->setVec3("light.direction", dirLight.direction);
 	gbufferLighting->setInt("type", 0);
-	gbufferLighting->setVec3("viewPos", camera->Position);
+	gbufferLighting->setVec3("viewPos", camera->position);
 	gbufferLighting->setMat4("InverseProjectionMatrix", InverseProjMatrix);
 	//gbufferLighting->setMat4("lightSpaceMatrix", lightSpaceMatrix);
 	renderQuad();

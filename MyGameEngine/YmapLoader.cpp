@@ -132,10 +132,18 @@ YmapLoader* YmapPool::Load()
 	return newYmap;
 }
 
-void YmapPool::Remove(YmapLoader* ymap)
+void YmapPool::Remove(YmapLoader* ymap, btDynamicsWorld* world)
 {
 	ymap->Loaded = false;
 	ymap->RootObjects.clear();
+
+	for (auto &object : ymap->Objects)
+	{
+		if (object.rigidBody) {
+			world->removeRigidBody(object.rigidBody);
+		}
+	}
+
 	ymap->Objects.clear();
 	ymap->next = firstAvailable_;
 	firstAvailable_ = ymap;

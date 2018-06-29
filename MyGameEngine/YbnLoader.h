@@ -141,13 +141,13 @@ class YbnLoader
 	std::vector<glm::vec3*> VerticesArray;
 
 	btDiscreteDynamicsWorld* CollisionWorld;
-	btCompoundShape* compound = nullptr;
 	std::vector<btCollisionShape*> Shapes;
 	std::vector<btTriangleIndexVertexArray*> VertIndicesArray;
 	std::vector<btBvhTriangleMeshShape*> trishapes;
 public:
 	YbnLoader * next;
 
+	btCompoundShape* compound = nullptr;
 	btRigidBody * rigidBody = nullptr;
 	uint32_t RefCount = 0;
 
