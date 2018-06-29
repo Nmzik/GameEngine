@@ -84,8 +84,9 @@ void YtdLoader::Init(memstream2 & file, int32_t systemSize)
 
 			texture->DataPointer += systemSize;
 
-			unsigned int format;
 			unsigned int InternalFormat;
+			unsigned int format;
+			unsigned int type;
 			bool compressed = false;
 
 			switch (texture->Format)
@@ -116,23 +117,28 @@ void YtdLoader::Init(memstream2 & file, int32_t systemSize)
 					break;
 				case D3DFMT_A8R8G8B8:
 					InternalFormat = GL_RGBA8; //Working
-					format = GL_UNSIGNED_INT_8_8_8_8_REV;
+					format = GL_BGRA;
+					type = GL_UNSIGNED_INT_8_8_8_8_REV;
 					break;
 				case D3DFMT_A1R5G5B5: //NOTHING???!!!
-					InternalFormat = GL_RGB5_A1;
-					format = GL_UNSIGNED_SHORT_1_5_5_5_REV;
+					InternalFormat = GL_RGBA;
+					format = GL_BGRA;
+					type = GL_UNSIGNED_SHORT_1_5_5_5_REV;
 					break;
 				case D3DFMT_A8: //COLOR BLACK ALWAYS?
-					InternalFormat = GL_RGB8;
-					format = GL_COMPRESSED_RG_RGTC2;
+					InternalFormat = GL_RED;
+					format = GL_RED;
+					type = GL_UNSIGNED_BYTE;
 					break;
 				case D3DFMT_A8B8G8R8: //CANT Check!
-					InternalFormat = GL_RGBA8;
-					format = GL_UNSIGNED_INT_8_8_8_8_REV;
+					InternalFormat = GL_RGBA;
+					format = GL_RGBA;
+					type = GL_UNSIGNED_INT_8_8_8_8_REV;
 					break;
 				case D3DFMT_L8: //FONTS?
 					InternalFormat = GL_RED;
-					format = GL_UNSIGNED_BYTE;
+					format = GL_RED;
+					type = GL_UNSIGNED_BYTE;
 					break;
 				default:
 					printf("UNSUPPORTED FORMAT\n");
@@ -180,11 +186,9 @@ void YtdLoader::Init(memstream2 & file, int32_t systemSize)
 				{
 					unsigned int size = ((texture->Width + 1) >> 1)  * ((texture->Height + 1) >> 1) * 4;
 
-					glTexSubImage2D(GL_TEXTURE_2D, level, 0, 0, texture->Width, texture->Height, GL_BGRA, format, &file.data[texture->DataPointer] + offset);
+					glTexSubImage2D(GL_TEXTURE_2D, level, 0, 0, texture->Width, texture->Height, format, type, &file.data[texture->DataPointer] + offset);
 
 					offset += size;
-					//texture->Width = std::max(texture->Width / 2, 1);
-					//texture->Height = std::max(texture->Height / 2, 1);
 					texture->Width  /= 2;
 					texture->Height /= 2;
 				}
