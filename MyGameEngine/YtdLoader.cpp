@@ -208,6 +208,7 @@ void YtdLoader::Init(memstream2 & file, int32_t systemSize)
 
 void YtdLoader::Remove()
 {
+	Loaded = false;
 	for (auto& hash : TextureNameHashes)
 	{
 		TextureManager::RemoveTexture(hash);

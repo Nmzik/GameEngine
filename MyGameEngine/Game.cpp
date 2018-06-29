@@ -125,8 +125,9 @@ void Game::tick(float delta_time)
 	}
 
 	if (getInput()->IsKeyTriggered(SDL_SCANCODE_X)) {
-		if (getWorld()->gameHour < 1) getWorld()->gameHour = 23;
-		getWorld()->gameHour--;
+		/*if (getWorld()->gameHour < 1) getWorld()->gameHour = 23;
+		getWorld()->gameHour--;*/
+		getRenderer()->ShowTexture = !getRenderer()->ShowTexture;
 	}
 
 	if (getInput()->IsKeyTriggered(SDL_SCANCODE_V)) {

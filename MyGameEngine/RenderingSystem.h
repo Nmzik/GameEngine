@@ -74,6 +74,7 @@ public:
 	RenderingSystem(SDL_Window* window_);
 	~RenderingSystem();
 
+	bool ShowTexture = false;
 	bool gpuTimer = false;
 	bool mWaiting = false;
 	GLuint gpuTime = 0;

@@ -521,7 +521,10 @@ void RenderingSystem::render(GameWorld* world)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	hdrShader->use();
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, colorBuffer);
+	/*if (ShowTexture)
+		glBindTexture(GL_TEXTURE_2D, TextureManager::GetTexture(1328663666));
+	else*/
+		glBindTexture(GL_TEXTURE_2D, colorBuffer);
 	float exposure = 1.0f;
 	hdrShader->setInt("UseBlur", 0);
 	hdrShader->setFloat("exposure", exposure);
