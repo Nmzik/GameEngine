@@ -246,8 +246,22 @@ void Game::tick(float delta_time)
 		}
 		else {
 
-			if (player->getPhysCharacter()->getWorldTransform().getOrigin().getZ() <= -150) {
-				player->getPhysCharacter()->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), player->getPhysCharacter()->getWorldTransform().getOrigin() + btVector3(0, 0, 300)));
+
+			if (player->getPhysCharacter()->getWorldTransform().getOrigin().getZ() <= -50) {
+
+				btVector3 rayFrom(player->getPhysCharacter()->getWorldTransform().getOrigin().x(), player->getPhysCharacter()->getWorldTransform().getOrigin().y(), 300.f);
+				btVector3 rayTo(player->getPhysCharacter()->getWorldTransform().getOrigin().x(), player->getPhysCharacter()->getWorldTransform().getOrigin().y(), 0.f);
+
+				btDynamicsWorld::ClosestRayResultCallback rr(rayFrom, rayTo);
+
+				getWorld()->GetDynamicsWorld()->rayTest(rayFrom, rayTo, rr);
+
+				if (rr.hasHit()) {
+					auto& ws = rr.m_hitPointWorld;
+					player->getPhysCharacter()->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), btVector3(ws.x(), ws.y(), ws.z() + 10.0f)));
+				}
+
+				//player->getPhysCharacter()->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), player->getPhysCharacter()->getWorldTransform().getOrigin() + btVector3(0, 0, 300)));
 			}
 
 			/*if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT))
@@ -303,6 +317,9 @@ void Game::tick(float delta_time)
 			if (length > 0.1f) {
 				auto move = speed * glm::normalize(movement);
 				//move *= delta_time;*/
+			if (player->getPhysCharacter()->getLinearVelocity().z() < -40.f) {
+				player->getPhysCharacter()->setLinearVelocity(btVector3(movement.x * 30.0f, movement.z * 30.0f, -40.0f));
+			} else 
 				player->getPhysCharacter()->setLinearVelocity(btVector3(movement.x * 30.0f, movement.z * 30.0f, player->getPhysCharacter()->getLinearVelocity().z()));
 
 			if (getInput()->IsKeyTriggered(SDL_SCANCODE_SPACE)) player->Jump();

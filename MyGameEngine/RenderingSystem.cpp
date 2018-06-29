@@ -132,8 +132,12 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 
 
-	projection = glm::perspective(glm::radians(45.0f), (float)1280 / (float)720, 0.1f, 10000.0f);
+	projection = glm::perspective(glm::radians(45.0f), (float)ScreenResWidth / (float)ScreenResHeight, 0.1f, 10000.0f);
 	InverseProjMatrix = glm::inverse(projection);
+
+	shaderSSAO->use();
+	shaderSSAO->setMat4(ssaoProjection, projection);
+	shaderSSAO->setMat4(ssaoInverseProjectionMatrix, InverseProjMatrix);
 
 	glGenQueries(1, &m_nQueryIDDrawTime);
 }
@@ -473,8 +477,6 @@ void RenderingSystem::render(GameWorld* world)
 	glBindFramebuffer(GL_FRAMEBUFFER, ssaoFBO);
 	glClear(GL_COLOR_BUFFER_BIT);
 	shaderSSAO->use();
-	shaderSSAO->setMat4(ssaoProjection, projection);
-	shaderSSAO->setMat4(ssaoInverseProjectionMatrix, InverseProjMatrix);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, gDepthMap);
 	glActiveTexture(GL_TEXTURE1);
