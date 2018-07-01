@@ -280,10 +280,12 @@ void YdrLoader::Remove()
 {
 	Loaded = false;
 	if (ybnfile) {
+		ybnfile->Remove();
 		delete ybnfile;
 		ybnfile = nullptr;
 	}
 	if (Ytd) {
+		Ytd->Remove();
 		delete Ytd;
 		Ytd = nullptr;
 	}

@@ -1,7 +1,5 @@
 #include "GameWorld.h"
 
-#define UnloadTime 4000
-
 GameWorld::GameWorld()
 {
 	broadphase = new btDbvtBroadphase();
@@ -11,7 +9,7 @@ GameWorld::GameWorld()
 	dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
 
 	dynamicsWorld->setGravity(btVector3(0, 0, -9.8f));
-	dynamicsWorld->setForceUpdateAllAabbs(false);
+	//dynamicsWorld->setForceUpdateAllAabbs(false);
 
 	debug.setDebugMode(btIDebugDraw::DBG_DrawWireframe);
 	dynamicsWorld->setDebugDrawer(&debug);
@@ -145,8 +143,8 @@ GameWorld::GameWorld()
 
 	pedestrians.resize(3);
 
-	pedestrians[0].Init(glm::vec3(2951.2368, 5758.6641, 321.2991), playerYDD, dynamicsWorld);
-	pedestrians[0].getPhysCharacter()->setGravity(btVector3(0, 0, 0));
+	pedestrians[0].Init(glm::vec3(1982.886353, 3833.829102, 32.140667), playerYDD, dynamicsWorld);
+	//pedestrians[0].getPhysCharacter()->setGravity(btVector3(0, 0, 0));
 	pedestrians[1].Init(glm::vec3(9.66, -1184.98, 75.74), playerYDD, dynamicsWorld);
 	pedestrians[1].getPhysCharacter()->setGravity(btVector3(0, 0, 0));
 	pedestrians[2].Init(glm::vec3(2250.18f, 3471.40f, 56.50f), playerYDD, dynamicsWorld);

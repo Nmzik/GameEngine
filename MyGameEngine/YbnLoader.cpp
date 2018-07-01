@@ -2,7 +2,7 @@
 
 void YbnLoader::Init(memstream2& file)
 {
-	compound = new btCompoundShape(false);
+	compound = new btCompoundShape();
 
 	ParseYbn(file);
 }

@@ -411,6 +411,11 @@ void RenderingSystem::render(GameWorld* world)
 			glBindVertexArray(mesh.VAO);
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, mesh.material.diffuseTextureID);
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, mesh.material.bumpTextureID); //Use real textures otherwise garbage textures will be used (which may be highter resolution = more processing...)
+			glActiveTexture(GL_TEXTURE2);
+			glBindTexture(GL_TEXTURE_2D, mesh.material.specularTextureID);
+
 			glDrawElements(GL_TRIANGLES, mesh.num_indices, GL_UNSIGNED_SHORT, 0);
 
 			DrawCalls++;
