@@ -204,6 +204,11 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera)
 							if (object.ydr->Loaded) {
 								//SUPER DIRTY NEED FIX URGENT! UGLY FIX!!!
 								if (object.ydr->ybnfile) {
+
+									if (object.ydr->ybnfile->compound->getNumChildShapes() == 0) {
+										printf("ERROR");
+									}
+
 									//SET POSITION OF COLLISION TO OBJECT PLACE
 									btVector3 localInertia(0, 0, 0);
 									float mass = 0.0f;
@@ -211,7 +216,7 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera)
 										mass = 1.0f;
 										object.ydr->ybnfile->compound->calculateLocalInertia(mass, localInertia);
 									}
-									btDefaultMotionState* MotionState = new btDefaultMotionState(btTransform(btQuaternion(-object.rotation.x, object.rotation.y, object.rotation.z, object.rotation.w), btVector3(object.position.x, object.position.y, object.position.z + 10.0f)));
+									btDefaultMotionState* MotionState = new btDefaultMotionState(btTransform(btQuaternion(-object.rotation.x, object.rotation.y, object.rotation.z, object.rotation.w), btVector3(object.position.x, object.position.y, object.position.z + 1.0f)));
 									btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(mass, MotionState, object.ydr->ybnfile->compound, localInertia);
 									object.rigidBody = new btRigidBody(groundRigidBodyCI);
 									dynamicsWorld->addRigidBody(object.rigidBody);

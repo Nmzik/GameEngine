@@ -13,10 +13,40 @@ void YbnLoader::ParseYbn(memstream2 & file)
 
 	Bounds* bounds = (Bounds*)file.read(sizeof(Bounds));
 
-	//Bounds->type = 3???? WTF IS THAT
+	switch (bounds->Type)
+	{
+	case 0: {
+		btSphereShape* sphere = new btSphereShape(1.0f);
+		Shapes.push_back(sphere);
 
-	if (bounds->Type == 8 || bounds->Type == 4) {
+		btTransform localTrans;
+		localTrans.setIdentity();
+		compound->addChildShape(localTrans, sphere);
 
+		break;
+	}
+	case 1: {
+		btCapsuleShapeZ* capsule = new btCapsuleShapeZ(1.0f, 1.0f);
+		Shapes.push_back(capsule);
+
+		btTransform localTrans;
+		localTrans.setIdentity();
+		compound->addChildShape(localTrans, capsule);
+
+		break;
+	}
+	case 3: {
+		btBoxShape* box = new btBoxShape(btVector3(0.5f, 0.5f, 0.5f));
+		Shapes.push_back(box);
+
+		btTransform localTrans;
+		localTrans.setIdentity();
+
+		compound->addChildShape(localTrans, box);
+
+		break;
+	}
+	case 4: case 8: {
 		BoundGeometry* geom = (BoundGeometry*)file.read(sizeof(BoundGeometry));
 
 		std::vector<BoundPolygonTriangle*> PolygonTriangles;
@@ -99,35 +129,35 @@ void YbnLoader::ParseYbn(memstream2 & file)
 		}
 
 		/*if (PolygonBoxes.size() != 0) {
-			for (int i = 0; i < PolygonBoxes.size(); i++)
-			{
+		for (int i = 0; i < PolygonBoxes.size(); i++)
+		{
 
-				glm::vec3 p1 = Vertices[PolygonBoxes[i]->boxIndex1];
-				glm::vec3 p2 = Vertices[PolygonBoxes[i]->boxIndex2];
-				glm::vec3 p3 = Vertices[PolygonBoxes[i]->boxIndex3];
-				glm::vec3 p4 = Vertices[PolygonBoxes[i]->boxIndex4];
+		glm::vec3 p1 = Vertices[PolygonBoxes[i]->boxIndex1];
+		glm::vec3 p2 = Vertices[PolygonBoxes[i]->boxIndex2];
+		glm::vec3 p3 = Vertices[PolygonBoxes[i]->boxIndex3];
+		glm::vec3 p4 = Vertices[PolygonBoxes[i]->boxIndex4];
 
-				glm::vec3 test = glm::max(p1, p2);
-				glm::vec3 test1 = glm::max(p3, p4);
+		glm::vec3 test = glm::max(p1, p2);
+		glm::vec3 test1 = glm::max(p3, p4);
 
-				glm::vec3 test2 = glm::min(p1, p2);
-				glm::vec3 test3 = glm::min(p3, p4);
+		glm::vec3 test2 = glm::min(p1, p2);
+		glm::vec3 test3 = glm::min(p3, p4);
 
-				glm::vec3 max = glm::max(test, test1);
-				glm::vec3 min = glm::min(test2, test3);
+		glm::vec3 max = glm::max(test, test1);
+		glm::vec3 min = glm::min(test2, test3);
 
-				auto size = (max - min) / 2.f;
-				auto mid = (min + max) / 2.f;
+		auto size = (max - min) / 2.f;
+		auto mid = (min + max) / 2.f;
 
-				btBoxShape* shape = new btBoxShape(btVector3(-size.x, -size.y, size.z));
+		btBoxShape* shape = new btBoxShape(btVector3(-size.x, -size.y, size.z));
 
-				Shapes.push_back(shape);
+		Shapes.push_back(shape);
 
-				btTransform localTrans;
-				localTrans.setIdentity();
-				localTrans.setOrigin(btVector3(geom->CenterGeom.x + mid.x, geom->CenterGeom.y + mid.y, geom->CenterGeom.z + mid.z));
-				compound->addChildShape(localTrans, shape);
-			}
+		btTransform localTrans;
+		localTrans.setIdentity();
+		localTrans.setOrigin(btVector3(geom->CenterGeom.x + mid.x, geom->CenterGeom.y + mid.y, geom->CenterGeom.z + mid.z));
+		compound->addChildShape(localTrans, shape);
+		}
 		}*/
 
 		if (PolygonCapsules.size() != 0) {
@@ -135,7 +165,7 @@ void YbnLoader::ParseYbn(memstream2 & file)
 			{
 				auto mid = (Vertices[PolygonCapsules[i]->capsuleIndex1] + Vertices[PolygonCapsules[i]->capsuleIndex2]) / 2.f;
 
-				btCapsuleShapeZ* capsule = new btCapsuleShapeZ(PolygonCapsules[i]->capsuleRadius, 1.0f);
+				btCapsuleShapeZ* capsule = new btCapsuleShapeZ(PolygonCapsules[i]->capsuleRadius, 0.5f);
 				Shapes.push_back(capsule);
 
 				btTransform localTrans;
@@ -157,7 +187,7 @@ void YbnLoader::ParseYbn(memstream2 & file)
 				compound->addChildShape(localTrans, sphere);
 			}
 		}
-		
+
 		if (PolygonTriangles.size() != 0) {
 			glm::u16vec3* Indices = new glm::u16vec3[PolygonTriangles.size()];
 			IndicesArray.push_back(Indices);
@@ -196,9 +226,10 @@ void YbnLoader::ParseYbn(memstream2 & file)
 			localTrans.setOrigin(btVector3(geom->CenterGeom.x, geom->CenterGeom.y, geom->CenterGeom.z));
 			compound->addChildShape(localTrans, trishape);
 		}
-	}
 
-	else if (bounds->Type == 10) {
+		break;
+	}
+	case 10: {
 		BoundComposite* boundComposite = (BoundComposite*)file.read(sizeof(BoundComposite));
 
 		SYSTEM_BASE_PTR(boundComposite->ChildrenPointer);
@@ -221,6 +252,22 @@ void YbnLoader::ParseYbn(memstream2 & file)
 
 			file.seekg(BoundsPointer);
 		}
+
+		break;
+	}
+	case 13: {
+		btCylinderShapeZ* shape = new btCylinderShapeZ(btVector3(0.5, 0.5, 0.5));
+		Shapes.push_back(shape);
+
+		btTransform localTrans;
+		localTrans.setIdentity();
+		compound->addChildShape(localTrans, shape);
+
+		break;
+	}
+	default:
+		printf("WTF");
+		break;
 	}
 }
 

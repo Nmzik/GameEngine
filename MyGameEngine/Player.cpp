@@ -129,7 +129,7 @@ void Player::Init(glm::vec3 position, YddLoader * ydd, btDiscreteDynamicsWorld *
 	body->setAngularFactor(0.0);
 	body->forceActivationState(DISABLE_DEACTIVATION);
 
-	world->addRigidBody(body, btBroadphaseProxy::KinematicFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::KinematicFilter);
+	world->addRigidBody(body, btBroadphaseProxy::KinematicFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::KinematicFilter | btBroadphaseProxy::DefaultFilter);
 
 
 
