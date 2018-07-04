@@ -16,7 +16,7 @@ void YbnLoader::ParseYbn(memstream2 & file)
 	switch (bounds->Type)
 	{
 	case 0: {
-		btSphereShape* sphere = new btSphereShape(1.0f);
+		btSphereShape* sphere = new btSphereShape(0.5f);
 		Shapes.push_back(sphere);
 
 		btTransform localTrans;
@@ -26,7 +26,7 @@ void YbnLoader::ParseYbn(memstream2 & file)
 		break;
 	}
 	case 1: {
-		btCapsuleShapeZ* capsule = new btCapsuleShapeZ(1.0f, 1.0f);
+		btCapsuleShapeZ* capsule = new btCapsuleShapeZ(0.5f, 0.5f);
 		Shapes.push_back(capsule);
 
 		btTransform localTrans;
@@ -279,6 +279,8 @@ void YbnLoader::Finalize(btDiscreteDynamicsWorld* world)
 	btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(0, MotionState, compound, btVector3(0, 0, 0));
 	rigidBody = new btRigidBody(groundRigidBodyCI);
 	CollisionWorld->addRigidBody(rigidBody);
+
+	Loaded = true;
 }
 
 void YbnLoader::Remove()

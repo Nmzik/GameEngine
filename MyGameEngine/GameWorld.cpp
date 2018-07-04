@@ -205,21 +205,20 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera)
 								//SUPER DIRTY NEED FIX URGENT! UGLY FIX!!!
 								if (object.ydr->ybnfile) {
 
-									if (object.ydr->ybnfile->compound->getNumChildShapes() == 0) {
-										printf("ERROR");
-									}
+									if (object.ydr->ybnfile->compound->getNumChildShapes() != 0) {
 
-									//SET POSITION OF COLLISION TO OBJECT PLACE
-									btVector3 localInertia(0, 0, 0);
-									float mass = 0.0f;
-									if (object.Archetype._BaseArchetypeDef.flags == 549584896) { //DYNAMIC???
-										mass = 1.0f;
-										object.ydr->ybnfile->compound->calculateLocalInertia(mass, localInertia);
-									}
-									btDefaultMotionState* MotionState = new btDefaultMotionState(btTransform(btQuaternion(-object.rotation.x, object.rotation.y, object.rotation.z, object.rotation.w), btVector3(object.position.x, object.position.y, object.position.z + 1.0f)));
-									btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(mass, MotionState, object.ydr->ybnfile->compound, localInertia);
-									object.rigidBody = new btRigidBody(groundRigidBodyCI);
-									dynamicsWorld->addRigidBody(object.rigidBody);
+										//SET POSITION OF COLLISION TO OBJECT PLACE
+										btVector3 localInertia(0, 0, 0);
+										float mass = 0.0f;
+										if (object.Archetype._BaseArchetypeDef.flags == 549584896) { //DYNAMIC???
+											mass = 1.0f;
+											object.ydr->ybnfile->compound->calculateLocalInertia(mass, localInertia);
+										}
+										btDefaultMotionState* MotionState = new btDefaultMotionState(btTransform(btQuaternion(-object.rotation.x, object.rotation.y, object.rotation.z, object.rotation.w), btVector3(object.position.x, object.position.y, object.position.z + 1.0f)));
+										btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(mass, MotionState, object.ydr->ybnfile->compound, localInertia);
+										object.rigidBody = new btRigidBody(groundRigidBodyCI);
+										dynamicsWorld->addRigidBody(object.rigidBody);
+									}//can be an error here
 								}
 
 								object.FoundBaseModel = true;
@@ -546,7 +545,7 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 
 	for (auto it = ybnLoader.begin(); it != ybnLoader.end();)
 	{
-		if ((it->second)->RefCount == 0)
+		if ((it->second)->RefCount == 0 && (it->second)->Loaded)
 		{
 			ybnPool.Remove(it->second);
 			it = ybnLoader.erase(it);
