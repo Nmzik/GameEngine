@@ -51,7 +51,7 @@ GameWorld::GameWorld()
 
 	for (int i = 0; i < data.cacheFile->AllMapNodes.size(); i++)
 	{
-		//if (data.cacheFile->AllMapNodes[i].Unk1 == 1 || data.cacheFile->AllMapNodes[i].ContentFlags == 1) //NOT SURE
+		if (data.cacheFile->AllMapNodes[i].Unk1 == 1) //NOT SURE
 			spaceGrid.AddMapNode(&data.cacheFile->AllMapNodes[i], i);
 	}
 

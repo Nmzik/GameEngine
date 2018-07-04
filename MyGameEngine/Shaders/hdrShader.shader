@@ -24,6 +24,7 @@ float FXAA_REDUCE_MIN = 1.0f/128.0f;
 uniform sampler2D hdrBuffer;
 uniform bool UseBlur;
 uniform float exposure;
+uniform vec2 hdrBufferOffset;
 
 vec3 computeFxaa()
 {

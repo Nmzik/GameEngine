@@ -53,25 +53,24 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 	glDisable(GL_MULTISAMPLE);
 	glDisable(GL_DITHER);
 
-	ScreenResWidth = 1280;
-	ScreenResHeight = 720;
+	SDL_GetWindowSize(window, &ScreenResWidth, &ScreenResHeight);
 	ShadowWidth = 1024;
 	ShadowHeight = 1024;
 
 	//skybox = new Skybox();
 
-	SkyboxShader = new Shader("skybox.shader");
-	ourShader = new Shader("forward.shader");
-	gbuffer = new Shader("gbuffer.shader");
-	shaderSSAO = new Shader("ssao.shader");
-	shaderSSAOBlur = new Shader("ssao_blur.shader");
-	gbufferLighting = new Shader("gbufferLighting.shader");
-	DepthTexture = new Shader("DepthTexture.shader");
-	hdrShader = new Shader("hdrShader.shader");
-	debugDepthQuad = new Shader("debug_quad.shader");
+	projection = glm::perspective(glm::radians(45.0f), (float)ScreenResWidth / (float)ScreenResHeight, 0.1f, 10000.0f);
+	InverseProjMatrix = glm::inverse(projection);
 
-	debugDepthQuad->use();
-	debugDepthQuad->setInt("depthMap", 0);
+	SkyboxShader = new Shader("Shaders/skybox.shader");
+	ourShader = new Shader("Shaders/forward.shader");
+	gbuffer = new Shader("Shaders/gbuffer.shader");
+	shaderSSAO = new Shader("Shaders/ssao.shader");
+	shaderSSAOBlur = new Shader("Shaders/ssao_blur.shader");
+	gbufferLighting = new Shader("Shaders/gbufferLighting.shader");
+	DepthTexture = new Shader("Shaders/DepthTexture.shader");
+	hdrShader = new Shader("Shaders/hdrShader.shader");
+	debugDepthQuad = new Shader("Shaders/debug_quad.shader");
 
 	camera = new Camera(glm::vec3(1982.886353, 3833.829102, 32.140667));
 
@@ -79,6 +78,9 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 	createGBuffer();
 	createSSAO();
 	createHDRFBO();
+
+	debugDepthQuad->use();
+	debugDepthQuad->setInt("depthMap", 0);
 
 	gbuffer->use();
 	gbuffer->setInt("DiffuseSampler", 0);
@@ -95,8 +97,13 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 	shaderSSAO->setInt("texNoise", 2);
 	for (unsigned int i = 0; i < 64; ++i)
 		shaderSSAO->setVec3("samples[" + std::to_string(i) + "]", ssaoKernel[i]);
+	shaderSSAO->setVec2("noiseScale", glm::vec2((float)ScreenResWidth / 4.0, (float)ScreenResHeight / 4.0));
+
 	ssaoProjection = glGetUniformLocation(shaderSSAO->ID, "projection");
 	ssaoInverseProjectionMatrix = glGetUniformLocation(shaderSSAO->ID, "InverseProjectionMatrix");
+
+	shaderSSAO->setMat4(ssaoProjection, projection);
+	shaderSSAO->setMat4(ssaoInverseProjectionMatrix, InverseProjMatrix);
 
 	shaderSSAOBlur->use();
 	shaderSSAOBlur->setInt("ssaoInput", 0);
@@ -111,6 +118,10 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 	gbufferLighting->setVec3("light.ambient", dirLight.ambient);
 	gbufferLighting->setVec3("light.diffuse", dirLight.diffuse);
 	gbufferLighting->setVec3("light.specular", dirLight.specular);
+	gbufferLighting->setMat4("InverseProjectionMatrix", InverseProjMatrix);
+
+	hdrShader->use();
+	hdrShader->setVec2("hdrBufferOffset", glm::vec2(1.0f / (float)ScreenResWidth, 1.0f / (float)ScreenResHeight));
 
 
 	float quadVertices[] = {
@@ -130,14 +141,6 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-
-
-	projection = glm::perspective(glm::radians(45.0f), (float)ScreenResWidth / (float)ScreenResHeight, 0.1f, 10000.0f);
-	InverseProjMatrix = glm::inverse(projection);
-
-	shaderSSAO->use();
-	shaderSSAO->setMat4(ssaoProjection, projection);
-	shaderSSAO->setMat4(ssaoInverseProjectionMatrix, InverseProjMatrix);
 
 	glGenQueries(1, &m_nQueryIDDrawTime);
 }
@@ -411,8 +414,11 @@ void RenderingSystem::render(GameWorld* world)
 			glBindVertexArray(mesh.VAO);
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, mesh.material.diffuseTextureID);
-			glActiveTexture(GL_TEXTURE1);
-			glBindTexture(GL_TEXTURE_2D, mesh.material.bumpTextureID); //Use real textures otherwise garbage textures will be used (which may be highter resolution = more processing...)
+			//if (mesh.material.useBump) {
+				gbuffer->setInt("useBump", false);
+				glActiveTexture(GL_TEXTURE1);
+				glBindTexture(GL_TEXTURE_2D, mesh.material.bumpTextureID); //Use real textures otherwise garbage textures will be used (which may be highter resolution = more processing...)
+			//}
 			glActiveTexture(GL_TEXTURE2);
 			glBindTexture(GL_TEXTURE_2D, mesh.material.specularTextureID);
 
@@ -518,8 +524,7 @@ void RenderingSystem::render(GameWorld* world)
 
 	gbufferLighting->setVec3("light.direction", dirLight.direction);
 	gbufferLighting->setInt("type", 0);
-	gbufferLighting->setVec3("viewPos", camera->position);
-	gbufferLighting->setMat4("InverseProjectionMatrix", InverseProjMatrix);
+	gbufferLighting->setVec3("viewPos", camera->position + camera->rotation * glm::vec3(1.f, 0.f, 0.f));
 	//gbufferLighting->setMat4("lightSpaceMatrix", lightSpaceMatrix);
 	renderQuad();
 

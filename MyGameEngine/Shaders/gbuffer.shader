@@ -44,14 +44,19 @@ uniform sampler2D DiffuseSampler;
 uniform sampler2D BumpSampler;
 uniform sampler2D SpecSampler;
 
+uniform int useBump;
+
 void main()
 {   
 	gAlbedoSpec = texture(DiffuseSampler, TexCoords);
 	if (gAlbedoSpec.a < 0.1)
 		discard;
-	vec3 normal = texture(BumpSampler, TexCoords).rgb;
-	// transform normal vector to range [-1,1]
-	normal = normalize(normal * 2.0 - 1.0);  // this normal is in tangent space
-	gNormal = normalize(normal);
+	/*if (useBump) {
+		vec3 normal = texture(BumpSampler, TexCoords).rgb;
+		normal = normalize(normal * 2.0 - 1.0);  // this normal is in tangent space
+		gNormal = normalize(TBN * normal);
+	} else {*/
+		gNormal = normalize(Normal);
+	//}
 	gAlbedoSpec.a = texture(SpecSampler, TexCoords).r;
 }
