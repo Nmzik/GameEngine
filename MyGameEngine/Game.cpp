@@ -31,6 +31,46 @@ Game::Game() {
 	FT_Library library;
 	FT_Init_FreeType(&library);
 
+	// get format from audio file
+
+	//Libavcodec
+	//FFMPEG STUFF ADPCM OR PCM | it seems that all audio files are pcm!
+	/*AVFormatContext* format = avformat_alloc_context();
+	if (avformat_open_input(&format, "C:/Users/nmzik/Desktop/0x13B709E8.wav", NULL, NULL) != 0) {
+		printf("Could not open file");
+		return;
+	}
+	if (avformat_find_stream_info(format, NULL) < 0) {
+		printf("Could not retrieve stream info from file");
+		return;
+	}
+
+	// Find the index of the first audio stream
+	int stream_index = -1;
+	for (int i = 0; i<format->nb_streams; i++) {
+		if (format->streams[i]->codec->codec_type == AVMEDIA_TYPE_AUDIO) {
+			stream_index = i;
+			break;
+		}
+	}
+	if (stream_index == -1) {
+		printf("Could not retrieve audio stream from file");
+		return;
+	}
+
+	AVStream* stream = format->streams[stream_index];
+
+	// find & open codec
+	AVCodecContext* codec = stream->codec;
+	if (avcodec_open2(codec, avcodec_find_decoder(codec->codec_id), NULL) < 0) {
+		printf("Failed to open decoder for stream in file");
+		return;
+	}
+
+	AVPacket packet;
+	av_init_packet(&packet);
+	*/
+
 }
 
 

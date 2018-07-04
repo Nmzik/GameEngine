@@ -13,6 +13,13 @@
 #include "InGameState.h"
 #include "InputManager.h"
 
+/*extern "C" {
+#include "libavcodec/avcodec.h"
+#include "libavformat/avformat.h"
+#include <libavutil/avutil.h>
+#include <libswresample/swresample.h>
+}*/
+
 class Game
 {
 	SDL_Window *window;
