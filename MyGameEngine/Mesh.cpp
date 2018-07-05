@@ -139,15 +139,15 @@ Mesh::Mesh(const uint8_t* meshData, uint64_t VertexPointer, uint32_t VertexSize,
 		break;
 	case PCCH2H4:
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 32, nullptr);
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 32, (GLvoid*)12);
+		glVertexAttribPointer(1, 4, GL_BYTE, GL_FALSE, 32, (GLvoid*)12);
 		glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_FALSE, 32, (GLvoid*)16);
-		glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 32, (GLvoid*)20);
+		glVertexAttribPointer(3, 2, GL_HALF_FLOAT, GL_FALSE, 32, (GLvoid*)20); //FIXED
 		break;
 	case PNCH2:
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 32, nullptr);
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 32, (GLvoid*)12);
 		glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_FALSE, 32, (GLvoid*)24);
-		glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 32, (GLvoid*)28);
+		glVertexAttribPointer(3, 2, GL_HALF_FLOAT, GL_FALSE, 32, (GLvoid*)28); //FIXED
 		break;
 	case PNCTTTTX:
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 76, nullptr);
