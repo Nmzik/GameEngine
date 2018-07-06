@@ -46,7 +46,7 @@ void YddLoader::Init(memstream2 & file, int32_t systemSize, btDiscreteDynamicsWo
 
 		file.seekg(data_pointer[0]);
 
-		YdrLoader* ydr = new YdrLoader();
+		YdrLoader* ydr = YdrPool::getPool().Load();
 		ydr->Init(file, systemSize, world, false);
 		YdrFiles[Hashes[i]] = ydr;
 
@@ -57,12 +57,11 @@ void YddLoader::Init(memstream2 & file, int32_t systemSize, btDiscreteDynamicsWo
 void YddLoader::Remove()
 {
 	Loaded = false;
-	for (auto it = YdrFiles.begin(); it != YdrFiles.end();)
+	for (auto& ydr : YdrFiles)
 	{
-		it->second->Remove();
-		delete it->second;
-		it = YdrFiles.erase(it);
+		YdrPool::getPool().Remove(ydr.second);
 	}
+	YdrFiles.clear();
 }
 
 YddPool::YddPool()

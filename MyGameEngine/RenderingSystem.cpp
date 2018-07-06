@@ -110,14 +110,11 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 
 	gbufferLighting->use();
 	gbufferLighting->setInt("gDepth", 0);
-	gbufferLighting->setInt("gNormal", 1);
-	gbufferLighting->setInt("gAlbedoSpec", 2);
+	gbufferLighting->setInt("gAlbedoSpec", 1);
+	gbufferLighting->setInt("gNormal", 2);
 	gbufferLighting->setInt("shadowMap", 3);
 	gbufferLighting->setInt("ssao", 4);
 
-	gbufferLighting->setVec3("light.ambient", dirLight.ambient);
-	gbufferLighting->setVec3("light.diffuse", dirLight.diffuse);
-	gbufferLighting->setVec3("light.specular", dirLight.specular);
 	gbufferLighting->setMat4("InverseProjectionMatrix", InverseProjMatrix);
 
 	hdrShader->use();
@@ -485,6 +482,7 @@ void RenderingSystem::render(GameWorld* world)
 
 	// generate SSAO texture
 	// ------------------------
+	//glViewport(0, 0, ScreenResWidth / 2, ScreenResHeight / 2);
 	glBindFramebuffer(GL_FRAMEBUFFER, ssaoFBO);
 	glClear(GL_COLOR_BUFFER_BIT);
 	shaderSSAO->use();
@@ -507,6 +505,7 @@ void RenderingSystem::render(GameWorld* world)
 	renderQuad();
 
 	// --------------------------------LightingPass Deferred Rendering----------------------------------
+	//glViewport(0, 0, ScreenResWidth, ScreenResHeight);
 	glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -514,15 +513,18 @@ void RenderingSystem::render(GameWorld* world)
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, gDepthMap);
 	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, gNormal);
-	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, gNormal);
 	glActiveTexture(GL_TEXTURE3);
 	glBindTexture(GL_TEXTURE_2D, depthMap);
 	glActiveTexture(GL_TEXTURE4);
 	glBindTexture(GL_TEXTURE_2D, ssaoColorBufferBlur);
 
 	gbufferLighting->setVec3("light.direction", dirLight.direction);
+	gbufferLighting->setVec3("light.ambient", dirLight.ambient);
+	gbufferLighting->setVec3("light.diffuse", dirLight.diffuse);
+	gbufferLighting->setVec3("light.specular", dirLight.specular);
 	gbufferLighting->setInt("type", 0);
 	gbufferLighting->setVec3("viewPos", camera->position + camera->rotation * glm::vec3(1.f, 0.f, 0.f));
 	//gbufferLighting->setMat4("lightSpaceMatrix", lightSpaceMatrix);

@@ -161,13 +161,20 @@ public:
 class YbnPool
 {
 public:
+	static YbnPool& getPool() {
+		static YbnPool pool;
+		return pool;
+	}
+
 	YbnPool();
 	~YbnPool();
+
+	uint32_t num = 0;
 
 	YbnLoader* Load();
 	void Remove(YbnLoader* ybn);
 
-	YbnLoader ybns[50];
+	YbnLoader ybns[500];
 
 private:
 	YbnLoader * firstAvailable_;

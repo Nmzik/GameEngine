@@ -220,12 +220,12 @@ YtdPool::YtdPool()
 {
 	firstAvailable_ = &ytds[0];
 
-	for (int i = 0; i < 1499; i++)
+	for (int i = 0; i < 2499; i++)
 	{
 		ytds[i].next = &ytds[i + 1];
 	}
 
-	ytds[1499].next = NULL;
+	ytds[2499].next = NULL;
 }
 
 YtdPool::~YtdPool()

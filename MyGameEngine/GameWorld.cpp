@@ -376,7 +376,7 @@ YtdLoader* GameWorld::LoadYTD(uint32_t hash)
 	else {
 		//LoadGtxd(hash);
 		GetResourceManager()->AddToWaitingList(new Resource(ytd, hash));
-		YtdLoader* loader = ytdPool.Load();
+		YtdLoader* loader = YtdPool::getPool().Load();
 		loader->RefCount++;
 		ytdLoader[hash] = loader;
 
@@ -394,7 +394,7 @@ YdrLoader * GameWorld::GetYdr(uint32_t hash, uint32_t TextureDictionaryHash)
 	}
 	else {
 		GetResourceManager()->AddToWaitingList(new Resource(ydr, hash, TextureDictionaryHash));
-		YdrLoader* loader = ydrPool.Load();
+		YdrLoader* loader = YdrPool::getPool().Load();
 		loader->RefCount++;
 		ydrLoader[hash] = loader;
 
@@ -448,7 +448,7 @@ YbnLoader* GameWorld::GetYBN(uint32_t hash)
 	}
 	else {
 		GetResourceManager()->AddToWaitingList(new Resource(ybn, hash));
-		YbnLoader* loader = ybnPool.Load();
+		YbnLoader* loader = YbnPool::getPool().Load();
 		loader->RefCount++;
 		ybnLoader[hash] = loader;
 		return loader;
@@ -531,6 +531,8 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 		return glm::distance2(lhsPosition, camera->position) < glm::distance2(rhsPosition, camera->position);
 	});
 
+	printf("YDRS %d\n", YdrPool::getPool().num);
+	//printf("YDRS %d\n", YdrPool::getPool().num);
 	//printf("SIZE YMAP %zd\n", ymapLoader.size());
 	//printf("SIZE YDR %zd\n", ydrLoader.size());
 	//printf("SIZE YDD %zd\n", yddLoader.size());
@@ -547,7 +549,7 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 	{
 		if ((it->second)->RefCount == 0 && (it->second)->Loaded)
 		{
-			ybnPool.Remove(it->second);
+			YbnPool::getPool().Remove(it->second);
 			it = ybnLoader.erase(it);
 		}
 		else
@@ -573,7 +575,7 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 	{
 		if ((it->second)->RefCount == 0)
 		{
-			ydrPool.Remove(it->second);
+			YdrPool::getPool().Remove(it->second);
 			it = ydrLoader.erase(it);
 		}
 		else
@@ -612,7 +614,7 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 	{
 		if ((it->second)->RefCount == 0)
 		{
-			ytdPool.Remove(it->second);
+			YtdPool::getPool().Remove(it->second);
 			it = ytdLoader.erase(it);
 		}
 		else

@@ -53,13 +53,19 @@ public:
 class YtdPool
 {
 public:
+	static YtdPool& getPool() {
+		static YtdPool pool;
+		return pool;
+	}
 	YtdPool();
 	~YtdPool();
+
+	uint32_t num = 0;
 
 	YtdLoader* Load();
 	void Remove(YtdLoader* ytd);
 
-	YtdLoader ytds[1500];
+	YtdLoader ytds[2500];
 
 private:
 	YtdLoader * firstAvailable_;

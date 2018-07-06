@@ -336,12 +336,12 @@ YbnPool::YbnPool()
 {
 	firstAvailable_ = &ybns[0];
 
-	for (int i = 0; i < 49; i++)
+	for (int i = 0; i < 499; i++)
 	{
 		ybns[i].next = &ybns[i + 1];
 	}
 
-	ybns[49].next = NULL;
+	ybns[499].next = NULL;
 }
 
 YbnPool::~YbnPool()

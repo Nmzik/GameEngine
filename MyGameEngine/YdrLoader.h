@@ -452,13 +452,20 @@ public:
 class YdrPool
 {
 public:
+	static YdrPool& getPool() {
+		static YdrPool pool;
+		return pool;
+	}
+
+	uint32_t num;
+
 	YdrPool();
 	~YdrPool();
 
 	YdrLoader* Load();
 	void Remove(YdrLoader* ymap);
 
-	YdrLoader ydrs[1000];
+	YdrLoader ydrs[6000];
 
 private:
 	YdrLoader * firstAvailable_;

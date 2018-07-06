@@ -74,7 +74,7 @@ void YftLoader::Init(memstream2 & file, int32_t systemSize, bool need, btDiscret
 
 	file.seekg(fragType->DrawablePointer);
 
-	YdrFile = new YdrLoader();
+	YdrFile = YdrPool::getPool().Load();
 	YdrFile->Init(file, systemSize, world, true);
 
 	struct FragPhysicsLODGroup {
@@ -255,8 +255,7 @@ void YftLoader::Remove()
 {
 	Loaded = false;
 	if (YdrFile) {
-		YdrFile->Remove();
-		delete YdrFile;
+		YdrPool::getPool().Remove(YdrFile);
 		YdrFile = nullptr;
 	}
 }

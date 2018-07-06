@@ -43,7 +43,7 @@ void YdrLoader::Init(memstream2 & file, int32_t systemSize, btDiscreteDynamicsWo
 				SYSTEM_BASE_PTR(drawable->BoundPointer);
 				file.seekg(drawable->BoundPointer);
 
-				ybnfile = new YbnLoader();
+				ybnfile = YbnPool::getPool().Load();
 				ybnfile->Init(file);
 				//ybnfile->Finalize(world);
 			}
@@ -60,7 +60,7 @@ void YdrLoader::Init(memstream2 & file, int32_t systemSize, btDiscreteDynamicsWo
 		if (_ShaderGroup->TextureDictionaryPointer != 0) {
 			SYSTEM_BASE_PTR(_ShaderGroup->TextureDictionaryPointer);
 			file.seekg(_ShaderGroup->TextureDictionaryPointer);
-			Ytd = new YtdLoader();
+			Ytd = YtdPool::getPool().Load();
 			Ytd->Init(file, systemSize);
 		}
 
@@ -280,13 +280,11 @@ void YdrLoader::Remove()
 {
 	Loaded = false;
 	if (ybnfile) {
-		ybnfile->Remove();
-		delete ybnfile;
+		YbnPool::getPool().Remove(ybnfile);
 		ybnfile = nullptr;
 	}
 	if (Ytd) {
-		Ytd->Remove();
-		delete Ytd;
+		YtdPool::getPool().Remove(Ytd);
 		Ytd = nullptr;
 	}
 	for (auto& mesh : meshes)
@@ -310,12 +308,12 @@ YdrPool::YdrPool()
 {
 	firstAvailable_ = &ydrs[0];
 
-	for (int i = 0; i < 999; i++)
+	for (int i = 0; i < 5999; i++)
 	{
 		ydrs[i].next = &ydrs[i + 1];
 	}
 
-	ydrs[999].next = NULL;
+	ydrs[5999].next = NULL;
 }
 
 YdrPool::~YdrPool()
@@ -324,6 +322,7 @@ YdrPool::~YdrPool()
 
 YdrLoader * YdrPool::Load()
 {
+	num++;
 	// Make sure the pool isn't full.
 	assert(firstAvailable_ != NULL);
 
@@ -336,6 +335,7 @@ YdrLoader * YdrPool::Load()
 
 void YdrPool::Remove(YdrLoader * ydr)
 {
+	num--;
 	ydr->Remove();
 	ydr->next = firstAvailable_;
 	firstAvailable_ = ydr;

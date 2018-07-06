@@ -18,12 +18,12 @@ Object::~Object()
 		rigidBody = nullptr;
 	}
 
-	if (ydr)
-		ydr->RefCount--;
 	if (ydd)
 		ydd->RefCount--;
-	if (yft)
+	else if (yft)
 		yft->RefCount--;
+	else if (ydr)
+		ydr->RefCount--;
 	if (ytd)
 		ytd->RefCount--;
 }
