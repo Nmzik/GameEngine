@@ -434,7 +434,6 @@ class YbnLoader;
 class YdrLoader
 {
 	YtdLoader* Ytd = nullptr;
-	std::vector<Material> materials;
 public:
 	YdrLoader * next;
 	YbnLoader* ybnfile = nullptr;

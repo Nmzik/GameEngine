@@ -531,7 +531,6 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 		return glm::distance2(lhsPosition, camera->position) < glm::distance2(rhsPosition, camera->position);
 	});
 
-	printf("YDRS %d\n", YdrPool::getPool().num);
 	//printf("YDRS %d\n", YdrPool::getPool().num);
 	//printf("SIZE YMAP %zd\n", ymapLoader.size());
 	//printf("SIZE YDR %zd\n", ydrLoader.size());

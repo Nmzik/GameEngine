@@ -7,22 +7,6 @@
 
 #include <vector>
 
-// Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
-enum Camera_Movement {
-	FORWARD,
-	BACKWARD,
-	LEFT,
-	RIGHT
-};
-
-// Default camera values
-const float YAW = -90.0f;
-const float PITCH = 0.0f;
-const float SPEED = 100.0f;
-const float SENSITIVTY = 1.0f;
-const float ZOOM = 25.0f;
-
-
 // An abstract camera class that processes input and calculates the corresponding Eular Angles, Vectors and Matrices for use in OpenGL
 class Camera
 {
@@ -46,11 +30,10 @@ public:
 	// Returns the view matrix calculated using Eular Angles and the LookAt Matrix
 	glm::mat4 GetViewMatrix()
 	{
+		//printf("POSITION %f, %f, %f\n", position.x, position.y, position.z);
 		auto up = rotation * glm::vec3(0.f, 0.f, 1.f);
 		return glm::lookAt(position,
 			position + rotation * glm::vec3(1.f, 0.f, 0.f), up);
-		//printf("POSITION %f, %f, %f\n",Position.x, Position.y, Position.z);
-		//printf("TEST %f, %f, %f\n", Position.x + Front.x, Position.y + Front.y, Position.z + Front.z);
 	}
 
 	void UpdateFrustum(const glm::mat4& proj) {

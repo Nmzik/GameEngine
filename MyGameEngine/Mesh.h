@@ -59,7 +59,5 @@ public:
 	void Cleanup();
 
 	~Mesh();
-
-	void Draw(Shader* shader);
 };
 
