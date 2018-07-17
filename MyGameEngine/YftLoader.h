@@ -1,7 +1,7 @@
 #pragma once
 #include "YdrLoader.h"
 
-class YftLoader
+class YftLoader : public FileType
 {
 public:
 	YftLoader * next;
@@ -10,7 +10,7 @@ public:
 	std::vector<YdrLoader*> wheels;
 	bool Loaded = false;
 
-	void Init(memstream2& file, int32_t systemSize, bool need, btDiscreteDynamicsWorld* world);
+	void Init(memstream2& file, int32_t systemSize, btDiscreteDynamicsWorld* world) override;
 	void Remove();
 };
 

@@ -1,6 +1,6 @@
 #pragma once
 #include "LinearMath/btIDebugDraw.h"
-#include "opengl.h"
+#include "MeshManager.h"
 #include "glm/glm.hpp"
 #include <vector>
 

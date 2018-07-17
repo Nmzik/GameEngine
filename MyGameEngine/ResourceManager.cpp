@@ -29,7 +29,6 @@ void ResourceManager::update()
 				{
 					res->Buffer.resize(it->second->SystemSize + it->second->GraphicsSize);
 					gameworld->getGameData()->ExtractFileResource(*(it->second), res->Buffer);
-					res->SystemSize = it->second->SystemSize;
 
 					auto iter = gameworld->ymapLoader.find(res->Hash);
 					if (iter != gameworld->ymapLoader.end())

@@ -1,6 +1,6 @@
 #include "YftLoader.h"
 
-void YftLoader::Init(memstream2 & file, int32_t systemSize, bool need, btDiscreteDynamicsWorld * world)
+void YftLoader::Init(memstream2 & file, int32_t systemSize, btDiscreteDynamicsWorld * world)
 {
 	Loaded = true;
 
@@ -75,7 +75,8 @@ void YftLoader::Init(memstream2 & file, int32_t systemSize, bool need, btDiscret
 	file.seekg(fragType->DrawablePointer);
 
 	YdrFile = YdrPool::getPool().Load();
-	YdrFile->Init(file, systemSize, world, true);
+	YdrFile->isYft = true;
+	YdrFile->Init(file, systemSize, world);
 
 	struct FragPhysicsLODGroup {
 		uint32_t VFT;

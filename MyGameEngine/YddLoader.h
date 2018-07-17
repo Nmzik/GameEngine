@@ -1,7 +1,7 @@
 #pragma once
 #include "YdrLoader.h"
 
-class YddLoader
+class YddLoader : public FileType
 {
 public:
 	YddLoader * next;
@@ -9,7 +9,7 @@ public:
 	uint32_t RefCount = 0;
 	bool Loaded = false;
 
-	void Init(memstream2 & file, int32_t systemSize, btDiscreteDynamicsWorld * world);
+	void Init(memstream2 & file, int32_t systemSize, btDiscreteDynamicsWorld * world) override;
 	void Remove();
 };
 

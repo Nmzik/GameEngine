@@ -84,7 +84,6 @@ GameWorld::GameWorld()
 	//RenderList
 	renderList.reserve(2000);
 
-	MeshManager::Initialize();
 	//TextureManager::Initialize();
 
 	//Default texture
@@ -325,8 +324,8 @@ YmapLoader* GameWorld::GetYmap(uint32_t hash)
 		return it->second;
 	}
 	else {
-		GetResourceManager()->AddToWaitingList(new Resource(ymap, hash));
 		YmapLoader* loader = ymapPool.Load();
+		GetResourceManager()->AddToWaitingList(new Resource(ymap, hash, 0, loader));
 		loader->RefCount++;
 		ymapLoader[hash] = loader;
 
@@ -360,7 +359,7 @@ void GameWorld::LoadGtxd(uint32_t hash)
 		auto it = ytdLoader.find(iter->second);
 		if (it == ytdLoader.end()) {
 			ytdLoader[iter->second] = new YtdLoader();
-			GetResourceManager()->AddToWaitingList(new Resource(ytd, iter->second));
+			GetResourceManager()->AddToWaitingList(new Resource(ytd, iter->second, 0, nullptr));
 		}
 	}
 }
@@ -375,8 +374,8 @@ YtdLoader* GameWorld::LoadYTD(uint32_t hash)
 	}
 	else {
 		//LoadGtxd(hash);
-		GetResourceManager()->AddToWaitingList(new Resource(ytd, hash));
 		YtdLoader* loader = YtdPool::getPool().Load();
+		GetResourceManager()->AddToWaitingList(new Resource(ytd, hash, 0, loader));
 		loader->RefCount++;
 		ytdLoader[hash] = loader;
 
@@ -393,8 +392,8 @@ YdrLoader * GameWorld::GetYdr(uint32_t hash, uint32_t TextureDictionaryHash)
 		return iter->second;
 	}
 	else {
-		GetResourceManager()->AddToWaitingList(new Resource(ydr, hash, TextureDictionaryHash));
 		YdrLoader* loader = YdrPool::getPool().Load();
+		GetResourceManager()->AddToWaitingList(new Resource(ydr, hash, TextureDictionaryHash, loader));
 		loader->RefCount++;
 		ydrLoader[hash] = loader;
 
@@ -411,8 +410,8 @@ YddLoader * GameWorld::GetYdd(uint32_t hash, uint32_t TextureDictionaryHash)
 		return iter->second;
 	}
 	else {
-		GetResourceManager()->AddToWaitingList(new Resource(ydd, hash, TextureDictionaryHash));
 		YddLoader* loader = yddPool.Load();
+		GetResourceManager()->AddToWaitingList(new Resource(ydd, hash, TextureDictionaryHash, loader));
 		loader->RefCount++;
 		yddLoader[hash] = loader;
 
@@ -429,8 +428,8 @@ YftLoader * GameWorld::GetYft(uint32_t hash, uint32_t TextureDictionaryHash)
 		return iter->second;
 	}
 	else {
-		GetResourceManager()->AddToWaitingList(new Resource(yft, hash, TextureDictionaryHash));
 		YftLoader* loader = yftPool.Load();
+		GetResourceManager()->AddToWaitingList(new Resource(yft, hash, TextureDictionaryHash, loader));
 		loader->RefCount++;
 		yftLoader[hash] = loader;
 
@@ -447,8 +446,8 @@ YbnLoader* GameWorld::GetYBN(uint32_t hash)
 		return iter->second;
 	}
 	else {
-		GetResourceManager()->AddToWaitingList(new Resource(ybn, hash));
 		YbnLoader* loader = YbnPool::getPool().Load();
+		GetResourceManager()->AddToWaitingList(new Resource(ybn, hash, 0, loader));
 		loader->RefCount++;
 		ybnLoader[hash] = loader;
 		return loader;
@@ -559,7 +558,7 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 
 	for (auto it = ymapLoader.begin(); it != ymapLoader.end();)
 	{
-		if ((it->second)->RefCount == 0)
+		if ((it->second)->RefCount == 0 && (it->second)->Loaded)
 		{
 			ymapPool.Remove(it->second, dynamicsWorld);
 			it = ymapLoader.erase(it);
@@ -572,7 +571,7 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 
 	for (auto it = ydrLoader.begin(); it != ydrLoader.end();)
 	{
-		if ((it->second)->RefCount == 0)
+		if ((it->second)->RefCount == 0 && (it->second)->Loaded)
 		{
 			YdrPool::getPool().Remove(it->second);
 			it = ydrLoader.erase(it);
@@ -585,7 +584,7 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 
 	for (auto it = yddLoader.begin(); it != yddLoader.end();)
 	{
-		if ((it->second)->RefCount == 0)
+		if ((it->second)->RefCount == 0 && (it->second)->Loaded)
 		{
 			yddPool.Remove(it->second);
 			it = yddLoader.erase(it);
@@ -598,7 +597,7 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 
 	for (auto it = yftLoader.begin(); it != yftLoader.end();)
 	{
-		if ((it->second)->RefCount == 0)
+		if ((it->second)->RefCount == 0 && (it->second)->Loaded)
 		{
 			yftPool.Remove(it->second);
 			it = yftLoader.erase(it);
@@ -656,74 +655,24 @@ void GameWorld::LoadQueuedResources()
 		{
 		case ymap:
 		{
-			auto iter = ymapLoader.find((*it)->Hash);
-			if (iter != ymapLoader.end())
-			{
-				iter->second->Finalize();
-			}
-			else {
-				int i = 5;
-			}
+			(*it)->file->Finalize();
 			break;
 		}
 		case ydr:
-		{
-			auto iter = ydrLoader.find((*it)->Hash);
-			if (iter != ydrLoader.end())
-			{
-				iter->second->Init(stream, (*it)->SystemSize, dynamicsWorld);
-			}
-			else {
-				int i = 5;
-			}
-			break;
-		}
 		case ydd:
-		{
-			auto iter = yddLoader.find((*it)->Hash);
-			if (iter != yddLoader.end())
-			{
-				iter->second->Init(stream, (*it)->SystemSize, dynamicsWorld);
-			}
-			else {
-				int i = 5;
-			}
-			break;
-		}
 		case yft:
 		{
-			auto iter = yftLoader.find((*it)->Hash);
-			if (iter != yftLoader.end())
-			{
-				iter->second->Init(stream, (*it)->SystemSize, false, dynamicsWorld);
-			}
-			else {
-				int i = 5;
-			}
+			(*it)->file->Init(stream, (*it)->SystemSize, dynamicsWorld);
 			break;
 		}
 		case ytd:
 		{
-			auto iter = ytdLoader.find((*it)->Hash);
-			if (iter != ytdLoader.end())
-			{
-				iter->second->Init(stream, (*it)->SystemSize);
-			}
-			else {
-				int i = 5;
-			}
+			(*it)->file->Init(stream, (*it)->SystemSize);
 			break;
 		}
 		case ybn:
 		{
-			auto iter = ybnLoader.find((*it)->Hash);
-			if (iter != ybnLoader.end())
-			{
-				iter->second->Finalize(dynamicsWorld);
-			}
-			else {
-				int i = 5;
-			}
+			(*it)->file->Finalize(dynamicsWorld);
 			break;
 		}
 		}

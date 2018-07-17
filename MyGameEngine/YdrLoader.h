@@ -12,7 +12,6 @@
 #include "glm/gtx/norm.hpp"
 #include "membuf.h"
 #include "GTAEncryption.h"
-#include "YtdLoader.h"
 
 #define SYSTEM_BASE 0x50000000
 #define GRAPHICS_BASE 0x60000000
@@ -126,6 +125,15 @@ struct CEntityDef //128 bytes, Key:1825799514
 	int32_t artificialAmbientOcclusion; //116   116: SignedInt: 0: artificialAmbientOcclusion//599844163
 	uint32_t tintValue; //120   120: UnsignedInt: 0: tintValue//1015358759
 	uint32_t Unused6;//124
+};
+
+struct ResourceSimpleList64Ptr
+{
+	// structure data
+	uint64_t EntriesPointer;
+	uint16_t EntriesCount;
+	uint16_t EntriesCapacity;
+	uint32_t Unused1;
 };
 
 struct ResourcePointerList64 {
@@ -431,18 +439,45 @@ struct DrawableModel {
 class YtdLoader;
 class YbnLoader;
 
-class YdrLoader
+class FileType {
+	public:
+	FileType() {
+
+	}
+	~FileType() {
+
+	}
+
+	virtual void Init(memstream2& file, int32_t systemSize, btDiscreteDynamicsWorld* world) {
+
+	}
+
+	virtual void Finalize() {
+
+	}
+
+	virtual void Init(memstream2& file, int32_t systemSize) {
+
+	}
+
+	virtual void Finalize(btDiscreteDynamicsWorld* world) {
+
+	}
+};
+
+class YdrLoader : public FileType
 {
 	YtdLoader* Ytd = nullptr;
 public:
 	YdrLoader * next;
 	YbnLoader* ybnfile = nullptr;
 	std::vector<Mesh> meshes;
+	bool isYft = false;
 	bool isVisible = false;
 	uint32_t RefCount = 0;
 	bool Loaded = false;
 
-	void Init(memstream2& file, int32_t systemSize, btDiscreteDynamicsWorld* world, bool isYft = false);
+	void Init(memstream2& file, int32_t systemSize, btDiscreteDynamicsWorld* world) override;
 	void Remove();
 
 	void UploadMeshes();

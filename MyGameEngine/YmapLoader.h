@@ -113,7 +113,7 @@ struct CMapData //512 bytes, Key:3448101671
 	CBlockDesc block; //440   440: Structure: CBlockDesc//3072355914: block
 };
 
-class YmapLoader
+class YmapLoader : public FileType
 {
 public:
 	YmapLoader * next;
@@ -127,7 +127,7 @@ public:
 	std::vector<CCarGen> CCarGens;
 
 	void Init(memstream2 & file);
-	void Finalize();
+	void Finalize() override;
 };
 
 class YmapPool

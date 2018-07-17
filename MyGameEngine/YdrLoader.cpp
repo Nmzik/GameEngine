@@ -1,10 +1,10 @@
 #include "YdrLoader.h"
 #include "YbnLoader.h"
+#include "YtdLoader.h"
 
-void YdrLoader::Init(memstream2 & file, int32_t systemSize, btDiscreteDynamicsWorld * world, bool isYft)
+void YdrLoader::Init(memstream2 & file, int32_t systemSize, btDiscreteDynamicsWorld * world)
 {
 	Loaded = true;
-	std::vector<Material> materials;
 
 	ResourceFileBase* resourceFileBase = (ResourceFileBase*)file.read(sizeof(ResourceFileBase));
 
@@ -68,6 +68,7 @@ void YdrLoader::Init(memstream2 & file, int32_t systemSize, btDiscreteDynamicsWo
 		SYSTEM_BASE_PTR(_ShaderGroup->ShadersPointer);
 		file.seekg(_ShaderGroup->ShadersPointer);
 
+		std::vector<Material> materials;
 		materials.reserve(_ShaderGroup->ShadersCount1);
 
 		for (int i = 0; i < _ShaderGroup->ShadersCount1; i++)

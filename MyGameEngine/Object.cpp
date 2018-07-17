@@ -1,6 +1,7 @@
 #include "Object.h"
 #include "YddLoader.h"
 #include "YftLoader.h"
+#include "YtdLoader.h"
 
 Object::Object(CEntityDef def)
 	: Entity(def.position, glm::quat(-def.rotation.w, def.rotation.x, def.rotation.y, def.rotation.z), glm::vec3(def.scaleXY, def.scaleXY, def.scaleZ))

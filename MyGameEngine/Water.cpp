@@ -1,7 +1,5 @@
 #include "Water.h"
 
-
-
 Water::Water(WaterQuad waterQuad)
 {
 	float sx = waterQuad.maxX - waterQuad.minX;
@@ -61,11 +59,10 @@ Water::Water(WaterQuad waterQuad)
 		}
 	}
 
-	glGenVertexArrays(1, &VAO);
-
+	VAO = MeshManager::GetManager().GetVAO();
 	glBindVertexArray(VAO);
 
-	glGenBuffers(1, &VBO);
+	VBO = MeshManager::GetManager().GetVBO();
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW);
 
@@ -78,7 +75,7 @@ Water::Water(WaterQuad waterQuad)
 	glEnableVertexAttribArray(2); //TEXCoord
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 
-	glGenBuffers(1, &EBO);
+	EBO = MeshManager::GetManager().GetVBO();
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint16_t), &indices[0], GL_STATIC_DRAW);
 

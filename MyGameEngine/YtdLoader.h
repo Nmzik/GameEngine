@@ -1,15 +1,6 @@
 #pragma once
-#include "TextureManager.h"
 #include "YdrLoader.h"
-
-struct ResourceSimpleList64Ptr
-{
-	// structure data
-	uint64_t EntriesPointer;
-	uint16_t EntriesCount;
-	uint16_t EntriesCapacity;
-	uint32_t Unused1;
-};
+#include "TextureManager.h"
 
 struct TextureDictionary {
 	uint32_t Unknown_10h; // 0x00000000
@@ -38,7 +29,7 @@ struct TextureBase{
 	uint32_t Unknown_3Ch; // 0x00000000
 };
 
-class YtdLoader
+class YtdLoader : public FileType
 {
 public:
 	YtdLoader * next;
