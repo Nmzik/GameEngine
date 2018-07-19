@@ -287,10 +287,10 @@ void Game::tick(float delta_time)
 		else {
 
 
-			if (player->getPhysCharacter()->getWorldTransform().getOrigin().getZ() <= -50) {
+			if (player->position.z <= -50) {
 
-				btVector3 rayFrom(player->getPhysCharacter()->getWorldTransform().getOrigin().x(), player->getPhysCharacter()->getWorldTransform().getOrigin().y(), 300.f);
-				btVector3 rayTo(player->getPhysCharacter()->getWorldTransform().getOrigin().x(), player->getPhysCharacter()->getWorldTransform().getOrigin().y(), 0.f);
+				btVector3 rayFrom(player->position.x, player->position.y, 300.f);
+				btVector3 rayTo(player->position.x, player->position.y, 0.f);
 
 				btDynamicsWorld::ClosestRayResultCallback rr(rayFrom, rayTo);
 
@@ -300,14 +300,12 @@ void Game::tick(float delta_time)
 					auto& ws = rr.m_hitPointWorld;
 					player->getPhysCharacter()->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), btVector3(ws.x(), ws.y(), ws.z() + 10.0f)));
 				}
-
-				//player->getPhysCharacter()->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), player->getPhysCharacter()->getWorldTransform().getOrigin() + btVector3(0, 0, 300)));
 			}
 
 			/*if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT))
-				getRenderer()->getCamera().Position = glm::vec3(player->getPhysCharacter()->getWorldTransform().getOrigin().getX(), player->getPhysCharacter()->getWorldTransform().getOrigin().getY() - 5.0f, player->getPhysCharacter()->getWorldTransform().getOrigin().getZ());
+				getRenderer()->getCamera().Position = glm::vec3(player->position.getX(), player->position.getY() - 5.0f, player->position.getZ());
 			else
-				getRenderer()->getCamera().Position = glm::vec3(player->getPhysCharacter()->getWorldTransform().getOrigin().getX(), player->getPhysCharacter()->getWorldTransform().getOrigin().getY(), player->getPhysCharacter()->getWorldTransform().getOrigin().getZ());
+				getRenderer()->getCamera().Position = glm::vec3(player->position.getX(), player->position.getY(), player->position.getZ());
 */
 			float speed = getInput()->IsKeyPressed(SDL_SCANCODE_LSHIFT) ? 2.0f : 1.0f;
 
@@ -316,7 +314,7 @@ void Game::tick(float delta_time)
 			int y;
 			SDL_GetMouseState(&x, &y);
 
-			glm::vec3 targetPosition = glm::vec3(player->getPhysCharacter()->getWorldTransform().getOrigin().getX(), player->getPhysCharacter()->getWorldTransform().getOrigin().getY(), player->getPhysCharacter()->getWorldTransform().getOrigin().getZ());
+			glm::vec3 targetPosition = glm::vec3(player->position.x, player->position.y, player->position.z);
 
 			auto look = glm::vec2(x * 0.01f, y * 0.01f);
 			// Determine the "ideal" camera position for the current view angles

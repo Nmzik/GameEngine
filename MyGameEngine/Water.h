@@ -7,6 +7,9 @@ class Water
 	unsigned int num_indices;
 	GLuint diffuseTextureID;
 public:
+	glm::vec3 BSCenter;
+	float BSRadius;
+
 	Water(WaterQuad waterQuad);
 	~Water();
 	void Draw();

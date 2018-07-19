@@ -67,7 +67,7 @@ public:
 	std::unordered_map<uint32_t, YmapLoader*> ymapLoader;
 	std::unordered_map<uint32_t, CarHandling> vehiclesPool;
 	std::vector<Player> pedestrians;
-	std::vector<Vehicle*> vehicles;
+	std::vector<Vehicle> vehicles;
 	YmapPool ymapPool;
 	YddPool yddPool;
 	YftPool yftPool;

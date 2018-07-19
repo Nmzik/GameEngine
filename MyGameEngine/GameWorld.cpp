@@ -94,10 +94,10 @@ GameWorld::GameWorld()
 	TextureManager::LoadTexture(1551155749, TextureManager::GetTexture(475118591));
 
 	//
-	/*while (!LoadYTD(3154743001)->Loaded)
+	while (!LoadYTD(3403519606)->Loaded)
 	{
 		LoadQueuedResources();
-	}*/
+	}
 
 	for (auto& WaterQuad : data.WaterQuads)
 	{
@@ -140,14 +140,10 @@ GameWorld::GameWorld()
 		LoadQueuedResources();
 	}
 
-	pedestrians.resize(3);
 
-	pedestrians[0].Init(glm::vec3(1982.886353, 3833.829102, 32.140667), playerYDD, dynamicsWorld);
-	//pedestrians[0].getPhysCharacter()->setGravity(btVector3(0, 0, 0));
-	pedestrians[1].Init(glm::vec3(9.66, -1184.98, 75.74), playerYDD, dynamicsWorld);
-	pedestrians[1].getPhysCharacter()->setGravity(btVector3(0, 0, 0));
-	pedestrians[2].Init(glm::vec3(2250.18f, 3471.40f, 56.50f), playerYDD, dynamicsWorld);
-	pedestrians[2].getPhysCharacter()->setGravity(btVector3(0, 0, 0));
+	pedestrians.emplace_back(glm::vec3(1982.886353, 3833.829102, 32.140667), playerYDD, dynamicsWorld);
+	pedestrians.emplace_back(glm::vec3(9.66, -1184.98, 75.74), playerYDD, dynamicsWorld);
+	pedestrians.emplace_back(glm::vec3(2250.18f, 3471.40f, 56.50f), playerYDD, dynamicsWorld);
 
 	//ClearTestFunction();
 	/*std::unordered_map<uint32_t, CMloArchetypeDef>::iterator it;
@@ -194,64 +190,64 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera)
 					if (!object.FoundModel || !object.FoundBaseModel) {
 						switch (object.Archetype._BaseArchetypeDef.assetType)
 						{
-						case ASSET_TYPE_DRAWABLE: {
-							if (!object.FoundModel) {
-								object.ydr = GetYdr(object.CEntity.archetypeName, object.Archetype._BaseArchetypeDef.textureDictionary);
-								object.ytd = LoadYTD(object.Archetype._BaseArchetypeDef.textureDictionary);
-								object.FoundModel = true;
-							}
-							if (object.ydr->Loaded) {
-								//SUPER DIRTY NEED FIX URGENT! UGLY FIX!!!
-								if (object.ydr->ybnfile) {
-
-									if (object.ydr->ybnfile->compound->getNumChildShapes() != 0) {
-
-										//SET POSITION OF COLLISION TO OBJECT PLACE
-										btVector3 localInertia(0, 0, 0);
-										float mass = 0.0f;
-										if (object.Archetype._BaseArchetypeDef.flags == 549584896) { //DYNAMIC???
-											mass = 1.0f;
-											object.ydr->ybnfile->compound->calculateLocalInertia(mass, localInertia);
-										}
-										btDefaultMotionState* MotionState = new btDefaultMotionState(btTransform(btQuaternion(-object.rotation.x, object.rotation.y, object.rotation.z, object.rotation.w), btVector3(object.position.x, object.position.y, object.position.z + 1.0f)));
-										btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(mass, MotionState, object.ydr->ybnfile->compound, localInertia);
-										object.rigidBody = new btRigidBody(groundRigidBodyCI);
-										dynamicsWorld->addRigidBody(object.rigidBody);
-									}//can be an error here
+							case ASSET_TYPE_DRAWABLE: {
+								if (!object.FoundModel) {
+									object.ydr = GetYdr(object.CEntity.archetypeName, object.Archetype._BaseArchetypeDef.textureDictionary);
+									object.ytd = LoadYTD(object.Archetype._BaseArchetypeDef.textureDictionary);
+									object.FoundModel = true;
 								}
+								if (object.ydr->Loaded) {
+									//SUPER DIRTY NEED FIX URGENT! UGLY FIX!!!
+									if (object.ydr->ybnfile) {
 
-								object.FoundBaseModel = true;
-							}
-							break;
-						}
-						case ASSET_TYPE_DRAWABLEDICTIONARY: {
-							if (!object.FoundModel) {
-								object.ydd = GetYdd(object.Archetype._BaseArchetypeDef.drawableDictionary, object.Archetype._BaseArchetypeDef.textureDictionary);
-								object.ytd = LoadYTD(object.Archetype._BaseArchetypeDef.textureDictionary);
-								object.FoundModel = true;
-							}
-							if (object.ydd->Loaded) {
-								std::unordered_map<uint32_t, YdrLoader*>::iterator iter2 = object.ydd->YdrFiles.find(object.CEntity.archetypeName);
-								if (iter2 != object.ydd->YdrFiles.end())
-								{
-									object.ydr = iter2->second;
+										if (object.ydr->ybnfile->compound->getNumChildShapes() != 0) {
+
+											//SET POSITION OF COLLISION TO OBJECT PLACE
+											btVector3 localInertia(0, 0, 0);
+											float mass = 0.0f;
+											if (object.Archetype._BaseArchetypeDef.flags == 549584896) { //DYNAMIC???
+												mass = 1.0f;
+												object.ydr->ybnfile->compound->calculateLocalInertia(mass, localInertia);
+											}
+											btDefaultMotionState* MotionState = new btDefaultMotionState(btTransform(btQuaternion(-object.rotation.x, object.rotation.y, object.rotation.z, object.rotation.w), btVector3(object.position.x, object.position.y, object.position.z + 1.0f)));
+											btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(mass, MotionState, object.ydr->ybnfile->compound, localInertia);
+											object.rigidBody = new btRigidBody(groundRigidBodyCI);
+											dynamicsWorld->addRigidBody(object.rigidBody);
+										}//can be an error here
+									}
+
 									object.FoundBaseModel = true;
 								}
+								break;
 							}
-							break;
-						}
-						case ASSET_TYPE_FRAGMENT: {
-							if (!object.FoundModel) {
-								object.yft = GetYft(object.CEntity.archetypeName, object.Archetype._BaseArchetypeDef.textureDictionary);
-								object.ytd = LoadYTD(object.Archetype._BaseArchetypeDef.textureDictionary);
-								object.FoundModel = true;
+							case ASSET_TYPE_DRAWABLEDICTIONARY: {
+								if (!object.FoundModel) {
+									object.ydd = GetYdd(object.Archetype._BaseArchetypeDef.drawableDictionary, object.Archetype._BaseArchetypeDef.textureDictionary);
+									object.ytd = LoadYTD(object.Archetype._BaseArchetypeDef.textureDictionary);
+									object.FoundModel = true;
+								}
+								if (object.ydd->Loaded) {
+									std::unordered_map<uint32_t, YdrLoader*>::iterator iter2 = object.ydd->YdrFiles.find(object.CEntity.archetypeName);
+									if (iter2 != object.ydd->YdrFiles.end())
+									{
+										object.ydr = iter2->second;
+										object.FoundBaseModel = true;
+									}
+								}
+								break;
 							}
-							if (object.yft->Loaded) {
-								object.ydr = object.yft->YdrFile;
-								object.FoundBaseModel = true;
+							case ASSET_TYPE_FRAGMENT: {
+								if (!object.FoundModel) {
+									object.yft = GetYft(object.CEntity.archetypeName, object.Archetype._BaseArchetypeDef.textureDictionary);
+									object.ytd = LoadYTD(object.Archetype._BaseArchetypeDef.textureDictionary);
+									object.FoundModel = true;
+								}
+								if (object.yft->Loaded) {
+									object.ydr = object.yft->YdrFile;
+									object.FoundBaseModel = true;
+								}
+								break;
 							}
-							break;
-						}
 						}
 					}
 					if (object.FoundModel && object.FoundBaseModel)
@@ -327,7 +323,7 @@ YmapLoader* GameWorld::GetYmap(uint32_t hash)
 		YmapLoader* loader = ymapPool.Load();
 		GetResourceManager()->AddToWaitingList(new Resource(ymap, hash, 0, loader));
 		loader->RefCount++;
-		ymapLoader[hash] = loader;
+		ymapLoader.insert({ hash, loader });
 
 		return loader;
 	}
@@ -377,7 +373,7 @@ YtdLoader* GameWorld::LoadYTD(uint32_t hash)
 		YtdLoader* loader = YtdPool::getPool().Load();
 		GetResourceManager()->AddToWaitingList(new Resource(ytd, hash, 0, loader));
 		loader->RefCount++;
-		ytdLoader[hash] = loader;
+		ytdLoader.insert({ hash, loader });
 
 		return loader;
 	}
@@ -395,7 +391,7 @@ YdrLoader * GameWorld::GetYdr(uint32_t hash, uint32_t TextureDictionaryHash)
 		YdrLoader* loader = YdrPool::getPool().Load();
 		GetResourceManager()->AddToWaitingList(new Resource(ydr, hash, TextureDictionaryHash, loader));
 		loader->RefCount++;
-		ydrLoader[hash] = loader;
+		ydrLoader.insert({ hash, loader });
 
 		return loader;
 	}
@@ -413,7 +409,7 @@ YddLoader * GameWorld::GetYdd(uint32_t hash, uint32_t TextureDictionaryHash)
 		YddLoader* loader = yddPool.Load();
 		GetResourceManager()->AddToWaitingList(new Resource(ydd, hash, TextureDictionaryHash, loader));
 		loader->RefCount++;
-		yddLoader[hash] = loader;
+		yddLoader.insert({ hash, loader });
 
 		return loader;
 	}
@@ -431,7 +427,7 @@ YftLoader * GameWorld::GetYft(uint32_t hash, uint32_t TextureDictionaryHash)
 		YftLoader* loader = yftPool.Load();
 		GetResourceManager()->AddToWaitingList(new Resource(yft, hash, TextureDictionaryHash, loader));
 		loader->RefCount++;
-		yftLoader[hash] = loader;
+		yftLoader.insert({ hash, loader });
 
 		return loader;
 	}
@@ -449,16 +445,17 @@ YbnLoader* GameWorld::GetYBN(uint32_t hash)
 		YbnLoader* loader = YbnPool::getPool().Load();
 		GetResourceManager()->AddToWaitingList(new Resource(ybn, hash, 0, loader));
 		loader->RefCount++;
-		ybnLoader[hash] = loader;
+		ybnLoader.insert({ hash, loader });
 		return loader;
 	}
 }
 
 void GameWorld::GetVisibleYmaps(Camera* camera)
 {
-	auto cellID = spaceGrid.GetCellPos(camera->position);
+	glm::vec3 PlayerPos = pedestrians[currentPlayerID].getPos();
 
-	auto NodeCell = nodeGrid.GetCellPos(camera->position);
+	auto cellID = spaceGrid.GetCellPos(PlayerPos);
+	auto NodeCell = nodeGrid.GetCellPos(PlayerPos);
 
 	if (CurNodeCell != NodeCell) {
 		CurNodeCell = NodeCell;
@@ -522,6 +519,28 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 
 		}
 	}*/
+
+	for (auto& ped : pedestrians)
+	{
+		//if ped loaded
+		auto& model = ped.getPosition();
+		if (camera->intersects(ped.position, 1.0f)) {
+
+			for (auto& ydr : ped.playerModel)
+			{
+				renderList.emplace_back(ydr, model);
+			}
+		}
+	}
+
+	for (auto& vehicle : vehicles) {
+		auto modelVehicle = vehicle.GetMat4();
+
+		/*if (camera->intersects(glm::vec3(modelVehicle[3]), 1.0f)) {
+			gbuffer->setMat4(ModelUniformLoc, modelVehicle);
+			world->vehicles[i].Draw(gbuffer);
+		}*/
+	}
 
 	std::sort(renderList.begin(), renderList.end(), [&camera](RenderInstruction& a, RenderInstruction& b) { //FRONT_TO_BACK
 		glm::vec3 lhsPosition = glm::vec3(a.modelMatrix[3]);
@@ -653,28 +672,28 @@ void GameWorld::LoadQueuedResources()
 
 		switch ((*it)->type)
 		{
-		case ymap:
-		{
-			(*it)->file->Finalize();
-			break;
-		}
-		case ydr:
-		case ydd:
-		case yft:
-		{
-			(*it)->file->Init(stream, (*it)->SystemSize, dynamicsWorld);
-			break;
-		}
-		case ytd:
-		{
-			(*it)->file->Init(stream, (*it)->SystemSize);
-			break;
-		}
-		case ybn:
-		{
-			(*it)->file->Finalize(dynamicsWorld);
-			break;
-		}
+			case ymap:
+			{
+				(*it)->file->Finalize();
+				break;
+			}
+			case ydr:
+			case ydd:
+			case yft:
+			{
+				(*it)->file->Init(stream, (*it)->SystemSize, dynamicsWorld);
+				break;
+			}
+			case ytd:
+			{
+				(*it)->file->Init(stream, (*it)->SystemSize);
+				break;
+			}
+			case ybn:
+			{
+				(*it)->file->Finalize(dynamicsWorld);
+				break;
+			}
 		}
 
 		delete *it;
@@ -699,8 +718,7 @@ void GameWorld::createVehicle(glm::vec3 position)
 		it->second.file = GetYft(it->first, it->first);
 	}
 	else {
-		Vehicle *newVehicle = new Vehicle(position, it->second.mass, it->second.file, dynamicsWorld);
-		vehicles.emplace_back(newVehicle);
+		vehicles.emplace_back(position, it->second.mass, it->second.file, dynamicsWorld);
 	}
 }
 
@@ -730,7 +748,7 @@ void GameWorld::Update()
 
 	for (auto& vehicle : vehicles)
 	{
-		vehicle->PhysicsTick();
+		vehicle.PhysicsTick();
 	}
 }
 
@@ -764,11 +782,11 @@ void GameWorld::UpdateTraffic(Camera* camera, glm::vec3 pos)
 			pos = glm::vec3(node.PositionX / 4.0f, node.PositionY / 4.0f, node.PositionZ / 32.0f);
 
 			for (int i = 0; i < vehicles.size(); i++) {
-				glm::vec3 vehiclePosition(vehicles[i]->m_carChassis->getWorldTransform().getOrigin().getX(), vehicles[i]->m_carChassis->getWorldTransform().getOrigin().getY(), vehicles[i]->m_carChassis->getWorldTransform().getOrigin().getZ());
+				glm::vec3 vehiclePosition(vehicles[i].m_carChassis->getWorldTransform().getOrigin().getX(), vehicles[i].m_carChassis->getWorldTransform().getOrigin().getY(), vehicles[i].m_carChassis->getWorldTransform().getOrigin().getZ());
 				if (glm::distance(camera->position, vehiclePosition) >= 100.0f) {
-					dynamicsWorld->removeVehicle((vehicles[i]->m_vehicle));
-					dynamicsWorld->removeRigidBody((vehicles[i]->m_carChassis));
-					delete vehicles[i];
+					dynamicsWorld->removeVehicle((vehicles[i].m_vehicle));
+					dynamicsWorld->removeRigidBody((vehicles[i].m_carChassis));
+					//delete vehicles[i];
 					vehicles.erase(vehicles.begin() + i);
 				}
 			}
@@ -796,11 +814,11 @@ Vehicle* GameWorld::FindNearestVehicle()
 	for (auto& vehicle : vehicles)
 	{
 		glm::vec3 PlayerPosition(pedestrians[currentPlayerID].getPhysCharacter()->getWorldTransform().getOrigin().getX(), pedestrians[currentPlayerID].getPhysCharacter()->getWorldTransform().getOrigin().getY(), pedestrians[currentPlayerID].getPhysCharacter()->getWorldTransform().getOrigin().getZ());
-		glm::vec3 VehiclePosition(vehicle->m_carChassis->getWorldTransform().getOrigin().getX(), vehicle->m_carChassis->getWorldTransform().getOrigin().getY(), vehicle->m_carChassis->getWorldTransform().getOrigin().getZ());
+		glm::vec3 VehiclePosition(vehicle.m_carChassis->getWorldTransform().getOrigin().getX(), vehicle.m_carChassis->getWorldTransform().getOrigin().getY(), vehicle.m_carChassis->getWorldTransform().getOrigin().getZ());
 		float vd = glm::length(PlayerPosition - VehiclePosition);
 		if (vd < d) {
 			d = vd;
-			nearestVehicle = vehicle;
+			nearestVehicle = &vehicle;
 		}
 	}
 
@@ -839,10 +857,6 @@ constexpr float deltaTime = 1.f / 60.f;
 
 void GameWorld::update(float delta_time, Camera* camera)
 {
-	Update();
-	UpdateDynamicObjects();
-	//UpdateTraffic(camera, camera->position);
-
 	if (delta_time > 0.25f) {
 		delta_time = 0.25f;
 	}
@@ -889,6 +903,10 @@ void GameWorld::update(float delta_time, Camera* camera)
 
 		accumulatedTime -= deltaTime;
 	}
+
+	UpdateDynamicObjects();
+	//UpdateTraffic(camera, camera->position);
+	Update();
 
 	if (EnableStreaming) {
 		renderList.clear();

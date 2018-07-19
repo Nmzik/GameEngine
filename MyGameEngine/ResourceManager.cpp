@@ -1,4 +1,5 @@
 #include "ResourceManager.h"
+#include "GameWorld.h"
 
 ResourceManager::ResourceManager(GameWorld *world) : gameworld{ world }
 {
@@ -12,6 +13,22 @@ ResourceManager::~ResourceManager()
 
 }
 
+void ResourceManager::LoadDrawable(RpfResourceFileEntry* entry, Resource* res) {
+	res->Buffer.resize(entry->SystemSize + entry->GraphicsSize);
+	gameworld->getGameData()->ExtractFileResource(*(entry), res->Buffer);
+	res->SystemSize = entry->SystemSize;
+
+	auto it = gameworld->getGameData()->YtdEntries.find(res->TextureDictionaryHash);
+	if (it == gameworld->getGameData()->YtdEntries.end())
+	{
+		res->TextureDictionaryHash = 0;
+	}
+
+	gameworld->resources_lock.lock();
+	gameworld->resources.push_back(res);
+	gameworld->resources_lock.unlock();
+}
+
 void ResourceManager::update()
 {
 	while (true) {
@@ -23,20 +40,19 @@ void ResourceManager::update()
 			lock.unlock();
 
 			switch (res->type) {
-			case ymap: {
-				auto it = gameworld->getGameData()->YmapEntries.find(res->Hash);
-				if (it != gameworld->getGameData()->YmapEntries.end())
-				{
-					res->Buffer.resize(it->second->SystemSize + it->second->GraphicsSize);
-					gameworld->getGameData()->ExtractFileResource(*(it->second), res->Buffer);
-
-					auto iter = gameworld->ymapLoader.find(res->Hash);
-					if (iter != gameworld->ymapLoader.end())
+				case ymap: {
+					auto it = gameworld->getGameData()->YmapEntries.find(res->Hash);
+					if (it != gameworld->getGameData()->YmapEntries.end())
 					{
-						memstream2 stream(res->Buffer.data(), res->Buffer.size());
-						iter->second->Init(stream);
+						res->Buffer.resize(it->second->SystemSize + it->second->GraphicsSize);
+						gameworld->getGameData()->ExtractFileResource(*(it->second), res->Buffer);
 
-						for (auto& object : iter->second->Objects)
+						YmapLoader* iter = static_cast<YmapLoader*>(res->file);
+
+						memstream2 stream(res->Buffer.data(), res->Buffer.size());
+						iter->Init(stream);
+
+						for (auto& object : iter->Objects)
 						{
 							std::unordered_map<uint32_t, CBaseArchetypeDef>::iterator it = gameworld->getGameData()->CBaseArchetypeDefs.find(object.CEntity.archetypeName);
 							if (it != gameworld->getGameData()->CBaseArchetypeDefs.end())
@@ -70,132 +86,90 @@ void ResourceManager::update()
 
 						}
 
+						gameworld->resources_lock.lock();
+						gameworld->resources.push_back(res);
+						gameworld->resources_lock.unlock();
 					}
-
-					gameworld->resources_lock.lock();
-					gameworld->resources.push_back(res);
-					gameworld->resources_lock.unlock();
-				}
-				else {
-					delete res;
-				}
-			}
-			break;
-			case ydr:
-			{
-				auto it = gameworld->getGameData()->YdrEntries.find(res->Hash);
-				if (it != gameworld->getGameData()->YdrEntries.end())
-				{
-					res->Buffer.resize(it->second->SystemSize + it->second->GraphicsSize);
-					gameworld->getGameData()->ExtractFileResource(*(it->second), res->Buffer);
-					res->SystemSize = it->second->SystemSize;
-
-					auto it = gameworld->getGameData()->YtdEntries.find(res->TextureDictionaryHash);
-					if (it == gameworld->getGameData()->YtdEntries.end())
-					{
-						res->TextureDictionaryHash = 0;
+					else {
+						delete res;
 					}
-
-					gameworld->resources_lock.lock();
-					gameworld->resources.push_back(res);
-					gameworld->resources_lock.unlock();
 				}
-				else {
-					delete res; //RARELY HAPPENS
-				}
-			}
-			break;
-			case ydd:
-			{
-				auto it = gameworld->getGameData()->YddEntries.find(res->Hash);
-				if (it != gameworld->getGameData()->YddEntries.end())
+						   break;
+				case ydr:
 				{
-					res->Buffer.resize(it->second->SystemSize + it->second->GraphicsSize);
-					gameworld->getGameData()->ExtractFileResource(*(it->second), res->Buffer);
-					res->SystemSize = it->second->SystemSize;
-
-					auto it = gameworld->getGameData()->YtdEntries.find(res->TextureDictionaryHash);
-					if (it == gameworld->getGameData()->YtdEntries.end())
+					auto it = gameworld->getGameData()->YdrEntries.find(res->Hash);
+					if (it != gameworld->getGameData()->YdrEntries.end())
 					{
-						res->TextureDictionaryHash = 0;
+						LoadDrawable(it->second, res);
 					}
-
-					gameworld->resources_lock.lock();
-					gameworld->resources.push_back(res);
-					gameworld->resources_lock.unlock();
-				}
-				else {
-					delete res;
-				}
-			}
-			break;
-			case yft:
-			{
-				auto it = gameworld->getGameData()->YftEntries.find(res->Hash);
-				if (it != gameworld->getGameData()->YftEntries.end())
-				{
-					res->Buffer.resize(it->second->SystemSize + it->second->GraphicsSize);
-					gameworld->getGameData()->ExtractFileResource(*(it->second), res->Buffer);
-					res->SystemSize = it->second->SystemSize;
-
-					auto it = gameworld->getGameData()->YtdEntries.find(res->TextureDictionaryHash);
-					if (it == gameworld->getGameData()->YtdEntries.end())
-					{
-						res->TextureDictionaryHash = 0;
+					else {
+						delete res; //RARELY HAPPENS
 					}
-
-					gameworld->resources_lock.lock();
-					gameworld->resources.push_back(res);
-					gameworld->resources_lock.unlock();
 				}
-				else {
-					delete res;
-				}
-			}
-			break;
-			case ytd:
-			{
-				auto it = gameworld->getGameData()->YtdEntries.find(res->Hash);
-				if (it != gameworld->getGameData()->YtdEntries.end())
+				break;
+				case ydd:
 				{
-					res->Buffer.resize(it->second->SystemSize + it->second->GraphicsSize);
-					gameworld->getGameData()->ExtractFileResource(*(it->second), res->Buffer);
-					res->SystemSize = it->second->SystemSize;
-					gameworld->resources_lock.lock();
-					gameworld->resources.push_back(res);
-					gameworld->resources_lock.unlock();
-				}
-				else {
-					delete res;
-				}
-			}
-
-			break;
-			case ybn:
-			{
-				auto it = gameworld->getGameData()->YbnEntries.find(res->Hash);
-				if (it != gameworld->getGameData()->YbnEntries.end())
-				{
-					res->Buffer.resize(it->second->SystemSize + it->second->GraphicsSize);
-					gameworld->getGameData()->ExtractFileResource(*(it->second), res->Buffer);
-					res->SystemSize = it->second->SystemSize;
-
-					auto iter = gameworld->ybnLoader.find(res->Hash);
-					if (iter != gameworld->ybnLoader.end()) //CAN BE A CRASH HERE!!!
+					auto it = gameworld->getGameData()->YddEntries.find(res->Hash);
+					if (it != gameworld->getGameData()->YddEntries.end())
 					{
+						LoadDrawable(it->second, res);
+					}
+					else {
+						delete res;
+					}
+				}
+				break;
+				case yft:
+				{
+					auto it = gameworld->getGameData()->YftEntries.find(res->Hash);
+					if (it != gameworld->getGameData()->YftEntries.end())
+					{
+						LoadDrawable(it->second, res);
+					}
+					else {
+						delete res;
+					}
+				}
+				break;
+				case ytd:
+				{
+					auto it = gameworld->getGameData()->YtdEntries.find(res->Hash);
+					if (it != gameworld->getGameData()->YtdEntries.end())
+					{
+						res->Buffer.resize(it->second->SystemSize + it->second->GraphicsSize);
+						gameworld->getGameData()->ExtractFileResource(*(it->second), res->Buffer);
+						res->SystemSize = it->second->SystemSize;
+						gameworld->resources_lock.lock();
+						gameworld->resources.push_back(res);
+						gameworld->resources_lock.unlock();
+					}
+					else {
+						delete res;
+					}
+				}
+
+				break;
+				case ybn:
+				{
+					auto it = gameworld->getGameData()->YbnEntries.find(res->Hash);
+					if (it != gameworld->getGameData()->YbnEntries.end())
+					{
+						res->Buffer.resize(it->second->SystemSize + it->second->GraphicsSize);
+						gameworld->getGameData()->ExtractFileResource(*(it->second), res->Buffer);
+						res->SystemSize = it->second->SystemSize;
+
 						memstream2 stream(res->Buffer.data(), res->Buffer.size());
-						iter->second->Init(stream);
-					}
+						res->file->Init(stream);
 
-					gameworld->resources_lock.lock();
-					gameworld->resources.push_back(res);
-					gameworld->resources_lock.unlock();
+						gameworld->resources_lock.lock();
+						gameworld->resources.push_back(res);
+						gameworld->resources_lock.unlock();
+					}
+					else {
+						delete res;
+					}
 				}
-				else {
-					delete res;
-				}
-			}
-			break;
+				break;
 			}
 
 		}

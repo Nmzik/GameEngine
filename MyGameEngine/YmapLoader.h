@@ -126,7 +126,7 @@ public:
 	std::vector<Object> RootObjects;
 	std::vector<CCarGen> CCarGens;
 
-	void Init(memstream2 & file);
+	void Init(memstream2 & file) override;
 	void Finalize() override;
 };
 

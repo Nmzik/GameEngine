@@ -460,6 +460,10 @@ class FileType {
 
 	}
 
+	virtual void Init(memstream2& file) {
+
+	}
+
 	virtual void Finalize(btDiscreteDynamicsWorld* world) {
 
 	}

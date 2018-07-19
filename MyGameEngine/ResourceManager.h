@@ -3,7 +3,7 @@
 #include <thread>
 #include <mutex>
 #include "includes.h"
-#include "GameWorld.h"
+#include "RpfEntry.h"
 
 class GameWorld;
 
@@ -18,6 +18,8 @@ public:
 
 	ResourceManager(GameWorld *world);
 	~ResourceManager();
+
+	void LoadDrawable(RpfResourceFileEntry * entry, Resource * res);
 
 	void AddToWaitingList(Resource* res) {
 		std::lock_guard<std::mutex> lock(mylock);

@@ -152,7 +152,7 @@ public:
 	uint32_t RefCount = 0;
 	bool Loaded = false;
 
-	void Init(memstream2 & file);
+	void Init(memstream2 & file) override;
 	void ParseYbn(memstream2& file);
 	void Finalize(btDiscreteDynamicsWorld* world) override;
 	void Remove();

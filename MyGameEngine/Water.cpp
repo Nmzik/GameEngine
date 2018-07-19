@@ -59,6 +59,9 @@ Water::Water(WaterQuad waterQuad)
 		}
 	}
 
+	BSCenter = glm::vec3((waterQuad.minX + waterQuad.maxX) * 0.5f, (waterQuad.minY + waterQuad.maxY) * 0.5f, waterQuad.z);
+	BSRadius = glm::length(glm::vec2(waterQuad.maxX - waterQuad.minX, waterQuad.maxY - waterQuad.minY)) * 0.5f;
+
 	VAO = MeshManager::GetManager().GetVAO();
 	glBindVertexArray(VAO);
 
@@ -79,7 +82,7 @@ Water::Water(WaterQuad waterQuad)
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint16_t), &indices[0], GL_STATIC_DRAW);
 
-	diffuseTextureID = TextureManager::GetTexture(2826194296);
+	diffuseTextureID = TextureManager::GetTexture(185264090);
 }
 
 Water::~Water()

@@ -265,6 +265,7 @@ void RenderingSystem::createSSAO()
 		glm::vec3 noise(randomFloats(generator) * 2.0 - 1.0, randomFloats(generator) * 2.0 - 1.0, 0.0f); // rotate around z-axis (in tangent space)
 		ssaoNoise.push_back(noise);
 	}
+
 	glGenTextures(1, &noiseTexture);
 	glBindTexture(GL_TEXTURE_2D, noiseTexture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, 4, 4, 0, GL_RGB, GL_FLOAT, &ssaoNoise[0]);
@@ -346,42 +347,7 @@ void RenderingSystem::render(GameWorld* world)
 	gbuffer->setMat4(ViewUniformLoc, view);
 	gbuffer->setMat4(ProjUniformLoc, projection);
 
-	/*glDepthMask(GL_FALSE); //SKYDOME IS STATIONARY - SHOULD BE RENDERED LAST - PLAYER CAN GO OUT OF SKYDOME IF HE IS TOO FAR FROM IT
-	glm::mat4 SkydomeMatrix = glm::translate(glm::mat4(1.0f), camera->position) * glm::mat4_cast(glm::quat(-1, 0, 0, 0)) * glm::scale(glm::mat4(1.0f), glm::vec3(10, 10, 10));
-	gbuffer->setMat4(ModelUniformLoc, SkydomeMatrix);
-
-	for (auto &mesh : world->skydome->YdrFiles[2640562617]->meshes)
-	{
-		glBindVertexArray(mesh.VAO);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, mesh.material.diffuseTextureID);
-		glDrawElements(GL_TRIANGLES, mesh.num_indices, GL_UNSIGNED_SHORT, 0);
-	}
-	glDepthMask(GL_TRUE);*/
-
 	DrawCalls = 0;
-
-	for (auto& ped : world->pedestrians)
-	{
-		//if ped loaded
-		auto& model = ped.getPosition();
-		if (camera->intersects(glm::vec3(model[3]), 1.0f)) {
-			gbuffer->setMat4(ModelUniformLoc, model);
-
-			for (auto& ydr : ped.playerModel)
-			{
-				for (auto &mesh : ydr->meshes)
-				{
-					glBindVertexArray(mesh.VAO);
-					glActiveTexture(GL_TEXTURE0);
-					glBindTexture(GL_TEXTURE_2D, mesh.material.diffuseTextureID);
-					glDrawElements(GL_TRIANGLES, mesh.num_indices, GL_UNSIGNED_SHORT, 0);
-
-					DrawCalls++;
-				}
-			}
-		}
-	}
 
 	/*for (int i = 0; i < 20; i++) {
 		if (world->pedPool.peds[i].loaded) {
@@ -393,21 +359,11 @@ void RenderingSystem::render(GameWorld* world)
 		}
 	}*/
 
-	for (int i = 0; i < world->vehicles.size(); i++) {
-		auto modelVehicle = world->vehicles[i]->GetMat4();
-
-		if (camera->intersects(glm::vec3(modelVehicle[3]), 1.0f)) {
-			gbuffer->setMat4(ModelUniformLoc, modelVehicle);
-			world->vehicles[i]->Draw(gbuffer);
-		}
-	}
-
 	for (auto& model : world->renderList)
 	{
+		gbuffer->setMat4(ModelUniformLoc, model.modelMatrix);
 		for (auto &mesh : model.ydr->meshes)
 		{
-			gbuffer->setMat4(ModelUniformLoc, model.modelMatrix);
-
 			glBindVertexArray(mesh.VAO);
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, mesh.material.diffuseTextureID);
@@ -438,11 +394,14 @@ void RenderingSystem::render(GameWorld* world)
 
 	for (auto& waterMesh : world->WaterMeshes)
 	{
-		gbuffer->setMat4(ModelUniformLoc, glm::mat4(1.0));
-		waterMesh.Draw();
+		if (camera->intersects(waterMesh.BSCenter, waterMesh.BSRadius)) {
+			gbuffer->setMat4(ModelUniformLoc, glm::mat4(1.0));
+			waterMesh.Draw();
 
-		DrawCalls++;
+			DrawCalls++;
+		}
 	}
+
 	glEnable(GL_CULL_FACE);
 
 	//glDisable(GL_CULL_FACE);
@@ -529,6 +488,22 @@ void RenderingSystem::render(GameWorld* world)
 	gbufferLighting->setVec3("viewPos", camera->position + camera->rotation * glm::vec3(1.f, 0.f, 0.f));
 	//gbufferLighting->setMat4("lightSpaceMatrix", lightSpaceMatrix);
 	renderQuad();
+
+	/*glEnable(GL_DEPTH_CLAMP);
+
+	glDepthMask(GL_FALSE); //SKYDOME IS STATIONARY - SHOULD BE RENDERED LAST - PLAYER CAN GO OUT OF SKYDOME IF HE IS TOO FAR FROM IT
+	glm::mat4 SkydomeMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.f, 0.f, 0.f)) * glm::mat4_cast(glm::quat(-1, 0, 0, 0)) * glm::scale(glm::mat4(1.0f), glm::vec3(10000.f, 10000.f, 10000.f));
+	gbuffer->setMat4(ModelUniformLoc, SkydomeMatrix);
+
+	for (auto &mesh : world->skydome->YdrFiles[2640562617]->meshes)
+	{
+		glBindVertexArray(mesh.VAO);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, mesh.material.diffuseTextureID);
+		glDrawElements(GL_TRIANGLES, mesh.num_indices, GL_UNSIGNED_SHORT, 0);
+	}
+	glDepthMask(GL_TRUE);
+	glDisable(GL_DEPTH_CLAMP);*/
 
 	// --------------------------------HDR----------------------------------
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
