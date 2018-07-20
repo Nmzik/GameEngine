@@ -49,7 +49,7 @@ uniform int useBump;
 void main()
 {   
 	gAlbedoSpec = texture(DiffuseSampler, TexCoords);
-	if (gAlbedoSpec.a < 0.1)
+	if (gAlbedoSpec.a < 0.75)
 		discard;
 	/*if (useBump) {
 		vec3 normal = texture(BumpSampler, TexCoords).rgb;

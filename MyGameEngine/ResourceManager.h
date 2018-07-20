@@ -11,6 +11,7 @@ class ResourceManager
 {
 	std::thread ResourcesThread;
 	std::mutex mylock;
+	std::condition_variable loadCondition;
 
 	std::vector<Resource*> waitingList;
 	GameWorld *gameworld;
@@ -21,11 +22,7 @@ public:
 
 	void LoadDrawable(RpfResourceFileEntry * entry, Resource * res);
 
-	void AddToWaitingList(Resource* res) {
-		std::lock_guard<std::mutex> lock(mylock);
-
-		waitingList.push_back(res);
-	}
+	void AddToWaitingList(Resource* res);
 
 	void update();
 };

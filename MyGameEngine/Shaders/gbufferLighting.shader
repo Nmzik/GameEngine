@@ -18,8 +18,8 @@ out vec4 FragColor;
 in vec2 TexCoords;
 
 uniform sampler2D gDepth;
-uniform sampler2D gNormal;
 uniform sampler2D gAlbedoSpec;
+uniform sampler2D gNormal;
 uniform sampler2D shadowMap;
 uniform sampler2D ssao;
 
@@ -100,7 +100,8 @@ void main()
     vec3 Normal = texture(gNormal, TexCoords).rgb;
     vec3 Diffuse = texture(gAlbedoSpec, TexCoords).rgb;
     float Specular = texture(gAlbedoSpec, TexCoords).a;
-    float AmbientOcclusion = texture(ssao, TexCoords).r;
+    //float AmbientOcclusion = texture(ssao, TexCoords).r;
+	float AmbientOcclusion = 1.0f;
 	vec3 ambient = light.ambient * Diffuse * AmbientOcclusion;
     // diffuse
     vec3 lightDir = normalize(-light.direction);
@@ -120,7 +121,7 @@ void main()
 	//float fogStart = 450.f;
 	//float fogEnd = 10000.f;
 
-    FragColor = vec4(ambient + (1.0 - shadow) * (diffuse + specular), 1.0);
+    FragColor = vec4((diffuse + ambient), 1.0);
 
 
 }

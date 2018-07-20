@@ -2,7 +2,7 @@
 #include "YbnLoader.h"
 #include "YtdLoader.h"
 
-void YdrLoader::Init(memstream2 & file, int32_t systemSize, btDiscreteDynamicsWorld * world)
+void YdrLoader::Init(memstream2 & file, int32_t systemSize)
 {
 	Loaded = true;
 

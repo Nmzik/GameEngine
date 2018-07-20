@@ -28,7 +28,6 @@ uniform vec2 hdrBufferOffset;
 
 vec3 computeFxaa()
 {
-    vec2 hdrBufferOffset = vec2(1.0f/1280, 1.0f/720);
     vec3 luma = vec3(0.299f, 0.587f, 0.114f);
 
     vec3 offsetNW = texture(hdrBuffer, TexCoords.xy + (vec2(-1.0f, -1.0f) * hdrBufferOffset)).xyz;

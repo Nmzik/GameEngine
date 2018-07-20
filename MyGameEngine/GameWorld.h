@@ -90,7 +90,7 @@ public:
 	GameWorld();
 	~GameWorld();
 
-	void LoadYmap(YmapLoader* map, Camera* camera);
+	void LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position);
 	YmapLoader* GetYmap(uint32_t hash);
 	//bool LoadYTYP(uint32_t hash);
 

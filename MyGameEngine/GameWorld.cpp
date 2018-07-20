@@ -177,12 +177,12 @@ float RandomFloat(float min, float max) {
 	return  (max - min) * ((((float)rand()) / (float)RAND_MAX)) + min;
 }
 
-void GameWorld::LoadYmap(YmapLoader* map, Camera* camera)
+void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 {
 	if (map->Loaded) {
 		for (auto& object : map->Objects)
 		{
-			float Dist = glm::length2(camera->position - object.position);
+			float Dist = glm::length2(position - object.position);
 			bool IsVisible = Dist <= object.CEntity.lodDist * LODMultiplier;
 			bool childrenVisible = (Dist <= object.CEntity.childLodDist * LODMultiplier) && (object.CEntity.numChildren > 0);
 			if (IsVisible && !childrenVisible) {
@@ -298,7 +298,7 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera)
 		for (auto& carGen : map->CCarGens)
 		{
 			int MaximumAvailableVehicles = 20 - vehicles.size(); //HARDCODED
-			if (camera->Position.z < 100.0f) {
+			if (position.z < 100.0f) {
 				for (int i = 0; i < MaximumAvailableVehicles; i++) {
 					float xRandom = RandomFloat(carGen.position.x - carGen.perpendicularLength, carGen.position.x + carGen.perpendicularLength);
 					float yRandom = RandomFloat(carGen.position.y - carGen.perpendicularLength, carGen.position.y + carGen.perpendicularLength);
@@ -495,7 +495,7 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 
 	for (auto& mapNode : CurYmaps)
 	{
-		LoadYmap(mapNode, camera);
+		LoadYmap(mapNode, camera, PlayerPos);
 	}
 
 	/*for (auto& Proxy : cell.CInteriorProxies)
@@ -680,10 +680,6 @@ void GameWorld::LoadQueuedResources()
 			case ydr:
 			case ydd:
 			case yft:
-			{
-				(*it)->file->Init(stream, (*it)->SystemSize, dynamicsWorld);
-				break;
-			}
 			case ytd:
 			{
 				(*it)->file->Init(stream, (*it)->SystemSize);

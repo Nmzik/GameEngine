@@ -10,7 +10,7 @@ public:
 	std::vector<YdrLoader*> wheels;
 	bool Loaded = false;
 
-	void Init(memstream2& file, int32_t systemSize, btDiscreteDynamicsWorld* world) override;
+	void Init(memstream2& file, int32_t systemSize) override;
 	void Remove();
 };
 

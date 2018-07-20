@@ -1,6 +1,6 @@
 #include "YddLoader.h"
 
-void YddLoader::Init(memstream2 & file, int32_t systemSize, btDiscreteDynamicsWorld * world)
+void YddLoader::Init(memstream2 & file, int32_t systemSize)
 {
 	Loaded = true;
 
@@ -47,8 +47,8 @@ void YddLoader::Init(memstream2 & file, int32_t systemSize, btDiscreteDynamicsWo
 		file.seekg(data_pointer[0]);
 
 		YdrLoader* ydr = YdrPool::getPool().Load();
-		ydr->Init(file, systemSize, world);
-		YdrFiles[Hashes[i]] = ydr;
+		ydr->Init(file, systemSize);
+		YdrFiles.insert({Hashes[i], ydr});
 
 		file.seekg(DrawablePointer);
 	}
