@@ -440,7 +440,11 @@ class YtdLoader;
 class YbnLoader;
 
 class FileType {
-	public:
+public:
+	uint32_t RefCount = 0;
+	uint64_t gpuMemory = 0;
+	bool Loaded = false;
+
 	FileType() {
 
 	}
@@ -473,9 +477,6 @@ public:
 	YbnLoader* ybnfile = nullptr;
 	std::vector<Mesh> meshes;
 	bool isYft = false;
-	bool isVisible = false;
-	uint32_t RefCount = 0;
-	bool Loaded = false;
 
 	void Init(memstream2& file, int32_t systemSize) override;
 	void Remove();

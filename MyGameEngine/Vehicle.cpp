@@ -18,7 +18,7 @@ float	rollInfluence = 0.1f;//1.0f;
 btScalar suspensionRestLength(0.6f);
 btScalar m_defaultContactProcessingThreshold(BT_LARGE_FLOAT);
 
-Vehicle::Vehicle(glm::vec3 position, float mass, YftLoader* yft, btDiscreteDynamicsWorld* world) : throttle(0), steeringValue(0), vehicle(yft)
+Vehicle::Vehicle(glm::vec3 position, float mass, YftLoader* yft, btDiscreteDynamicsWorld* world) : throttle(0), steeringValue(0), vehicle(yft), Entity(position, glm::quat(-1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(1.0f))
 {
 	btRaycastVehicle::btVehicleTuning m_tuning;
 
@@ -111,11 +111,9 @@ Vehicle::~Vehicle()
 
 glm::mat4 Vehicle::GetMat4()
 {
-	glm::mat4 model;
+	m_carChassis->getWorldTransform().getOpenGLMatrix(&modelMatrix[0][0]);
 
-	m_carChassis->getWorldTransform().getOpenGLMatrix(&model[0][0]);
-
-	return model;
+	return modelMatrix;
 }
 
 void Vehicle::PhysicsTick()

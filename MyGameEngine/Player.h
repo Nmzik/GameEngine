@@ -26,7 +26,6 @@ class Player : public Entity
 	btDiscreteDynamicsWorld* World;
 	Vehicle* vehicle;
 	YddLoader* player;
-	glm::mat4 model;
 public:
 	Player(glm::vec3 position, YddLoader* ydd, btDiscreteDynamicsWorld* world);
 	~Player();

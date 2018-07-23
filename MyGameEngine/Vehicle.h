@@ -3,14 +3,16 @@
 #include "BulletCollision/CollisionDispatch/btGhostObject.h"
 #include "YftLoader.h"
 #include "Shader.h"
-#include "SDL.h"
+#include "Entity.h"
 
-class Vehicle
+class Vehicle : public Entity
 {
 	YftLoader* vehicle;
 public:
 	Vehicle(glm::vec3 position, float mass, YftLoader* yft, btDiscreteDynamicsWorld* world);
 	~Vehicle();
+
+	glm::mat4 GetMat4();
 
 	float throttle;
 	float steeringValue;
@@ -29,7 +31,6 @@ public:
 		this->steeringValue = steeringValue;
 	}
 
-	glm::mat4 GetMat4();
 	void PhysicsTick();
 	void Draw(Shader* shader);
 };

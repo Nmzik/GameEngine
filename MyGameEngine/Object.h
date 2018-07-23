@@ -9,7 +9,6 @@ class YftLoader;
 class Object : public Entity
 {
 public:
-	glm::mat4 ModelMatrix;
 	YdrLoader* ydr = nullptr;
 	YddLoader* ydd = nullptr;
 	YftLoader* yft = nullptr;
@@ -17,7 +16,6 @@ public:
 	btRigidBody* rigidBody = nullptr;
 	bool Loaded = false;
 	bool FoundModel = false;
-	bool FoundBaseModel = false;
 	uint8_t type = 0;
 
 	glm::vec3 BoundPos;
@@ -29,7 +27,7 @@ public:
 	~Object();
 
 	glm::mat4& getMatrix() {
-		return ModelMatrix;
+		return modelMatrix;
 	}
 
 private:

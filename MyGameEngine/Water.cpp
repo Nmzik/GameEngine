@@ -82,7 +82,7 @@ Water::Water(WaterQuad waterQuad)
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint16_t), &indices[0], GL_STATIC_DRAW);
 
-	diffuseTextureID = TextureManager::GetTexture(185264090);
+	diffuseTextureID = TextureManager::GetTextureManager().GetTexture(185264090);
 }
 
 Water::~Water()

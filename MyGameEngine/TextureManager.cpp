@@ -1,14 +1,5 @@
 #include "TextureManager.h"
 
-std::vector<GLuint> TextureManager::TexturesID;
-std::unordered_map<uint32_t, TextureManager::Texture> TextureManager::TexturesMap;
-
-void TextureManager::Initialize()
-{
-	TexturesID.resize(30000);
-	glGenTextures(30000, &TexturesID[0]);
-}
-
 GLuint TextureManager::GetTexture(uint32_t textureHash)
 {
 	std::unordered_map<uint32_t, Texture>::iterator it = TexturesMap.find(textureHash);

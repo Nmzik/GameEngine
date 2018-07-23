@@ -6,9 +6,7 @@ class YftLoader : public FileType
 public:
 	YftLoader * next;
 	YdrLoader * YdrFile = nullptr;
-	uint32_t RefCount = 0;
 	std::vector<YdrLoader*> wheels;
-	bool Loaded = false;
 
 	void Init(memstream2& file, int32_t systemSize) override;
 	void Remove();

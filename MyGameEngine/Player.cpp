@@ -82,9 +82,9 @@ glm::vec3 & Player::getPos()
 
 glm::mat4& Player::getPosition()
 {
-	body->getWorldTransform().getOpenGLMatrix(&model[0][0]);
+	body->getWorldTransform().getOpenGLMatrix(&modelMatrix[0][0]);
 
-	return model;
+	return modelMatrix;
 }
 
 void Player::PhysicsTick()

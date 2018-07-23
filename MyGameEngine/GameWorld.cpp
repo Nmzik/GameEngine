@@ -91,7 +91,7 @@ GameWorld::GameWorld()
 	{
 		LoadQueuedResources();
 	}
-	TextureManager::LoadTexture(1551155749, TextureManager::GetTexture(475118591));
+	TextureManager::GetTextureManager().LoadTexture(1551155749, TextureManager::GetTextureManager().GetTexture(475118591));
 
 	//
 	while (!LoadYTD(3403519606)->Loaded)
@@ -187,72 +187,67 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 			bool childrenVisible = (Dist <= object.CEntity.childLodDist * LODMultiplier) && (object.CEntity.numChildren > 0);
 			if (IsVisible && !childrenVisible) {
 				if (!object.Loaded) {
-					if (!object.FoundModel || !object.FoundBaseModel) {
-						switch (object.Archetype._BaseArchetypeDef.assetType)
-						{
-							case ASSET_TYPE_DRAWABLE: {
-								if (!object.FoundModel) {
-									object.ydr = GetYdr(object.CEntity.archetypeName, object.Archetype._BaseArchetypeDef.textureDictionary);
-									object.ytd = LoadYTD(object.Archetype._BaseArchetypeDef.textureDictionary);
-									object.FoundModel = true;
-								}
-								if (object.ydr->Loaded) {
-									//SUPER DIRTY NEED FIX URGENT! UGLY FIX!!!
-									if (object.ydr->ybnfile) {
-
-										if (object.ydr->ybnfile->compound->getNumChildShapes() != 0) {
-
-											//SET POSITION OF COLLISION TO OBJECT PLACE
-											btVector3 localInertia(0, 0, 0);
-											float mass = 0.0f;
-											if (object.Archetype._BaseArchetypeDef.flags == 549584896) { //DYNAMIC???
-												mass = 1.0f;
-												object.ydr->ybnfile->compound->calculateLocalInertia(mass, localInertia);
-											}
-											btDefaultMotionState* MotionState = new btDefaultMotionState(btTransform(btQuaternion(-object.rotation.x, object.rotation.y, object.rotation.z, object.rotation.w), btVector3(object.position.x, object.position.y, object.position.z + 1.0f)));
-											btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(mass, MotionState, object.ydr->ybnfile->compound, localInertia);
-											object.rigidBody = new btRigidBody(groundRigidBodyCI);
-											dynamicsWorld->addRigidBody(object.rigidBody);
-										}//can be an error here
-									}
-
-									object.FoundBaseModel = true;
-								}
-								break;
+					switch (object.Archetype._BaseArchetypeDef.assetType)
+					{
+						case ASSET_TYPE_DRAWABLE: {
+							if (!object.FoundModel) {
+								object.ydr = GetYdr(object.CEntity.archetypeName, object.Archetype._BaseArchetypeDef.textureDictionary);
+								object.ytd = LoadYTD(object.Archetype._BaseArchetypeDef.textureDictionary);
+								object.FoundModel = true;
 							}
-							case ASSET_TYPE_DRAWABLEDICTIONARY: {
-								if (!object.FoundModel) {
-									object.ydd = GetYdd(object.Archetype._BaseArchetypeDef.drawableDictionary, object.Archetype._BaseArchetypeDef.textureDictionary);
-									object.ytd = LoadYTD(object.Archetype._BaseArchetypeDef.textureDictionary);
-									object.FoundModel = true;
+							if (object.ydr->Loaded) {
+								//SUPER DIRTY NEED FIX URGENT! UGLY FIX!!!
+								if (object.ydr->ybnfile) {
+
+									if (object.ydr->ybnfile->compound->getNumChildShapes() != 0) {
+
+										//SET POSITION OF COLLISION TO OBJECT PLACE
+										btVector3 localInertia(0, 0, 0);
+										float mass = 0.0f;
+										if (object.Archetype._BaseArchetypeDef.flags == 549584896) { //DYNAMIC???
+											mass = 1.0f;
+											object.ydr->ybnfile->compound->calculateLocalInertia(mass, localInertia);
+										}
+										btDefaultMotionState* MotionState = new btDefaultMotionState(btTransform(btQuaternion(-object.rotation.x, object.rotation.y, object.rotation.z, object.rotation.w), btVector3(object.position.x, object.position.y, object.position.z + 1.0f)));
+										btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(mass, MotionState, object.ydr->ybnfile->compound, localInertia);
+										object.rigidBody = new btRigidBody(groundRigidBodyCI);
+										dynamicsWorld->addRigidBody(object.rigidBody);
+									}//can be an error here
 								}
-								if (object.ydd->Loaded) {
-									std::unordered_map<uint32_t, YdrLoader*>::iterator iter2 = object.ydd->YdrFiles.find(object.CEntity.archetypeName);
-									if (iter2 != object.ydd->YdrFiles.end())
-									{
-										object.ydr = iter2->second;
-										object.FoundBaseModel = true;
-									}
-								}
-								break;
+
+								object.Loaded = true;
 							}
-							case ASSET_TYPE_FRAGMENT: {
-								if (!object.FoundModel) {
-									object.yft = GetYft(object.CEntity.archetypeName, object.Archetype._BaseArchetypeDef.textureDictionary);
-									object.ytd = LoadYTD(object.Archetype._BaseArchetypeDef.textureDictionary);
-									object.FoundModel = true;
-								}
-								if (object.yft->Loaded) {
-									object.ydr = object.yft->YdrFile;
-									object.FoundBaseModel = true;
-								}
-								break;
+							break;
+						}
+						case ASSET_TYPE_DRAWABLEDICTIONARY: {
+							if (!object.FoundModel) {
+								object.ydd = GetYdd(object.Archetype._BaseArchetypeDef.drawableDictionary, object.Archetype._BaseArchetypeDef.textureDictionary);
+								object.ytd = LoadYTD(object.Archetype._BaseArchetypeDef.textureDictionary);
+								object.FoundModel = true;
 							}
+							if (object.ydd->Loaded) {
+								std::unordered_map<uint32_t, YdrLoader*>::iterator iter2 = object.ydd->YdrFiles.find(object.CEntity.archetypeName);
+								if (iter2 != object.ydd->YdrFiles.end())
+								{
+									object.ydr = iter2->second;
+									object.Loaded = true;
+								}
+							}
+							break;
+						}
+						case ASSET_TYPE_FRAGMENT: {
+							if (!object.FoundModel) {
+								object.yft = GetYft(object.CEntity.archetypeName, object.Archetype._BaseArchetypeDef.textureDictionary);
+								object.ytd = LoadYTD(object.Archetype._BaseArchetypeDef.textureDictionary);
+								object.FoundModel = true;
+							}
+							if (object.yft->Loaded) {
+								object.ydr = object.yft->YdrFile;
+								object.Loaded = true;
+							}
+							break;
 						}
 					}
-					if (object.FoundModel && object.FoundBaseModel)
-						object.Loaded = true;//IS it really?
-
 				}
 				else {
 
@@ -534,7 +529,7 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 	}
 
 	for (auto& vehicle : vehicles) {
-		auto modelVehicle = vehicle.GetMat4();
+		auto modelVehicle = vehicle.getModel();
 
 		/*if (camera->intersects(glm::vec3(modelVehicle[3]), 1.0f)) {
 			gbuffer->setMat4(ModelUniformLoc, modelVehicle);
@@ -592,6 +587,7 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 	{
 		if ((it->second)->RefCount == 0 && (it->second)->Loaded)
 		{
+			GlobalGpuMemory -= it->second->gpuMemory;
 			YdrPool::getPool().Remove(it->second);
 			it = ydrLoader.erase(it);
 		}
@@ -605,6 +601,7 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 	{
 		if ((it->second)->RefCount == 0 && (it->second)->Loaded)
 		{
+			GlobalGpuMemory -= it->second->gpuMemory;
 			yddPool.Remove(it->second);
 			it = yddLoader.erase(it);
 		}
@@ -618,6 +615,7 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 	{
 		if ((it->second)->RefCount == 0 && (it->second)->Loaded)
 		{
+			GlobalGpuMemory -= it->second->gpuMemory;
 			yftPool.Remove(it->second);
 			it = yftLoader.erase(it);
 		}
@@ -629,8 +627,9 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 
 	for (auto it = ytdLoader.begin(); it != ytdLoader.end();)
 	{
-		if ((it->second)->RefCount == 0)
+		if ((it->second)->RefCount == 0 && (it->second)->Loaded)
 		{
+			TextureMemory -= it->second->gpuMemory;
 			YtdPool::getPool().Remove(it->second);
 			it = ytdLoader.erase(it);
 		}
@@ -680,9 +679,15 @@ void GameWorld::LoadQueuedResources()
 			case ydr:
 			case ydd:
 			case yft:
+			{
+				(*it)->file->Init(stream, (*it)->SystemSize);
+				GlobalGpuMemory += (*it)->file->gpuMemory;
+				break;
+			}
 			case ytd:
 			{
 				(*it)->file->Init(stream, (*it)->SystemSize);
+				TextureMemory += (*it)->file->gpuMemory;
 				break;
 			}
 			case ybn:
@@ -727,7 +732,7 @@ void GameWorld::UpdateDynamicObjects()
 			{
 				if (object.Loaded) {
 					if (object.Archetype._BaseArchetypeDef.flags == 549584896 && object.rigidBody) {
-						object.rigidBody->getWorldTransform().getOpenGLMatrix(&object.ModelMatrix[0][0]);
+						object.rigidBody->getWorldTransform().getOpenGLMatrix(&object.modelMatrix[0][0]);
 					}
 				}
 			}

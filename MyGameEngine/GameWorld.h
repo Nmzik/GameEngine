@@ -75,6 +75,8 @@ public:
 	std::mutex resources_lock;
 	std::vector<Resource*> resources;
 	RenderList renderList;
+	uint64_t GlobalGpuMemory = 0;
+	uint64_t TextureMemory = 0;
 
 	float accumulatedTime = 0.0f;
 

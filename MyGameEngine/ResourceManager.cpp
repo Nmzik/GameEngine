@@ -69,8 +69,9 @@ void ResourceManager::update()
 						{
 							object.Archetype._BaseArchetypeDef = it->second;
 
-							object.BoundPos = object.CEntity.position; //object.BoundPos = object.Archetype._BaseArchetypeDef.bsCentre + object.CEntity.position;
+							object.BoundPos = object.CEntity.position - object.Archetype._BaseArchetypeDef.bsCentre;
 							object.BoundRadius = object.Archetype._BaseArchetypeDef.bsRadius * std::max(object.CEntity.scaleXY, object.CEntity.scaleZ);
+
 							if (object.CEntity.lodDist <= 0) object.CEntity.lodDist = it->second.lodDist;
 							if (object.CEntity.childLodDist <= 0) object.CEntity.childLodDist = it->second.lodDist;
 
@@ -84,6 +85,7 @@ void ResourceManager::update()
 
 								object.BoundPos = object.CEntity.position; //object.BoundPos = object.Archetype._BaseArchetypeDef.bsCentre + object.CEntity.position;
 								object.BoundRadius = object.Archetype._BaseArchetypeDef.bsRadius * std::max(object.CEntity.scaleXY, object.CEntity.scaleZ);
+
 								if (object.CEntity.lodDist <= 0) object.CEntity.lodDist = it->second._BaseArchetypeDef.lodDist;
 								if (object.CEntity.childLodDist <= 0) object.CEntity.childLodDist = it->second._BaseArchetypeDef.lodDist;
 

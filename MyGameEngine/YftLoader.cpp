@@ -77,6 +77,7 @@ void YftLoader::Init(memstream2 & file, int32_t systemSize)
 	YdrFile = YdrPool::getPool().Load();
 	YdrFile->isYft = true;
 	YdrFile->Init(file, systemSize);
+	gpuMemory += YdrFile->gpuMemory;
 
 	struct FragPhysicsLODGroup {
 		uint32_t VFT;
@@ -254,6 +255,7 @@ void YftLoader::Init(memstream2 & file, int32_t systemSize)
 
 void YftLoader::Remove()
 {
+	gpuMemory = 0;
 	Loaded = false;
 	if (YdrFile) {
 		YdrPool::getPool().Remove(YdrFile);

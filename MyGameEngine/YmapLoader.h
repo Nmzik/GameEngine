@@ -118,8 +118,6 @@ class YmapLoader : public FileType
 public:
 	YmapLoader * next;
 
-	bool Loaded = false;
-	uint32_t RefCount = 0;
 	CMapData _CMapData;
 	std::vector<CMloInstanceDef> CMloInstanceDefs;
 	std::vector<Object> Objects;

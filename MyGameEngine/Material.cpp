@@ -2,15 +2,15 @@
 
 Material::Material(uint32_t DiffuseHash, uint32_t BumpHash, uint32_t SpecularHash, uint32_t DetailHash)
 {
-	diffuseTextureID = TextureManager::GetTexture(DiffuseHash);
+	diffuseTextureID = TextureManager::GetTextureManager().GetTexture(DiffuseHash);
 	if (BumpHash != 0) {
-		bumpTextureID = TextureManager::GetTexture(BumpHash);
+		bumpTextureID = TextureManager::GetTextureManager().GetTexture(BumpHash);
 		useBump = true;
 	}
 	if (SpecularHash != 0)
-		specularTextureID = TextureManager::GetTexture(SpecularHash);
+		specularTextureID = TextureManager::GetTextureManager().GetTexture(SpecularHash);
 	if (DetailHash != 0)
-		detailTextureID = TextureManager::GetTexture(SpecularHash);
+		detailTextureID = TextureManager::GetTextureManager().GetTexture(SpecularHash);
 }
 
 Material::~Material()

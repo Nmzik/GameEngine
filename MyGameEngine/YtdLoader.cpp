@@ -67,8 +67,8 @@ void YtdLoader::Init(memstream2 & file, int32_t systemSize)
 	{
 		uint64_t* data_pointer = (uint64_t*)file.read(sizeof(uint64_t));
 
-		std::unordered_map<uint32_t, TextureManager::Texture>::iterator it = TextureManager::TexturesMap.find(TextureNameHashes[i]);
-		if (it == TextureManager::TexturesMap.end())
+		std::unordered_map<uint32_t, TextureManager::Texture>::iterator it = TextureManager::GetTextureManager().TexturesMap.find(TextureNameHashes[i]);
+		if (it == TextureManager::GetTextureManager().TexturesMap.end())
 		{
 			uint64_t posOriginal = file.tellg();
 
@@ -145,8 +145,7 @@ void YtdLoader::Init(memstream2 & file, int32_t systemSize)
 					break;
 			}
 
-			GLuint textureID;
-			glGenTextures(1, &textureID);
+			GLuint textureID = TextureManager::GetTextureManager().GetTextureID();
 			glBindTexture(GL_TEXTURE_2D, textureID);
 			glTexStorage2D(GL_TEXTURE_2D, texture->Levels, InternalFormat, texture->Width, texture->Height);
 
@@ -163,14 +162,17 @@ void YtdLoader::Init(memstream2 & file, int32_t systemSize)
 			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 			//glPixelStorei(GL_UNPACK_ALIGNMENT, 1);*/
 
+			unsigned int offset = 0;
+
 			if (compressed)
 			{
 				unsigned int blockSize = (InternalFormat == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT || InternalFormat == GL_COMPRESSED_RED_RGTC1) ? 8 : 16;
-				unsigned int offset = 0;
 
 				for (unsigned int level = 0; level < texture->Levels; ++level)
 				{
 					unsigned int size = ((texture->Width + 3) / 4)*((texture->Height + 3) / 4)*blockSize;
+					gpuMemory += size;
+
 					glCompressedTexSubImage2D(GL_TEXTURE_2D, level, 0, 0, texture->Width, texture->Height, InternalFormat, size, &file.data[texture->DataPointer] + offset);
 
 					offset += size;
@@ -180,11 +182,10 @@ void YtdLoader::Init(memstream2 & file, int32_t systemSize)
 
 			}
 			else {
-				unsigned int offset = 0;
-
 				for (unsigned int level = 0; level < texture->Levels; ++level)
 				{
 					unsigned int size = ((texture->Width + 1) >> 1)  * ((texture->Height + 1) >> 1) * 4;
+					gpuMemory += size;
 
 					glTexSubImage2D(GL_TEXTURE_2D, level, 0, 0, texture->Width, texture->Height, format, type, &file.data[texture->DataPointer] + offset);
 
@@ -194,7 +195,7 @@ void YtdLoader::Init(memstream2 & file, int32_t systemSize)
 				}
 			}
 
-			TextureManager::LoadTexture(TextureNameHashes[i], textureID);
+			TextureManager::GetTextureManager().LoadTexture(TextureNameHashes[i], textureID);
 
 			file.seekg(posOriginal);
 		}
@@ -208,10 +209,11 @@ void YtdLoader::Init(memstream2 & file, int32_t systemSize)
 
 void YtdLoader::Remove()
 {
+	gpuMemory = 0;
 	Loaded = false;
 	for (auto& hash : TextureNameHashes)
 	{
-		TextureManager::RemoveTexture(hash);
+		TextureManager::GetTextureManager().RemoveTexture(hash);
 	}
 	TextureNameHashes.clear();
 }

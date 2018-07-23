@@ -23,22 +23,25 @@ void YmapLoader::Init(memstream2& file)
 			for (int i = 0; i < Block.MetaDataBlock_struct->DataLength / sizeof(CEntityDef); i++)
 			{
 				CEntityDef def;
-				std::memcpy(&def, &file.data[Block.MetaDataBlock_struct->DataPointer +  i * sizeof(CEntityDef)], sizeof(CEntityDef));
+				std::memcpy(&def, &file.data[Block.MetaDataBlock_struct->DataPointer + i * sizeof(CEntityDef)], sizeof(CEntityDef));
 
 				bool isreflproxy = false;
 				switch (def.flags)
 				{
-				case 135790592: //001000000110000000000000000000    prewater proxy (golf course)
-				case 135790593: //001000000110000000000000000001    water refl proxy? (mike house)
-				case 672661504: //101000000110000000000000000000    vb_ca_prop_tree_reflprox_2
-				case 536870912: //100000000000000000000000000000    vb_05_emissive_mirroronly
-				case 35127296:  //000010000110000000000000000000    tunnel refl proxy?
-				case 39321602:  //000010010110000000000000000010    mlo reflection?
-				isreflproxy = true; break;
+					case 135790592: //001000000110000000000000000000    prewater proxy (golf course)
+					case 135790593: //001000000110000000000000000001    water refl proxy? (mike house)
+					case 672661504: //101000000110000000000000000000    vb_ca_prop_tree_reflprox_2
+					case 536870912: //100000000000000000000000000000    vb_05_emissive_mirroronly
+					case 35127296:  //000010000110000000000000000000    tunnel refl proxy?
+					case 39321602:  //000010010110000000000000000010    mlo reflection?
+						isreflproxy = true; break;
 				}
 				if (isreflproxy) {
 					continue;
 				}
+
+				//FIX OPENGL
+				def.rotation.w = -def.rotation.w;
 
 				//if (def.lodLevel == Unk_1264241711::LODTYPES_DEPTH_ORPHANHD) def.lodDist *= 1.5f;
 
@@ -48,25 +51,18 @@ void YmapLoader::Init(memstream2& file)
 
 		else if (Block.MetaDataBlock_struct->StructureNameHash == 164374718) //CMloInstanceDef
 		{
-			for (int i = 0; i < Block.MetaDataBlock_struct->DataLength / sizeof(CMloInstanceDef); i++)
-			{
-				CMloInstanceDef def;
-				std::memcpy(&def, &file.data[Block.MetaDataBlock_struct->DataPointer +  i * sizeof(CMloInstanceDef)], sizeof(CMloInstanceDef));
-				CMloInstanceDefs.push_back(def);
-			}
+			size_t curLength = CMloInstanceDefs.size();
+			CMloInstanceDefs.resize(curLength + Block.MetaDataBlock_struct->DataLength / sizeof(CMloInstanceDef));
+			std::memcpy(&CMloInstanceDefs[curLength], &file.data[Block.MetaDataBlock_struct->DataPointer], Block.MetaDataBlock_struct->DataLength);
 		}
 
 		else if (Block.MetaDataBlock_struct->StructureNameHash == 1860713439) //CCarGen
 		{
-			for (int i = 0; i < Block.MetaDataBlock_struct->DataLength / sizeof(CCarGen); i++)
-			{
-				CCarGen cargen;
-				std::memcpy(&cargen, &file.data[Block.MetaDataBlock_struct->DataPointer +  i * sizeof(CCarGen)], sizeof(CCarGen));
-				CCarGens.push_back(cargen);
-			}
+			size_t curLength = CCarGens.size();
+			CCarGens.resize(curLength + Block.MetaDataBlock_struct->DataLength / sizeof(CCarGen));
+			std::memcpy(&CCarGens[curLength], &file.data[Block.MetaDataBlock_struct->DataPointer], Block.MetaDataBlock_struct->DataLength);
 		}
 	}
-
 	/*for (int i = 0; i < Objects.size(); i++)
 	{
 		Object d = Objects[i];

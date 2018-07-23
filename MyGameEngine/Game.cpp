@@ -88,7 +88,7 @@ void Game::updateFPS(float delta_time) {
 	if (time_since_last_fps_output >= 1.0f) {
 		time_since_last_fps_output = 0.0f;
 		std::ostringstream osstr;
-		osstr << "SDL2 window" << " (" << (1.0f / delta_time) << " FPS, CPU time " << (delta_time * 1000.0f) << ") | GPU time " << rendering_system->gpuTime * 0.000001f << "ms " << gameWorld->renderList.size() << "Objects " << rendering_system->DrawCalls << "Draw Calls";
+		osstr << "Game window" << " (" << (1.0f / delta_time) << " FPS, " << (delta_time * 1000.0f) << " CPU time, " << rendering_system->gpuTime * 0.000001f << " GPU time) | " << gameWorld->renderList.size() << " Objects, " << rendering_system->DrawCalls << " Draw Calls, " << gameWorld->GlobalGpuMemory / 1024 / 1024 << " MB GPU memory, " << gameWorld->TextureMemory / 1024 / 1024 << " MB Texture Memory";
 		SDL_SetWindowTitle(window, osstr.str().c_str());
 	}
 }

@@ -1,10 +1,14 @@
 #pragma once
+
+#define OPENGL_NAME_CACHE_SIZE 1024
+
 #include <iostream>
 #include "glm/glm.hpp"
 #include "opengl.h"
 #include <unordered_map>
 #include <string>
 #include <vector>
+
 
 class TextureManager
 {
@@ -15,17 +19,26 @@ public:
 		uint32_t referenceCount;
 	};
 
-	static std::vector<GLuint> TexturesID;
-	static std::unordered_map<uint32_t, Texture> TexturesMap;
-	static GLuint GetTexture(uint32_t textureHash);
-	static void LoadTexture(uint32_t Hash, GLuint TextureID);
-	static void RemoveTexture(uint32_t Hash);
+	static TextureManager& GetTextureManager() {
+		static TextureManager texManager;
+		return texManager;
+	}
 
-	static void Initialize();
+	std::vector<GLuint> TexturesID;
+	std::unordered_map<uint32_t, Texture> TexturesMap;
+	GLuint GetTexture(uint32_t textureHash);
+	void LoadTexture(uint32_t Hash, GLuint TextureID);
+	void RemoveTexture(uint32_t Hash);
 
-	static GLuint GetTextureID() {
+	GLuint GetTextureID() {
+		if (TexturesID.size() == 0) {
+			TexturesID.resize(OPENGL_NAME_CACHE_SIZE);
+			glGenTextures(OPENGL_NAME_CACHE_SIZE, &TexturesID[0]);
+		}
+		
 		GLuint TextureID = TexturesID.back();
 		TexturesID.pop_back();
+
 		return TextureID;
 	}
 };

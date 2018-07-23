@@ -48,6 +48,7 @@ void YddLoader::Init(memstream2 & file, int32_t systemSize)
 
 		YdrLoader* ydr = YdrPool::getPool().Load();
 		ydr->Init(file, systemSize);
+		gpuMemory += ydr->gpuMemory;
 		YdrFiles.insert({Hashes[i], ydr});
 
 		file.seekg(DrawablePointer);
@@ -56,6 +57,7 @@ void YddLoader::Init(memstream2 & file, int32_t systemSize)
 
 void YddLoader::Remove()
 {
+	gpuMemory = 0;
 	Loaded = false;
 	for (auto& ydr : YdrFiles)
 	{

@@ -33,8 +33,6 @@ class YtdLoader : public FileType
 {
 public:
 	YtdLoader * next;
-	bool Loaded = false;
-	uint32_t RefCount = 0;
 	std::vector<uint32_t> TextureNameHashes;
 
 	void Init(memstream2& file, int32_t systemSize);
