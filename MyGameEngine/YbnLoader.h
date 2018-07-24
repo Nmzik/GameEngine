@@ -2,7 +2,7 @@
 #include <btBulletDynamicsCommon.h>
 #include "YdrLoader.h"
 
-struct Bounds {
+struct Bounds : ResourceFileBase {
 	uint8_t Type;
 	uint8_t Unknown_11h;
 	uint16_t Unknown_12h;

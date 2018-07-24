@@ -4,8 +4,6 @@ void YmapLoader::Init(memstream2& file)
 {
 	//Could be an additional extraction code here
 
-	ResourceFileBase* resourceFileBase = (ResourceFileBase*)file.read(sizeof(ResourceFileBase));
-
 	Meta meta(file);
 
 	for (auto& Block : meta.MetaBlocks)

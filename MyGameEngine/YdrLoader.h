@@ -292,7 +292,7 @@ struct FragDrawable {
 	uint32_t Unknown_14Ch; // 0x00000000
 };
 
-struct DrawableBase {
+struct DrawableBase : ResourceFileBase {
 	uint64_t ShaderGroupPointer;
 	uint64_t SkeletonPointer;
 	glm::vec3 BoundingCenter;

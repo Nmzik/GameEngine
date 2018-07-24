@@ -3,7 +3,7 @@
 
 class YndLoader
 {
-	struct {
+	struct : ResourceFileBase {
 		uint64_t NodesPointer;
 		uint32_t NodesCount;
 		uint32_t NodesCountVehicle;

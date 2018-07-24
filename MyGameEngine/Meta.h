@@ -96,7 +96,7 @@ public:
 
 class Meta {
 public:
-	struct MetaStruct{
+	struct MetaStruct : ResourceFileBase {
 		int32_t Unknown_10h;
 		uint16_t Unknown_14h;
 		uint8_t HasUselessData;

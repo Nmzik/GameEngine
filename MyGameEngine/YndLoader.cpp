@@ -2,9 +2,6 @@
 
 YndLoader::YndLoader(memstream& file)
 {
-	ResourceFileBase resourceFileBase;
-	file.read((char*)&resourceFileBase, sizeof(ResourceFileBase));
-
 	file.read((char*)&NodeDictionary, sizeof(NodeDictionary));
 
 	TranslatePTR(NodeDictionary.NodesPointer);

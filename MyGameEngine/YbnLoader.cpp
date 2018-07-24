@@ -9,8 +9,6 @@ void YbnLoader::Init(memstream2& file)
 
 void YbnLoader::ParseYbn(memstream2 & file)
 {
-	ResourceFileBase* resourceFileBase = (ResourceFileBase*)file.read(sizeof(ResourceFileBase));
-
 	Bounds* bounds = (Bounds*)file.read(sizeof(Bounds));
 
 	switch (bounds->Type)

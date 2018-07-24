@@ -6,48 +6,48 @@ void YdrLoader::Init(memstream2 & file, int32_t systemSize)
 {
 	Loaded = true;
 
-	ResourceFileBase* resourceFileBase = (ResourceFileBase*)file.read(sizeof(ResourceFileBase));
-
 	DrawableBase* drawBase = (DrawableBase*)file.read(sizeof(DrawableBase));
 
-	if (drawBase->DrawableModelsXPointer != 0) {
+	if (drawBase->DrawableModelsXPointer == 0) {
+		printf("");
+	}
 
-		//READ COLLISION DATA FROM YDR
-		if (isYft) {
-			FragDrawable* fragDrawable = (FragDrawable*)file.read(sizeof(FragDrawable));
 
-			if (fragDrawable->BoundPointer != 0) {
-				SYSTEM_BASE_PTR(fragDrawable->BoundPointer);
-				file.seekg(fragDrawable->BoundPointer);
+	//READ COLLISION DATA FROM YDR
+	if (isYft) {
+		FragDrawable* fragDrawable = (FragDrawable*)file.read(sizeof(FragDrawable));
 
-				//ybnfile = new YbnLoader(world, file);
+		if (fragDrawable->BoundPointer != 0) {
+			SYSTEM_BASE_PTR(fragDrawable->BoundPointer);
+			file.seekg(fragDrawable->BoundPointer);
+
+			//ybnfile = new YbnLoader(world, file);
+		}
+	}
+	else {
+		Drawable* drawable = (Drawable*)file.read(sizeof(Drawable));
+
+		if (drawable->LightAttributesPointer != 0) {
+			SYSTEM_BASE_PTR(drawable->LightAttributesPointer);
+
+			file.seekg(drawable->LightAttributesPointer);
+
+			std::vector<LightAttributes_s> lightAttributes_s;
+			lightAttributes_s.resize(drawable->LightAttributesCount1);
+
+			for (int i = 0; i < drawable->LightAttributesCount1; i++)
+			{
+				LightAttributes_s* light = (LightAttributes_s*)file.read(sizeof(LightAttributes_s));
+				//lightAttributes_s.push_back(light);
 			}
 		}
-		else {
-			Drawable* drawable = (Drawable*)file.read(sizeof(Drawable));
+		if (drawable->BoundPointer != 0) {
+			SYSTEM_BASE_PTR(drawable->BoundPointer);
+			file.seekg(drawable->BoundPointer);
 
-			if (drawable->LightAttributesPointer != 0) {
-				SYSTEM_BASE_PTR(drawable->LightAttributesPointer);
-
-				file.seekg(drawable->LightAttributesPointer);
-
-				std::vector<LightAttributes_s> lightAttributes_s;
-				lightAttributes_s.resize(drawable->LightAttributesCount1);
-
-				for (int i = 0; i < drawable->LightAttributesCount1; i++)
-				{
-					LightAttributes_s* light = (LightAttributes_s*)file.read(sizeof(LightAttributes_s));
-					//lightAttributes_s.push_back(light);
-				}
-			}
-			if (drawable->BoundPointer != 0) {
-				SYSTEM_BASE_PTR(drawable->BoundPointer);
-				file.seekg(drawable->BoundPointer);
-
-				ybnfile = YbnPool::getPool().Load();
-				ybnfile->Init(file);
-				//ybnfile->Finalize(world);
-			}
+			ybnfile = YbnPool::getPool().Load();
+			ybnfile->Init(file);
+			//ybnfile->Finalize(world);
 		}
 
 		//Shader stuff
@@ -95,45 +95,45 @@ void YdrLoader::Init(memstream2 & file, int32_t systemSize)
 
 				switch (param->DataType)
 				{
-				case 0:
+					case 0:
 
-					if (param->DataPointer == 0) {
+						if (param->DataPointer == 0) {
+							TexturesHashes.push_back(0);
+						}
+						else {
+
+							uint64_t Pos = file.tellg();
+
+							SYSTEM_BASE_PTR(param->DataPointer);
+
+							file.seekg(param->DataPointer);
+
+							TextureBase* texBase = (TextureBase*)file.read(sizeof(TextureBase));
+
+							SYSTEM_BASE_PTR(texBase->NamePointer);
+
+							file.seekg(texBase->NamePointer);
+
+							char* Namearray = (char*)&file.data[texBase->NamePointer];
+							std::string Name(&Namearray[0]);
+
+							std::transform(Name.begin(), Name.end(), Name.begin(), tolower);
+							uint32_t NameHash = GenHash(Name);
+
+							TexturesHashes.push_back(NameHash);
+
+							file.seekg(Pos);
+						}
+
+						break;
+					case 1: //SOME OTHER SHIT OTHER THAN TEXTURE
+						offset += 16;
 						TexturesHashes.push_back(0);
-					}
-					else {
-
-						uint64_t Pos = file.tellg();
-
-						SYSTEM_BASE_PTR(param->DataPointer);
-
-						file.seekg(param->DataPointer);
-
-						TextureBase* texBase = (TextureBase*)file.read(sizeof(TextureBase));
-
-						SYSTEM_BASE_PTR(texBase->NamePointer);
-
-						file.seekg(texBase->NamePointer);
-
-						char* Namearray = (char*)&file.data[texBase->NamePointer];
-						std::string Name(&Namearray[0]);
-
-						std::transform(Name.begin(), Name.end(), Name.begin(), tolower);
-						uint32_t NameHash = GenHash(Name);
-
-						TexturesHashes.push_back(NameHash);
-
-						file.seekg(Pos);
-					}
-
-					break;
-				case 1: //SOME OTHER SHIT OTHER THAN TEXTURE
-					offset += 16;
-					TexturesHashes.push_back(0);
-					break;
-				default:
-					offset += 16 * param->DataType;
-					TexturesHashes.push_back(0); //NOT ERROR
-					break;
+						break;
+					default:
+						offset += 16 * param->DataType;
+						TexturesHashes.push_back(0); //NOT ERROR
+						break;
 				}
 			}
 
@@ -245,22 +245,22 @@ void YdrLoader::Init(memstream2 & file, int32_t systemSize)
 				{
 					/*case 8598872888530528662: //YDR - 0x7755555555996996
 					break;*/
-				case 216172782140628998:  //YFT - 0x030000000199A006
-					switch (decl->Flags)
-					{
-					case 16473:
-						decl->Flags = VertexType::PCCH2H4;
-						break;  //  PCCH2H4 
-					}
-					break;
-				case 216172782140612614:  //YFT - 0x0300000001996006  PNCH2H4
-					switch (decl->Flags)
-					{
-					case 89:
-						decl->Flags = VertexType::PNCH2;
-						break;     //  PNCH2
-					}
-					break;
+					case 216172782140628998:  //YFT - 0x030000000199A006
+						switch (decl->Flags)
+						{
+							case 16473:
+								decl->Flags = VertexType::PCCH2H4;
+								break;  //  PCCH2H4 
+						}
+						break;
+					case 216172782140612614:  //YFT - 0x0300000001996006  PNCH2H4
+						switch (decl->Flags)
+						{
+							case 89:
+								decl->Flags = VertexType::PNCH2;
+								break;     //  PNCH2
+						}
+						break;
 				}
 
 				SYSTEM_BASE_PTR(drawGeom->IndexBufferPointer);
