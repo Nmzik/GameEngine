@@ -1,5 +1,9 @@
 ﻿#include "Game.h"
 
+#include "GameWorld.h"
+#include "RenderingSystem.h"
+#include "GameData.h"
+
 Game::Game() {
 
 	SDL_Init(SDL_INIT_VIDEO);              // Initialize SDL2

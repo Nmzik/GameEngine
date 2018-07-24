@@ -1,6 +1,5 @@
 #pragma once
 #include "Meta.h"
-#include "Object.h"
 
 struct CMloInstanceDef //160 bytes, Key:2151576752
 {
@@ -110,6 +109,9 @@ struct CMapData //512 bytes, Key:3448101671
 	CBlockDesc block; //440   440: Structure: CBlockDesc//3072355914: block
 };
 
+class btDynamicsWorld;
+class Object;
+
 class YmapLoader : public FileType
 {
 public:
@@ -128,6 +130,10 @@ public:
 class YmapPool
 {
 public:
+	static YmapPool& getPool() {
+		static YmapPool pool;
+		return pool;
+	}
 	YmapPool();
 	~YmapPool();
 

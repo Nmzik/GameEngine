@@ -292,6 +292,9 @@ struct DrawableModel {
 	uint32_t Unknown_2Ch;
 };
 
+class YtdLoader;
+class YbnLoader;
+
 class YdrLoader : public FileType
 {
 	YtdLoader* Ytd = nullptr;

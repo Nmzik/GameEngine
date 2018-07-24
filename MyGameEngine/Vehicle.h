@@ -4,6 +4,7 @@
 #include "YftLoader.h"
 #include "Shader.h"
 #include "Entity.h"
+#include "YdrLoader.h"
 
 class Vehicle : public Entity
 {

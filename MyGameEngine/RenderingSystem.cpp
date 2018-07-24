@@ -1,5 +1,8 @@
 #include "RenderingSystem.h"
 
+#include "GameWorld.h"
+#include "Water.h"
+
 void myDebugCallback(
 	GLenum source,
 	GLenum type,

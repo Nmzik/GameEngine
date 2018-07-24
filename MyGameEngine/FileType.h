@@ -4,10 +4,6 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/quaternion.hpp"
 
-class YtdLoader;
-class YbnLoader;
-class btDiscreteDynamicsWorld;
-
 #define SYSTEM_BASE 0x50000000
 #define GRAPHICS_BASE 0x60000000
 
@@ -142,6 +138,8 @@ struct CEntityDef //128 bytes, Key:1825799514
 	uint32_t tintValue; //120   120: UnsignedInt: 0: tintValue//1015358759
 	uint32_t Unused6;//124
 };
+
+class btDiscreteDynamicsWorld;
 
 class FileType {
 public:

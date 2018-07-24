@@ -1,6 +1,9 @@
 #include "ResourceManager.h"
 #include "GameWorld.h"
 
+#include "YmapLoader.h"
+#include "Object.h"
+
 ResourceManager::ResourceManager(GameWorld *world) : gameworld{ world }
 {
 	//printf("RESOURCE MANAGER LOADED!\n");

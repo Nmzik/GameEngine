@@ -1,4 +1,5 @@
 #include "YftLoader.h"
+#include "YdrLoader.h"
 
 void YftLoader::Init(memstream2 & file, int32_t systemSize)
 {

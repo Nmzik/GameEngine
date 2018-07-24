@@ -1,4 +1,6 @@
 #include "YmapLoader.h"
+#include <btBulletDynamicsCommon.h>
+#include "Object.h"
 
 void YmapLoader::Init(memstream2& file)
 {

@@ -1,7 +1,4 @@
 #pragma once
-
-#include <vector>
-#include "glm/glm.hpp"
 #include "opengl.h"
 #include "Material.h"
 #include "MeshManager.h"

@@ -1,11 +1,12 @@
 #pragma once
 #include "YtypLoader.h"
 #include "Entity.h"
-#include <btBulletDynamicsCommon.h>
 
 class YdrLoader;
 class YddLoader;
 class YftLoader;
+class YtdLoader;
+class btRigidBody;
 
 class Object : public Entity
 {

@@ -1,5 +1,6 @@
 #pragma once
-#include "YdrLoader.h"
+#include "FileType.h"
+#include <vector>
 
 struct FragType : ResourceFileBase {
 	uint32_t Unknown_10h; // 0x00000000
@@ -184,6 +185,8 @@ struct FragPhysTypeChild {
 	uint32_t Unknown_FCh; // 0x00000000
 };
 
+class YdrLoader;
+
 class YftLoader : public FileType
 {
 public:
@@ -198,6 +201,10 @@ public:
 class YftPool
 {
 public:
+	static YftPool& getPool() {
+		static YftPool pool;
+		return pool;
+	}
 	YftPool();
 	~YftPool();
 

@@ -1,7 +1,5 @@
 #pragma once
 
-#include "SDL.h"
-
 class Game;
 
 class State {

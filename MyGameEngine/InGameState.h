@@ -1,6 +1,6 @@
 #pragma once
 #include "State.h"
-#include "PauseState.h"
+
 class InGameState :
 	public State
 {

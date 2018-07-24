@@ -1,4 +1,5 @@
 #include "YddLoader.h"
+#include "YdrLoader.h"
 
 void YddLoader::Init(memstream2 & file, int32_t systemSize)
 {

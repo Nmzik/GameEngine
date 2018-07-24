@@ -1,5 +1,19 @@
 #include "GameWorld.h"
 
+#include "ResourceManager.h"
+#include "PhysicsDebugDrawer.h"
+#include "Water.h"
+#include "Camera.h"
+#include "YtdLoader.h"
+#include "YddLoader.h"
+#include "YftLoader.h"
+#include "YmapLoader.h"
+#include "YtypLoader.h"
+#include "YndLoader.h"
+#include "YbnLoader.h"
+#include "YnvLoader.h"
+#include "Object.h"
+
 GameWorld::GameWorld()
 {
 	broadphase = new btDbvtBroadphase();
@@ -315,7 +329,7 @@ YmapLoader* GameWorld::GetYmap(uint32_t hash)
 		return it->second;
 	}
 	else {
-		YmapLoader* loader = ymapPool.Load();
+		YmapLoader* loader = YmapPool::getPool().Load();
 		GetResourceManager()->AddToWaitingList(new Resource(ymap, hash, 0, loader));
 		loader->RefCount++;
 		ymapLoader.insert({ hash, loader });
@@ -401,7 +415,7 @@ YddLoader * GameWorld::GetYdd(uint32_t hash, uint32_t TextureDictionaryHash)
 		return iter->second;
 	}
 	else {
-		YddLoader* loader = yddPool.Load();
+		YddLoader* loader = YddPool::getPool().Load();
 		GetResourceManager()->AddToWaitingList(new Resource(ydd, hash, TextureDictionaryHash, loader));
 		loader->RefCount++;
 		yddLoader.insert({ hash, loader });
@@ -419,7 +433,7 @@ YftLoader * GameWorld::GetYft(uint32_t hash, uint32_t TextureDictionaryHash)
 		return iter->second;
 	}
 	else {
-		YftLoader* loader = yftPool.Load();
+		YftLoader* loader = YftPool::getPool().Load();
 		GetResourceManager()->AddToWaitingList(new Resource(yft, hash, TextureDictionaryHash, loader));
 		loader->RefCount++;
 		yftLoader.insert({ hash, loader });
@@ -574,7 +588,7 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 	{
 		if ((it->second)->RefCount == 0 && (it->second)->Loaded)
 		{
-			ymapPool.Remove(it->second, dynamicsWorld);
+			YmapPool::getPool().Remove(it->second, dynamicsWorld);
 			it = ymapLoader.erase(it);
 		}
 		else
@@ -602,7 +616,7 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 		if ((it->second)->RefCount == 0 && (it->second)->Loaded)
 		{
 			GlobalGpuMemory -= it->second->gpuMemory;
-			yddPool.Remove(it->second);
+			YddPool::getPool().Remove(it->second);
 			it = yddLoader.erase(it);
 		}
 		else
@@ -616,7 +630,7 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 		if ((it->second)->RefCount == 0 && (it->second)->Loaded)
 		{
 			GlobalGpuMemory -= it->second->gpuMemory;
-			yftPool.Remove(it->second);
+			YftPool::getPool().Remove(it->second);
 			it = yftLoader.erase(it);
 		}
 		else

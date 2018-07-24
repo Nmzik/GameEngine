@@ -1,7 +1,10 @@
 #include "Object.h"
+#include "YdrLoader.h"
 #include "YddLoader.h"
 #include "YftLoader.h"
 #include "YtdLoader.h"
+
+#include <btBulletDynamicsCommon.h>
 
 Object::Object(CEntityDef def)
 	: Entity(def.position, def.rotation, glm::vec3(def.scaleXY, def.scaleXY, def.scaleZ))

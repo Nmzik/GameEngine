@@ -11,8 +11,9 @@
 #include "Shader.h"
 #include "Skybox.h"
 #include "Camera.h"
-#include "GameWorld.h"
 #include "Light.h"
+
+class GameWorld;
 
 class RenderingSystem
 {

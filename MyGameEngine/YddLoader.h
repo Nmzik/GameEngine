@@ -1,6 +1,6 @@
 #pragma once
-#include "YdrLoader.h"
-#include <chrono>
+#include "FileType.h"
+#include <unordered_map>
 
 struct DrawableDictionary : ResourceFileBase {
 	uint32_t Unknown_10h; // 0x00000000
@@ -17,6 +17,8 @@ struct DrawableDictionary : ResourceFileBase {
 	uint32_t Unknown_3Ch; // 0x00000000
 };
 
+class YdrLoader;
+
 class YddLoader : public FileType
 {
 public:
@@ -30,6 +32,11 @@ public:
 class YddPool
 {
 public:
+	static YddPool& getPool() {
+		static YddPool pool;
+		return pool;
+	}
+
 	YddPool();
 	~YddPool();
 

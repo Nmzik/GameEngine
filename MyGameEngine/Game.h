@@ -1,17 +1,18 @@
 #pragma once
 
-#include <memory>
 #include <sstream>
 #include "SDL.h"
 #include "ft2build.h"
 #include FT_FREETYPE_H
 
-#include "RenderingSystem.h"
-#include "GameData.h"
 #include "StateManager.h"
 #include "MenuState.h"
 #include "InGameState.h"
 #include "InputManager.h"
+
+class GameData;
+class GameWorld;
+class RenderingSystem;
 
 /*extern "C" {
 #include "libavcodec/avcodec.h"

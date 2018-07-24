@@ -6,28 +6,16 @@
 #include "Vehicle.h"
 #include "ResourceManager.h"
 #include "PhysicsDebugDrawer.h"
-#include "YdrLoader.h"
-#include "YddLoader.h"
-#include "YftLoader.h"
-#include "YmapLoader.h"
-#include "YtypLoader.h"
-#include "YndLoader.h"
-#include "YbnLoader.h"
-#include "YtdLoader.h"
-#include "YnvLoader.h"
 #include "GameData.h"
-#include "Material.h"
 #include "SpaceGrid.h"
-#include "Water.h"
-#include "Shader.h"
-#include "Camera.h"
-#include "SDL.h"
-#include "MeshManager.h"
 //////////
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtx/norm.hpp"
 
 class ResourceManager;
+class YmapLoader;
+class Water;
+class Camera;
 
 class GameWorld
 {
@@ -71,9 +59,6 @@ public:
 	std::unordered_map<uint32_t, CarHandling> vehiclesPool;
 	std::vector<Player> pedestrians;
 	std::vector<Vehicle> vehicles;
-	YmapPool ymapPool;
-	YddPool yddPool;
-	YftPool yftPool;
 
 	std::mutex resources_lock;
 	std::vector<Resource*> resources;
