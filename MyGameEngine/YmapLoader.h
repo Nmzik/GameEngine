@@ -1,5 +1,4 @@
 #pragma once
-#include "YdrLoader.h"
 #include "Meta.h"
 #include "Object.h"
 
@@ -36,8 +35,6 @@ struct CCarGen //80 bytes, Key:2345238261
 	int16_t Unused6;//74
 	uint32_t Unused7;//76
 };
-
-///YMAP REAL DATA
 
 struct rage__fwInstancedMapData //48 bytes, Key:1836780118
 {

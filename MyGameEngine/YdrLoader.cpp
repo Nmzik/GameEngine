@@ -1,6 +1,8 @@
 #include "YdrLoader.h"
 #include "YbnLoader.h"
 #include "YtdLoader.h"
+#include "GTAEncryption.h"
+#include <algorithm>
 
 void YdrLoader::Init(memstream2 & file, int32_t systemSize)
 {

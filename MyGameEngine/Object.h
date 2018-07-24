@@ -1,6 +1,7 @@
 #pragma once
 #include "YtypLoader.h"
 #include "Entity.h"
+#include <btBulletDynamicsCommon.h>
 
 class YdrLoader;
 class YddLoader;

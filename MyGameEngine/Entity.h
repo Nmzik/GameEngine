@@ -5,8 +5,6 @@
 
 class Entity
 {
-	//YdrLoader maybe?
-
 	bool visible;
 public:
 	glm::vec3 position;

@@ -1,5 +1,6 @@
 #pragma once
-#include "YdrLoader.h"
+#include "FileType.h"
+#include <vector>
 
 struct MetaStructureEntryInfo_s {
 	uint32_t EntryNameHash;

@@ -1,5 +1,4 @@
 #pragma once
-#include "YdrLoader.h"
 #include "Meta.h"
 
 enum Unk_1991964615 //archetype assetType

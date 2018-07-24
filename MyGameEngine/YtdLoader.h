@@ -1,5 +1,5 @@
 #pragma once
-#include "YdrLoader.h"
+#include "FileType.h"
 #include "TextureManager.h"
 
 enum TextureFormat

@@ -23,6 +23,9 @@
 #include "Camera.h"
 #include "SDL.h"
 #include "MeshManager.h"
+//////////
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtx/norm.hpp"
 
 class ResourceManager;
 
