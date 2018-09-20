@@ -1,6 +1,8 @@
 #include "MeshManager.h"
 
-MeshManager::MeshManager()
+MeshManager MeshManager::manager;
+
+void MeshManager::Initialize()
 {
 	VAOs.resize(40000);
 	VBOs.resize(80000);

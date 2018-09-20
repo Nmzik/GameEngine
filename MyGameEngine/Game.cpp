@@ -27,13 +27,14 @@ Game::Game() {
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 
 	rendering_system = std::make_unique<RenderingSystem>(window);
+	MeshManager::GetManager().Initialize();
 	gameWorld = std::make_unique<GameWorld>();
 	input = new InputManager();
 
 	StateManager::get().enter<InGameState>(this);
 
-	FT_Library library;
-	FT_Init_FreeType(&library);
+	//FT_Library library;
+	//FT_Init_FreeType(&library);
 
 	// get format from audio file
 

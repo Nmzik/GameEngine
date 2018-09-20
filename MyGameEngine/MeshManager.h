@@ -8,7 +8,6 @@ class MeshManager
 {
 public:
 	static MeshManager& GetManager() {
-		static MeshManager manager;
 		return manager;
 	}
 
@@ -18,7 +17,9 @@ public:
 	//GLsizei NextBufferName = OPENGL_NAME_CACHE_SIZE;
 	//GLuint BufferNamesCache[OPENGL_NAME_CACHE_SIZE];
 
-	MeshManager();
+	static MeshManager manager;
+
+	void Initialize();
 	~MeshManager();
 
 	/*void GenBuffers(GLsizei n, GLuint *buffers)
