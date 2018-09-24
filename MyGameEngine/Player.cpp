@@ -135,6 +135,6 @@ void Player::Jump()
 	World->rayTest(m_rayStart, m_rayEnd, rayCallback);
 	if (rayCallback.hasHit())
 	{//JUMP!
-		body->applyCentralImpulse(btVector3(0.f, 0.f, 40.0f));
+		body->applyCentralImpulse(btVector3(0.f, 0.f, 100.0f));
 	}
 }

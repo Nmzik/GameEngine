@@ -359,10 +359,10 @@ void Game::tick(float delta_time)
 				//move *= delta_time;*/
 
 
-			if (player->getPhysCharacter()->getLinearVelocity().z() < -40.f) {
+			/*if (player->getPhysCharacter()->getLinearVelocity().z() < -40.f) {
 				player->getPhysCharacter()->setLinearVelocity(btVector3(movement.x * 30.0f, movement.y * 30.0f, -40.0f));
 			}
-			else
+			else*/
 				player->getPhysCharacter()->setLinearVelocity(btVector3(movement.x * 30.0f, movement.y * 30.0f, player->getPhysCharacter()->getLinearVelocity().z()));
 
 			if (getInput()->IsKeyTriggered(SDL_SCANCODE_SPACE)) player->Jump();

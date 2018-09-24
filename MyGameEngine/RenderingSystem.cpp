@@ -3,6 +3,8 @@
 #include "GameWorld.h"
 #include "Water.h"
 
+#define USE_DX_REVERSE_Z
+
 void myDebugCallback(
 	GLenum source,
 	GLenum type,
@@ -56,13 +58,34 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 	glDisable(GL_MULTISAMPLE);
 	glDisable(GL_DITHER);
 
+#ifdef USE_DX_REVERSE_Z
+	glClipControl(GL_LOWER_LEFT, GL_ZERO_TO_ONE);
+	glDepthFunc(GL_GEQUAL);
+	glClearDepth(0.0);
+#endif // USE_DX_REVERSE_Z
+
 	SDL_GetWindowSize(window, &ScreenResWidth, &ScreenResHeight);
 	ShadowWidth = 1024;
 	ShadowHeight = 1024;
 
 	//skybox = new Skybox();
+#ifdef USE_DX_REVERSE_Z
+	const float zNear = 0.001f;
+	const double viewAngleVertical = 45.0f;
+	const float f = 1.0 / tan(viewAngleVertical / 2.0); // 1.0 / tan == cotangent
+	const float aspect = float(ScreenResWidth) / float(ScreenResHeight);
 
+	projection =
+	{
+		f / aspect, 0.0f,    0.0f,  0.0f,
+		0.0f,    f,    0.0f,  0.0f,
+		0.0f, 0.0f,    0.0f, -1.0f,
+		0.0f, 0.0f, 2 * zNear,  0.0f
+	};
+#else
 	projection = glm::perspective(glm::radians(45.0f), (float)ScreenResWidth / (float)ScreenResHeight, 0.1f, 10000.0f);
+#endif // USE_DX_REVERSE_Z
+
 	InverseProjMatrix = glm::inverse(projection);
 
 	SkyboxShader = new Shader("Shaders/skybox.shader");
@@ -189,7 +212,11 @@ void RenderingSystem::createGBuffer()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+#ifdef USE_DX_REVERSE_Z
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, ScreenResWidth, ScreenResHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+#else
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, ScreenResWidth, ScreenResHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+#endif // USE_DX_REVERSE_Z
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, gDepthMap, 0);
 
 	// finally check if framebuffer is complete
@@ -344,6 +371,9 @@ void RenderingSystem::render(GameWorld* world)
 	///geometry to gbuffer->shadowmaps(directional light)->shadowmaps(point light)->ssao->lighting(Final)->skybox
 	// --------------------------------GeometryPass Deferred Rendering----------------------------------
 	glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
+#ifdef USE_DX_REVERSE_Z
+	glClearDepth(0.0);
+#endif // USE_DX_REVERSE_Z
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	gbuffer->use();
@@ -469,6 +499,9 @@ void RenderingSystem::render(GameWorld* world)
 	// --------------------------------LightingPass Deferred Rendering----------------------------------
 	//glViewport(0, 0, ScreenResWidth, ScreenResHeight);
 	glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
+#ifdef USE_DX_REVERSE_Z
+	glClearDepth(0.0);
+#endif // USE_DX_REVERSE_Z
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	gbufferLighting->use();
@@ -510,6 +543,9 @@ void RenderingSystem::render(GameWorld* world)
 
 	// --------------------------------HDR----------------------------------
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+#ifdef USE_DX_REVERSE_Z
+	glClearDepth(0.0);
+#endif // USE_DX_REVERSE_Z
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	hdrShader->use();
 	glActiveTexture(GL_TEXTURE0);
