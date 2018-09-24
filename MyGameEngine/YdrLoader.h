@@ -173,6 +173,35 @@ struct DrawableBase : ResourceFileBase {
 	uint64_t DrawableModelsXPointer;
 };
 
+struct pgPtrRepresentation
+{
+	uint32_t pointer : 28;
+	uint32_t blockType : 4;
+};
+
+template <typename T>
+class pgPtr {
+public:
+	union
+	{
+		uint64_t on_disk;
+		T* pointer;
+	};
+
+	T* operator->() const
+	{
+		return (T*)pointer;
+	}
+};
+
+struct VertexDeclaration {
+	uint32_t Flags;
+	uint16_t Stride;
+	uint8_t Unknown_6h;
+	uint8_t Count;
+	uint64_t Types;
+};
+
 struct VertexBuffer {
 	uint32_t VFT;
 	uint32_t Unknown_4h; // 0x00000001
@@ -185,7 +214,7 @@ struct VertexBuffer {
 	uint64_t DataPointer2;
 	uint32_t Unknown_28h; // 0x00000000
 	uint32_t Unknown_2Ch; // 0x00000000
-	uint64_t InfoPointer;
+	VertexDeclaration* InfoPointer;
 	uint32_t Unknown_38h; // 0x00000000
 	uint32_t Unknown_3Ch; // 0x00000000
 	uint32_t Unknown_40h; // 0x00000000
@@ -232,14 +261,6 @@ struct IndexBuffer {
 	uint32_t Unknown_5Ch; // 0x00000000
 };
 
-struct VertexDeclaration {
-	uint32_t Flags;
-	uint16_t Stride;
-	uint8_t Unknown_6h;
-	uint8_t Count;
-	uint64_t Types;
-};
-
 struct DrawableGeometry {
 	uint32_t VFT;
 	uint32_t Unknown_4h; // 0x00000001
@@ -277,6 +298,11 @@ struct DrawableGeometry {
 	uint32_t Unknown_8Ch; // 0x00000000
 	uint32_t Unknown_90h; // 0x00000000
 	uint32_t Unknown_94h; // 0x00000000
+
+	void Resolve(memstream2 & file) {
+		//VertexBufferPointer = (VertexBuffer*)&file.data[(uint64_t)VertexBufferPointer & ~0x50000000];
+		//IndexBufferPointer = (VertexBuffer*)&file.data[(uint64_t)VertexBufferPointer & ~0x50000000];
+	}
 };
 
 struct DrawableModel {
@@ -320,11 +346,37 @@ public:
 
 	uint32_t num;
 
-	YdrPool();
-	~YdrPool();
+	YdrPool() {
+		firstAvailable_ = &ydrs[0];
 
-	YdrLoader* Load();
-	void Remove(YdrLoader* ymap);
+		for (int i = 0; i < 5999; i++)
+		{
+			ydrs[i].next = &ydrs[i + 1];
+		}
+
+		ydrs[5999].next = NULL;
+	}
+	~YdrPool() {
+
+	}
+
+	YdrLoader* Load() {
+		num++;
+		// Make sure the pool isn't full.
+		assert(firstAvailable_ != NULL);
+
+		// Remove it from the available list.
+		YdrLoader* newYdr = firstAvailable_;
+		firstAvailable_ = newYdr->next;
+
+		return newYdr;
+	}
+	void Remove(YdrLoader* ydr) {
+		num--;
+		ydr->Remove();
+		ydr->next = firstAvailable_;
+		firstAvailable_ = ydr;
+	}
 
 	YdrLoader ydrs[6000];
 

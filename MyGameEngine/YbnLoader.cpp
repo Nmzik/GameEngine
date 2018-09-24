@@ -271,12 +271,10 @@ void YbnLoader::ParseYbn(memstream2 & file)
 
 void YbnLoader::Finalize(btDiscreteDynamicsWorld* world)
 {
-	CollisionWorld = world;
-
 	btDefaultMotionState* MotionState = new btDefaultMotionState(btTransform(btQuaternion(0.f, 0.f, 0.f, 1.f), btVector3(0, 0, 0)));
 	btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(0, MotionState, compound, btVector3(0, 0, 0));
 	rigidBody = new btRigidBody(groundRigidBodyCI);
-	CollisionWorld->addRigidBody(rigidBody);
+	world->addRigidBody(rigidBody);
 
 	Loaded = true;
 }
@@ -317,16 +315,6 @@ void YbnLoader::Remove()
 	if (compound) {
 		delete compound;
 		compound = nullptr;
-	}
-
-	if (rigidBody) {
-		delete rigidBody->getMotionState();
-
-		CollisionWorld->removeRigidBody(rigidBody);
-
-		delete rigidBody;
-
-		rigidBody = nullptr;
 	}
 }
 

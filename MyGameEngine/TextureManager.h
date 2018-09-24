@@ -20,7 +20,6 @@ public:
 	};
 
 	static TextureManager& GetTextureManager() {
-		static TextureManager texManager;
 		return texManager;
 	}
 
@@ -41,5 +40,8 @@ public:
 
 		return TextureID;
 	}
+
+	static TextureManager texManager;
+
 };
 

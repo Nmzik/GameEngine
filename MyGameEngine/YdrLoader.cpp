@@ -233,33 +233,28 @@ void YdrLoader::Init(memstream2 & file, int32_t systemSize)
 				file.seekg(drawGeom->VertexBufferPointer);
 
 				VertexBuffer* vertbuffer = (VertexBuffer*)file.read(sizeof(VertexBuffer));
-
 				SYSTEM_BASE_PTR(vertbuffer->DataPointer1);
 
-				SYSTEM_BASE_PTR(vertbuffer->InfoPointer);
-
-				file.seekg(vertbuffer->InfoPointer);
-
-				VertexDeclaration* decl = (VertexDeclaration*)file.read(sizeof(VertexDeclaration));
+				vertbuffer->InfoPointer = (VertexDeclaration*)&file.data[(uint64_t)vertbuffer->InfoPointer & ~0x50000000];
 
 				//FIX VertexDeclaration
-				switch (decl->Types)
+				switch (vertbuffer->InfoPointer->Types)
 				{
 					/*case 8598872888530528662: //YDR - 0x7755555555996996
 					break;*/
 					case 216172782140628998:  //YFT - 0x030000000199A006
-						switch (decl->Flags)
+						switch (vertbuffer->InfoPointer->Flags)
 						{
 							case 16473:
-								decl->Flags = VertexType::PCCH2H4;
+								vertbuffer->InfoPointer->Flags = VertexType::PCCH2H4;
 								break;  //  PCCH2H4 
 						}
 						break;
 					case 216172782140612614:  //YFT - 0x0300000001996006  PNCH2H4
-						switch (decl->Flags)
+						switch (vertbuffer->InfoPointer->Flags)
 						{
 							case 89:
-								decl->Flags = VertexType::PNCH2;
+								vertbuffer->InfoPointer->Flags = VertexType::PNCH2;
 								break;     //  PNCH2
 						}
 						break;
@@ -276,7 +271,7 @@ void YdrLoader::Init(memstream2 & file, int32_t systemSize)
 				gpuMemory += vertbuffer->VertexCount * vertbuffer->VertexStride;
 				gpuMemory += indexbuffer->IndicesCount * sizeof(uint16_t);
 
-				meshes.emplace_back(file.data, vertbuffer->DataPointer1, vertbuffer->VertexCount * vertbuffer->VertexStride, indexbuffer->IndicesPointer, indexbuffer->IndicesCount, (VertexType)decl->Flags, materials[file.data[drawModel->ShaderMappingPointer + i * sizeof(uint16_t)]]);
+				meshes.emplace_back(file.data, vertbuffer->DataPointer1, vertbuffer->VertexCount * vertbuffer->VertexStride, indexbuffer->IndicesPointer, indexbuffer->IndicesCount, (VertexType)vertbuffer->InfoPointer->Flags, materials[file.data[drawModel->ShaderMappingPointer + i * sizeof(uint16_t)]]);
 
 				file.seekg(pos);
 			}
@@ -311,41 +306,4 @@ void YdrLoader::UploadMeshes()
 		//mesh->Upload();
 	}
 	Loaded = true;
-}
-
-YdrPool::YdrPool()
-{
-	firstAvailable_ = &ydrs[0];
-
-	for (int i = 0; i < 5999; i++)
-	{
-		ydrs[i].next = &ydrs[i + 1];
-	}
-
-	ydrs[5999].next = NULL;
-}
-
-YdrPool::~YdrPool()
-{
-}
-
-YdrLoader * YdrPool::Load()
-{
-	num++;
-	// Make sure the pool isn't full.
-	assert(firstAvailable_ != NULL);
-
-	// Remove it from the available list.
-	YdrLoader* newYdr = firstAvailable_;
-	firstAvailable_ = newYdr->next;
-
-	return newYdr;
-}
-
-void YdrPool::Remove(YdrLoader * ydr)
-{
-	num--;
-	ydr->Remove();
-	ydr->next = firstAvailable_;
-	firstAvailable_ = ydr;
 }

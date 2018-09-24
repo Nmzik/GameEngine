@@ -1,5 +1,7 @@
 #include "TextureManager.h"
 
+TextureManager TextureManager::texManager;
+
 GLuint TextureManager::GetTexture(uint32_t textureHash)
 {
 	std::unordered_map<uint32_t, Texture>::iterator it = TexturesMap.find(textureHash);

@@ -575,6 +575,17 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 	{
 		if ((it->second)->RefCount == 0 && (it->second)->Loaded)
 		{
+			YbnLoader* ybn = (it->second);
+			if (ybn->rigidBody) {
+				delete ybn->rigidBody->getMotionState();
+
+				dynamicsWorld->removeRigidBody(ybn->rigidBody);
+
+				delete ybn->rigidBody;
+
+				ybn->rigidBody = nullptr;
+			}
+
 			YbnPool::getPool().Remove(it->second);
 			it = ybnLoader.erase(it);
 		}
