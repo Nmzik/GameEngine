@@ -392,6 +392,15 @@ void RenderingSystem::render(GameWorld* world)
 		}
 	}*/
 
+	/*for (auto& vehicle : world->vehicles) {
+		auto modelVehicle = vehicle->GetMat4();
+
+		//if (camera->intersects(glm::vec3(modelVehicle[3]), 1.0f)) {
+			gbuffer->setMat4(ModelUniformLoc, modelVehicle);
+			vehicle->Draw(gbuffer);
+		//}
+	}*/
+
 	for (auto& model : world->renderList)
 	{
 		gbuffer->setMat4(ModelUniformLoc, model.modelMatrix);
