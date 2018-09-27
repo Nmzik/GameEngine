@@ -39,7 +39,7 @@ class GameWorld
 	GameData data;
 	SpaceGrid spaceGrid;
 	NodeGrid nodeGrid;
-	ResourceManager* _ResourceManager;
+	std::unique_ptr<ResourceManager> _ResourceManager;
 	//SoundManager sound;
 	PhysicsDebugDrawer debug;
 
@@ -102,7 +102,7 @@ public:
 	}
 
 	ResourceManager* GetResourceManager() {
-		return _ResourceManager;
+		return _ResourceManager.get();
 	}
 
 	btDiscreteDynamicsWorld* GetDynamicsWorld() {

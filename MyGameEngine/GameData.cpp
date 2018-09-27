@@ -33,7 +33,20 @@ GameData::GameData()
 
 	for (std::string& rpfFile : RpfsFiles)
 	{
-		LoadRpf(rpfFile);
+		std::string Path("C:\\Program Files\\Rockstar Games\\Grand Theft Auto V\\");
+
+		std::ifstream* rpf = myNew std::ifstream(Path + rpfFile, std::ios::binary);
+
+		if (!rpf->is_open()) {
+			printf("NOT FOUND RPF!\n");
+			return;
+		}
+
+		rpf->seekg(0, std::ios::end);
+		uint32_t FileSize = (uint32_t)rpf->tellg();
+		rpf->seekg(0, std::ios::beg);
+
+		LoadRpf(*rpf, rpfFile, rpfFile, FileSize, 0);
 	}
 
 	LoadGtxd();
@@ -132,7 +145,7 @@ GameData::GameData()
 				std::vector<uint8_t> Buffer(entry.FileUncompressedSize);
 				ExtractFileBinary(entry, Buffer);
 
-				cacheFile = new CacheDatFile(Buffer);
+				cacheFile = std::make_unique<CacheDatFile>(Buffer);
 			}
 			if (entry.Name == "water.xml" && !WaterFound) {
 				std::vector<uint8_t> Buffer(entry.FileUncompressedSize);
@@ -152,6 +165,10 @@ GameData::GameData()
 
 GameData::~GameData()
 {
+	for (auto& rpf : RpfFiles)
+	{
+		delete rpf;
+	}
 }
 
 void GameData::LoadHandlingData(std::vector<uint8_t>& Buffer)
@@ -296,25 +313,11 @@ void GameData::LoadScenesSwitch(std::vector<uint8_t>& Buffer)
 	}
 }
 
-void GameData::LoadRpf(std::string& RpfPath)
+void GameData::LoadRpf(std::ifstream& rpf, std::string& FullPath_, std::string& FileName_, uint32_t FileSize_, uint64_t FileOffset)
 {
-	RpfFile* file = new RpfFile(RpfPath);
+	RpfFile* file = myNew RpfFile(rpf, FullPath_, FileName_, FileSize_, FileOffset);
 	RpfFiles.push_back(file);
 
-	for (auto& BinaryFileEntry : file->BinaryEntries)
-	{
-		if (BinaryFileEntry.Name.substr(BinaryFileEntry.Name.length() - 4) == ".rpf")
-		{
-			uint32_t RealFileSize = (BinaryFileEntry.FileSize == 0) ? BinaryFileEntry.FileUncompressedSize : BinaryFileEntry.FileSize;
-			LoadRpf(*file->rpf, RpfPath, BinaryFileEntry.Name, RealFileSize, BinaryFileEntry.FileOffset);
-		}
-	}
-}
-
-void GameData::LoadRpf(std::ifstream& rpf, std::string& FullPath_, std::string FileName_, uint32_t FileSize_, uint64_t FileOffset)
-{
-	RpfFile* file = new RpfFile(rpf, FullPath_, FileName_, FileSize_, FileOffset);
-	RpfFiles.push_back(file);
 	for (auto& BinaryFileEntry : file->BinaryEntries)
 	{
 		if (BinaryFileEntry.Name.substr(BinaryFileEntry.Name.length() - 4) == ".rpf")
@@ -331,7 +334,7 @@ void GameData::ExtractFileBinary(RpfBinaryFileEntry& entry, std::vector<uint8_t>
 
 	rpf->seekg(entry.FileOffset);
 
-	uint8_t* tbytes = new uint8_t[entry.FileSize];
+	uint8_t* tbytes = myNew uint8_t[entry.FileSize];
 	rpf->read((char*)&tbytes[0], entry.FileSize);
 
 	tbytes = GTAEncryption::DecryptNG(tbytes, entry.FileSize, entry.Name, entry.FileUncompressedSize);
@@ -348,7 +351,7 @@ void GameData::ExtractFileResource(RpfResourceFileEntry& entry, std::vector<uint
 
 	rpf->seekg(entry.FileOffset);
 
-	uint8_t* tbytes = new uint8_t[entry.FileSize];
+	uint8_t* tbytes = myNew uint8_t[entry.FileSize];
 	rpf->read((char*)&tbytes[0], entry.FileSize);
 
 	//uint8_t* decr = tbytes;

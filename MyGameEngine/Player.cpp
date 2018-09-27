@@ -4,7 +4,6 @@ Player::Player(glm::vec3 position, YddLoader * ydd, btDiscreteDynamicsWorld * wo
 	vehicle(nullptr), 
 	health(200),
 	player(ydd),
-	World(world),
 	Entity(position, glm::quat(-1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(1.0f))
 {
 	playerModel.push_back(ydd->YdrFiles[121241095]);
@@ -47,8 +46,6 @@ Player::~Player()
 	delete physShape;
 
 	delete body->getMotionState();
-
-	World->removeCollisionObject(body);
 
 	delete body;
 }
@@ -126,7 +123,7 @@ void Player::setActiveWeapon(uint32_t slot)
 
 void Player::Jump()
 {
-	btVector3 m_rayStart = body->getCenterOfMassPosition();
+	/*btVector3 m_rayStart = body->getCenterOfMassPosition();
 	btVector3 m_rayEnd = m_rayStart - btVector3(0.0, 0.0, 1.5);
 
 	// rayCallback
@@ -136,5 +133,5 @@ void Player::Jump()
 	if (rayCallback.hasHit())
 	{//JUMP!
 		body->applyCentralImpulse(btVector3(0.f, 0.f, 100.0f));
-	}
+	}*/
 }

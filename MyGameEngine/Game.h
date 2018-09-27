@@ -29,7 +29,7 @@ class Game
 
 	std::unique_ptr<GameWorld> gameWorld;
 	std::unique_ptr<RenderingSystem> rendering_system;
-	InputManager* input;
+	std::unique_ptr<InputManager> input;
 
 public:
 	Game();
@@ -42,7 +42,7 @@ public:
 	void tick(float delta_time);
 
 	InputManager* getInput() {
-		return input;
+		return input.get();
 	}
 
 	GameWorld* getWorld() {

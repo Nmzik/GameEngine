@@ -25,7 +25,7 @@ void YdrLoader::Init(memstream2 & file, int32_t systemSize)
 			SYSTEM_BASE_PTR(fragDrawable->BoundPointer);
 			file.seekg(fragDrawable->BoundPointer);
 
-			//ybnfile = new YbnLoader(world, file);
+			//ybnfile = myNew YbnLoader(world, file);
 		}
 	}
 	else {

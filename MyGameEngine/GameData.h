@@ -37,7 +37,7 @@ class GameData
 
 public:
 	std::vector<WaterQuad> WaterQuads;
-	CacheDatFile* cacheFile;
+	std::unique_ptr<CacheDatFile> cacheFile;
 
 	std::unordered_map<uint32_t, CBaseArchetypeDef> CBaseArchetypeDefs;
 	std::unordered_map<uint32_t, CTimeArchetypeDef> CTimeArchetypeDefs;
@@ -63,8 +63,8 @@ public:
 	void LoadGtxd();
 	void LoadWaterQuads(std::vector<uint8_t>& Buffer);
 	void LoadScenesSwitch(std::vector<uint8_t>& Buffer);
-	void LoadRpf(std::string& RpfPath);
-	void LoadRpf(std::ifstream& rpf, std::string& FullPath_, std::string FileName_, uint32_t FileSize_, uint64_t FileOffset);
+
+	void LoadRpf(std::ifstream& rpf, std::string& FullPath_, std::string& FileName_, uint32_t FileSize_, uint64_t FileOffset);
 
 	void ExtractFileBinary(RpfBinaryFileEntry & entry, std::vector<uint8_t>& output);
 

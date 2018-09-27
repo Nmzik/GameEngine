@@ -68,7 +68,7 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 	ShadowWidth = 1024;
 	ShadowHeight = 1024;
 
-	//skybox = new Skybox();
+	//skybox = myNew Skybox();
 #ifdef USE_DX_REVERSE_Z
 	const float zNear = 0.001f;
 	const double viewAngleVertical = 45.0f;
@@ -88,17 +88,16 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 
 	InverseProjMatrix = glm::inverse(projection);
 
-	SkyboxShader = new Shader("Shaders/skybox.shader");
-	ourShader = new Shader("Shaders/forward.shader");
-	gbuffer = new Shader("Shaders/gbuffer.shader");
-	shaderSSAO = new Shader("Shaders/ssao.shader");
-	shaderSSAOBlur = new Shader("Shaders/ssao_blur.shader");
-	gbufferLighting = new Shader("Shaders/gbufferLighting.shader");
-	DepthTexture = new Shader("Shaders/DepthTexture.shader");
-	hdrShader = new Shader("Shaders/hdrShader.shader");
-	debugDepthQuad = new Shader("Shaders/debug_quad.shader");
+	SkyboxShader = std::make_unique<Shader>("Shaders/skybox.shader");
+	gbuffer = std::make_unique<Shader>("Shaders/gbuffer.shader");
+	shaderSSAO = std::make_unique<Shader>("Shaders/ssao.shader");
+	shaderSSAOBlur = std::make_unique<Shader>("Shaders/ssao_blur.shader");
+	gbufferLighting = std::make_unique<Shader>("Shaders/gbufferLighting.shader");
+	DepthTexture = std::make_unique<Shader>("Shaders/DepthTexture.shader");
+	hdrShader = std::make_unique<Shader>("Shaders/hdrShader.shader");
+	debugDepthQuad = std::make_unique<Shader>("Shaders/debug_quad.shader");
 
-	camera = new Camera(glm::vec3(1982.886353, 3833.829102, 32.140667));
+	camera = std::make_unique <Camera>(glm::vec3(1982.886353, 3833.829102, 32.140667));
 
 	createDepthFBO();
 	createGBuffer();

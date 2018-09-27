@@ -29,7 +29,7 @@ Game::Game() {
 	rendering_system = std::make_unique<RenderingSystem>(window);
 	MeshManager::GetManager().Initialize();
 	gameWorld = std::make_unique<GameWorld>();
-	input = new InputManager();
+	input = std::make_unique<InputManager>();
 
 	StateManager::get().enter<InGameState>(this);
 

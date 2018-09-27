@@ -50,7 +50,7 @@ void YftLoader::Init(memstream2 & file, int32_t systemSize)
 
 	file.seekg(FragPhysTypeChild.Drawable1Pointer);
 
-	//YdrLoader* ydr = new YdrLoader(file, systemSize, world, true);
+	//YdrLoader* ydr = myNew YdrLoader(file, systemSize, world, true);
 
 	/*if (ydr->.size() != 0) {
 	wheels.push_back(ydr);
@@ -65,7 +65,7 @@ void YftLoader::Init(memstream2 & file, int32_t systemSize)
 
 	//SYSTEM_BASE_PTR(FragPhysicsLOD.BoundPointer);
 
-	//YbnLoader* loader = new YbnLoader(world, file, hash);*/
+	//YbnLoader* loader = myNew YbnLoader(world, file, hash);*/
 }
 
 

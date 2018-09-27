@@ -20,24 +20,23 @@ class RenderingSystem
 private:
 	DirectonalLight dirLight;
 
-	Shader* SkyboxShader;
-	Shader* ourShader;
+	std::unique_ptr<Shader> SkyboxShader;
 
-	Shader* gbuffer;
+	std::unique_ptr<Shader> gbuffer;
 	GLuint ModelUniformLoc;
 	GLuint ViewUniformLoc;
 	GLuint ProjUniformLoc;
 
-	Shader* shaderSSAO;
 	GLuint ssaoProjection;
 	GLuint ssaoInverseProjectionMatrix;
 
-	Shader* shaderSSAOBlur;
-	Shader* gbufferLighting;
-	Shader* DepthTexture;
-	Shader* hdrShader;
-	Shader* debugDepthQuad;
-	Camera* camera;
+	std::unique_ptr<Shader> shaderSSAO;
+	std::unique_ptr<Shader> shaderSSAOBlur;
+	std::unique_ptr<Shader> gbufferLighting;
+	std::unique_ptr<Shader> DepthTexture;
+	std::unique_ptr<Shader> hdrShader;
+	std::unique_ptr<Shader> debugDepthQuad;
+	std::unique_ptr<Camera> camera;
 	Skybox* skybox;
 
 	unsigned int quadVAO;

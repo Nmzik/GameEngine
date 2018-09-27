@@ -103,7 +103,7 @@ void YbnLoader::ParseYbn(memstream2 & file)
 
 		glm::i16vec3 *CompressedVertices = (glm::i16vec3*)file.read(sizeof(glm::i16vec3));
 
-		glm::vec3* Vertices = new glm::vec3[geom->VerticesCount];
+		glm::vec3* Vertices = myNew glm::vec3[geom->VerticesCount];
 		VerticesArray.push_back(Vertices);
 
 		for (uint32_t i = 0; i < geom->VerticesCount; i++)
@@ -147,7 +147,7 @@ void YbnLoader::ParseYbn(memstream2 & file)
 		auto size = (max - min) / 2.f;
 		auto mid = (min + max) / 2.f;
 
-		btBoxShape* shape = new btBoxShape(btVector3(-size.x, -size.y, size.z));
+		btBoxShape* shape = myNew btBoxShape(btVector3(-size.x, -size.y, size.z));
 
 		Shapes.push_back(shape);
 
@@ -195,10 +195,10 @@ void YbnLoader::ParseYbn(memstream2 & file)
 				Indices[i] = glm::u16vec3(PolygonTriangles[i]->triIndex1 & 0x7FFF, PolygonTriangles[i]->triIndex2 & 0x7FFF, PolygonTriangles[i]->triIndex3 & 0x7FFF);
 			}
 
-			/*btQuantizedBvh* quantizedBvh = new btQuantizedBvh();
+			/*btQuantizedBvh* quantizedBvh = myNew btQuantizedBvh();
 			quantizedBvh->setQuantizationValues(btVector3(Bounds.BoundingBoxMin.x, Bounds.BoundingBoxMin.y, Bounds.BoundingBoxMin.z), btVector3(Bounds.BoundingBoxMax.x, Bounds.BoundingBoxMax.y, Bounds.BoundingBoxMax.z));
 			QuantizedNodeArray&	nodes = quantizedBvh->getLeafNodeArray();
-			btOptimizedBvh *bvh = new btOptimizedBvh();
+			btOptimizedBvh *bvh = myNew btOptimizedBvh();
 			//bvh->build(VertIndicesArray, true, );
 			trishape->setOptimizedBvh(bvh);
 			btQuantizedBvhNode node;*/

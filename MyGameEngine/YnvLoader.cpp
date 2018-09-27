@@ -392,7 +392,7 @@ YnvLoader::YnvLoader(memstream& file)
 
 	int ntris = IndicesVector.size() / 3;
 
-	uint8_t* triangle_flags = new uint8_t[ntris];
+	uint8_t* triangle_flags = myNew uint8_t[ntris];
 	memset(triangle_flags, 0, ntris);
 	// Find triangles which are walkable based on their slope and rasterize them.
 	// If your input data is multiple meshes, you can transform them here, calculate

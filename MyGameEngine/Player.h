@@ -23,7 +23,6 @@ class Player : public Entity
 	float health = 100.0f;
 	bool inWater = false;
 	glm::vec3 playerDirection;
-	btDiscreteDynamicsWorld* World;
 	Vehicle* vehicle;
 	YddLoader* player;
 public:

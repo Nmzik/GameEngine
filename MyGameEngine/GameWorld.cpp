@@ -29,13 +29,12 @@ GameWorld::GameWorld()
 	dynamicsWorld->setDebugDrawer(&debug);
 	//////////////////////////////////////////////////////////////////////////////
 
-	_ResourceManager = new ResourceManager(this);
+	_ResourceManager = std::make_unique<ResourceManager>(this);
 
-	auto YnvIt = data.YnvEntries.find(1471038032);
+	/*auto YnvIt = data.YnvEntries.find(1471038032);
 	if (YnvIt != data.YnvEntries.end()) {
 		std::vector<uint8_t> Buffer(YnvIt->second->SystemSize + YnvIt->second->GraphicsSize);
 		data.ExtractFileResource(*(YnvIt->second), Buffer);
-		memstream stream(Buffer.data(), Buffer.size());
 		//YnvLoader ynv(stream);
 	}
 
@@ -57,7 +56,7 @@ GameWorld::GameWorld()
 
 				memstream stream(outputBuffer.data(), outputBuffer.size());
 
-				YndLoader* ynd = new YndLoader(stream);
+				YndLoader* ynd = myNew YndLoader(stream);
 				nodeGrid.cells[x * nodeGrid.CellCountX + y]->ynd = ynd;
 			}
 		}
@@ -184,7 +183,7 @@ GameWorld::GameWorld()
 
 GameWorld::~GameWorld()
 {
-	delete dynamicsWorld;
+	
 }
 
 float RandomFloat(float min, float max) {
@@ -330,7 +329,7 @@ YmapLoader* GameWorld::GetYmap(uint32_t hash)
 	}
 	else {
 		YmapLoader* loader = YmapPool::getPool().Load();
-		GetResourceManager()->AddToWaitingList(new Resource(ymap, hash, 0, loader));
+		GetResourceManager()->AddToWaitingList(myNew Resource(ymap, hash, 0, loader));
 		loader->RefCount++;
 		ymapLoader.insert({ hash, loader });
 
@@ -350,7 +349,7 @@ YmapLoader* GameWorld::GetYmap(uint32_t hash)
 
 		memstream2 stream(outputBuffer.data(), outputBuffer.size());
 
-		YtypLoader* file = new YtypLoader(stream);
+		YtypLoader* file = myNew YtypLoader(stream);
 		ytypLoader.push_back(file);
 
 		return true;
@@ -363,8 +362,8 @@ void GameWorld::LoadGtxd(uint32_t hash)
 	if (iter != data.GtxdEntries.end()) {
 		auto it = ytdLoader.find(iter->second);
 		if (it == ytdLoader.end()) {
-			ytdLoader[iter->second] = new YtdLoader();
-			GetResourceManager()->AddToWaitingList(new Resource(ytd, iter->second, 0, nullptr));
+			ytdLoader[iter->second] = myNew YtdLoader();
+			GetResourceManager()->AddToWaitingList(myNew Resource(ytd, iter->second, 0, nullptr));
 		}
 	}
 }
@@ -380,7 +379,7 @@ YtdLoader* GameWorld::LoadYTD(uint32_t hash)
 	else {
 		//LoadGtxd(hash);
 		YtdLoader* loader = YtdPool::getPool().Load();
-		GetResourceManager()->AddToWaitingList(new Resource(ytd, hash, 0, loader));
+		GetResourceManager()->AddToWaitingList(myNew Resource(ytd, hash, 0, loader));
 		loader->RefCount++;
 		ytdLoader.insert({ hash, loader });
 
@@ -398,7 +397,7 @@ YdrLoader * GameWorld::GetYdr(uint32_t hash, uint32_t TextureDictionaryHash)
 	}
 	else {
 		YdrLoader* loader = YdrPool::getPool().Load();
-		GetResourceManager()->AddToWaitingList(new Resource(ydr, hash, TextureDictionaryHash, loader));
+		GetResourceManager()->AddToWaitingList(myNew Resource(ydr, hash, TextureDictionaryHash, loader));
 		loader->RefCount++;
 		ydrLoader.insert({ hash, loader });
 
@@ -416,7 +415,7 @@ YddLoader * GameWorld::GetYdd(uint32_t hash, uint32_t TextureDictionaryHash)
 	}
 	else {
 		YddLoader* loader = YddPool::getPool().Load();
-		GetResourceManager()->AddToWaitingList(new Resource(ydd, hash, TextureDictionaryHash, loader));
+		GetResourceManager()->AddToWaitingList(myNew Resource(ydd, hash, TextureDictionaryHash, loader));
 		loader->RefCount++;
 		yddLoader.insert({ hash, loader });
 
@@ -434,7 +433,7 @@ YftLoader * GameWorld::GetYft(uint32_t hash, uint32_t TextureDictionaryHash)
 	}
 	else {
 		YftLoader* loader = YftPool::getPool().Load();
-		GetResourceManager()->AddToWaitingList(new Resource(yft, hash, TextureDictionaryHash, loader));
+		GetResourceManager()->AddToWaitingList(myNew Resource(yft, hash, TextureDictionaryHash, loader));
 		loader->RefCount++;
 		yftLoader.insert({ hash, loader });
 
@@ -452,7 +451,7 @@ YbnLoader* GameWorld::GetYBN(uint32_t hash)
 	}
 	else {
 		YbnLoader* loader = YbnPool::getPool().Load();
-		GetResourceManager()->AddToWaitingList(new Resource(ybn, hash, 0, loader));
+		GetResourceManager()->AddToWaitingList(myNew Resource(ybn, hash, 0, loader));
 		loader->RefCount++;
 		ybnLoader.insert({ hash, loader });
 		return loader;
@@ -721,7 +720,7 @@ void GameWorld::LoadQueuedResources()
 
 void GameWorld::createPedestrian()
 {
-	//Player *newPlayer = new Player(glm::vec3(0, 20, 0), dynamicsWorld);
+	//Player *newPlayer = myNew Player(glm::vec3(0, 20, 0), dynamicsWorld);
 	//pedestrians.push_back(newPlayer);
 }
 
@@ -735,7 +734,7 @@ void GameWorld::createVehicle(glm::vec3 position)
 		it->second.file = GetYft(it->first, it->first);
 	}
 	else {
-		Vehicle* veh = new Vehicle(position, it->second.mass, it->second.file, dynamicsWorld);
+		Vehicle* veh = myNew Vehicle(position, it->second.mass, it->second.file, dynamicsWorld);
 		vehicles.push_back(veh);
 	}
 }
