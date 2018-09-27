@@ -340,7 +340,6 @@ class YdrPool
 {
 public:
 	static YdrPool& getPool() {
-		static YdrPool pool;
 		return pool;
 	}
 
@@ -378,6 +377,7 @@ public:
 		firstAvailable_ = ydr;
 	}
 
+	static YdrPool pool;
 	YdrLoader ydrs[6000];
 
 private:

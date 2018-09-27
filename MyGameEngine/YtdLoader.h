@@ -72,6 +72,7 @@ struct TextureDictionary : ResourceFileBase {
 	uint32_t Unknown_18h; // 0x00000001
 	uint32_t Unknown_1Ch; // 0x00000000
 	ResourceSimpleList64Ptr TextureNameHashesPtr;
+	ResourcePointerList64 Textures;
 };
 
 class YtdLoader : public FileType
@@ -88,7 +89,6 @@ class YtdPool
 {
 public:
 	static YtdPool& getPool() {
-		static YtdPool pool;
 		return pool;
 	}
 	YtdPool();
@@ -99,6 +99,7 @@ public:
 	YtdLoader* Load();
 	void Remove(YtdLoader* ytd);
 
+	static YtdPool pool;
 	YtdLoader ytds[2500];
 
 private:

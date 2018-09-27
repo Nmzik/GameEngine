@@ -40,7 +40,7 @@ GameWorld::GameWorld()
 	}
 
 	//Nodes
-	for (int x = 0; x < nodeGrid.CellCountX; x++)
+	/*for (int x = 0; x < nodeGrid.CellCountX; x++)
 	{
 		for (int y = 0; y < nodeGrid.CellCountY; y++)
 		{
@@ -61,7 +61,7 @@ GameWorld::GameWorld()
 				nodeGrid.cells[x * nodeGrid.CellCountX + y]->ynd = ynd;
 			}
 		}
-	}
+	}*/
 
 	for (int i = 0; i < data.cacheFile->AllMapNodes.size(); i++)
 	{
@@ -875,7 +875,9 @@ constexpr float deltaTime = 1.f / 120.f;
 
 void GameWorld::update(float delta_time, Camera* camera)
 {
-	if (delta_time > 0.25f) {
+	dynamicsWorld->stepSimulation(delta_time);
+
+	/*if (delta_time > 0.25f) {
 		delta_time = 0.25f;
 	}
 
@@ -914,13 +916,13 @@ void GameWorld::update(float delta_time, Camera* camera)
 						printf("");
 					}
 
-				}*/
+				}
 			}
 
 		}
 
 		accumulatedTime -= deltaTime;
-	}
+	}*/
 
 	UpdateDynamicObjects();
 	//UpdateTraffic(camera, camera->position);

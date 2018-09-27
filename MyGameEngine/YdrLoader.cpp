@@ -4,6 +4,8 @@
 #include "GTAEncryption.h"
 #include <algorithm>
 
+YdrPool YdrPool::pool;
+
 void YdrLoader::Init(memstream2 & file, int32_t systemSize)
 {
 	Loaded = true;
