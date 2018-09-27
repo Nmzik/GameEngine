@@ -36,6 +36,7 @@ GameData::GameData()
 		std::string Path("C:\\Program Files\\Rockstar Games\\Grand Theft Auto V\\");
 
 		std::ifstream* rpf = myNew std::ifstream(Path + rpfFile, std::ios::binary);
+		Files.push_back(rpf);
 
 		if (!rpf->is_open()) {
 			printf("NOT FOUND RPF!\n");
@@ -168,6 +169,11 @@ GameData::~GameData()
 	for (auto& rpf : RpfFiles)
 	{
 		delete rpf;
+	}
+
+	for (auto& file : Files)
+	{
+		delete file;
 	}
 }
 

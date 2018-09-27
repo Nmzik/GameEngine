@@ -34,6 +34,7 @@ struct CarHandling
 class GameData
 {
 	std::vector<RpfFile*> RpfFiles;
+	std::vector<std::ifstream*> Files;
 
 public:
 	std::vector<WaterQuad> WaterQuads;

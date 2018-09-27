@@ -13,18 +13,18 @@
 
 int main(int argc, char *argv[])
 {
-/*#if _MSC_VER
+#if _MSC_VER
 	_CrtSetDbgFlag(_CRTDBG_LEAK_CHECK_DF | _CRTDBG_ALLOC_MEM_DF);
 	//_crtBreakAlloc = 48;    // Break at allocation number 48.
 	_CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE);
 	_CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);
-#endif*/
+#endif
 
 	Game game;
 
 	game.run();
 
-	//_CrtDumpMemoryLeaks();
+	_CrtDumpMemoryLeaks();
 
 	return 0;
 }
