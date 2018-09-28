@@ -231,7 +231,6 @@ void YbnLoader::ParseYbn(memstream2 & file)
 		BoundComposite* boundComposite = (BoundComposite*)file.read(sizeof(BoundComposite));
 
 		SYSTEM_BASE_PTR(boundComposite->ChildrenPointer);
-
 		file.seekg(boundComposite->ChildrenPointer);
 
 		//ybns.reserve(boundComposite->ChildrenCount1);
@@ -243,7 +242,6 @@ void YbnLoader::ParseYbn(memstream2 & file)
 			uint64_t BoundsPointer = file.tellg();
 
 			SYSTEM_BASE_PTR(DataPointer[0]);
-
 			file.seekg(DataPointer[0]);
 
 			ParseYbn(file);

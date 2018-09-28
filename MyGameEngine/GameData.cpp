@@ -1,5 +1,9 @@
 #include "GameData.h"
 
+
+#include "YtypLoader.h"
+#include "CacheDatFile.h"
+
 GameData::GameData()
 {
 	GTAEncryption::LoadKeys();

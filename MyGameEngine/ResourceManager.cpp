@@ -1,5 +1,6 @@
 #include "ResourceManager.h"
 #include "GameWorld.h"
+#include "RpfEntry.h"
 
 #include "YmapLoader.h"
 #include "Object.h"

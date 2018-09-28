@@ -2,10 +2,9 @@
 
 #include "includes.h"
 #include "SoundManager.h"
-#include "Player.h"
-#include "Vehicle.h"
 #include "ResourceManager.h"
 #include "PhysicsDebugDrawer.h"
+#include <btBulletDynamicsCommon.h>
 #include "GameData.h"
 #include "SpaceGrid.h"
 //////////
@@ -16,6 +15,12 @@ class ResourceManager;
 class YmapLoader;
 class Water;
 class Camera;
+class Player;
+class Vehicle;
+class YdrLoader;
+class YddLoader;
+class YtdLoader;
+class YbnLoader;
 
 class GameWorld
 {

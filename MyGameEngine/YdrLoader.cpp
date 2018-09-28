@@ -87,7 +87,6 @@ void YdrLoader::Init(memstream2 & file, int32_t systemSize)
 		ShaderFX* shaderFX = (ShaderFX*)file.read(sizeof(ShaderFX));
 
 		SYSTEM_BASE_PTR(shaderFX->ParametersPointer);
-
 		file.seekg(shaderFX->ParametersPointer);
 
 		std::vector<uint32_t> TexturesHashes;
@@ -182,13 +181,11 @@ void YdrLoader::Init(memstream2 & file, int32_t systemSize)
 	}
 
 	SYSTEM_BASE_PTR(drawBase->DrawableModelsXPointer);
-
 	file.seekg(drawBase->DrawableModelsXPointer);
 
 	ResourcePointerList64* resourcePointerList = (ResourcePointerList64*)file.read(sizeof(ResourcePointerList64));
 
 	SYSTEM_BASE_PTR(resourcePointerList->EntriesPointer);
-
 	file.seekg(resourcePointerList->EntriesPointer);
 
 	for (int i = 0; i < resourcePointerList->EntriesCount; i++)

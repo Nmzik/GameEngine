@@ -13,6 +13,8 @@
 #include "YbnLoader.h"
 #include "YnvLoader.h"
 #include "Object.h"
+#include "Player.h"
+#include "Vehicle.h"
 
 GameWorld::GameWorld()
 {

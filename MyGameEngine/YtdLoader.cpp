@@ -10,6 +10,7 @@ void YtdLoader::Init(memstream2 & file, int32_t systemSize)
 
 	if (texDictionary->Textures.EntriesCount != 0) {
 		TextureNameHashes.resize(texDictionary->TextureNameHashesPtr.EntriesCount);
+
 		SYSTEM_BASE_PTR(texDictionary->TextureNameHashesPtr.EntriesPointer);
 		memcpy(&TextureNameHashes[0], &file.data[texDictionary->TextureNameHashesPtr.EntriesPointer], sizeof(uint32_t) * texDictionary->TextureNameHashesPtr.EntriesCount);
 

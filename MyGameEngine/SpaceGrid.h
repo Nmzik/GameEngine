@@ -1,13 +1,7 @@
 #pragma once
-#include "fstream"
-#include <iostream>
-#include <vector>
-#include <string>
-#include "membuf.h"
-#include "zlib.h"
-#include "glm/glm.hpp"
 #include "CacheDatFile.h"
-#include "YndLoader.h"
+
+class YndLoader;
 
 class SpaceGridCell
 {

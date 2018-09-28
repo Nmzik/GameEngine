@@ -3,9 +3,18 @@
 #include <algorithm>
 #include <unordered_map>
 #include "tinyxml2.h"
-#include "YtypLoader.h"
-#include "YftLoader.h"
-#include "CacheDatFile.h"
+#include "glm/glm.hpp"
+
+class RpfFile;
+class YtypLoader;
+class YftLoader;
+class CacheDatFile;
+
+struct CTimeArchetypeDef;
+struct CBaseArchetypeDef;
+
+/*class RpfResourceFileEntry;
+class RpfBinaryFileEntry*/
 
 struct WaterQuad
 {
@@ -68,7 +77,6 @@ public:
 	void LoadRpf(std::ifstream& rpf, std::string& FullPath_, std::string& FileName_, uint32_t FileSize_, uint64_t FileOffset);
 
 	void ExtractFileBinary(RpfBinaryFileEntry & entry, std::vector<uint8_t>& output);
-
 	void ExtractFileResource(RpfResourceFileEntry& entry, std::vector<uint8_t>& output);
 };
 

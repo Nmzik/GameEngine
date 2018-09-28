@@ -3,9 +3,11 @@
 #include <thread>
 #include <mutex>
 #include "includes.h"
-#include "RpfEntry.h"
 
 class GameWorld;
+class RpfEntry;
+
+class RpfResourceFileEntry;
 
 class ResourceManager
 {

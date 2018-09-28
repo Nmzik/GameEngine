@@ -1,5 +1,7 @@
 #include "SpaceGrid.h"
 
+#include "CacheDatFile.h"
+
 SpaceGrid::SpaceGrid()
 {
 	//Grid = myNew SpaceGridCell[500*500];

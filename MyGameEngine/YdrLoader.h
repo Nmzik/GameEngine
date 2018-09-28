@@ -1,5 +1,4 @@
 #pragma once
-#define GLM_ENABLE_EXPERIMENTAL
 
 #include "FileType.h"
 #include "Mesh.h"
@@ -336,6 +335,8 @@ public:
 	void UploadMeshes();
 };
 
+//Pool<YdrLoader> YdrPool;
+
 class YdrPool
 {
 public:
@@ -383,4 +384,3 @@ public:
 private:
 	YdrLoader * firstAvailable_;
 };
-

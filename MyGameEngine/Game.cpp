@@ -3,6 +3,7 @@
 #include "GameWorld.h"
 #include "RenderingSystem.h"
 #include "GameData.h"
+#include "Player.h"
 
 Game::Game() {
 

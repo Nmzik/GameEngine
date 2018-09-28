@@ -2,6 +2,7 @@
 
 #include "GameWorld.h"
 #include "Water.h"
+#include "YdrLoader.h"
 
 #define USE_DX_REVERSE_Z
 

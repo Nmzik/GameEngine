@@ -170,3 +170,27 @@ public:
 
 	}
 };
+
+template <typename T>
+class Pool
+{
+public:
+	static Pool& getPool() {
+		static Pool instance;
+		return instance;
+	}
+
+	T* Load();
+	void Remove(T* loader);
+};
+
+template<typename T>
+inline T * Pool<T>::Load()
+{
+	return NULL;
+}
+
+template<typename T>
+inline void Pool<T>::Remove(T * loader)
+{
+}
