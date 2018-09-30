@@ -98,7 +98,7 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 	hdrShader = std::make_unique<Shader>("Shaders/hdrShader.shader");
 	debugDepthQuad = std::make_unique<Shader>("Shaders/debug_quad.shader");
 
-	camera = std::make_unique <Camera>(glm::vec3(1982.886353, 3833.829102, 32.140667));
+	camera = std::make_unique<Camera>(glm::vec3(1982.886353, 3833.829102, 32.140667));
 
 	createDepthFBO();
 	createGBuffer();
@@ -146,6 +146,8 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 	hdrShader->use();
 	hdrShader->setVec2("hdrBufferOffset", glm::vec2(1.0f / (float)ScreenResWidth, 1.0f / (float)ScreenResHeight));
 
+	///////////
+	MeshManager::GetManager().Initialize();
 
 	float quadVertices[] = {
 		// positions        // texture Coords
@@ -155,9 +157,9 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 		1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
 	};
 	// setup plane VAO
-	glGenVertexArrays(1, &quadVAO);
+	quadVAO = MeshManager::GetManager().GetVAO();
 	glBindVertexArray(quadVAO);
-	glGenBuffers(1, &quadVBO);
+	quadVBO = MeshManager::GetManager().GetVBO();
 	glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
@@ -170,7 +172,11 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 
 RenderingSystem::~RenderingSystem()
 {
-
+	MeshManager::GetManager().VAOs.push_back(quadVAO);
+	MeshManager::GetManager().VBOs.push_back(quadVBO);
+	////
+	glDeleteQueries(1, &m_nQueryIDDrawTime);
+	SDL_GL_DeleteContext(glcontext);
 }
 
 Camera & RenderingSystem::getCamera()

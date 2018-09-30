@@ -56,6 +56,11 @@ void GTAEncryption::LoadKeys()
 	}
 }
 
+void GTAEncryption::Cleanup()
+{
+	(void)inflateEnd(&strm);
+}
+
 uint32_t GTAEncryption::CalculateHash(std::string text)
 {
 	uint32_t result = 0;

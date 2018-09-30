@@ -17,6 +17,7 @@ class GTAEncryption
 	static uint32_t PC_NG_DECRYPT_TABLES[17][16][256];
 public:
 	static void LoadKeys();
+	static void Cleanup();
 
 	static uint32_t CalculateHash(std::string text);
 

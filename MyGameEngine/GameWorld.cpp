@@ -101,12 +101,19 @@ GameWorld::GameWorld()
 
 	//TextureManager::Initialize();
 
-	//Default texture
-	while (!LoadYTD(3570112701)->Loaded)
-	{
-		LoadQueuedResources();
-	}
-	TextureManager::GetTextureManager().LoadTexture(1551155749, TextureManager::GetTextureManager().GetTexture(475118591));
+	// Black/white checkerboard //Default texture
+	GLuint TextureID;
+	glGenTextures(1, &TextureID);
+	glBindTexture(GL_TEXTURE_2D, TextureID);
+	float pixels[] = {
+	0.2f, 0.0f, 1.0f, 0.2f, 0.0f, 1.0f,
+	0.2f, 0.0f, 1.0f, 0.2f, 0.0f, 1.0f
+	};
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 2, 2, 0, GL_RGB, GL_FLOAT, pixels);
+	TextureManager::GetTextureManager().LoadTexture(1551155749, TextureID);
+	TextureManager::GetTextureManager().LoadTexture(475118591, TextureID);
 
 	//
 	while (!LoadYTD(3403519606)->Loaded)
@@ -185,7 +192,11 @@ GameWorld::GameWorld()
 
 GameWorld::~GameWorld()
 {
-	
+	delete broadphase;
+	delete collisionConfiguration;
+	delete dispatcher;
+	delete solver;
+	delete dynamicsWorld;
 }
 
 float RandomFloat(float min, float max) {

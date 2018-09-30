@@ -170,6 +170,8 @@ GameData::GameData()
 
 GameData::~GameData()
 {
+	GTAEncryption::Cleanup();
+
 	for (auto& rpf : RpfFiles)
 	{
 		delete rpf;

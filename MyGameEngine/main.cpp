@@ -1,30 +1,22 @@
 #include <iostream>
 #define _CRTDBG_MAP_ALLOC
+#define _CRTDBG_MAP_ALLOC_NEW
 #include <stdlib.h>
 #include <crtdbg.h>
 #include "Game.h"
-
-/*#ifdef _DEBUG   
-#ifndef DBG_NEW      
-#define DBG_NEW myNew ( _NORMAL_BLOCK , __FILE__ , __LINE__ )     
-#define myNew DBG_NEW   
-#endif
-#endif*/
 
 int main(int argc, char *argv[])
 {
 #if _MSC_VER
 	_CrtSetDbgFlag(_CRTDBG_LEAK_CHECK_DF | _CRTDBG_ALLOC_MEM_DF);
-	//_crtBreakAlloc = 48;    // Break at allocation number 48.
-	_CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE);
-	_CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);
+	_CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_DEBUG);
 #endif
 
 	Game game;
 
 	game.run();
 
-	_CrtDumpMemoryLeaks();
+	//_CrtDumpMemoryLeaks(); IT WILL BE CALLED AUTOMATICALLY AT THE END OF PROGRAM
 
 	return 0;
 }

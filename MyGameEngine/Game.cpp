@@ -28,7 +28,6 @@ Game::Game() {
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 
 	rendering_system = std::make_unique<RenderingSystem>(window);
-	MeshManager::GetManager().Initialize();
 	gameWorld = std::make_unique<GameWorld>();
 	input = std::make_unique<InputManager>();
 
@@ -82,7 +81,6 @@ Game::Game() {
 
 Game::~Game() {
 	// Close and destroy the window
-	//SDL_GL_DeleteContext(glcontext);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
 }
