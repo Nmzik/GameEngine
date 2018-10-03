@@ -52,14 +52,14 @@ void YddLoader::Remove()
 
 YddPool::YddPool()
 {
-	firstAvailable_ = &ydds[0];
+	firstAvailable_ = &objects[0];
 
 	for (int i = 0; i < 999; i++)
 	{
-		ydds[i].next = &ydds[i + 1];
+		objects[i].next = &objects[i + 1];
 	}
 
-	ydds[999].next = NULL;
+	objects[999].next = NULL;
 }
 
 YddPool::~YddPool()

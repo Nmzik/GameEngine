@@ -198,7 +198,7 @@ public:
 	void Remove();
 };
 
-class YftPool
+class YftPool : public Pool<YftLoader, 1000>
 {
 public:
 	static YftPool& getPool() {
@@ -210,9 +210,4 @@ public:
 
 	YftLoader* Load();
 	void Remove(YftLoader* yft);
-
-	YftLoader yfts[1000];
-
-private:
-	YftLoader * firstAvailable_;
 };

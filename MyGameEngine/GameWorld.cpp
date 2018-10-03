@@ -99,8 +99,6 @@ GameWorld::GameWorld()
 	//RenderList
 	renderList.reserve(2000);
 
-	//TextureManager::Initialize();
-
 	// Black/white checkerboard //Default texture
 	GLuint TextureID;
 	glGenTextures(1, &TextureID);
@@ -129,6 +127,18 @@ GameWorld::GameWorld()
 
 	gameHour = 10;
 	gameMinute = 0;
+
+	/*auto it = getGameData()->YmapEntries.find(3606201153);
+	if (it != getGameData()->YmapEntries.end())
+	{
+		YmapLoader* loader = YmapPool::getPool().Load();
+		
+		std::vector<uint8_t> Buffer(it->second->SystemSize + it->second->GraphicsSize);
+		getGameData()->ExtractFileResource(*(it->second), Buffer);
+
+		memstream2 stream(Buffer.data(), Buffer.size());
+		loader->Init(stream);
+	}*/
 
 	while (!LoadYTD(4096714883)->Loaded)
 	{
@@ -196,7 +206,7 @@ GameWorld::~GameWorld()
 	delete collisionConfiguration;
 	delete dispatcher;
 	delete solver;
-	delete dynamicsWorld;
+	//delete dynamicsWorld;
 }
 
 float RandomFloat(float min, float max) {

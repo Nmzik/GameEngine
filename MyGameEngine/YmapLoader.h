@@ -127,7 +127,7 @@ public:
 	void Finalize() override;
 };
 
-class YmapPool
+class YmapPool : public Pool<YmapLoader, 1000>
 {
 public:
 	static YmapPool& getPool() {
@@ -139,10 +139,5 @@ public:
 
 	YmapLoader* Load();
 	void Remove(YmapLoader* ymap, btDynamicsWorld* world);
-
-	YmapLoader ymaps[1000];
-
-private:
-	YmapLoader * firstAvailable_;
 };
 

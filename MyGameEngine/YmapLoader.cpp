@@ -99,14 +99,14 @@ void YmapLoader::Finalize()
 
 YmapPool::YmapPool()
 {
-	firstAvailable_ = &ymaps[0];
+	firstAvailable_ = &objects[0];
 
 	for (int i = 0; i < 999; i++)
 	{
-		ymaps[i].next = &ymaps[i + 1];
+		objects[i].next = &objects[i + 1];
 	}
 
-	ymaps[999].next = NULL;
+	objects[999].next = NULL;
 }
 
 YmapPool::~YmapPool()

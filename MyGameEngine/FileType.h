@@ -3,6 +3,7 @@
 #include "membuf.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/quaternion.hpp"
+#include <array>
 
 #define SYSTEM_BASE 0x50000000
 #define GRAPHICS_BASE 0x60000000
@@ -171,26 +172,10 @@ public:
 	}
 };
 
-template <typename T>
+template<typename T, uint32_t num>
 class Pool
 {
 public:
-	static Pool& getPool() {
-		static Pool instance;
-		return instance;
-	}
-
-	T* Load();
-	void Remove(T* loader);
+	std::array<T, num> objects;
+	T* firstAvailable_;
 };
-
-template<typename T>
-inline T * Pool<T>::Load()
-{
-	return NULL;
-}
-
-template<typename T>
-inline void Pool<T>::Remove(T * loader)
-{
-}

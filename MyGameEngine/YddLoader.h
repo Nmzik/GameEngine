@@ -29,7 +29,7 @@ public:
 	void Remove();
 };
 
-class YddPool
+class YddPool : public Pool<YddLoader, 1000>
 {
 public:
 	static YddPool& getPool() {
@@ -42,9 +42,4 @@ public:
 
 	YddLoader* Load();
 	void Remove(YddLoader* ymap);
-
-	YddLoader ydds[1000];
-
-private:
-	YddLoader * firstAvailable_;
 };

@@ -337,7 +337,7 @@ public:
 
 //Pool<YdrLoader> YdrPool;
 
-class YdrPool
+class YdrPool : public Pool<YdrLoader, 6000>
 {
 public:
 	static YdrPool& getPool() {
@@ -347,14 +347,14 @@ public:
 	uint32_t num;
 
 	YdrPool() {
-		firstAvailable_ = &ydrs[0];
+		firstAvailable_ = &objects[0];
 
 		for (int i = 0; i < 5999; i++)
 		{
-			ydrs[i].next = &ydrs[i + 1];
+			objects[i].next = &objects[i + 1];
 		}
 
-		ydrs[5999].next = NULL;
+		objects[5999].next = NULL;
 	}
 	~YdrPool() {
 
@@ -379,8 +379,4 @@ public:
 	}
 
 	static YdrPool pool;
-	YdrLoader ydrs[6000];
-
-private:
-	YdrLoader * firstAvailable_;
 };

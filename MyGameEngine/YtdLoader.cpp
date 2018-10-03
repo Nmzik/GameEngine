@@ -174,14 +174,14 @@ void YtdLoader::Remove()
 
 YtdPool::YtdPool()
 {
-	firstAvailable_ = &ytds[0];
+	firstAvailable_ = &objects[0];
 
 	for (int i = 0; i < 2499; i++)
 	{
-		ytds[i].next = &ytds[i + 1];
+		objects[i].next = &objects[i + 1];
 	}
 
-	ytds[2499].next = NULL;
+	objects[2499].next = NULL;
 }
 
 YtdPool::~YtdPool()

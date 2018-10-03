@@ -81,14 +81,14 @@ void YftLoader::Remove()
 
 YftPool::YftPool()
 {
-	firstAvailable_ = &yfts[0];
+	firstAvailable_ = &objects[0];
 
 	for (int i = 0; i < 999; i++)
 	{
-		yfts[i].next = &yfts[i + 1];
+		objects[i].next = &objects[i + 1];
 	}
 
-	yfts[999].next = NULL;
+	objects[999].next = NULL;
 }
 
 YftPool::~YftPool()

@@ -155,7 +155,7 @@ public:
 	void Remove();
 };
 
-class YbnPool
+class YbnPool : public Pool<YbnLoader, 500>
 {
 public:
 	static YbnPool& getPool() {
@@ -170,9 +170,4 @@ public:
 
 	YbnLoader* Load();
 	void Remove(YbnLoader* ybn);
-
-	YbnLoader ybns[500];
-
-private:
-	YbnLoader * firstAvailable_;
 };

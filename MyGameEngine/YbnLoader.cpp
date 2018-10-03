@@ -318,14 +318,14 @@ void YbnLoader::Remove()
 
 YbnPool::YbnPool()
 {
-	firstAvailable_ = &ybns[0];
+	firstAvailable_ = &objects[0];
 
 	for (int i = 0; i < 499; i++)
 	{
-		ybns[i].next = &ybns[i + 1];
+		objects[i].next = &objects[i + 1];
 	}
 
-	ybns[499].next = NULL;
+	objects[499].next = NULL;
 }
 
 YbnPool::~YbnPool()
