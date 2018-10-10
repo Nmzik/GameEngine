@@ -119,7 +119,7 @@ public:
 
 	CMapData _CMapData;
 	std::vector<CMloInstanceDef> CMloInstanceDefs;
-	std::vector<Object> Objects;
+	std::vector<Object>* Objects;
 	std::vector<Object> RootObjects;
 	std::vector<CCarGen> CCarGens;
 

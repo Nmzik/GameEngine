@@ -66,7 +66,7 @@ void ResourceManager::update()
 					memstream2 stream(res->Buffer.data(), res->Buffer.size());
 					iter->Init(stream);
 
-					for (auto& object : iter->Objects)
+					for (auto& object : *iter->Objects)
 					{
 						std::unordered_map<uint32_t, CBaseArchetypeDef>::iterator it = gameworld->getGameData()->CBaseArchetypeDefs.find(object.CEntity.archetypeName);
 						if (it != gameworld->getGameData()->CBaseArchetypeDefs.end())

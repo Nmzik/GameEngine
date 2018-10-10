@@ -40,6 +40,7 @@ public:
 
 		file.seekg(MetaStructureInfo_struct->EntriesPointer);
 
+		entryInfos.reserve(MetaStructureInfo_struct->EntriesCount);
 		for (int i = 0; i < MetaStructureInfo_struct->EntriesCount; i++)
 		{
 			MetaStructureEntryInfo_s* entry = (MetaStructureEntryInfo_s*)file.read(sizeof(MetaStructureEntryInfo_s));
@@ -71,6 +72,7 @@ public:
 
 		file.seekg(MetaEnumInfo_struct->EntriesPointer);
 
+		infos.reserve(MetaEnumInfo_struct->EntriesCount);
 		for (uint32_t i = 0; i < (uint32_t)MetaEnumInfo_struct->EntriesCount; i++)
 		{
 			MetaEnumEntryInfo_s* info = (MetaEnumEntryInfo_s*)file.read(sizeof(MetaEnumEntryInfo_s));
@@ -134,6 +136,7 @@ public:
 
 		file.seekg(Meta_struct->StructureInfosPointer);
 
+		MetaInfos.reserve(Meta_struct->StructureInfosCount);
 		for (int i = 0; i < Meta_struct->StructureInfosCount; i++)
 		{
 			MetaStructureInfo info(file);
@@ -144,6 +147,7 @@ public:
 
 		file.seekg(Meta_struct->EnumInfosPointer);
 
+		EnumInfos.reserve(Meta_struct->EnumInfosCount);
 		for (size_t i = 0; i < Meta_struct->EnumInfosCount; i++)
 		{
 			MetaEnumInfo info(file);
@@ -154,6 +158,7 @@ public:
 
 		file.seekg(Meta_struct->DataBlocksPointer);
 
+		MetaBlocks.reserve(Meta_struct->DataBlocksCount);
 		for (int i = 0; i < Meta_struct->DataBlocksCount; i++)
 		{
 			MetaDataBlock block(file);

@@ -8,6 +8,8 @@ void YmapLoader::Init(memstream2& file)
 
 	Meta meta(file);
 
+	Objects = new std::vector<Object>();
+
 	for (auto& Block : meta.MetaBlocks)
 	{
 		if (Block.MetaDataBlock_struct->StructureNameHash == 3545841574)
@@ -15,9 +17,8 @@ void YmapLoader::Init(memstream2& file)
 			std::memcpy(&_CMapData, &file.data[Block.MetaDataBlock_struct->DataPointer], sizeof(CMapData));
 
 			//Optimization
-			Objects.reserve(_CMapData.entities.Count1);
+			Objects->reserve(_CMapData.entities.Count1);
 		}
-
 		else if (Block.MetaDataBlock_struct->StructureNameHash == 3461354627)
 		{
 			for (int i = 0; i < Block.MetaDataBlock_struct->DataLength / sizeof(CEntityDef); i++)
@@ -45,11 +46,11 @@ void YmapLoader::Init(memstream2& file)
 
 				//if (def.lodLevel == Unk_1264241711::LODTYPES_DEPTH_ORPHANHD) def.lodDist *= 1.5f;
 
-				Objects.emplace_back(def);
+				Objects->emplace_back(def);
 			}
 		}
 
-		else if (Block.MetaDataBlock_struct->StructureNameHash == 164374718) //CMloInstanceDef
+		/*else if (Block.MetaDataBlock_struct->StructureNameHash == 164374718) //CMloInstanceDef
 		{
 			size_t curLength = CMloInstanceDefs.size();
 			CMloInstanceDefs.resize(curLength + Block.MetaDataBlock_struct->DataLength / sizeof(CMloInstanceDef));
@@ -61,7 +62,7 @@ void YmapLoader::Init(memstream2& file)
 			size_t curLength = CCarGens.size();
 			CCarGens.resize(curLength + Block.MetaDataBlock_struct->DataLength / sizeof(CCarGen));
 			std::memcpy(&CCarGens[curLength], &file.data[Block.MetaDataBlock_struct->DataPointer], Block.MetaDataBlock_struct->DataLength);
-		}
+		}*/
 	}
 	/*for (int i = 0; i < Objects.size(); i++)
 	{
@@ -131,16 +132,16 @@ YmapLoader* YmapPool::Load()
 void YmapPool::Remove(YmapLoader* ymap, btDynamicsWorld* world)
 {
 	ymap->Loaded = false;
-	ymap->RootObjects.clear();
+	//ymap->RootObjects.clear();
 
-	for (auto &object : ymap->Objects)
+	for (auto &object : *ymap->Objects)
 	{
 		if (object.rigidBody) {
 			world->removeRigidBody(object.rigidBody);
 		}
 	}
 
-	ymap->Objects.clear();
+	delete ymap->Objects;
 	ymap->next = firstAvailable_;
 	firstAvailable_ = ymap;
 }
