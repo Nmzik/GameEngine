@@ -110,8 +110,9 @@ GameWorld::GameWorld()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 2, 2, 0, GL_RGB, GL_FLOAT, pixels);
-	TextureManager::GetTextureManager().LoadTexture(1551155749, TextureID);
-	TextureManager::GetTextureManager().LoadTexture(475118591, TextureID);
+	TextureManager::GetTextureManager().DefaultTexture = TextureID;
+	TextureManager::GetTextureManager().LoadTexture(1551155749, TextureID); //FIX?
+	TextureManager::GetTextureManager().LoadTexture(475118591, TextureID); //FIX?
 
 	//
 	while (!LoadYTD(3403519606)->Loaded)
@@ -216,7 +217,7 @@ float RandomFloat(float min, float max) {
 void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 {
 	if (map->Loaded) {
-		for (auto& object : map->Objects)
+		for (auto& object : *map->Objects)
 		{
 			float Dist = glm::length2(position - object.position);
 			bool IsVisible = Dist <= object.CEntity.lodDist * LODMultiplier;
@@ -262,8 +263,8 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 								object.FoundModel = true;
 							}
 							if (object.ydd->Loaded) {
-								std::unordered_map<uint32_t, YdrLoader*>::iterator iter2 = object.ydd->YdrFiles.find(object.CEntity.archetypeName);
-								if (iter2 != object.ydd->YdrFiles.end())
+								auto iter2 = object.ydd->YdrFiles->find(object.CEntity.archetypeName);
+								if (iter2 != object.ydd->YdrFiles->end())
 								{
 									object.ydr = iter2->second;
 									object.Loaded = true;
@@ -340,7 +341,6 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 			}
 		}
 	}*/
-
 }
 
 YmapLoader* GameWorld::GetYmap(uint32_t hash)
@@ -483,7 +483,8 @@ YbnLoader* GameWorld::GetYBN(uint32_t hash)
 
 void GameWorld::GetVisibleYmaps(Camera* camera)
 {
-	glm::vec3 PlayerPos = pedestrians[currentPlayerID].getPos();
+	//glm::vec3 PlayerPos = pedestrians[currentPlayerID].getPos();
+	glm::vec3 PlayerPos = camera->position;
 
 	auto cellID = spaceGrid.GetCellPos(PlayerPos);
 	auto NodeCell = nodeGrid.GetCellPos(PlayerPos);
@@ -508,15 +509,19 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 		CurYmaps.clear();
 		//Clear previous Ybns
 
+		//REMOVE OBJECTS WHEN WE ARE IN ANOTHER CELL???? 
+
+
+
 		//printf("NEW CELL\n");
 		CurCell = cellID;
 
 		SpaceGridCell& cell = spaceGrid.GetCell(cellID);
 
-		for (auto& BoundsItem : cell.BoundsStoreItems)
+		/*for (auto& BoundsItem : cell.BoundsStoreItems)
 		{
 			CurYbns.emplace_back(GetYBN(data.cacheFile->AllBoundsStoreItems[BoundsItem].Name));
-		}
+		}*/
 
 		for (auto& mapNode : cell.MapNodes)
 		{
@@ -677,6 +682,20 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 		}
 	}
 
+	/*auto& TexManager = TextureManager::GetTextureManager();
+
+	for (auto it = TexManager.TexturesMap.begin(); it != TexManager.TexturesMap.begin();)
+	{
+		if (it->second.referenceCount <= 0)
+		{
+			printf("");
+		}
+		/*else
+		{
+			++it;
+		}
+	}*/
+
 	LoadQueuedResources();
 }
 
@@ -764,7 +783,7 @@ void GameWorld::createVehicle(glm::vec3 position)
 
 void GameWorld::UpdateDynamicObjects()
 {
-	for (auto & map : CurYmaps)
+	/*for (auto & map : CurYmaps)
 	{
 		if (map->Loaded) {
 			for (auto & object : map->Objects)
@@ -776,7 +795,7 @@ void GameWorld::UpdateDynamicObjects()
 				}
 			}
 		}
-	}
+	}*/
 }
 
 void GameWorld::Update()

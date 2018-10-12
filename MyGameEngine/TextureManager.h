@@ -23,6 +23,8 @@ public:
 		return texManager;
 	}
 
+	GLuint DefaultTexture;
+
 	std::vector<GLuint> TexturesID;
 	std::unordered_map<uint32_t, Texture> TexturesMap;
 	GLuint GetTexture(uint32_t textureHash);

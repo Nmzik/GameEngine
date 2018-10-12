@@ -6,9 +6,9 @@ Player::Player(glm::vec3 position, YddLoader * ydd, btDiscreteDynamicsWorld * wo
 	player(ydd),
 	Entity(position, glm::quat(-1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(1.0f))
 {
-	playerModel.push_back(ydd->YdrFiles[121241095]);
-	playerModel.push_back(ydd->YdrFiles[1471150075]);
-	playerModel.push_back(ydd->YdrFiles[2540683012]);
+	playerModel.push_back((*ydd->YdrFiles)[121241095]);
+	playerModel.push_back((*ydd->YdrFiles)[1471150075]);
+	playerModel.push_back((*ydd->YdrFiles)[2540683012]);
 
 	btScalar mass(1.0f);
 	btVector3 localInertia(0, 0, 0);

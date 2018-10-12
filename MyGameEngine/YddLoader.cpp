@@ -7,7 +7,8 @@ void YddLoader::Init(memstream2 & file, int32_t systemSize)
 
 	DrawableDictionary* drawableDictionary = (DrawableDictionary*)file.read(sizeof(DrawableDictionary));
 
-	YdrFiles.reserve(drawableDictionary->DrawablesCount1);
+	YdrFiles = new std::unordered_map<uint32_t, YdrLoader*>();
+	YdrFiles->reserve(drawableDictionary->DrawablesCount1);
 
 	SYSTEM_BASE_PTR(drawableDictionary->HashesPointer);
 	std::vector<uint32_t> Hashes;
@@ -16,9 +17,6 @@ void YddLoader::Init(memstream2 & file, int32_t systemSize)
 
 	SYSTEM_BASE_PTR(drawableDictionary->DrawablesPointer);
 	file.seekg(drawableDictionary->DrawablesPointer);
-
-	//Optimization
-	YdrFiles.reserve(drawableDictionary->DrawablesCount1);
 
 	for (int i = 0; i < drawableDictionary->DrawablesCount1; i++)
 	{
@@ -33,7 +31,7 @@ void YddLoader::Init(memstream2 & file, int32_t systemSize)
 		YdrLoader* ydr = YdrPool::getPool().Load();
 		ydr->Init(file, systemSize);
 		gpuMemory += ydr->gpuMemory;
-		YdrFiles.insert({Hashes[i], ydr});
+		YdrFiles->insert({Hashes[i], ydr});
 
 		file.seekg(DrawablePointer);
 	}
@@ -43,11 +41,11 @@ void YddLoader::Remove()
 {
 	gpuMemory = 0;
 	Loaded = false;
-	for (auto& ydr : YdrFiles)
+	for (auto& ydr : *YdrFiles)
 	{
 		YdrPool::getPool().Remove(ydr.second);
 	}
-	YdrFiles.clear();
+	delete YdrFiles;
 }
 
 YddPool::YddPool()

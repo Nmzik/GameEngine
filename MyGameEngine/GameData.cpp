@@ -1,6 +1,5 @@
 #include "GameData.h"
 
-
 #include "YtypLoader.h"
 #include "CacheDatFile.h"
 
@@ -349,7 +348,7 @@ void GameData::ExtractFileBinary(RpfBinaryFileEntry& entry, std::vector<uint8_t>
 	uint8_t* tbytes = myNew uint8_t[entry.FileSize];
 	rpf->read((char*)&tbytes[0], entry.FileSize);
 
-	tbytes = GTAEncryption::DecryptNG(tbytes, entry.FileSize, entry.Name, entry.FileUncompressedSize);
+	GTAEncryption::DecryptNG(tbytes, entry.FileSize, entry.Name, entry.FileUncompressedSize);
 
 	GTAEncryption::DecompressBytes(tbytes, entry.FileSize, output);
 

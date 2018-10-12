@@ -80,7 +80,7 @@ uint8_t* GTAEncryption::GetNGKey(std::string name, uint32_t length)
 	return PC_NG_KEYS[keyidx];
 }
 
-uint8_t * GTAEncryption::DecryptAES(uint8_t * data, uint32_t DataLength)
+void GTAEncryption::DecryptAES(uint8_t * data, uint32_t DataLength)
 {
 	struct AES_ctx ctx;
 	AES_init_ctx(&ctx, PC_AES_KEY);
@@ -88,17 +88,15 @@ uint8_t * GTAEncryption::DecryptAES(uint8_t * data, uint32_t DataLength)
 	{
 		AES_ECB_decrypt(&ctx, &data[i * 16]);
 	}
-
-	return data;
 }
 
-uint8_t* GTAEncryption::DecryptNG(uint8_t* data, uint32_t dataLength, std::string name, uint32_t length)
+void GTAEncryption::DecryptNG(uint8_t* data, uint32_t dataLength, std::string name, uint32_t length)
 {
 	uint8_t* key = GetNGKey(name, length);
-	return DecryptNG(data, dataLength, key);
+	DecryptNG(data, dataLength, key);
 }
 
-uint8_t* GTAEncryption::DecryptNG(uint8_t* data, uint32_t dataLength, uint8_t* key)
+void GTAEncryption::DecryptNG(uint8_t* data, uint32_t dataLength, uint8_t* key)
 {
 	uint32_t keyuints[272 / 4]; //KEYLENGTH HARDCODED
 	memcpy(keyuints, key, 272);
@@ -110,9 +108,6 @@ uint8_t* GTAEncryption::DecryptNG(uint8_t* data, uint32_t dataLength, uint8_t* k
 		DecryptNGBlock(encryptedBlock, 16, keyuints);
 		memcpy(data + 16 * blockIndex, encryptedBlock, 16);
 	}
-
-	//delete[] data;
-	return data;
 }
 
 void GTAEncryption::DecryptNGBlock(uint8_t* data, uint32_t dataLength, uint32_t* key)

@@ -10,21 +10,13 @@ GLuint TextureManager::GetTexture(uint32_t textureHash)
 		return it->second.TextureID;
 	}
 	else {
-		it = TexturesMap.find(475118591);
-		return it->second.TextureID;
+		return DefaultTexture;
 	}
 }
 
 void TextureManager::LoadTexture(uint32_t Hash, GLuint TextureID)
 {
-	/*std::unordered_map<uint32_t, GLuint>::iterator it = TexturesMap.find(Hash);
-	if (it != TexturesMap.end())
-	{
-		printf("HERE");
-	}*/
-	TexturesMap[Hash] = Texture{TextureID, 1};
-	//TexturesMap.insert(std::pair<uint32_t, Texture>(Hash, Texture{ TextureID, 0 }));
-
+	TexturesMap.emplace(Hash, Texture{ TextureID, 1 });
 }
 
 void TextureManager::RemoveTexture(uint32_t Hash)

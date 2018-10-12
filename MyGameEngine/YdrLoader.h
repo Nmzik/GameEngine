@@ -326,7 +326,7 @@ class YdrLoader : public FileType
 public:
 	YdrLoader * next;
 	YbnLoader* ybnfile = nullptr;
-	std::vector<Mesh> meshes;
+	std::vector<Mesh>* meshes;
 	bool isYft = false;
 
 	void Init(memstream2& file, int32_t systemSize) override;

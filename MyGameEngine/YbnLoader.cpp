@@ -233,8 +233,6 @@ void YbnLoader::ParseYbn(memstream2 & file)
 		SYSTEM_BASE_PTR(boundComposite->ChildrenPointer);
 		file.seekg(boundComposite->ChildrenPointer);
 
-		//ybns.reserve(boundComposite->ChildrenCount1);
-
 		for (int i = 0; i < boundComposite->ChildrenCount1; i++)
 		{
 			uint64_t* DataPointer = (uint64_t*)file.read(sizeof(uint64_t));

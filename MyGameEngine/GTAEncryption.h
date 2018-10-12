@@ -23,9 +23,9 @@ public:
 
 	static uint8_t * GetNGKey(std::string name, uint32_t length);
 
-	static uint8_t * DecryptAES(uint8_t* data, uint32_t DataLength);
-	static uint8_t * DecryptNG(uint8_t* data, uint32_t dataLength, std::string name, uint32_t length);
-	static uint8_t * DecryptNG(uint8_t * data, uint32_t dataLength, uint8_t * key);
+	static void DecryptAES(uint8_t* data, uint32_t DataLength);
+	static void DecryptNG(uint8_t* data, uint32_t dataLength, std::string name, uint32_t length);
+	static void DecryptNG(uint8_t * data, uint32_t dataLength, uint8_t * key);
 	static void DecryptNGBlock(uint8_t * data, uint32_t dataLength, uint32_t * key);
 	static uint8_t * DecryptNGRoundA(uint8_t* data, uint32_t* key, uint32_t table[][256]);
 	static uint8_t * DecryptNGRoundB(uint8_t * data, uint32_t * key, uint32_t table[][256]);

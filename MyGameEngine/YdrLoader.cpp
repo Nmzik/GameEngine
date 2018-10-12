@@ -215,7 +215,8 @@ void YdrLoader::Init(memstream2 & file, int32_t systemSize)
 		file.seekg(drawModel->GeometriesPointer);
 
 		//Optimization
-		meshes.reserve(drawModel->GeometriesCount1);
+		meshes = new std::vector<Mesh>();
+		meshes->reserve(drawModel->GeometriesCount1);
 
 		for (int i = 0; i < drawModel->GeometriesCount1; i++) //no difference btween geometriescount1 and 2
 		{
@@ -271,7 +272,7 @@ void YdrLoader::Init(memstream2 & file, int32_t systemSize)
 			gpuMemory += vertbuffer->VertexCount * vertbuffer->VertexStride;
 			gpuMemory += indexbuffer->IndicesCount * sizeof(uint16_t);
 
-			meshes.emplace_back(file.data, vertbuffer->DataPointer1, vertbuffer->VertexCount * vertbuffer->VertexStride, indexbuffer->IndicesPointer, indexbuffer->IndicesCount, (VertexType)vertbuffer->InfoPointer->Flags, materials[file.data[drawModel->ShaderMappingPointer + i * sizeof(uint16_t)]]);
+			meshes->emplace_back(file.data, vertbuffer->DataPointer1, vertbuffer->VertexCount * vertbuffer->VertexStride, indexbuffer->IndicesPointer, indexbuffer->IndicesCount, (VertexType)vertbuffer->InfoPointer->Flags, materials[file.data[drawModel->ShaderMappingPointer + i * sizeof(uint16_t)]]);
 
 			file.seekg(pos);
 		}
@@ -291,16 +292,16 @@ void YdrLoader::Remove()
 		YtdPool::getPool().Remove(Ytd);
 		Ytd = nullptr;
 	}
-	for (auto& mesh : meshes)
+	for (auto& mesh : *meshes)
 	{
 		mesh.Cleanup();
 	}
-	meshes.clear();
+	delete meshes;
 }
 
 void YdrLoader::UploadMeshes()
 {
-	for (auto& mesh : meshes)
+	for (auto& mesh : *meshes)
 	{
 		//mesh->Upload();
 	}

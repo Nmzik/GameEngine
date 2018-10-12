@@ -38,14 +38,14 @@ void RpfFile::LoadRpf(std::ifstream& rpf, std::string& FileName, uint32_t FileSi
 	{
 	case 0x0FFFFFF9:
 		//printf("AES\n");
-		entriesData = GTAEncryption::DecryptAES(entriesData, EntryCount * 16);
-		namesData = GTAEncryption::DecryptAES(namesData, NamesLength);
+		GTAEncryption::DecryptAES(entriesData, EntryCount * 16);
+		GTAEncryption::DecryptAES(namesData, NamesLength);
 		//IsAESEncrypted = true;
 		break;
 	case 0x0FEFFFFF:
 		//printf("NG\n");
-		entriesData = GTAEncryption::DecryptNG(entriesData, EntryCount * 16, FileName, FileSize);
-		namesData = GTAEncryption::DecryptNG(namesData, NamesLength, FileName, FileSize);
+		GTAEncryption::DecryptNG(entriesData, EntryCount * 16, FileName, FileSize);
+		GTAEncryption::DecryptNG(namesData, NamesLength, FileName, FileSize);
 		break;
 	default:
 		printf("ERROR");

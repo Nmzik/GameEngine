@@ -33,6 +33,5 @@ public:
 	}
 
 	void PhysicsTick();
-	void Draw(Shader* shader);
 };
 
