@@ -98,43 +98,18 @@ void YmapLoader::Finalize()
 	Loaded = true;
 }
 
-YmapPool::YmapPool()
+void YmapLoader::Remove()
 {
-	firstAvailable_ = &objects[0];
-
-	for (int i = 0; i < 999; i++)
-	{
-		objects[i].next = &objects[i + 1];
-	}
-
-	objects[999].next = NULL;
+	Loaded = false;
+	delete Objects;
 }
 
-YmapPool::~YmapPool()
-{
-
-}
-
-YmapLoader* YmapPool::Load()
-{
-	// Make sure the pool isn't full.
-	assert(firstAvailable_ != NULL);
-
-	// Remove it from the available list.
-	YmapLoader* newYmap = firstAvailable_;
-	firstAvailable_ = newYmap->next;
-
-	//newYmap->Init(file);
-
-	return newYmap;
-}
-
-void YmapPool::Remove(YmapLoader* ymap, btDynamicsWorld* world)
+/*void YmapPool::RemoveBeta(YmapLoader* ymap, btDynamicsWorld* world)
 {
 	ymap->Loaded = false;
 	//ymap->RootObjects.clear();
 
-	for (auto &object : *ymap->Objects)
+	/*for (auto &object : *ymap->Objects)
 	{
 		if (object.rigidBody) {
 			world->removeRigidBody(object.rigidBody);
@@ -142,6 +117,4 @@ void YmapPool::Remove(YmapLoader* ymap, btDynamicsWorld* world)
 	}
 
 	delete ymap->Objects;
-	ymap->next = firstAvailable_;
-	firstAvailable_ = ymap;
-}
+}*/

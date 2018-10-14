@@ -29,17 +29,4 @@ public:
 	void Remove();
 };
 
-class YddPool : public Pool<YddLoader, 1000>
-{
-public:
-	static YddPool& getPool() {
-		static YddPool pool;
-		return pool;
-	}
-
-	YddPool();
-	~YddPool();
-
-	YddLoader* Load();
-	void Remove(YddLoader* ymap);
-};
+static Pool<YddLoader, 1000> YddPool;

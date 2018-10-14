@@ -85,20 +85,5 @@ public:
 	void Remove();
 };
 
-class YtdPool : public Pool<YtdLoader, 2500>
-{
-public:
-	static YtdPool& getPool() {
-		return pool;
-	}
-	YtdPool();
-	~YtdPool();
-
-	uint32_t num = 0;
-
-	YtdLoader* Load();
-	void Remove(YtdLoader* ytd);
-
-	static YtdPool pool;
-};
+static Pool<YtdLoader, 2500> YtdPool;
 

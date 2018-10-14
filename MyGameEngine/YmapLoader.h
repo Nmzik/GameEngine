@@ -125,19 +125,8 @@ public:
 
 	void Init(memstream2 & file) override;
 	void Finalize() override;
+	void Remove();
 };
 
-class YmapPool : public Pool<YmapLoader, 1000>
-{
-public:
-	static YmapPool& getPool() {
-		static YmapPool pool;
-		return pool;
-	}
-	YmapPool();
-	~YmapPool();
-
-	YmapLoader* Load();
-	void Remove(YmapLoader* ymap, btDynamicsWorld* world);
-};
+static Pool<YmapLoader, 1000> YmapPool;
 

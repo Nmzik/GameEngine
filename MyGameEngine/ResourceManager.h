@@ -14,6 +14,7 @@ class ResourceManager
 	std::thread ResourcesThread;
 	std::mutex mylock;
 	std::condition_variable loadCondition;
+	bool running;
 
 	std::vector<Resource*> waitingList;
 	GameWorld *gameworld;

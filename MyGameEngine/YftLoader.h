@@ -198,16 +198,4 @@ public:
 	void Remove();
 };
 
-class YftPool : public Pool<YftLoader, 1000>
-{
-public:
-	static YftPool& getPool() {
-		static YftPool pool;
-		return pool;
-	}
-	YftPool();
-	~YftPool();
-
-	YftLoader* Load();
-	void Remove(YftLoader* yft);
-};
+static Pool<YftLoader, 1000> YftPool;

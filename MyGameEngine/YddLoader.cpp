@@ -28,7 +28,7 @@ void YddLoader::Init(memstream2 & file, int32_t systemSize)
 
 		file.seekg(data_pointer[0]);
 
-		YdrLoader* ydr = YdrPool::getPool().Load();
+		YdrLoader* ydr = YdrPool.getPool().Load();
 		ydr->Init(file, systemSize);
 		gpuMemory += ydr->gpuMemory;
 		YdrFiles->insert({Hashes[i], ydr});
@@ -43,42 +43,7 @@ void YddLoader::Remove()
 	Loaded = false;
 	for (auto& ydr : *YdrFiles)
 	{
-		YdrPool::getPool().Remove(ydr.second);
+		YdrPool.getPool().Remove(ydr.second);
 	}
 	delete YdrFiles;
-}
-
-YddPool::YddPool()
-{
-	firstAvailable_ = &objects[0];
-
-	for (int i = 0; i < 999; i++)
-	{
-		objects[i].next = &objects[i + 1];
-	}
-
-	objects[999].next = NULL;
-}
-
-YddPool::~YddPool()
-{
-}
-
-YddLoader * YddPool::Load()
-{
-	// Make sure the pool isn't full.
-	assert(firstAvailable_ != NULL);
-
-	// Remove it from the available list.
-	YddLoader* newYdd = firstAvailable_;
-	firstAvailable_ = newYdd->next;
-
-	return newYdd;
-}
-
-void YddPool::Remove(YddLoader * ydd)
-{
-	ydd->Remove();
-	ydd->next = firstAvailable_;
-	firstAvailable_ = ydd;
 }

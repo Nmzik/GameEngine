@@ -5,7 +5,7 @@
 #include "YmapLoader.h"
 #include "Object.h"
 
-ResourceManager::ResourceManager(GameWorld *world) : gameworld{ world }
+ResourceManager::ResourceManager(GameWorld *world) : gameworld{ world }, running(true)
 {
 	//printf("RESOURCE MANAGER LOADED!\n");
 	ResourcesThread = std::thread(&ResourceManager::update, this);
@@ -15,7 +15,12 @@ ResourceManager::ResourceManager(GameWorld *world) : gameworld{ world }
 
 ResourceManager::~ResourceManager()
 {
-
+	/*{
+		std::unique_lock<std::mutex> lock(mylock);
+		running = false;
+		loadCondition.notify_one();
+	}
+	ResourcesThread.join();*/
 }
 
 void ResourceManager::AddToWaitingList(Resource* res) {
@@ -42,7 +47,7 @@ void ResourceManager::LoadDrawable(RpfResourceFileEntry* entry, Resource* res) {
 
 void ResourceManager::update()
 {
-	while (true) {
+	while (running) {
 		std::unique_lock<std::mutex> lock(mylock);
 
 		loadCondition.wait(lock, [this] {

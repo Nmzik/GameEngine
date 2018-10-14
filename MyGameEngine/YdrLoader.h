@@ -335,48 +335,4 @@ public:
 	void UploadMeshes();
 };
 
-//Pool<YdrLoader> YdrPool;
-
-class YdrPool : public Pool<YdrLoader, 6000>
-{
-public:
-	static YdrPool& getPool() {
-		return pool;
-	}
-
-	uint32_t num;
-
-	YdrPool() {
-		firstAvailable_ = &objects[0];
-
-		for (int i = 0; i < 5999; i++)
-		{
-			objects[i].next = &objects[i + 1];
-		}
-
-		objects[5999].next = NULL;
-	}
-	~YdrPool() {
-
-	}
-
-	YdrLoader* Load() {
-		num++;
-		// Make sure the pool isn't full.
-		assert(firstAvailable_ != NULL);
-
-		// Remove it from the available list.
-		YdrLoader* newYdr = firstAvailable_;
-		firstAvailable_ = newYdr->next;
-
-		return newYdr;
-	}
-	void Remove(YdrLoader* ydr) {
-		num--;
-		ydr->Remove();
-		ydr->next = firstAvailable_;
-		firstAvailable_ = ydr;
-	}
-
-	static YdrPool pool;
-};
+static Pool<YdrLoader, 6000> YdrPool;

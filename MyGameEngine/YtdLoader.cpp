@@ -1,7 +1,5 @@
 #include "YtdLoader.h"
 
-YtdPool YtdPool::pool;
-
 void YtdLoader::Init(memstream2 & file, int32_t systemSize)
 {
 	Loaded = true;
@@ -160,7 +158,6 @@ void YtdLoader::Init(memstream2 & file, int32_t systemSize)
 	}
 }
 
-
 void YtdLoader::Remove()
 {
 	gpuMemory = 0;
@@ -170,39 +167,4 @@ void YtdLoader::Remove()
 		TextureManager::GetTextureManager().RemoveTexture(hash);
 	}
 	TextureNameHashes.clear();
-}
-
-YtdPool::YtdPool()
-{
-	firstAvailable_ = &objects[0];
-
-	for (int i = 0; i < 2499; i++)
-	{
-		objects[i].next = &objects[i + 1];
-	}
-
-	objects[2499].next = NULL;
-}
-
-YtdPool::~YtdPool()
-{
-}
-
-YtdLoader * YtdPool::Load()
-{
-	// Make sure the pool isn't full.
-	assert(firstAvailable_ != NULL);
-
-	// Remove it from the available list.
-	YtdLoader* newYtd = firstAvailable_;
-	firstAvailable_ = newYtd->next;
-
-	return newYtd;
-}
-
-void YtdPool::Remove(YtdLoader * ytd)
-{
-	ytd->Remove();
-	ytd->next = firstAvailable_;
-	firstAvailable_ = ytd;
 }

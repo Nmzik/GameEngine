@@ -176,6 +176,43 @@ template<typename T, uint32_t num>
 class Pool
 {
 public:
+	static Pool& getPool() {
+		static Pool pool;
+		return pool;
+	}
+
+	Pool::Pool() {
+		firstAvailable_ = &objects[0];
+
+		for (int i = 0; i < num - 1; i++)
+		{
+			objects[i].next = &objects[i + 1];
+		}
+
+		objects[num - 1].next = NULL;
+	}
+
+	T* Pool::Load()
+	{
+		// Make sure the pool isn't full.
+		assert(firstAvailable_ != NULL);
+
+		// Remove it from the available list.
+		T* newFile = firstAvailable_;
+		firstAvailable_ = newFile->next;
+
+		return newFile;
+	}
+
+	void Remove(T* file)
+	{
+		file->Remove();
+		file->next = firstAvailable_;
+		firstAvailable_ = file;
+	}
+
 	std::array<T, num> objects;
 	T* firstAvailable_;
+private:
+
 };

@@ -155,19 +155,4 @@ public:
 	void Remove();
 };
 
-class YbnPool : public Pool<YbnLoader, 500>
-{
-public:
-	static YbnPool& getPool() {
-		static YbnPool pool;
-		return pool;
-	}
-
-	YbnPool();
-	~YbnPool();
-
-	uint32_t num = 0;
-
-	YbnLoader* Load();
-	void Remove(YbnLoader* ybn);
-};
+static Pool<YbnLoader, 500> YbnPool;

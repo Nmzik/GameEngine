@@ -339,21 +339,18 @@ void GameData::LoadRpf(std::ifstream& rpf, std::string& FullPath_, std::string& 
 	}
 }
 
+uint8_t tbytes[20*1024*1024]; //20MB ?? IS IT ENOUGHT???
+
 void GameData::ExtractFileBinary(RpfBinaryFileEntry& entry, std::vector<uint8_t>& output)
 {
 	auto& rpf = entry.File->rpf;
 
 	rpf->seekg(entry.FileOffset);
-
-	uint8_t* tbytes = myNew uint8_t[entry.FileSize];
 	rpf->read((char*)&tbytes[0], entry.FileSize);
 
 	GTAEncryption::DecryptNG(tbytes, entry.FileSize, entry.Name, entry.FileUncompressedSize);
 
 	GTAEncryption::DecompressBytes(tbytes, entry.FileSize, output);
-
-	delete[] tbytes;
-
 }
 
 void GameData::ExtractFileResource(RpfResourceFileEntry& entry, std::vector<uint8_t>& output)
@@ -361,8 +358,6 @@ void GameData::ExtractFileResource(RpfResourceFileEntry& entry, std::vector<uint
 	auto& rpf = entry.File->rpf;
 
 	rpf->seekg(entry.FileOffset);
-
-	uint8_t* tbytes = myNew uint8_t[entry.FileSize];
 	rpf->read((char*)&tbytes[0], entry.FileSize);
 
 	//uint8_t* decr = tbytes;
@@ -381,17 +376,4 @@ void GameData::ExtractFileResource(RpfResourceFileEntry& entry, std::vector<uint
 //}
 
 	GTAEncryption::DecompressBytes(tbytes, entry.FileSize, output);
-	delete[] tbytes;
-	/*if (deflated != nullptr)
-	{
-		//return deflated;
-	}
-	else
-	{
-		entry.FileSize -= offset;
-		return decr;
-	}*/
-	//}
-
-	//return nullptr;
 }

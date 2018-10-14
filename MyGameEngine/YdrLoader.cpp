@@ -4,8 +4,6 @@
 #include "GTAEncryption.h"
 #include <algorithm>
 
-YdrPool YdrPool::pool;
-
 void YdrLoader::Init(memstream2 & file, int32_t systemSize)
 {
 	Loaded = true;
@@ -49,7 +47,7 @@ void YdrLoader::Init(memstream2 & file, int32_t systemSize)
 			SYSTEM_BASE_PTR(drawable->BoundPointer);
 			file.seekg(drawable->BoundPointer);
 
-			ybnfile = YbnPool::getPool().Load();
+			ybnfile = YbnPool.getPool().Load();
 			ybnfile->Init(file);
 			//ybnfile->Finalize(world);
 		}
@@ -66,7 +64,7 @@ void YdrLoader::Init(memstream2 & file, int32_t systemSize)
 	if (_ShaderGroup->TextureDictionaryPointer != 0) {
 		SYSTEM_BASE_PTR(_ShaderGroup->TextureDictionaryPointer);
 		file.seekg(_ShaderGroup->TextureDictionaryPointer);
-		Ytd = YtdPool::getPool().Load();
+		Ytd = YtdPool.getPool().Load();
 		Ytd->Init(file, systemSize);
 	}
 
@@ -285,11 +283,11 @@ void YdrLoader::Remove()
 	gpuMemory = 0;
 	Loaded = false;
 	if (ybnfile) {
-		YbnPool::getPool().Remove(ybnfile);
+		YbnPool.getPool().Remove(ybnfile);
 		ybnfile = nullptr;
 	}
 	if (Ytd) {
-		YtdPool::getPool().Remove(Ytd);
+		YtdPool.getPool().Remove(Ytd);
 		Ytd = nullptr;
 	}
 	for (auto& mesh : *meshes)
