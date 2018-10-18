@@ -23,25 +23,28 @@ ResourceManager::~ResourceManager()
 	ResourcesThread.join();*/
 }
 
-void ResourceManager::AddToWaitingList(Resource* res) {
+void ResourceManager::AddToWaitingList(Resource& res) {
 	std::lock_guard<std::mutex> lock(mylock);
 	waitingList.push_back(res);
 	loadCondition.notify_one();
 }
 
-void ResourceManager::LoadDrawable(RpfResourceFileEntry* entry, Resource* res) {
-	res->Buffer.resize(entry->SystemSize + entry->GraphicsSize);
-	gameworld->getGameData()->ExtractFileResource(*(entry), res->Buffer);
-	res->SystemSize = entry->SystemSize;
+void ResourceManager::LoadDrawable(RpfResourceFileEntry* entry, Resource& res) {
+	res.Buffer.resize(entry->SystemSize + entry->GraphicsSize);
+	gameworld->getGameData()->ExtractFileResource(*(entry), res.Buffer);
+	res.SystemSize = entry->SystemSize;
 
-	auto it = gameworld->getGameData()->YtdEntries.find(res->TextureDictionaryHash);
+	auto it = gameworld->getGameData()->YtdEntries.find(res.TextureDictionaryHash);
 	if (it == gameworld->getGameData()->YtdEntries.end())
 	{
-		res->TextureDictionaryHash = 0;
+		res.TextureDictionaryHash = 0;
 	}
+}
 
+inline void ResourceManager::AddToMainQueue(Resource & res)
+{
 	gameworld->resources_lock.lock();
-	gameworld->resources.push_back(res);
+	gameworld->resources.push_back(std::move(res));
 	gameworld->resources_lock.unlock();
 }
 
@@ -54,21 +57,21 @@ void ResourceManager::update()
 			return !waitingList.empty();
 		});
 
-		auto res = waitingList.back();
+		auto res = std::move(waitingList.back());
 		waitingList.pop_back();
 		lock.unlock();
 
-		switch (res->type) {
+		switch (res.type) {
 			case ymap: {
-				auto it = gameworld->getGameData()->YmapEntries.find(res->Hash);
+				auto it = gameworld->getGameData()->YmapEntries.find(res.Hash);
 				if (it != gameworld->getGameData()->YmapEntries.end())
 				{
-					res->Buffer.resize(it->second->SystemSize + it->second->GraphicsSize);
-					gameworld->getGameData()->ExtractFileResource(*(it->second), res->Buffer);
+					res.Buffer.resize(it->second->SystemSize + it->second->GraphicsSize);
+					gameworld->getGameData()->ExtractFileResource(*(it->second), res.Buffer);
 
-					YmapLoader* iter = static_cast<YmapLoader*>(res->file);
+					YmapLoader* iter = static_cast<YmapLoader*>(res.file);
 
-					memstream2 stream(res->Buffer.data(), res->Buffer.size());
+					memstream2 stream(res.Buffer.data(), res.Buffer.size());
 					iter->Init(stream);
 
 					for (auto& object : *iter->Objects)
@@ -106,89 +109,66 @@ void ResourceManager::update()
 						object.CEntity.childLodDist *= object.CEntity.childLodDist;
 
 					}
-
-					gameworld->resources_lock.lock();
-					gameworld->resources.push_back(res);
-					gameworld->resources_lock.unlock();
 				}
-				else {
-					delete res;
-				}
+				AddToMainQueue(res);
 			}
-					   break;
+			break;
 			case ydr:
 			{
-				auto it = gameworld->getGameData()->YdrEntries.find(res->Hash);
+				auto it = gameworld->getGameData()->YdrEntries.find(res.Hash);
 				if (it != gameworld->getGameData()->YdrEntries.end())
 				{
 					LoadDrawable(it->second, res);
 				}
-				else {
-					delete res; //RARELY HAPPENS
-				}
+				AddToMainQueue(res);
 			}
 			break;
 			case ydd:
 			{
-				auto it = gameworld->getGameData()->YddEntries.find(res->Hash);
+				auto it = gameworld->getGameData()->YddEntries.find(res.Hash);
 				if (it != gameworld->getGameData()->YddEntries.end())
 				{
 					LoadDrawable(it->second, res);
 				}
-				else {
-					delete res;
-				}
+				AddToMainQueue(res);
 			}
 			break;
 			case yft:
 			{
-				auto it = gameworld->getGameData()->YftEntries.find(res->Hash);
+				auto it = gameworld->getGameData()->YftEntries.find(res.Hash);
 				if (it != gameworld->getGameData()->YftEntries.end())
 				{
 					LoadDrawable(it->second, res);
 				}
-				else {
-					delete res;
-				}
+				AddToMainQueue(res);
 			}
 			break;
 			case ytd:
 			{
-				auto it = gameworld->getGameData()->YtdEntries.find(res->Hash);
+				auto it = gameworld->getGameData()->YtdEntries.find(res.Hash);
 				if (it != gameworld->getGameData()->YtdEntries.end())
 				{
-					res->Buffer.resize(it->second->SystemSize + it->second->GraphicsSize);
-					gameworld->getGameData()->ExtractFileResource(*(it->second), res->Buffer);
-					res->SystemSize = it->second->SystemSize;
-					gameworld->resources_lock.lock();
-					gameworld->resources.push_back(res);
-					gameworld->resources_lock.unlock();
+					res.Buffer.resize(it->second->SystemSize + it->second->GraphicsSize);
+					gameworld->getGameData()->ExtractFileResource(*(it->second), res.Buffer);
+					res.SystemSize = it->second->SystemSize;
 				}
-				else {
-					delete res;
-				}
+				AddToMainQueue(res);
 			}
 
 			break;
 			case ybn:
 			{
-				auto it = gameworld->getGameData()->YbnEntries.find(res->Hash);
+				auto it = gameworld->getGameData()->YbnEntries.find(res.Hash);
 				if (it != gameworld->getGameData()->YbnEntries.end())
 				{
-					res->Buffer.resize(it->second->SystemSize + it->second->GraphicsSize);
-					gameworld->getGameData()->ExtractFileResource(*(it->second), res->Buffer);
-					res->SystemSize = it->second->SystemSize;
+					res.Buffer.resize(it->second->SystemSize + it->second->GraphicsSize);
+					gameworld->getGameData()->ExtractFileResource(*(it->second), res.Buffer);
+					res.SystemSize = it->second->SystemSize;
 
-					memstream2 stream(res->Buffer.data(), res->Buffer.size());
-					res->file->Init(stream);
-
-					gameworld->resources_lock.lock();
-					gameworld->resources.push_back(res);
-					gameworld->resources_lock.unlock();
+					memstream2 stream(res.Buffer.data(), res.Buffer.size());
+					res.file->Init(stream);
 				}
-				else {
-					delete res;
-				}
+				AddToMainQueue(res);
 			}
 			break;
 		}

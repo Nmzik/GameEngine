@@ -16,16 +16,16 @@ class ResourceManager
 	std::condition_variable loadCondition;
 	bool running;
 
-	std::vector<Resource*> waitingList;
+	std::vector<Resource> waitingList;
 	GameWorld *gameworld;
 public:
 
 	ResourceManager(GameWorld *world);
 	~ResourceManager();
 
-	void LoadDrawable(RpfResourceFileEntry * entry, Resource * res);
-
-	void AddToWaitingList(Resource* res);
+	void LoadDrawable(RpfResourceFileEntry * entry, Resource& res);
+	inline void AddToMainQueue(Resource& res);
+	void AddToWaitingList(Resource& res);
 
 	void update();
 };

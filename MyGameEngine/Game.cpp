@@ -191,8 +191,12 @@ void Game::tick(float delta_time)
 	}
 	if (getInput()->IsKeyTriggered(SDL_SCANCODE_N)) {
 		getWorld()->currentPlayerID = 1;
-		uint32_t random = rand() % getWorld()->getGameData()->Scenes.size();
-		getWorld()->pedestrians[getWorld()->currentPlayerID].SetPosition(getWorld()->getGameData()->Scenes[random]);
+
+		std::random_device rd;
+		std::mt19937 gen(rd());
+		std::uniform_int_distribution<uint32_t> dis(0, getWorld()->getGameData()->Scenes.size());
+
+		getWorld()->pedestrians[getWorld()->currentPlayerID].SetPosition(getWorld()->getGameData()->Scenes[dis(gen)]);
 		getWorld()->pedestrians[getWorld()->currentPlayerID].getPhysCharacter()->setGravity(getWorld()->GetDynamicsWorld()->getGravity());
 		for (int i = 0; i < 3; i++)
 		{

@@ -12,6 +12,8 @@ public:
 	glm::vec3 scale;
 	glm::mat4 modelMatrix;
 
+	float health = 100.0f;
+
 	Entity(glm::vec3& pos, glm::quat rot, glm::vec3 scale_)
 		:
 		position(pos),

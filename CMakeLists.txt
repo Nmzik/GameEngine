@@ -11,6 +11,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 #string(REGEX REPLACE "/EH[a-z]+" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHs-c-")
 #add_definitions(-D_HAS_EXCEPTIONS=0)
+add_compile_definitions(myNew=new)
+add_compile_definitions(GLM_ENABLE_EXPERIMENTAL)
 
 set(CMAKE_CONFIGURATION_TYPES Debug Release)
 #set(CMAKE_CXX_FLAGS_RELEASE "/MT")

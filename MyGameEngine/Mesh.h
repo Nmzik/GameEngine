@@ -44,15 +44,82 @@ enum VertexType : uint32_t
 	PNCTTT = 473,
 };
 
+struct VertexDeclaration {
+	uint32_t Flags;
+	uint16_t Stride;
+	uint8_t Unknown_6h;
+	uint8_t Count;
+	uint64_t Types;
+};
+
+struct VertexBuffer {
+	uint32_t VFT;
+	uint32_t Unknown_4h; // 0x00000001
+	uint16_t VertexStride;
+	uint16_t Unknown_Ah;
+	uint32_t Unknown_Ch; // 0x00000000
+	uint64_t DataPointer1;
+	uint32_t VertexCount;
+	uint32_t Unknown_1Ch; // 0x00000000
+	uint64_t DataPointer2;
+	uint32_t Unknown_28h; // 0x00000000
+	uint32_t Unknown_2Ch; // 0x00000000
+	VertexDeclaration* InfoPointer;
+	uint32_t Unknown_38h; // 0x00000000
+	uint32_t Unknown_3Ch; // 0x00000000
+	uint32_t Unknown_40h; // 0x00000000
+	uint32_t Unknown_44h; // 0x00000000
+	uint32_t Unknown_48h; // 0x00000000
+	uint32_t Unknown_4Ch; // 0x00000000
+	uint32_t Unknown_50h; // 0x00000000
+	uint32_t Unknown_54h; // 0x00000000
+	uint32_t Unknown_58h; // 0x00000000
+	uint32_t Unknown_5Ch; // 0x00000000
+	uint32_t Unknown_60h; // 0x00000000
+	uint32_t Unknown_64h; // 0x00000000
+	uint32_t Unknown_68h; // 0x00000000
+	uint32_t Unknown_6Ch; // 0x00000000
+	uint32_t Unknown_70h; // 0x00000000
+	uint32_t Unknown_74h; // 0x00000000
+	uint32_t Unknown_78h; // 0x00000000
+	uint32_t Unknown_7Ch; // 0x00000000
+};
+
+struct IndexBuffer {
+	uint32_t VFT;
+	uint32_t Unknown_4h; // 0x00000001
+	uint32_t IndicesCount;
+	uint32_t Unknown_Ch; // 0x00000000
+	uint64_t IndicesPointer;
+	uint32_t Unknown_18h; // 0x00000000
+	uint32_t Unknown_1Ch; // 0x00000000
+	uint32_t Unknown_20h; // 0x00000000
+	uint32_t Unknown_24h; // 0x00000000
+	uint32_t Unknown_28h; // 0x00000000
+	uint32_t Unknown_2Ch; // 0x00000000
+	uint32_t Unknown_30h; // 0x00000000
+	uint32_t Unknown_34h; // 0x00000000
+	uint32_t Unknown_38h; // 0x00000000
+	uint32_t Unknown_3Ch; // 0x00000000
+	uint32_t Unknown_40h; // 0x00000000
+	uint32_t Unknown_44h; // 0x00000000
+	uint32_t Unknown_48h; // 0x00000000
+	uint32_t Unknown_4Ch; // 0x00000000
+	uint32_t Unknown_50h; // 0x00000000
+	uint32_t Unknown_54h; // 0x00000000
+	uint32_t Unknown_58h; // 0x00000000
+	uint32_t Unknown_5Ch; // 0x00000000
+};
+
 class Mesh
 {
 public:
 	GLuint VBO, EBO, VAO;
 
 	Material material;
-	unsigned int num_indices;
+	uint32_t num_indices;
 
-	Mesh(const uint8_t* meshData, uint64_t VertexPointer, uint32_t VertexSize, uint64_t IndicesPointer, uint32_t IndicesSize, VertexType type, Material mat);
+	Mesh(const uint8_t* meshData, VertexBuffer* vertexBuffer, IndexBuffer* indexBuffer, Material mat);
 	void Cleanup();
 
 	~Mesh();

@@ -2,10 +2,10 @@
 
 Player::Player(glm::vec3 position, YddLoader * ydd, btDiscreteDynamicsWorld * world) : 
 	vehicle(nullptr), 
-	health(200),
 	player(ydd),
 	Entity(position, glm::quat(-1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(1.0f))
 {
+	health = 200;
 	playerModel.push_back((*ydd->YdrFiles)[121241095]);
 	playerModel.push_back((*ydd->YdrFiles)[1471150075]);
 	playerModel.push_back((*ydd->YdrFiles)[2540683012]);

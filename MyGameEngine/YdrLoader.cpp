@@ -270,7 +270,7 @@ void YdrLoader::Init(memstream2 & file, int32_t systemSize)
 			gpuMemory += vertbuffer->VertexCount * vertbuffer->VertexStride;
 			gpuMemory += indexbuffer->IndicesCount * sizeof(uint16_t);
 
-			meshes->emplace_back(file.data, vertbuffer->DataPointer1, vertbuffer->VertexCount * vertbuffer->VertexStride, indexbuffer->IndicesPointer, indexbuffer->IndicesCount, (VertexType)vertbuffer->InfoPointer->Flags, materials[file.data[drawModel->ShaderMappingPointer + i * sizeof(uint16_t)]]);
+			meshes->emplace_back(file.data, vertbuffer, indexbuffer, materials[file.data[drawModel->ShaderMappingPointer + i * sizeof(uint16_t)]]);
 
 			file.seekg(pos);
 		}

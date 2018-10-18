@@ -1,20 +1,20 @@
 #include "Mesh.h"
 
-Mesh::Mesh(const uint8_t* meshData, uint64_t VertexPointer, uint32_t VertexSize, uint64_t IndicesPointer, uint32_t IndicesSize, VertexType type, Material mat) : material(mat), num_indices(IndicesSize)
+Mesh::Mesh(const uint8_t* meshData, VertexBuffer* vertexBuffer, IndexBuffer* indexBuffer, Material mat) : material(mat), num_indices(indexBuffer->IndicesCount)
 {
 	VAO = MeshManager::GetManager().GetVAO();
 	glBindVertexArray(VAO);
 
 	VBO = MeshManager::GetManager().GetVBO();
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, VertexSize, &meshData[VertexPointer], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertexBuffer->VertexCount * vertexBuffer->VertexStride, &meshData[vertexBuffer->DataPointer1], GL_STATIC_DRAW);
 
 	glEnableVertexAttribArray(0); //Positions
 	glEnableVertexAttribArray(1); //NORMALS
 	glEnableVertexAttribArray(2); //COLOR
 	glEnableVertexAttribArray(3); //TEXTCOORD
 
-	switch (type)
+	switch (vertexBuffer->InfoPointer->Flags)
 	{
 	case Default:
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 36, nullptr);
@@ -194,7 +194,7 @@ Mesh::Mesh(const uint8_t* meshData, uint64_t VertexPointer, uint32_t VertexSize,
 
 	EBO = MeshManager::GetManager().GetVBO();
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, IndicesSize * sizeof(uint16_t), &meshData[IndicesPointer], GL_STATIC_DRAW); //16 BIT INDICES max 65536
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBuffer->IndicesCount * sizeof(uint16_t), &meshData[indexBuffer->IndicesPointer], GL_STATIC_DRAW); //16 BIT INDICES max 65536
 }
 
 void Mesh::Cleanup()

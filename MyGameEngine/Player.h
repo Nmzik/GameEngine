@@ -19,8 +19,6 @@ class Player : public Entity
 
 	std::array<CharacterWeaponSlot, 13> weapons;
 	uint16_t currentWeapon = 0;
-
-	float health = 100.0f;
 	bool inWater = false;
 	glm::vec3 playerDirection;
 	Vehicle* vehicle;

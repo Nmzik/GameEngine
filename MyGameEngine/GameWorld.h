@@ -63,10 +63,10 @@ public:
 	std::unordered_map<uint32_t, YmapLoader*> ymapLoader;
 	std::unordered_map<uint32_t, CarHandling> vehiclesPool;
 	std::vector<Player> pedestrians;
-	std::vector<Vehicle*> vehicles;
+	std::vector<Vehicle> vehicles;
 
 	std::mutex resources_lock;
-	std::vector<Resource*> resources;
+	std::vector<Resource> resources;
 	RenderList renderList;
 	uint64_t GlobalGpuMemory = 0;
 	uint64_t TextureMemory = 0;
@@ -89,13 +89,14 @@ public:
 	YmapLoader* GetYmap(uint32_t hash);
 	//bool LoadYTYP(uint32_t hash);
 
-	YtdLoader* LoadYTD(uint32_t hash);
 	void LoadGtxd(uint32_t hash);
 
+	//GetFile<YdrLoader, Type::ydr>(uint32_t hash, uint32_t TextureDictionaryHash);
+
 	YdrLoader* GetYdr(uint32_t hash, uint32_t TextureDictionaryHash);
+	YtdLoader* GetYtd(uint32_t hash);
 	YddLoader* GetYdd(uint32_t hash, uint32_t TextureDictionaryHash);
 	YftLoader* GetYft(uint32_t hash, uint32_t TextureDictionaryHash);
-
 	YbnLoader* GetYBN(uint32_t hash);
 
 	void GetVisibleYmaps(Camera* camera);
@@ -131,4 +132,3 @@ public:
 	bool DetectInWater(glm::vec3 Position);
 	void ClearTestFunction();
 };
-

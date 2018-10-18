@@ -115,7 +115,7 @@ GameWorld::GameWorld()
 	TextureManager::GetTextureManager().LoadTexture(475118591, TextureID); //FIX?
 
 	//
-	while (!LoadYTD(3403519606)->Loaded)
+	while (!GetYtd(3403519606)->Loaded)
 	{
 		LoadQueuedResources();
 	}
@@ -141,7 +141,7 @@ GameWorld::GameWorld()
 		loader->Init(stream);
 	}*/
 
-	while (!LoadYTD(4096714883)->Loaded)
+	while (!GetYtd(4096714883)->Loaded)
 	{
 		LoadQueuedResources();
 	}
@@ -150,15 +150,15 @@ GameWorld::GameWorld()
 
 	skydome = GetYdd(2640562617, 2640562617);
 
-	LoadYTD(GenHash("mapdetail"));
-	LoadYTD(GenHash("vehshare"));
-	LoadYTD(GenHash("vehshare_worn"));
-	LoadYTD(GenHash("vehshare_army"));
-	LoadYTD(GenHash("vehshare_truck"));
+	GetYtd(GenHash("mapdetail"));
+	GetYtd(GenHash("vehshare"));
+	GetYtd(GenHash("vehshare_worn"));
+	GetYtd(GenHash("vehshare_army"));
+	GetYtd(GenHash("vehshare_truck"));
 
 	for (auto& ytd : data.GtxdEntries)
 	{
-		while (!LoadYTD(ytd.second)->Loaded)
+		while (!GetYtd(ytd.second)->Loaded)
 		{
 			LoadQueuedResources();
 		}
@@ -166,7 +166,7 @@ GameWorld::GameWorld()
 
 	for (auto& vehicle : vehiclesPool)
 	{
-		LoadYTD(vehicle.first);
+		GetYtd(vehicle.first);
 	}
 
 	while (!skydome->Loaded || !playerYDD->Loaded) {
@@ -178,6 +178,7 @@ GameWorld::GameWorld()
 	pedestrians.emplace_back(glm::vec3(9.66, -1184.98, 75.74), playerYDD, dynamicsWorld);
 	pedestrians.emplace_back(glm::vec3(2250.18f, 3471.40f, 56.50f), playerYDD, dynamicsWorld);
 
+	//YdrLoader* test = GetFile<YdrLoader, YdrPool, Type::ydr>(4234, 42423);
 	//ClearTestFunction();
 	/*std::unordered_map<uint32_t, CMloArchetypeDef>::iterator it;
 	it = data.MloDictionary.find(210892389);
@@ -229,7 +230,7 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 						case ASSET_TYPE_DRAWABLE: {
 							if (!object.FoundModel) {
 								object.ydr = GetYdr(object.CEntity.archetypeName, object.Archetype._BaseArchetypeDef.textureDictionary);
-								object.ytd = LoadYTD(object.Archetype._BaseArchetypeDef.textureDictionary);
+								object.ytd = GetYtd(object.Archetype._BaseArchetypeDef.textureDictionary);
 								object.FoundModel = true;
 							}
 							if (object.ydr->Loaded) {
@@ -259,7 +260,7 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 						case ASSET_TYPE_DRAWABLEDICTIONARY: {
 							if (!object.FoundModel) {
 								object.ydd = GetYdd(object.Archetype._BaseArchetypeDef.drawableDictionary, object.Archetype._BaseArchetypeDef.textureDictionary);
-								object.ytd = LoadYTD(object.Archetype._BaseArchetypeDef.textureDictionary);
+								object.ytd = GetYtd(object.Archetype._BaseArchetypeDef.textureDictionary);
 								object.FoundModel = true;
 							}
 							if (object.ydd->Loaded) {
@@ -275,7 +276,7 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 						case ASSET_TYPE_FRAGMENT: {
 							if (!object.FoundModel) {
 								object.yft = GetYft(object.CEntity.archetypeName, object.Archetype._BaseArchetypeDef.textureDictionary);
-								object.ytd = LoadYTD(object.Archetype._BaseArchetypeDef.textureDictionary);
+								object.ytd = GetYtd(object.Archetype._BaseArchetypeDef.textureDictionary);
 								object.FoundModel = true;
 							}
 							if (object.yft->Loaded) {
@@ -352,7 +353,7 @@ YmapLoader* GameWorld::GetYmap(uint32_t hash)
 	}
 	else {
 		YmapLoader* loader = YmapPool.getPool().Load();
-		GetResourceManager()->AddToWaitingList(myNew Resource(ymap, hash, 0, loader));
+		GetResourceManager()->AddToWaitingList(Resource(ymap, hash, 0, loader));
 		loader->RefCount++;
 		ymapLoader.insert({ hash, loader });
 
@@ -386,27 +387,8 @@ void GameWorld::LoadGtxd(uint32_t hash)
 		auto it = ytdLoader.find(iter->second);
 		if (it == ytdLoader.end()) {
 			ytdLoader[iter->second] = myNew YtdLoader();
-			GetResourceManager()->AddToWaitingList(myNew Resource(ytd, iter->second, 0, nullptr));
+			GetResourceManager()->AddToWaitingList(Resource(ytd, iter->second, 0, nullptr));
 		}
-	}
-}
-
-YtdLoader* GameWorld::LoadYTD(uint32_t hash)
-{
-	auto it = ytdLoader.find(hash);
-	if (it != ytdLoader.end())
-	{
-		it->second->RefCount++;
-		return it->second;
-	}
-	else {
-		//LoadGtxd(hash);
-		YtdLoader* loader = YtdPool.getPool().Load();
-		GetResourceManager()->AddToWaitingList(myNew Resource(ytd, hash, 0, loader));
-		loader->RefCount++;
-		ytdLoader.insert({ hash, loader });
-
-		return loader;
 	}
 }
 
@@ -420,9 +402,29 @@ YdrLoader * GameWorld::GetYdr(uint32_t hash, uint32_t TextureDictionaryHash)
 	}
 	else {
 		YdrLoader* loader = YdrPool.getPool().Load();
-		GetResourceManager()->AddToWaitingList(myNew Resource(ydr, hash, TextureDictionaryHash, loader));
+		GetResourceManager()->AddToWaitingList(Resource(ydr, hash, TextureDictionaryHash, loader));
 		loader->RefCount++;
 		ydrLoader.insert({ hash, loader });
+
+		return loader;
+	}
+}
+
+
+YtdLoader* GameWorld::GetYtd(uint32_t hash)
+{
+	auto it = ytdLoader.find(hash);
+	if (it != ytdLoader.end())
+	{
+		it->second->RefCount++;
+		return it->second;
+	}
+	else {
+		//LoadGtxd(hash);
+		YtdLoader* loader = YtdPool.getPool().Load();
+		GetResourceManager()->AddToWaitingList(Resource(ytd, hash, 0, loader));
+		loader->RefCount++;
+		ytdLoader.insert({ hash, loader });
 
 		return loader;
 	}
@@ -438,7 +440,7 @@ YddLoader * GameWorld::GetYdd(uint32_t hash, uint32_t TextureDictionaryHash)
 	}
 	else {
 		YddLoader* loader = YddPool.getPool().Load();
-		GetResourceManager()->AddToWaitingList(myNew Resource(ydd, hash, TextureDictionaryHash, loader));
+		GetResourceManager()->AddToWaitingList(Resource(ydd, hash, TextureDictionaryHash, loader));
 		loader->RefCount++;
 		yddLoader.insert({ hash, loader });
 
@@ -456,7 +458,7 @@ YftLoader * GameWorld::GetYft(uint32_t hash, uint32_t TextureDictionaryHash)
 	}
 	else {
 		YftLoader* loader = YftPool.getPool().Load();
-		GetResourceManager()->AddToWaitingList(myNew Resource(yft, hash, TextureDictionaryHash, loader));
+		GetResourceManager()->AddToWaitingList(Resource(yft, hash, TextureDictionaryHash, loader));
 		loader->RefCount++;
 		yftLoader.insert({ hash, loader });
 
@@ -474,7 +476,7 @@ YbnLoader* GameWorld::GetYBN(uint32_t hash)
 	}
 	else {
 		YbnLoader* loader = YbnPool.getPool().Load();
-		GetResourceManager()->AddToWaitingList(myNew Resource(ybn, hash, 0, loader));
+		GetResourceManager()->AddToWaitingList(Resource(ybn, hash, 0, loader));
 		loader->RefCount++;
 		ybnLoader.insert({ hash, loader });
 		return loader;
@@ -509,23 +511,114 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 		CurYmaps.clear();
 		//Clear previous Ybns
 
-		//REMOVE OBJECTS WHEN WE ARE IN ANOTHER CELL???? 
-
-
-
 		//printf("NEW CELL\n");
 		CurCell = cellID;
 
 		SpaceGridCell& cell = spaceGrid.GetCell(cellID);
 
-		/*for (auto& BoundsItem : cell.BoundsStoreItems)
+		for (auto& BoundsItem : cell.BoundsStoreItems)
 		{
 			CurYbns.emplace_back(GetYBN(data.cacheFile->AllBoundsStoreItems[BoundsItem].Name));
-		}*/
+		}
 
 		for (auto& mapNode : cell.MapNodes)
 		{
 			CurYmaps.emplace_back(GetYmap(data.cacheFile->AllMapNodes[mapNode].Name));
+		}
+
+		//REMOVE OBJECTS WHEN WE ARE IN ANOTHER CELL????  RUN GARBAGE COLLECTOR WHEN IN ANOTHER CEL
+		for (auto it = ybnLoader.begin(); it != ybnLoader.end();)
+		{
+			if ((it->second)->RefCount == 0 && (it->second)->Loaded)
+			{
+				YbnLoader* ybn = (it->second);
+				if (ybn->rigidBody) {
+					delete ybn->rigidBody->getMotionState();
+
+					dynamicsWorld->removeRigidBody(ybn->rigidBody);
+
+					delete ybn->rigidBody;
+
+					ybn->rigidBody = nullptr;
+				}
+
+				YbnPool.getPool().Remove(it->second);
+				it = ybnLoader.erase(it);
+			}
+			else
+			{
+				++it;
+			}
+		}
+
+		for (auto it = ymapLoader.begin(); it != ymapLoader.end();)
+		{
+			if ((it->second)->RefCount == 0 && (it->second)->Loaded)
+			{
+				//YmapPool::getPool().Remove(it->second, dynamicsWorld);
+				YmapPool.getPool().Remove(it->second);
+				it = ymapLoader.erase(it);
+			}
+			else
+			{
+				++it;
+			}
+		}
+
+		for (auto it = ydrLoader.begin(); it != ydrLoader.end();)
+		{
+			if ((it->second)->RefCount == 0 && (it->second)->Loaded)
+			{
+				GlobalGpuMemory -= it->second->gpuMemory;
+				YdrPool.getPool().Remove(it->second);
+				it = ydrLoader.erase(it);
+			}
+			else
+			{
+				++it;
+			}
+		}
+
+		for (auto it = yddLoader.begin(); it != yddLoader.end();)
+		{
+			if ((it->second)->RefCount == 0 && (it->second)->Loaded)
+			{
+				GlobalGpuMemory -= it->second->gpuMemory;
+				YddPool.getPool().Remove(it->second);
+				it = yddLoader.erase(it);
+			}
+			else
+			{
+				++it;
+			}
+		}
+
+		for (auto it = yftLoader.begin(); it != yftLoader.end();)
+		{
+			if ((it->second)->RefCount == 0 && (it->second)->Loaded)
+			{
+				GlobalGpuMemory -= it->second->gpuMemory;
+				YftPool.getPool().Remove(it->second);
+				it = yftLoader.erase(it);
+			}
+			else
+			{
+				++it;
+			}
+		}
+
+		for (auto it = ytdLoader.begin(); it != ytdLoader.end();)
+		{
+			if ((it->second)->RefCount == 0 && (it->second)->Loaded)
+			{
+				TextureMemory -= it->second->gpuMemory;
+				YtdPool.getPool().Remove(it->second);
+				it = ytdLoader.erase(it);
+			}
+			else
+			{
+				++it;
+			}
 		}
 	}
 
@@ -578,7 +671,7 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 
 	//printf("YDRS %d\n", YdrPool::getPool().num);
 	//printf("SIZE YMAP %zd\n", ymapLoader.size());
-	//printf("SIZE YDR %zd\n", ydrLoader.size());
+	printf("SIZE YDR %zd\n", ydrLoader.size());
 	//printf("SIZE YDD %zd\n", yddLoader.size());
 	//printf("SIZE YFT %zd\n", yftLoader.size());
 	//printf("SIZE YTD %zd\n", ytdLoader.size());
@@ -588,100 +681,6 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 
 	//printf("CULLED :%d\n", ydrLoader.size());
 	//culled = 0;
-
-	for (auto it = ybnLoader.begin(); it != ybnLoader.end();)
-	{
-		if ((it->second)->RefCount == 0 && (it->second)->Loaded)
-		{
-			YbnLoader* ybn = (it->second);
-			if (ybn->rigidBody) {
-				delete ybn->rigidBody->getMotionState();
-
-				dynamicsWorld->removeRigidBody(ybn->rigidBody);
-
-				delete ybn->rigidBody;
-
-				ybn->rigidBody = nullptr;
-			}
-
-			YbnPool.getPool().Remove(it->second);
-			it = ybnLoader.erase(it);
-		}
-		else
-		{
-			++it;
-		}
-	}
-
-	for (auto it = ymapLoader.begin(); it != ymapLoader.end();)
-	{
-		if ((it->second)->RefCount == 0 && (it->second)->Loaded)
-		{
-			//YmapPool::getPool().Remove(it->second, dynamicsWorld);
-			YmapPool.getPool().Remove(it->second);
-			it = ymapLoader.erase(it);
-		}
-		else
-		{
-			++it;
-		}
-	}
-
-	for (auto it = ydrLoader.begin(); it != ydrLoader.end();)
-	{
-		if ((it->second)->RefCount == 0 && (it->second)->Loaded)
-		{
-			GlobalGpuMemory -= it->second->gpuMemory;
-			YdrPool.getPool().Remove(it->second);
-			it = ydrLoader.erase(it);
-		}
-		else
-		{
-			++it;
-		}
-	}
-
-	for (auto it = yddLoader.begin(); it != yddLoader.end();)
-	{
-		if ((it->second)->RefCount == 0 && (it->second)->Loaded)
-		{
-			GlobalGpuMemory -= it->second->gpuMemory;
-			YddPool.getPool().Remove(it->second);
-			it = yddLoader.erase(it);
-		}
-		else
-		{
-			++it;
-		}
-	}
-
-	for (auto it = yftLoader.begin(); it != yftLoader.end();)
-	{
-		if ((it->second)->RefCount == 0 && (it->second)->Loaded)
-		{
-			GlobalGpuMemory -= it->second->gpuMemory;
-			YftPool.getPool().Remove(it->second);
-			it = yftLoader.erase(it);
-		}
-		else
-		{
-			++it;
-		}
-	}
-
-	for (auto it = ytdLoader.begin(); it != ytdLoader.end();)
-	{
-		if ((it->second)->RefCount == 0 && (it->second)->Loaded)
-		{
-			TextureMemory -= it->second->gpuMemory;
-			YtdPool.getPool().Remove(it->second);
-			it = ytdLoader.erase(it);
-		}
-		else
-		{
-			++it;
-		}
-	}
 
 	/*auto& TexManager = TextureManager::GetTextureManager();
 
@@ -703,20 +702,21 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 void GameWorld::LoadQueuedResources()
 {
 	resources_lock.lock();
-	for (auto it = resources.begin(); it != resources.end();)
+	while (resources.size() > 0)
 	{
-		memstream2 stream((*it)->Buffer.data(), (*it)->Buffer.size());
+		Resource res = std::move(resources.back());
+		resources.pop_back();
 
-		/*if ((*it)->Hash == 3486509883) {
+		/*if (res.Hash == 3486509883) {
 		printf("");
 		}*/
 
 
 		//Object hash equal to texture hash what should we do? there are +hi textures with the same name 
 
-		if ((*it)->type == ydr || (*it)->type == ydd || (*it)->type == yft) {
-			if (!(*it)->TextureDictionaryHash == 0) {
-				auto iter = ytdLoader.find((*it)->TextureDictionaryHash);
+		/*if (res.type == ydr || res.type == ydd || res.type == yft) {
+			if (!res.TextureDictionaryHash == 0) {
+				auto iter = ytdLoader.find(res.TextureDictionaryHash);
 				if (iter != ytdLoader.end())
 				{
 					if (!iter->second->Loaded) {
@@ -725,38 +725,41 @@ void GameWorld::LoadQueuedResources()
 					}
 				}
 			}
-		}
+		}*/
 
-		switch ((*it)->type)
-		{
-			case ymap:
+		if (res.Buffer.size() == 0) {
+			res.file->Loaded = true;
+		}
+		else {
+			memstream2 stream(res.Buffer.data(), res.Buffer.size());
+			switch (res.type)
 			{
-				(*it)->file->Finalize();
-				break;
-			}
-			case ydr:
-			case ydd:
-			case yft:
-			{
-				(*it)->file->Init(stream, (*it)->SystemSize);
-				GlobalGpuMemory += (*it)->file->gpuMemory;
-				break;
-			}
-			case ytd:
-			{
-				(*it)->file->Init(stream, (*it)->SystemSize);
-				TextureMemory += (*it)->file->gpuMemory;
-				break;
-			}
-			case ybn:
-			{
-				(*it)->file->Finalize(dynamicsWorld);
-				break;
+				case ymap:
+				{
+					res.file->Finalize();
+					break;
+				}
+				case ydr:
+				case ydd:
+				case yft:
+				{
+					res.file->Init(stream, res.SystemSize);
+					GlobalGpuMemory += res.file->gpuMemory;
+					break;
+				}
+				case ytd:
+				{
+					res.file->Init(stream, res.SystemSize);
+					TextureMemory += res.file->gpuMemory;
+					break;
+				}
+				case ybn:
+				{
+					res.file->Finalize(dynamicsWorld);
+					break;
+				}
 			}
 		}
-
-		delete *it;
-		it = resources.erase(it);
 	}
 	resources_lock.unlock();
 }
@@ -777,7 +780,7 @@ void GameWorld::createVehicle(glm::vec3 position)
 		it->second.file = GetYft(it->first, it->first);
 	}
 	else {
-		Vehicle* veh = myNew Vehicle(position, it->second.mass, it->second.file, dynamicsWorld);
+		Vehicle veh(position, it->second.mass, it->second.file, dynamicsWorld);
 		vehicles.push_back(veh);
 	}
 }
@@ -808,7 +811,7 @@ void GameWorld::Update()
 
 	for (auto& vehicle : vehicles)
 	{
-		vehicle->PhysicsTick();
+		vehicle.PhysicsTick();
 	}
 }
 
@@ -842,11 +845,10 @@ void GameWorld::UpdateTraffic(Camera* camera, glm::vec3 pos)
 			pos = glm::vec3(node.PositionX / 4.0f, node.PositionY / 4.0f, node.PositionZ / 32.0f);
 
 			for (int i = 0; i < vehicles.size(); i++) {
-				glm::vec3 vehiclePosition(vehicles[i]->m_carChassis->getWorldTransform().getOrigin().getX(), vehicles[i]->m_carChassis->getWorldTransform().getOrigin().getY(), vehicles[i]->m_carChassis->getWorldTransform().getOrigin().getZ());
+				glm::vec3 vehiclePosition(vehicles[i].m_carChassis->getWorldTransform().getOrigin().getX(), vehicles[i].m_carChassis->getWorldTransform().getOrigin().getY(), vehicles[i].m_carChassis->getWorldTransform().getOrigin().getZ());
 				if (glm::distance(camera->position, vehiclePosition) >= 100.0f) {
-					dynamicsWorld->removeVehicle((vehicles[i]->m_vehicle));
-					dynamicsWorld->removeRigidBody((vehicles[i]->m_carChassis));
-					delete vehicles[i];
+					dynamicsWorld->removeVehicle((vehicles[i].m_vehicle));
+					dynamicsWorld->removeRigidBody((vehicles[i].m_carChassis));
 					vehicles.erase(vehicles.begin() + i);
 				}
 			}
@@ -874,11 +876,11 @@ Vehicle* GameWorld::FindNearestVehicle()
 	for (auto& vehicle : vehicles)
 	{
 		glm::vec3 PlayerPosition(pedestrians[currentPlayerID].getPhysCharacter()->getWorldTransform().getOrigin().getX(), pedestrians[currentPlayerID].getPhysCharacter()->getWorldTransform().getOrigin().getY(), pedestrians[currentPlayerID].getPhysCharacter()->getWorldTransform().getOrigin().getZ());
-		glm::vec3 VehiclePosition(vehicle->m_carChassis->getWorldTransform().getOrigin().getX(), vehicle->m_carChassis->getWorldTransform().getOrigin().getY(), vehicle->m_carChassis->getWorldTransform().getOrigin().getZ());
+		glm::vec3 VehiclePosition(vehicle.m_carChassis->getWorldTransform().getOrigin().getX(), vehicle.m_carChassis->getWorldTransform().getOrigin().getY(), vehicle.m_carChassis->getWorldTransform().getOrigin().getZ());
 		float vd = glm::length(PlayerPosition - VehiclePosition);
 		if (vd < d) {
 			d = vd;
-			nearestVehicle = vehicle;
+			nearestVehicle = &vehicle;
 		}
 	}
 
