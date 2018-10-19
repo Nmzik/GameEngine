@@ -2,12 +2,12 @@
 
 PhysicsDebugDrawer::PhysicsDebugDrawer()
 {
-	m_vao = MeshManager::GetManager().GetVAO();
+	glGenVertexArrays(1, &m_vao);
 	glBindVertexArray(m_vao);
 
-	m_vboPositions = MeshManager::GetManager().GetVBO();
+	glGenBuffers(1, &m_vboPositions);
 
-	m_vboColors = MeshManager::GetManager().GetVBO();
+	glGenBuffers(1, &m_vboColors);
 
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);

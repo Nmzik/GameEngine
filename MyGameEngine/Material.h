@@ -1,7 +1,6 @@
 #pragma once
 
 #include "opengl.h"
-#include "TextureManager.h"
 #include "Shader.h"
 
 class Material

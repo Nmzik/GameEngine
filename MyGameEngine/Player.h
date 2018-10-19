@@ -38,13 +38,11 @@ public:
 		return health;
 	}
 
-	bool loaded = false;
-
 	void SetPosition(glm::vec3& pos);
-
-	void TakeDamage(float dmg);
 	glm::vec3& getPos();
 	glm::mat4& getPosition();
+
+	void TakeDamage(float dmg);
 	void PhysicsTick();
 	void ExitVehicle();
 	void EnterVehicle(Vehicle* nearestVehicle);

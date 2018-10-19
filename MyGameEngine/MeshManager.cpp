@@ -1,6 +1,6 @@
 #include "MeshManager.h"
 
-MeshManager MeshManager::manager;
+//MeshManager MeshManager::manager;
 
 void MeshManager::Initialize()
 {

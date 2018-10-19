@@ -368,7 +368,21 @@ void Game::tick(float delta_time)
 			else*/
 				player->getPhysCharacter()->setLinearVelocity(btVector3(movement.x * 30.0f, movement.y * 30.0f, player->getPhysCharacter()->getLinearVelocity().z()));
 
-			if (getInput()->IsKeyTriggered(SDL_SCANCODE_SPACE)) player->Jump();
+				if (getInput()->IsKeyTriggered(SDL_SCANCODE_SPACE)) {
+					//player->Jump();
+
+					btVector3 m_rayStart = player->getPhysCharacter()->getCenterOfMassPosition();
+					btVector3 m_rayEnd = m_rayStart - btVector3(0.0, 0.0, 1.5);
+
+					// rayCallback
+					btCollisionWorld::ClosestRayResultCallback rayCallback(m_rayStart, m_rayEnd);
+
+					getWorld()->GetDynamicsWorld()->rayTest(m_rayStart, m_rayEnd, rayCallback);
+					if (rayCallback.hasHit())
+					{//JUMP!
+						player->getPhysCharacter()->applyCentralImpulse(btVector3(0.f, 0.f, 50.0f));
+					}
+				}
 		}
 	}
 

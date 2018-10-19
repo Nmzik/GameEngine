@@ -7,9 +7,9 @@
 class MeshManager
 {
 public:
-	static MeshManager& GetManager() {
+	/*static MeshManager& GetManager() {
 		return manager;
-	}
+	}*/
 
 	std::vector<GLuint> VAOs;
 	std::vector<GLuint> VBOs;
@@ -17,7 +17,7 @@ public:
 	//GLsizei NextBufferName = OPENGL_NAME_CACHE_SIZE;
 	//GLuint BufferNamesCache[OPENGL_NAME_CACHE_SIZE];
 
-	static MeshManager manager;
+	//MeshManager manager;
 
 	void Initialize();
 	~MeshManager();

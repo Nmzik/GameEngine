@@ -1,6 +1,7 @@
 #pragma once
 #include "FileType.h"
-#include "TextureManager.h"
+#include <unordered_map>
+#include "opengl.h"
 
 enum TextureFormat
 {
@@ -79,7 +80,7 @@ class YtdLoader : public FileType
 {
 public:
 	YtdLoader * next;
-	std::vector<uint32_t> TextureNameHashes;
+	std::unordered_map<uint32_t, GLuint>* Textures = nullptr;
 
 	void Init(memstream2& file, int32_t systemSize);
 	void Remove();

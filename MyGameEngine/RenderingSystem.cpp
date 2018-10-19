@@ -147,7 +147,7 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 	hdrShader->setVec2("hdrBufferOffset", glm::vec2(1.0f / (float)ScreenResWidth, 1.0f / (float)ScreenResHeight));
 
 	///////////
-	MeshManager::GetManager().Initialize();
+	//MeshManager::GetManager().Initialize();
 
 	float quadVertices[] = {
 		// positions        // texture Coords
@@ -157,9 +157,9 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 		1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
 	};
 	// setup plane VAO
-	quadVAO = MeshManager::GetManager().GetVAO();
+	glGenVertexArrays(1, &quadVAO);
 	glBindVertexArray(quadVAO);
-	quadVBO = MeshManager::GetManager().GetVBO();
+	glGenBuffers(1, &quadVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
@@ -172,8 +172,8 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 
 RenderingSystem::~RenderingSystem()
 {
-	MeshManager::GetManager().VAOs.push_back(quadVAO);
-	MeshManager::GetManager().VBOs.push_back(quadVBO);
+	glDeleteBuffers(1, &quadVBO);
+	glDeleteVertexArrays(1, &quadVAO);
 	////
 	glDeleteQueries(1, &m_nQueryIDDrawTime);
 	SDL_GL_DeleteContext(glcontext);
@@ -480,6 +480,14 @@ void RenderingSystem::render(GameWorld* world)
 
 	glEnable(GL_CULL_FACE);
 
+	//RENDER SCENE FOR EVERY LIGHT THAT is able CREATE SHADOW
+	//for all lights (point lights etc)
+	//if light can cast shadowsfu
+		//render scene
+
+	//ssr
+	//screen space reflection
+	//bloom
 	//glDisable(GL_CULL_FACE);
 
 	//glBindFramebuffer(GL_FRAMEBUFFER, 0);

@@ -97,7 +97,8 @@ void YbnLoader::ParseYbn(memstream2 & file)
 					case 2: {
 						BoundPolygonCapsule* PolygonCapsule = (BoundPolygonCapsule*)file.read(sizeof(BoundPolygonCapsule));
 
-						auto mid = (Vertices[PolygonCapsule->capsuleIndex1] + Vertices[PolygonCapsule->capsuleIndex2]) / 2.f;
+						//USED FOR BUSHES - NOT FOR ACTUAL COLLISION DETECTION!
+						/*auto mid = (Vertices[PolygonCapsule->capsuleIndex1] + Vertices[PolygonCapsule->capsuleIndex2]) / 2.f;
 
 						btCapsuleShapeZ* capsule = new btCapsuleShapeZ(PolygonCapsule->capsuleRadius, 0.5f);
 						Shapes.push_back(capsule);
@@ -105,43 +106,37 @@ void YbnLoader::ParseYbn(memstream2 & file)
 						btTransform localTrans;
 						localTrans.setIdentity();
 						localTrans.setOrigin(btVector3(geom->CenterGeom.x + mid.x, geom->CenterGeom.y + mid.y, geom->CenterGeom.z + mid.z));
-						compound->addChildShape(localTrans, capsule);
+						compound->addChildShape(localTrans, capsule);*/
 						break;
 					}
 					case 3: {
 						BoundPolygonBox* PolygonBox = (BoundPolygonBox*)file.read(sizeof(BoundPolygonBox));
 
-						/*if (PolygonBoxes.size() != 0) {
-				for (int i = 0; i < PolygonBoxes.size(); i++)
-				{
+						glm::vec3 p1 = Vertices[PolygonBox->boxIndex1];
+						glm::vec3 p2 = Vertices[PolygonBox->boxIndex2];
+						glm::vec3 p3 = Vertices[PolygonBox->boxIndex3];
+						glm::vec3 p4 = Vertices[PolygonBox->boxIndex4];
 
-				glm::vec3 p1 = Vertices[PolygonBoxes[i]->boxIndex1];
-				glm::vec3 p2 = Vertices[PolygonBoxes[i]->boxIndex2];
-				glm::vec3 p3 = Vertices[PolygonBoxes[i]->boxIndex3];
-				glm::vec3 p4 = Vertices[PolygonBoxes[i]->boxIndex4];
+						glm::vec3 test = glm::max(p1, p2);
+						glm::vec3 test1 = glm::max(p3, p4);
 
-				glm::vec3 test = glm::max(p1, p2);
-				glm::vec3 test1 = glm::max(p3, p4);
+						glm::vec3 test2 = glm::min(p1, p2);
+						glm::vec3 test3 = glm::min(p3, p4);
 
-				glm::vec3 test2 = glm::min(p1, p2);
-				glm::vec3 test3 = glm::min(p3, p4);
+						glm::vec3 max = glm::max(test, test1);
+						glm::vec3 min = glm::min(test2, test3);
 
-				glm::vec3 max = glm::max(test, test1);
-				glm::vec3 min = glm::min(test2, test3);
+						auto size = (max - min) / 2.f;
+						auto mid = (min + max) / 2.f;
 
-				auto size = (max - min) / 2.f;
-				auto mid = (min + max) / 2.f;
+						btBoxShape* shape = myNew btBoxShape(btVector3(-size.x, -size.y, size.z));
 
-				btBoxShape* shape = myNew btBoxShape(btVector3(-size.x, -size.y, size.z));
+						Shapes.push_back(shape);
 
-				Shapes.push_back(shape);
-
-				btTransform localTrans;
-				localTrans.setIdentity();
-				localTrans.setOrigin(btVector3(geom->CenterGeom.x + mid.x, geom->CenterGeom.y + mid.y, geom->CenterGeom.z + mid.z));
-				compound->addChildShape(localTrans, shape);
-				}
-				}*/
+						btTransform localTrans;
+						localTrans.setIdentity();
+						localTrans.setOrigin(btVector3(geom->CenterGeom.x + mid.x, geom->CenterGeom.y + mid.y, geom->CenterGeom.z + mid.z));
+						compound->addChildShape(localTrans, shape);
 						break;
 					}
 					case 4: {

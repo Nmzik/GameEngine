@@ -120,8 +120,6 @@ public:
 	uint32_t num_indices;
 
 	Mesh(const uint8_t* meshData, VertexBuffer* vertexBuffer, IndexBuffer* indexBuffer, Material mat);
-	void Cleanup();
-
 	~Mesh();
 };
 

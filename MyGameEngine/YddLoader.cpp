@@ -40,7 +40,7 @@ void YddLoader::Init(memstream2 & file, int32_t systemSize)
 void YddLoader::Remove()
 {
 	gpuMemory = 0;
-	Loaded = false;
+
 	for (auto& ydr : *YdrFiles)
 	{
 		YdrPool.getPool().Remove(ydr.second);

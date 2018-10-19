@@ -100,13 +100,11 @@ void YmapLoader::Finalize()
 
 void YmapLoader::Remove()
 {
-	Loaded = false;
 	delete Objects;
 }
 
 /*void YmapPool::RemoveBeta(YmapLoader* ymap, btDynamicsWorld* world)
 {
-	ymap->Loaded = false;
 	//ymap->RootObjects.clear();
 
 	/*for (auto &object : *ymap->Objects)

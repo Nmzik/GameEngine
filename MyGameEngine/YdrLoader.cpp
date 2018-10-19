@@ -31,7 +31,6 @@ void YdrLoader::Init(memstream2 & file, int32_t systemSize)
 
 		if (drawable->LightAttributesPointer != 0) {
 			SYSTEM_BASE_PTR(drawable->LightAttributesPointer);
-
 			file.seekg(drawable->LightAttributesPointer);
 
 			std::vector<LightAttributes_s> lightAttributes_s;
@@ -56,7 +55,6 @@ void YdrLoader::Init(memstream2 & file, int32_t systemSize)
 	//Shader stuff
 
 	SYSTEM_BASE_PTR(drawBase->ShaderGroupPointer);
-
 	file.seekg(drawBase->ShaderGroupPointer);
 
 	ShaderGroup* _ShaderGroup = (ShaderGroup*)file.read(sizeof(ShaderGroup));
@@ -186,7 +184,10 @@ void YdrLoader::Init(memstream2 & file, int32_t systemSize)
 	SYSTEM_BASE_PTR(resourcePointerList->EntriesPointer);
 	file.seekg(resourcePointerList->EntriesPointer);
 
-	for (int i = 0; i < resourcePointerList->EntriesCount; i++)
+	//HACK MODELS -> MESHES
+	//uint32_t size = 0;
+
+	//for (int i = 0; i < resourcePointerList->EntriesCount; i++) //NOT ALWAYS EQUAL TO 0!!! WTF IS GOING ON HERE??? Models...
 	{
 		uint64_t* data_pointer = (uint64_t*)file.read(sizeof(uint64_t));
 		uint64_t posOriginal = file.tellg();
@@ -209,7 +210,6 @@ void YdrLoader::Init(memstream2 & file, int32_t systemSize)
 		//file.read((char*)&ShaderMapping[0], sizeof(uint16_t) * drawModel.GeometriesCount1);
 
 		SYSTEM_BASE_PTR(drawModel->GeometriesPointer);
-
 		file.seekg(drawModel->GeometriesPointer);
 
 		//Optimization
@@ -222,13 +222,11 @@ void YdrLoader::Init(memstream2 & file, int32_t systemSize)
 			uint64_t pos = file.tellg();
 
 			SYSTEM_BASE_PTR(data_pointer[0]);
-
 			file.seekg(data_pointer[0]);
 
 			DrawableGeometry* drawGeom = (DrawableGeometry*)file.read(sizeof(DrawableGeometry));
 
 			SYSTEM_BASE_PTR(drawGeom->VertexBufferPointer);
-
 			file.seekg(drawGeom->VertexBufferPointer);
 
 			VertexBuffer* vertbuffer = (VertexBuffer*)file.read(sizeof(VertexBuffer));
@@ -260,7 +258,6 @@ void YdrLoader::Init(memstream2 & file, int32_t systemSize)
 			}
 
 			SYSTEM_BASE_PTR(drawGeom->IndexBufferPointer);
-
 			file.seekg(drawGeom->IndexBufferPointer);
 
 			IndexBuffer* indexbuffer = (IndexBuffer*)file.read(sizeof(IndexBuffer));
@@ -281,7 +278,7 @@ void YdrLoader::Init(memstream2 & file, int32_t systemSize)
 void YdrLoader::Remove()
 {
 	gpuMemory = 0;
-	Loaded = false;
+
 	if (ybnfile) {
 		YbnPool.getPool().Remove(ybnfile);
 		ybnfile = nullptr;
@@ -289,10 +286,6 @@ void YdrLoader::Remove()
 	if (Ytd) {
 		YtdPool.getPool().Remove(Ytd);
 		Ytd = nullptr;
-	}
-	for (auto& mesh : *meshes)
-	{
-		mesh.Cleanup();
 	}
 	delete meshes;
 }

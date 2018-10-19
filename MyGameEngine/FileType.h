@@ -207,6 +207,7 @@ public:
 	void Remove(T* file)
 	{
 		file->Remove();
+		file->Loaded = false;
 		file->next = firstAvailable_;
 		firstAvailable_ = file;
 	}

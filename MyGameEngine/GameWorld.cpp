@@ -110,9 +110,9 @@ GameWorld::GameWorld()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 2, 2, 0, GL_RGB, GL_FLOAT, pixels);
-	TextureManager::GetTextureManager().DefaultTexture = TextureID;
-	TextureManager::GetTextureManager().LoadTexture(1551155749, TextureID); //FIX?
-	TextureManager::GetTextureManager().LoadTexture(475118591, TextureID); //FIX?
+	//TextureManager::GetTextureManager().DefaultTexture = TextureID;
+	//TextureManager::GetTextureManager().LoadTexture(1551155749, TextureID); //FIX?
+	//TextureManager::GetTextureManager().LoadTexture(475118591, TextureID); //FIX?
 
 	//
 	while (!GetYtd(3403519606)->Loaded)
@@ -174,7 +174,7 @@ GameWorld::GameWorld()
 	}
 
 
-	pedestrians.emplace_back(glm::vec3(1982.886353, 3833.829102, 32.140667), playerYDD, dynamicsWorld);
+	pedestrians.emplace_back(glm::vec3(-2020.47, -449.58, 19.71), playerYDD, dynamicsWorld);
 	pedestrians.emplace_back(glm::vec3(9.66, -1184.98, 75.74), playerYDD, dynamicsWorld);
 	pedestrians.emplace_back(glm::vec3(2250.18f, 3471.40f, 56.50f), playerYDD, dynamicsWorld);
 
@@ -234,6 +234,10 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 								object.FoundModel = true;
 							}
 							if (object.ydr->Loaded) {
+								//NOTE:
+								//
+								//SPAWN OBJECTS STATICALLY (IN SLEEP STATE)
+								//
 								//SUPER DIRTY NEED FIX URGENT! UGLY FIX!!!
 								/*if (object.ydr->ybnfile) {
 
@@ -327,6 +331,13 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 			}
 		}
 	}*/
+
+	//NOTE::
+	//
+	//RANDOM VEHICLE REALLY SPAWNS in RANDOM PLACE on the same CCarGens IN real game (spawns/despawns based on distance to player, checked on the same place)
+	//
+	//
+	//
 	/*if (map->CCarGens.size() > 0) {
 		for (auto& carGen : map->CCarGens)
 		{
@@ -485,8 +496,8 @@ YbnLoader* GameWorld::GetYBN(uint32_t hash)
 
 void GameWorld::GetVisibleYmaps(Camera* camera)
 {
-	//glm::vec3 PlayerPos = pedestrians[currentPlayerID].getPos();
-	glm::vec3 PlayerPos = camera->position;
+	glm::vec3 PlayerPos = pedestrians[currentPlayerID].getPos();
+	//glm::vec3 PlayerPos = camera->position;
 
 	auto cellID = spaceGrid.GetCellPos(PlayerPos);
 	auto NodeCell = nodeGrid.GetCellPos(PlayerPos);
@@ -671,7 +682,7 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 
 	//printf("YDRS %d\n", YdrPool::getPool().num);
 	//printf("SIZE YMAP %zd\n", ymapLoader.size());
-	printf("SIZE YDR %zd\n", ydrLoader.size());
+	//printf("SIZE YDR %zd\n", ydrLoader.size());
 	//printf("SIZE YDD %zd\n", yddLoader.size());
 	//printf("SIZE YFT %zd\n", yftLoader.size());
 	//printf("SIZE YTD %zd\n", ytdLoader.size());
