@@ -367,7 +367,7 @@ void RenderingSystem::render(GameWorld* world)
 	}*/
 
 	//glClearColor(0.0, 0.0, 0.0, 0.0);
-
+	//MULTIPLE CAMERAS???
 	glm::mat4 view = camera->GetViewMatrix();
 	camera->UpdateFrustum(projection * view);
 
@@ -438,22 +438,26 @@ void RenderingSystem::render(GameWorld* world)
 	for (auto& model : world->renderList)
 	{
 		gbuffer->setMat4(ModelUniformLoc, model.modelMatrix);
-		for (auto &mesh : *model.ydr->meshes)
+
+		for (auto &model : *model.ydr->models)
 		{
-			glBindVertexArray(mesh.VAO);
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, mesh.material.diffuseTextureID);
-			//if (mesh.material.useBump) {
+			for (auto &mesh : model.meshes)
+			{
+				glBindVertexArray(mesh.VAO);
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, mesh.material.diffuseTextureID);
+				//if (mesh.material.useBump) {
 				gbuffer->setInt("useBump", false);
 				glActiveTexture(GL_TEXTURE1);
 				glBindTexture(GL_TEXTURE_2D, mesh.material.bumpTextureID); //Use real textures otherwise garbage textures will be used (which may be highter resolution = more processing...)
 			//}
-			glActiveTexture(GL_TEXTURE2);
-			glBindTexture(GL_TEXTURE_2D, mesh.material.specularTextureID);
+				glActiveTexture(GL_TEXTURE2);
+				glBindTexture(GL_TEXTURE_2D, mesh.material.specularTextureID);
 
-			glDrawElements(GL_TRIANGLES, mesh.num_indices, GL_UNSIGNED_SHORT, 0);
+				glDrawElements(GL_TRIANGLES, mesh.num_indices, GL_UNSIGNED_SHORT, 0);
 
-			DrawCalls++;
+				DrawCalls++;
+			}
 		}
 	}
 

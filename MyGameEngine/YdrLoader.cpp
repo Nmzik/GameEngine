@@ -184,26 +184,23 @@ void YdrLoader::Init(memstream2 & file, int32_t systemSize)
 	SYSTEM_BASE_PTR(resourcePointerList->EntriesPointer);
 	file.seekg(resourcePointerList->EntriesPointer);
 
-	//HACK MODELS -> MESHES
-	//uint32_t size = 0;
+	//Optimization
+	models = new std::vector<Model>();
+	models->resize(resourcePointerList->EntriesCount);
 
-	//for (int i = 0; i < resourcePointerList->EntriesCount; i++) //NOT ALWAYS EQUAL TO 0!!! WTF IS GOING ON HERE??? Models...
+	for (int i = 0; i < resourcePointerList->EntriesCount; i++) //NOT ALWAYS EQUAL TO 0!!! WTF IS GOING ON HERE??? Models...
 	{
 		uint64_t* data_pointer = (uint64_t*)file.read(sizeof(uint64_t));
 		uint64_t posOriginal = file.tellg();
 
 		SYSTEM_BASE_PTR(data_pointer[0]);
-
 		file.seekg(data_pointer[0]);
 
 		DrawableModel* drawModel = (DrawableModel*)file.read(sizeof(DrawableModel));
 
 		SYSTEM_BASE_PTR(drawModel->ShaderMappingPointer);
-
 		file.seekg(drawModel->ShaderMappingPointer);
 
-		//uint64_t* testdata = (uint64_t*)file.read(sizeof(uint16_t) * drawModel->GeometriesCount1);
-		//uint64_t testdata1 = testdata[0];
 		//std::vector<uint16_t*> ShaderMapping;
 		//ShaderMapping.resize(sizeof(uint16_t) * drawModel->GeometriesCount1);
 		//ShaderMapping.data() = (uint16_t*)file.read(sizeof(uint16_t) * drawModel->GeometriesCount1);
@@ -213,10 +210,9 @@ void YdrLoader::Init(memstream2 & file, int32_t systemSize)
 		file.seekg(drawModel->GeometriesPointer);
 
 		//Optimization
-		meshes = new std::vector<Mesh>();
-		meshes->reserve(drawModel->GeometriesCount1);
+		(*models)[i].meshes.reserve(drawModel->GeometriesCount1);
 
-		for (int i = 0; i < drawModel->GeometriesCount1; i++) //no difference btween geometriescount1 and 2
+		for (int j = 0; j < drawModel->GeometriesCount1; j++) //no difference btween geometriescount1 and 2
 		{
 			uint64_t* data_pointer = (uint64_t*)file.read(sizeof(uint64_t));
 			uint64_t pos = file.tellg();
@@ -267,7 +263,7 @@ void YdrLoader::Init(memstream2 & file, int32_t systemSize)
 			gpuMemory += vertbuffer->VertexCount * vertbuffer->VertexStride;
 			gpuMemory += indexbuffer->IndicesCount * sizeof(uint16_t);
 
-			meshes->emplace_back(file.data, vertbuffer, indexbuffer, materials[file.data[drawModel->ShaderMappingPointer + i * sizeof(uint16_t)]]);
+			(*models)[i].meshes.emplace_back(file.data, vertbuffer, indexbuffer, materials[file.data[drawModel->ShaderMappingPointer + j * sizeof(uint16_t)]]);
 
 			file.seekg(pos);
 		}
@@ -287,14 +283,11 @@ void YdrLoader::Remove()
 		YtdPool.getPool().Remove(Ytd);
 		Ytd = nullptr;
 	}
-	delete meshes;
+	delete models;
 }
 
 void YdrLoader::UploadMeshes()
 {
-	for (auto& mesh : *meshes)
-	{
-		//mesh->Upload();
-	}
+	
 	Loaded = true;
 }

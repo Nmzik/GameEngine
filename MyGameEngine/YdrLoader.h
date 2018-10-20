@@ -1,7 +1,7 @@
 #pragma once
 
 #include "FileType.h"
-#include "Mesh.h"
+#include "Model.h"
 
 struct ShaderGroup {
 	uint32_t VFT;
@@ -259,7 +259,7 @@ class YdrLoader : public FileType
 	YbnLoader* ybnfile = nullptr;
 public:
 	YdrLoader * next;
-	std::vector<Mesh>* meshes;
+	std::vector<Model>* models;
 	bool isYft = false;
 
 	void Init(memstream2& file, int32_t systemSize) override;

@@ -25,7 +25,8 @@ GameWorld::GameWorld()
 	dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
 
 	dynamicsWorld->setGravity(btVector3(0, 0, -9.8f));
-	//dynamicsWorld->setForceUpdateAllAabbs(false);
+	//UPDATE STATIC OBJECTS MANUALLY
+	dynamicsWorld->setForceUpdateAllAabbs(false);
 
 	debug.setDebugMode(btIDebugDraw::DBG_DrawWireframe);
 	dynamicsWorld->setDebugDrawer(&debug);
@@ -89,10 +90,10 @@ GameWorld::GameWorld()
 	yddLoader.reserve(500);;
 	yftLoader.reserve(500);
 	ytdLoader.reserve(1500);
-	//yndLoader.reserve(500);
 	ybnLoader.reserve(50);
-	//ytypLoader.reserve(500);
 	ymapLoader.reserve(500);
+	//yndLoader.reserve(500);
+	//ytypLoader.reserve(500);
 
 	pedestrians.reserve(20);
 
@@ -299,7 +300,7 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 						continue;
 					}
 
-					if (object.type == 2) {
+					if (object.type == 2) { //TIME ARCHETYPE
 						//if ((object.Archetype._TimeArchetypeDef.timeFlags >> gameHour) & 1)
 						//{
 						continue;
@@ -477,7 +478,7 @@ YftLoader * GameWorld::GetYft(uint32_t hash, uint32_t TextureDictionaryHash)
 	}
 }
 
-YbnLoader* GameWorld::GetYBN(uint32_t hash)
+YbnLoader* GameWorld::GetYbn(uint32_t hash)
 {
 	std::unordered_map<uint32_t, YbnLoader*>::iterator iter = ybnLoader.find(hash);
 	if (iter != ybnLoader.end())
@@ -529,7 +530,7 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 
 		for (auto& BoundsItem : cell.BoundsStoreItems)
 		{
-			CurYbns.emplace_back(GetYBN(data.cacheFile->AllBoundsStoreItems[BoundsItem].Name));
+			CurYbns.emplace_back(GetYbn(data.cacheFile->AllBoundsStoreItems[BoundsItem].Name));
 		}
 
 		for (auto& mapNode : cell.MapNodes)

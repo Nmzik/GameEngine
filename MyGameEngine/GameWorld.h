@@ -57,16 +57,17 @@ public:
 	std::unordered_map<uint32_t, YddLoader*> yddLoader;
 	std::unordered_map<uint32_t, YftLoader*> yftLoader;
 	std::unordered_map<uint32_t, YtdLoader*> ytdLoader;
-	//std::vector<YndLoader> yndLoader;
 	std::unordered_map<uint32_t, YbnLoader*> ybnLoader;
-	std::vector<YtypLoader*> ytypLoader;
 	std::unordered_map<uint32_t, YmapLoader*> ymapLoader;
+	//std::vector<YndLoader> yndLoader;
+	std::vector<YtypLoader*> ytypLoader;
 	std::unordered_map<uint32_t, CarHandling> vehiclesPool;
 	std::vector<Player> pedestrians;
 	std::vector<Vehicle> vehicles;
 
 	std::mutex resources_lock;
 	std::vector<Resource> resources;
+
 	RenderList renderList;
 	uint64_t GlobalGpuMemory = 0;
 	uint64_t TextureMemory = 0;
@@ -97,7 +98,7 @@ public:
 	YtdLoader* GetYtd(uint32_t hash);
 	YddLoader* GetYdd(uint32_t hash, uint32_t TextureDictionaryHash);
 	YftLoader* GetYft(uint32_t hash, uint32_t TextureDictionaryHash);
-	YbnLoader* GetYBN(uint32_t hash);
+	YbnLoader* GetYbn(uint32_t hash);
 
 	void GetVisibleYmaps(Camera* camera);
 
