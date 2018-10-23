@@ -64,7 +64,7 @@ private:
 	unsigned int gNormal, gAlbedoSpec, gDepthMap;
 
 	GLuint m_nQueryIDDrawTime;
-
+	GLuint DefaultTexture;
 	void skyboxPass();
 
 	SDL_Window* window;

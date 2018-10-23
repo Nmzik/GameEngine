@@ -89,14 +89,14 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 
 	InverseProjMatrix = glm::inverse(projection);
 
-	SkyboxShader = std::make_unique<Shader>("Shaders/skybox.shader");
-	gbuffer = std::make_unique<Shader>("Shaders/gbuffer.shader");
-	shaderSSAO = std::make_unique<Shader>("Shaders/ssao.shader");
-	shaderSSAOBlur = std::make_unique<Shader>("Shaders/ssao_blur.shader");
-	gbufferLighting = std::make_unique<Shader>("Shaders/gbufferLighting.shader");
-	DepthTexture = std::make_unique<Shader>("Shaders/DepthTexture.shader");
-	hdrShader = std::make_unique<Shader>("Shaders/hdrShader.shader");
-	debugDepthQuad = std::make_unique<Shader>("Shaders/debug_quad.shader");
+	SkyboxShader = std::make_unique<Shader>("assets/shaders/skybox.shader");
+	gbuffer = std::make_unique<Shader>("assets/shaders/gbuffer.shader");
+	shaderSSAO = std::make_unique<Shader>("assets/shaders/ssao.shader");
+	shaderSSAOBlur = std::make_unique<Shader>("assets/shaders/ssao_blur.shader");
+	gbufferLighting = std::make_unique<Shader>("assets/shaders/gbufferLighting.shader");
+	DepthTexture = std::make_unique<Shader>("assets/shaders/DepthTexture.shader");
+	hdrShader = std::make_unique<Shader>("assets/shaders/hdrShader.shader");
+	debugDepthQuad = std::make_unique<Shader>("assets/shaders/debug_quad.shader");
 
 	camera = std::make_unique<Camera>(glm::vec3(1982.886353, 3833.829102, 32.140667));
 
@@ -168,6 +168,20 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 
 	glGenQueries(1, &m_nQueryIDDrawTime);
+
+	// Black/white checkerboard //Default texture
+	glGenTextures(1, &DefaultTexture);
+	glBindTexture(GL_TEXTURE_2D, DefaultTexture);
+	float pixels[] = {
+	0.85f, 0.79f, 0.79f, 0.85f, 0.79f, 0.79f,
+	0.85f, 0.79f, 0.79f, 0.85f, 0.79f, 0.79f
+	};
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 2, 2, 0, GL_RGB, GL_FLOAT, pixels);
+	//TextureManager::GetTextureManager().DefaultTexture = TextureID;
+	//TextureManager::GetTextureManager().LoadTexture(1551155749, TextureID); //FIX?
+	//TextureManager::GetTextureManager().LoadTexture(475118591, TextureID); //FIX?
 }
 
 RenderingSystem::~RenderingSystem()
@@ -443,7 +457,7 @@ void RenderingSystem::render(GameWorld* world)
 		{
 			for (auto &mesh : model.meshes)
 			{
-				glBindVertexArray(mesh.VAO);
+				/*glBindVertexArray(mesh.VAO);
 				glActiveTexture(GL_TEXTURE0);
 				glBindTexture(GL_TEXTURE_2D, mesh.material.diffuseTextureID);
 				//if (mesh.material.useBump) {
@@ -453,6 +467,21 @@ void RenderingSystem::render(GameWorld* world)
 			//}
 				glActiveTexture(GL_TEXTURE2);
 				glBindTexture(GL_TEXTURE_2D, mesh.material.specularTextureID);
+
+				glDrawElements(GL_TRIANGLES, mesh.num_indices, GL_UNSIGNED_SHORT, 0);
+
+				DrawCalls++;*/
+
+				glBindVertexArray(mesh.VAO);
+
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, DefaultTexture);
+
+				glActiveTexture(GL_TEXTURE1);
+				glBindTexture(GL_TEXTURE_2D, DefaultTexture);
+
+				glActiveTexture(GL_TEXTURE2);
+				glBindTexture(GL_TEXTURE_2D, DefaultTexture);
 
 				glDrawElements(GL_TRIANGLES, mesh.num_indices, GL_UNSIGNED_SHORT, 0);
 

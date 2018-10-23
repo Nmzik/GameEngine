@@ -186,12 +186,14 @@ struct FragPhysTypeChild {
 };
 
 class YdrLoader;
+class YbnLoader;
 
 class YftLoader : public FileType
 {
 public:
 	YftLoader * next;
 	YdrLoader * YdrFile = nullptr;
+	YbnLoader * ybnFile = nullptr;
 	std::vector<YdrLoader*> wheels;
 
 	void Init(memstream2& file, int32_t systemSize) override;

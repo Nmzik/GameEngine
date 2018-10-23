@@ -4,6 +4,11 @@ void YbnLoader::Init(memstream2& file)
 {
 	compound = new btCompoundShape();
 
+	IndicesArray = new std::vector<glm::u16vec3*>();
+	VerticesArray = new std::vector<glm::vec3*>();
+	Shapes = new std::vector<btCollisionShape*>();
+	VertIndicesArray = new std::vector<btTriangleIndexVertexArray*>();
+
 	ParseYbn(file);
 }
 
@@ -15,7 +20,7 @@ void YbnLoader::ParseYbn(memstream2 & file)
 	{
 		case 0: {
 			btSphereShape* sphere = new btSphereShape(0.5f);
-			Shapes.push_back(sphere);
+			Shapes->push_back(sphere);
 
 			btTransform localTrans;
 			localTrans.setIdentity();
@@ -25,7 +30,7 @@ void YbnLoader::ParseYbn(memstream2 & file)
 		}
 		case 1: {
 			btCapsuleShapeZ* capsule = new btCapsuleShapeZ(0.5f, 0.5f);
-			Shapes.push_back(capsule);
+			Shapes->push_back(capsule);
 
 			btTransform localTrans;
 			localTrans.setIdentity();
@@ -35,7 +40,7 @@ void YbnLoader::ParseYbn(memstream2 & file)
 		}
 		case 3: {
 			btBoxShape* box = new btBoxShape(btVector3(0.5f, 0.5f, 0.5f));
-			Shapes.push_back(box);
+			Shapes->push_back(box);
 
 			btTransform localTrans;
 			localTrans.setIdentity();
@@ -54,7 +59,7 @@ void YbnLoader::ParseYbn(memstream2 & file)
 			glm::i16vec3 *CompressedVertices = (glm::i16vec3*)file.read(sizeof(glm::i16vec3));
 
 			glm::vec3* Vertices = myNew glm::vec3[geom->VerticesCount];
-			VerticesArray.push_back(Vertices);
+			VerticesArray->push_back(Vertices);
 
 			for (uint32_t i = 0; i < geom->VerticesCount; i++)
 			{
@@ -68,7 +73,7 @@ void YbnLoader::ParseYbn(memstream2 & file)
 			SYSTEM_BASE_PTR(geom->PolygonsPointer);
 			file.seekg(geom->PolygonsPointer);
 
-			Shapes.reserve(geom->PolygonsCount);
+			Shapes->reserve(geom->PolygonsCount);
 
 			for (uint32_t i = 0; i < geom->PolygonsCount; i++)  //PERFORMANCE IMPROVEMENT???
 			{
@@ -86,7 +91,7 @@ void YbnLoader::ParseYbn(memstream2 & file)
 						BoundPolygonSphere* PolygonSphere = (BoundPolygonSphere*)file.read(sizeof(BoundPolygonSphere));
 
 						btSphereShape* sphere = new btSphereShape(PolygonSphere->sphereRadius);
-						Shapes.push_back(sphere);
+						Shapes->push_back(sphere);
 
 						btTransform localTrans;
 						localTrans.setIdentity();
@@ -101,7 +106,7 @@ void YbnLoader::ParseYbn(memstream2 & file)
 						/*auto mid = (Vertices[PolygonCapsule->capsuleIndex1] + Vertices[PolygonCapsule->capsuleIndex2]) / 2.f;
 
 						btCapsuleShapeZ* capsule = new btCapsuleShapeZ(PolygonCapsule->capsuleRadius, 0.5f);
-						Shapes.push_back(capsule);
+						Shapes->push_back(capsule);
 
 						btTransform localTrans;
 						localTrans.setIdentity();
@@ -131,7 +136,7 @@ void YbnLoader::ParseYbn(memstream2 & file)
 
 						btBoxShape* shape = myNew btBoxShape(btVector3(-size.x, -size.y, size.z));
 
-						Shapes.push_back(shape);
+						Shapes->push_back(shape);
 
 						btTransform localTrans;
 						localTrans.setIdentity();
@@ -143,7 +148,7 @@ void YbnLoader::ParseYbn(memstream2 & file)
 						BoundPolygonCylinder* PolygonCylinder = (BoundPolygonCylinder*)file.read(sizeof(BoundPolygonCylinder));
 
 						btCylinderShapeZ* shape = new btCylinderShapeZ(btVector3(0.5, 0.5, 0.5));
-						Shapes.push_back(shape);
+						Shapes->push_back(shape);
 
 						btTransform localTrans;
 						localTrans.setIdentity();
@@ -152,6 +157,7 @@ void YbnLoader::ParseYbn(memstream2 & file)
 						break;
 					}
 					default:
+						assert("UNIMPLEMENTED COL SHAPE");
 						file.seekCur(16);
 						//printf("ERROR NOT IMPLEMENTED!");
 						break;
@@ -160,7 +166,7 @@ void YbnLoader::ParseYbn(memstream2 & file)
 
 			if (PolygonTriangles.size() != 0) {
 				glm::u16vec3* Indices = new glm::u16vec3[PolygonTriangles.size()];
-				IndicesArray.push_back(Indices);
+				IndicesArray->push_back(Indices);
 
 				for (int i = 0; i < PolygonTriangles.size(); i++)
 				{
@@ -184,11 +190,11 @@ void YbnLoader::ParseYbn(memstream2 & file)
 				mesh.m_vertexStride = sizeof(glm::vec3);
 
 				btTriangleIndexVertexArray* VertIndices = new btTriangleIndexVertexArray();
-				VertIndicesArray.push_back(VertIndices);
+				VertIndicesArray->push_back(VertIndices);
 				VertIndices->addIndexedMesh(mesh, PHY_SHORT);
 
 				btBvhTriangleMeshShape * trishape = new btBvhTriangleMeshShape(VertIndices, false);
-				trishapes.push_back(trishape);
+				Shapes->push_back(trishape);
 				trishape->setMargin(bounds->Margin);
 
 				btTransform localTrans;
@@ -223,7 +229,7 @@ void YbnLoader::ParseYbn(memstream2 & file)
 		}
 		case 13: {
 			btCylinderShapeZ* shape = new btCylinderShapeZ(btVector3(0.5, 0.5, 0.5));
-			Shapes.push_back(shape);
+			Shapes->push_back(shape);
 
 			btTransform localTrans;
 			localTrans.setIdentity();
@@ -249,36 +255,29 @@ void YbnLoader::Finalize(btDiscreteDynamicsWorld* world)
 
 void YbnLoader::Remove()
 {
-	for (auto& shape : Shapes)
+	for (auto& shape : *Shapes)
 	{
 		delete shape;
 	}
 
-	Shapes.clear();
-
-	for (auto & shape : trishapes)
-	{
-		delete shape;
-	}
-
-	for (auto & Array : VertIndicesArray)
+	for (auto & Array : *VertIndicesArray)
 	{
 		delete Array;
 	}
 
-	for (auto & Indices : IndicesArray)
+	for (auto & Indices : *IndicesArray)
 	{
 		delete Indices;
 	}
 
-	for (auto & Vertices : VerticesArray)
+	for (auto & Vertices : *VerticesArray)
 	{
 		delete Vertices;
 	}
-	IndicesArray.clear();
-	VerticesArray.clear();
-	trishapes.clear();
-	VertIndicesArray.clear();
+	delete Shapes;
+	delete IndicesArray;
+	delete VerticesArray;
+	delete VertIndicesArray;
 
 	if (compound) {
 		delete compound;

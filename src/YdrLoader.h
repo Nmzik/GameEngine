@@ -256,10 +256,10 @@ class YbnLoader;
 class YdrLoader : public FileType
 {
 	YtdLoader* Ytd = nullptr;
-	YbnLoader* ybnfile = nullptr;
 public:
 	YdrLoader * next;
 	std::vector<Model>* models;
+	YbnLoader* ybnfile = nullptr;
 	bool isYft = false;
 
 	void Init(memstream2& file, int32_t systemSize) override;

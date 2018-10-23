@@ -34,6 +34,48 @@ GameWorld::GameWorld()
 
 	_ResourceManager = std::make_unique<ResourceManager>(this);
 
+	{
+		std::vector<YdrLoader*> ydrs;
+		ydrs.reserve(1500);
+
+		uint32_t valuetest = 0;
+
+		/*for (auto it = data.YdrEntries.begin(); valuetest < 1500; it++)
+		{
+			valuetest++;
+			std::vector<uint8_t> Buffer(it->second->SystemSize + it->second->GraphicsSize);
+			data.ExtractFileResource(*(it->second), Buffer);
+
+			memstream2 stream(Buffer.data(), Buffer.size());
+			YdrLoader* loader = new YdrLoader();
+			loader->Init(stream, it->second->SystemSize);
+			ydrs.push_back(loader);
+		}
+
+		for (int i = 0; i < 1500; i++)
+		{
+			ydrs[i]->Remove();
+			delete ydrs[i];
+			glFlush();
+		}
+		glFinish();*/
+	}
+	
+		auto it = data.YdrEntries.find(3186271474);
+		if (it != data.YdrEntries.end())
+		{
+			std::vector<uint8_t> Buffer(it->second->SystemSize + it->second->GraphicsSize);
+			data.ExtractFileResource(*(it->second), Buffer);
+
+			memstream2 stream(Buffer.data(), Buffer.size());
+			YdrLoader* loader = new YdrLoader();
+			loader->Init(stream, it->second->SystemSize);
+			
+			loader->Remove();
+			
+			delete loader;
+			glFinish();
+		}
 	/*auto YnvIt = data.YnvEntries.find(1471038032);
 	if (YnvIt != data.YnvEntries.end()) {
 		std::vector<uint8_t> Buffer(YnvIt->second->SystemSize + YnvIt->second->GraphicsSize);
@@ -99,22 +141,6 @@ GameWorld::GameWorld()
 
 	//RenderList
 	renderList.reserve(2000);
-
-	// Black/white checkerboard //Default texture
-	GLuint TextureID;
-	glGenTextures(1, &TextureID);
-	glBindTexture(GL_TEXTURE_2D, TextureID);
-	float pixels[] = {
-	0.2f, 0.0f, 1.0f, 0.2f, 0.0f, 1.0f,
-	0.2f, 0.0f, 1.0f, 0.2f, 0.0f, 1.0f
-	};
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 2, 2, 0, GL_RGB, GL_FLOAT, pixels);
-	//TextureManager::GetTextureManager().DefaultTexture = TextureID;
-	//TextureManager::GetTextureManager().LoadTexture(1551155749, TextureID); //FIX?
-	//TextureManager::GetTextureManager().LoadTexture(475118591, TextureID); //FIX?
-
 	//
 	while (!GetYtd(3403519606)->Loaded)
 	{
@@ -157,13 +183,13 @@ GameWorld::GameWorld()
 	GetYtd(GenHash("vehshare_army"));
 	GetYtd(GenHash("vehshare_truck"));
 
-	for (auto& ytd : data.GtxdEntries)
+	/*for (auto& ytd : data.GtxdEntries)
 	{
 		while (!GetYtd(ytd.second)->Loaded)
 		{
 			LoadQueuedResources();
 		}
-	}
+	}*/
 
 	for (auto& vehicle : vehiclesPool)
 	{
@@ -245,13 +271,11 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 									if (object.ydr->ybnfile->compound->getNumChildShapes() != 0) {
 
 										//SET POSITION OF COLLISION TO OBJECT PLACE
+										//NOTE: SPAWN AT EXACT SAME PLACE!!! "NO +1.0f"
 										btVector3 localInertia(0, 0, 0);
 										float mass = 0.0f;
-										if (object.Archetype._BaseArchetypeDef.flags == 549584896) { //DYNAMIC???
-											mass = 1.0f;
-											object.ydr->ybnfile->compound->calculateLocalInertia(mass, localInertia);
-										}
-										btDefaultMotionState* MotionState = new btDefaultMotionState(btTransform(btQuaternion(-object.rotation.x, object.rotation.y, object.rotation.z, object.rotation.w), btVector3(object.position.x, object.position.y, object.position.z + 1.0f)));
+										
+										btDefaultMotionState* MotionState = new btDefaultMotionState(btTransform(btQuaternion(-object.rotation.x, object.rotation.y, object.rotation.z, object.rotation.w), btVector3(object.position.x, object.position.y, object.position.z)));
 										btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(mass, MotionState, object.ydr->ybnfile->compound, localInertia);
 										object.rigidBody = new btRigidBody(groundRigidBodyCI);
 										dynamicsWorld->addRigidBody(object.rigidBody);
@@ -286,6 +310,20 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 							}
 							if (object.yft->Loaded) {
 								object.ydr = object.yft->YdrFile;
+
+								/*if (object.yft->ybnFile) {
+									if (object.yft->ybnFile->compound->getNumChildShapes() != 0) {
+
+										//SET POSITION OF COLLISION TO OBJECT PLACE
+										btVector3 localInertia(0, 0, 0);
+										float mass = 0.0f;
+										btDefaultMotionState* MotionState = new btDefaultMotionState(btTransform(btQuaternion(-object.rotation.x, object.rotation.y, object.rotation.z, object.rotation.w), btVector3(object.position.x, object.position.y, object.position.z)));
+										btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(mass, MotionState, object.yft->ybnFile->compound, localInertia);
+										object.rigidBody = new btRigidBody(groundRigidBodyCI);
+										dynamicsWorld->addRigidBody(object.rigidBody);
+									}//can be an error here
+								}*/
+
 								object.Loaded = true;
 							}
 							break;

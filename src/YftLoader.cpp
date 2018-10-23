@@ -1,5 +1,6 @@
 #include "YftLoader.h"
 #include "YdrLoader.h"
+#include "YbnLoader.h"
 
 void YftLoader::Init(memstream2 & file, int32_t systemSize)
 {
@@ -16,21 +17,18 @@ void YftLoader::Init(memstream2 & file, int32_t systemSize)
 	YdrFile->Init(file, systemSize);
 	gpuMemory += YdrFile->gpuMemory;
 
-	/*SYSTEM_BASE_PTR(FragType.PhysicsLODGroupPointer);
+	SYSTEM_BASE_PTR(fragType->PhysicsLODGroupPointer);
+	file.seekg(fragType->PhysicsLODGroupPointer);
 
-	file.seekg(FragType.PhysicsLODGroupPointer);
+	FragPhysicsLODGroup* fragPhysicsLODGroup = (FragPhysicsLODGroup*)file.read(sizeof(FragPhysicsLODGroup));
 
-	file.read((char*)&FragPhysicsLODGroup, sizeof(FragPhysicsLODGroup));
+	SYSTEM_BASE_PTR(fragPhysicsLODGroup->PhysicsLOD1Pointer);
+	file.seekg(fragPhysicsLODGroup->PhysicsLOD1Pointer);
 
-	SYSTEM_BASE_PTR(FragPhysicsLODGroup.PhysicsLOD1Pointer);
+	FragPhysicsLOD* fragPhysicsLOD = (FragPhysicsLOD*)file.read(sizeof(FragPhysicsLOD));
+	SYSTEM_BASE_PTR(fragPhysicsLOD->ChildrenPointer);
 
-	file.seekg(FragPhysicsLODGroup.PhysicsLOD1Pointer);
-
-	file.read((char*)&FragPhysicsLOD, sizeof(FragPhysicsLOD));
-
-	SYSTEM_BASE_PTR(FragPhysicsLOD.ChildrenPointer);
-
-	file.seekg(FragPhysicsLOD.ChildrenPointer);
+	//file.seekg(FragPhysicsLOD.ChildrenPointer);
 	/*if (need) {
 
 	for (int i = 0; i < FragPhysicsLOD.ChildrenCount; i++)
@@ -63,9 +61,11 @@ void YftLoader::Init(memstream2 & file, int32_t systemSize)
 	}
 	}*/
 
-	//SYSTEM_BASE_PTR(FragPhysicsLOD.BoundPointer);
+	SYSTEM_BASE_PTR(fragPhysicsLOD->BoundPointer);
+	file.seekg(fragPhysicsLOD->BoundPointer);
 
-	//YbnLoader* loader = myNew YbnLoader(world, file, hash);*/
+	ybnFile = YbnPool.getPool().Load();
+	ybnFile->Init(file);
 }
 
 
@@ -76,5 +76,9 @@ void YftLoader::Remove()
 	if (YdrFile) {
 		YdrPool.getPool().Remove(YdrFile);
 		YdrFile = nullptr;
+	}
+	if (ybnFile) {
+		YbnPool.getPool().Remove(ybnFile);
+		ybnFile = nullptr;
 	}
 }

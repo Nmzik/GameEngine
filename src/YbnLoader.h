@@ -137,12 +137,11 @@ struct BoundComposite {
 
 class YbnLoader : public FileType
 {
-	std::vector<glm::u16vec3*> IndicesArray;
-	std::vector<glm::vec3*> VerticesArray;
+	std::vector<glm::u16vec3*>* IndicesArray;
+	std::vector<glm::vec3*>* VerticesArray;
 
-	std::vector<btCollisionShape*> Shapes;
-	std::vector<btTriangleIndexVertexArray*> VertIndicesArray;
-	std::vector<btBvhTriangleMeshShape*> trishapes;
+	std::vector<btCollisionShape*>* Shapes;
+	std::vector<btTriangleIndexVertexArray*>* VertIndicesArray;
 public:
 	YbnLoader * next;
 
