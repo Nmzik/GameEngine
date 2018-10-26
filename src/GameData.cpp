@@ -121,14 +121,9 @@ GameData::GameData()
 				memstream2 stream(outputBuffer.data(), outputBuffer.size());
 
 				YtypLoader file(stream);
-				for (auto& def : file.CBaseArchetypeDefs)
+				for (auto& def : file.ArchetypeDefs)
 				{
-					CBaseArchetypeDefs[def.assetName] = def;
-				}
-
-				for (auto& def : file.CTimeArchetypeDefs)
-				{
-					CTimeArchetypeDefs[def._BaseArchetypeDef.assetName] = def;
+					Archetypes[def->BaseArchetypeDef.assetName] = def;
 				}
 
 				/*if (file.CMloArchetypeDefs.size() != 0)
@@ -216,7 +211,7 @@ void GameData::LoadHandlingData(std::vector<uint8_t>& Buffer)
 void GameData::LoadGtxd()
 {
 	tinyxml2::XMLDocument doc;
-	tinyxml2::XMLError eResult = doc.LoadFile("C:\\Users\\nmzik\\Desktop\\gtxd.ymt.rbf.xml");
+	tinyxml2::XMLError eResult = doc.LoadFile("assets/gtxd.ymt.rbf.xml");
 
 	tinyxml2::XMLElement * root = doc.FirstChildElement("CMapParentTxds");
 

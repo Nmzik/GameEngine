@@ -86,12 +86,37 @@ struct CMapTypes //80 bytes, Key:2608875220
 	Array_Structure compositeEntityTypes;
 };
 
+class Archetype {
+public:
+	CBaseArchetypeDef BaseArchetypeDef;
+
+	virtual uint32_t GetType() {
+		return 0;
+	}
+};
+
+class TimeArchetype : public Archetype {
+public:
+	CTimeArchetypeDefData TimeArchetypeDef;
+
+	virtual uint32_t GetType() {
+		return 1;
+	}
+};
+
+class MloArchetype : public Archetype {
+public:
+	CMloArchetypeDefData MloArchetypeDef;
+
+	virtual uint32_t GetType() {
+		return 2;
+	}
+};
+
 class YtypLoader
 {
 public:
-	std::vector<CBaseArchetypeDef> CBaseArchetypeDefs;
-	std::vector<CTimeArchetypeDef> CTimeArchetypeDefs;
-	std::vector<CMloArchetypeDef> CMloArchetypeDefs;
+	std::vector<Archetype*> ArchetypeDefs;
 	//std::vector<CEntityDef> CEntityDefs;
 	YtypLoader(memstream2& file);
 	~YtypLoader();

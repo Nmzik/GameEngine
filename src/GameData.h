@@ -12,6 +12,7 @@ class CacheDatFile;
 
 struct CTimeArchetypeDef;
 struct CBaseArchetypeDef;
+class Archetype;
 
 /*class RpfResourceFileEntry;
 class RpfBinaryFileEntry*/
@@ -49,8 +50,7 @@ public:
 	std::vector<WaterQuad> WaterQuads;
 	std::unique_ptr<CacheDatFile> cacheFile;
 
-	std::unordered_map<uint32_t, CBaseArchetypeDef> CBaseArchetypeDefs;
-	std::unordered_map<uint32_t, CTimeArchetypeDef> CTimeArchetypeDefs;
+	std::unordered_map<uint32_t, Archetype*> Archetypes;
 	//std::unordered_map<uint32_t, std::vector<CEntityDef>> MloDictionary;
 	std::unordered_map<uint32_t, RpfResourceFileEntry*> YdrEntries;
 	std::unordered_map<uint32_t, RpfResourceFileEntry*> YddEntries;

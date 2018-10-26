@@ -39,7 +39,6 @@ class GameWorld
 	btDefaultCollisionConfiguration* collisionConfiguration;
 	btCollisionDispatcher* dispatcher;
 	btSequentialImpulseConstraintSolver* solver;
-	btDiscreteDynamicsWorld* dynamicsWorld;
 
 	GameData data;
 	SpaceGrid spaceGrid;
@@ -49,6 +48,8 @@ class GameWorld
 	PhysicsDebugDrawer debug;
 
 public:
+	static btDiscreteDynamicsWorld* dynamicsWorld;
+
 	YddLoader* skydome;
 	uint32_t culled = 0;
 	float LODMultiplier = 1.0f;

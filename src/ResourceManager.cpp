@@ -76,33 +76,19 @@ void ResourceManager::update()
 
 					for (auto& object : *iter->Objects)
 					{
-						std::unordered_map<uint32_t, CBaseArchetypeDef>::iterator it = gameworld->getGameData()->CBaseArchetypeDefs.find(object.CEntity.archetypeName);
-						if (it != gameworld->getGameData()->CBaseArchetypeDefs.end())
+						std::unordered_map<uint32_t, Archetype*>::iterator it = gameworld->getGameData()->Archetypes.find(object.CEntity.archetypeName);
+						if (it != gameworld->getGameData()->Archetypes.end())
 						{
-							object.Archetype._BaseArchetypeDef = it->second;
+							object.Archetype = it->second;
 
-							object.BoundPos = object.CEntity.position - object.Archetype._BaseArchetypeDef.bsCentre;
-							object.BoundRadius = object.Archetype._BaseArchetypeDef.bsRadius * std::max(object.CEntity.scaleXY, object.CEntity.scaleZ);
+							object.BoundPos = object.CEntity.position - object.Archetype->BaseArchetypeDef.bsCentre;
+							object.BoundRadius = object.Archetype->BaseArchetypeDef.bsRadius * std::max(object.CEntity.scaleXY, object.CEntity.scaleZ);
 
-							if (object.CEntity.lodDist <= 0) object.CEntity.lodDist = it->second.lodDist;
-							if (object.CEntity.childLodDist <= 0) object.CEntity.childLodDist = it->second.lodDist;
-
-							object.type = 1;
+							if (object.CEntity.lodDist <= 0) object.CEntity.lodDist = it->second->BaseArchetypeDef.lodDist;
+							if (object.CEntity.childLodDist <= 0) object.CEntity.childLodDist = it->second->BaseArchetypeDef.lodDist;
 						}
 						else {
-							std::unordered_map<uint32_t, CTimeArchetypeDef>::iterator it = gameworld->getGameData()->CTimeArchetypeDefs.find(object.CEntity.archetypeName);
-							if (it != gameworld->getGameData()->CTimeArchetypeDefs.end())
-							{
-								object.Archetype = it->second;
-
-								object.BoundPos = object.CEntity.position; //object.BoundPos = object.Archetype._BaseArchetypeDef.bsCentre + object.CEntity.position;
-								object.BoundRadius = object.Archetype._BaseArchetypeDef.bsRadius * std::max(object.CEntity.scaleXY, object.CEntity.scaleZ);
-
-								if (object.CEntity.lodDist <= 0) object.CEntity.lodDist = it->second._BaseArchetypeDef.lodDist;
-								if (object.CEntity.childLodDist <= 0) object.CEntity.childLodDist = it->second._BaseArchetypeDef.lodDist;
-
-								object.type = 2;
-							}
+							printf("ERROR\n");
 						}
 
 						object.CEntity.lodDist *= object.CEntity.lodDist;
@@ -111,8 +97,8 @@ void ResourceManager::update()
 					}
 				}
 				AddToMainQueue(res);
+				break;
 			}
-			break;
 			case ydr:
 			{
 				auto it = gameworld->getGameData()->YdrEntries.find(res.Hash);
@@ -121,8 +107,8 @@ void ResourceManager::update()
 					LoadDrawable(it->second, res);
 				}
 				AddToMainQueue(res);
+				break;
 			}
-			break;
 			case ydd:
 			{
 				auto it = gameworld->getGameData()->YddEntries.find(res.Hash);
@@ -131,8 +117,8 @@ void ResourceManager::update()
 					LoadDrawable(it->second, res);
 				}
 				AddToMainQueue(res);
+				break;
 			}
-			break;
 			case yft:
 			{
 				auto it = gameworld->getGameData()->YftEntries.find(res.Hash);
@@ -141,8 +127,8 @@ void ResourceManager::update()
 					LoadDrawable(it->second, res);
 				}
 				AddToMainQueue(res);
+				break;
 			}
-			break;
 			case ytd:
 			{
 				auto it = gameworld->getGameData()->YtdEntries.find(res.Hash);
@@ -153,9 +139,8 @@ void ResourceManager::update()
 					res.SystemSize = it->second->SystemSize;
 				}
 				AddToMainQueue(res);
+				break;
 			}
-
-			break;
 			case ybn:
 			{
 				auto it = gameworld->getGameData()->YbnEntries.find(res.Hash);
@@ -169,9 +154,8 @@ void ResourceManager::update()
 					res.file->Init(stream);
 				}
 				AddToMainQueue(res);
+				break;
 			}
-			break;
 		}
-
 	}
 }

@@ -48,7 +48,7 @@ void RpfFile::LoadRpf(std::ifstream& rpf, std::string& FileName, uint32_t FileSi
 		GTAEncryption::DecryptNG(namesData, NamesLength, FileName, FileSize);
 		break;
 	default:
-		printf("ERROR");
+		printf("OPENIV FORMAR?\n");
 		break;
 	}
 

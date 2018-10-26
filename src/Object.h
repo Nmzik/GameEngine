@@ -18,12 +18,12 @@ public:
 	btRigidBody* rigidBody = nullptr;
 	bool Loaded = false;
 	bool FoundModel = false;
-	uint8_t type = 0;
+	//uint8_t type = 0;
 
 	glm::vec3 BoundPos;
 	float BoundRadius;
 	CEntityDef CEntity;
-	CTimeArchetypeDef Archetype;
+	Archetype* Archetype;
 
 	Object(CEntityDef def);
 	~Object();

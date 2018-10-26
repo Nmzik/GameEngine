@@ -16,6 +16,8 @@
 #include "Player.h"
 #include "Vehicle.h"
 
+btDiscreteDynamicsWorld* GameWorld::dynamicsWorld = nullptr;
+
 GameWorld::GameWorld()
 {
 	broadphase = new btDbvtBroadphase();
@@ -26,7 +28,7 @@ GameWorld::GameWorld()
 
 	dynamicsWorld->setGravity(btVector3(0, 0, -9.8f));
 	//UPDATE STATIC OBJECTS MANUALLY
-	dynamicsWorld->setForceUpdateAllAabbs(false);
+	//dynamicsWorld->setForceUpdateAllAabbs(false);
 
 	debug.setDebugMode(btIDebugDraw::DBG_DrawWireframe);
 	dynamicsWorld->setDebugDrawer(&debug);
@@ -252,12 +254,12 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 			bool childrenVisible = (Dist <= object.CEntity.childLodDist * LODMultiplier) && (object.CEntity.numChildren > 0);
 			if (IsVisible && !childrenVisible) {
 				if (!object.Loaded) {
-					switch (object.Archetype._BaseArchetypeDef.assetType)
+					switch (object.Archetype->BaseArchetypeDef.assetType)
 					{
 						case ASSET_TYPE_DRAWABLE: {
 							if (!object.FoundModel) {
-								object.ydr = GetYdr(object.CEntity.archetypeName, object.Archetype._BaseArchetypeDef.textureDictionary);
-								object.ytd = GetYtd(object.Archetype._BaseArchetypeDef.textureDictionary);
+								object.ydr = GetYdr(object.CEntity.archetypeName, object.Archetype->BaseArchetypeDef.textureDictionary);
+								object.ytd = GetYtd(object.Archetype->BaseArchetypeDef.textureDictionary);
 								object.FoundModel = true;
 							}
 							if (object.ydr->Loaded) {
@@ -288,8 +290,8 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 						}
 						case ASSET_TYPE_DRAWABLEDICTIONARY: {
 							if (!object.FoundModel) {
-								object.ydd = GetYdd(object.Archetype._BaseArchetypeDef.drawableDictionary, object.Archetype._BaseArchetypeDef.textureDictionary);
-								object.ytd = GetYtd(object.Archetype._BaseArchetypeDef.textureDictionary);
+								object.ydd = GetYdd(object.Archetype->BaseArchetypeDef.drawableDictionary, object.Archetype->BaseArchetypeDef.textureDictionary);
+								object.ytd = GetYtd(object.Archetype->BaseArchetypeDef.textureDictionary);
 								object.FoundModel = true;
 							}
 							if (object.ydd->Loaded) {
@@ -304,8 +306,8 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 						}
 						case ASSET_TYPE_FRAGMENT: {
 							if (!object.FoundModel) {
-								object.yft = GetYft(object.CEntity.archetypeName, object.Archetype._BaseArchetypeDef.textureDictionary);
-								object.ytd = GetYtd(object.Archetype._BaseArchetypeDef.textureDictionary);
+								object.yft = GetYft(object.CEntity.archetypeName, object.Archetype->BaseArchetypeDef.textureDictionary);
+								object.ytd = GetYtd(object.Archetype->BaseArchetypeDef.textureDictionary);
 								object.FoundModel = true;
 							}
 							if (object.yft->Loaded) {
@@ -332,13 +334,13 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 				}
 				else {
 
-					if ((object.Archetype._BaseArchetypeDef.flags & 2048) > 0)
+					if ((object.Archetype->BaseArchetypeDef.flags & 2048) > 0)
 					{
 						//if (!renderProxies) continue;
 						continue;
 					}
 
-					if (object.type == 2) { //TIME ARCHETYPE
+					if (object.Archetype->GetType() == 1) { //TIME ARCHETYPE
 						//if ((object.Archetype._TimeArchetypeDef.timeFlags >> gameHour) & 1)
 						//{
 						continue;
@@ -581,17 +583,6 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 		{
 			if ((it->second)->RefCount == 0 && (it->second)->Loaded)
 			{
-				YbnLoader* ybn = (it->second);
-				if (ybn->rigidBody) {
-					delete ybn->rigidBody->getMotionState();
-
-					dynamicsWorld->removeRigidBody(ybn->rigidBody);
-
-					delete ybn->rigidBody;
-
-					ybn->rigidBody = nullptr;
-				}
-
 				YbnPool.getPool().Remove(it->second);
 				it = ybnLoader.erase(it);
 			}
@@ -969,7 +960,7 @@ constexpr float deltaTime = 1.f / 120.f;
 
 void GameWorld::update(float delta_time, Camera* camera)
 {
-	dynamicsWorld->stepSimulation(delta_time);
+	dynamicsWorld->stepSimulation(delta_time, 10);
 
 	/*if (delta_time > 0.25f) {
 		delta_time = 0.25f;

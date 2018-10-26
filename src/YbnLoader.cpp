@@ -1,4 +1,5 @@
 #include "YbnLoader.h"
+#include "GameWorld.h"
 
 void YbnLoader::Init(memstream2& file)
 {
@@ -255,6 +256,16 @@ void YbnLoader::Finalize(btDiscreteDynamicsWorld* world)
 
 void YbnLoader::Remove()
 {
+	if (rigidBody) {
+		delete rigidBody->getMotionState();
+
+		GameWorld::dynamicsWorld->removeRigidBody(rigidBody);
+
+		delete rigidBody;
+
+		rigidBody = nullptr;
+	}
+
 	for (auto& shape : *Shapes)
 	{
 		delete shape;
