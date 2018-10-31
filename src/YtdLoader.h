@@ -22,10 +22,7 @@ enum TextureFormat
 	//UNKNOWN
 };
 
-struct TextureBase {
-	// structure data
-	uint32_t VFT;
-	uint32_t Unknown_4h; // 0x00000001
+struct TextureBase : datBase {
 	uint32_t Unknown_8h; // 0x00000000
 	uint32_t Unknown_Ch; // 0x00000000
 	uint32_t Unknown_10h; // 0x00000000

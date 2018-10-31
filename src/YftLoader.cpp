@@ -28,37 +28,31 @@ void YftLoader::Init(memstream2 & file, int32_t systemSize)
 	FragPhysicsLOD* fragPhysicsLOD = (FragPhysicsLOD*)file.read(sizeof(FragPhysicsLOD));
 	SYSTEM_BASE_PTR(fragPhysicsLOD->ChildrenPointer);
 
-	//file.seekg(FragPhysicsLOD.ChildrenPointer);
-	/*if (need) {
+	file.seekg(fragPhysicsLOD->ChildrenPointer);
 
-	for (int i = 0; i < FragPhysicsLOD.ChildrenCount; i++)
+	/*fragPhysicsLODs = new std::vector<YdrLoader*>();
+	fragPhysicsLODs->reserve(fragPhysicsLOD->ChildrenCount);
+
+	for (int i = 0; i < fragPhysicsLOD->ChildrenCount; i++)
 	{
-	uint64_t DataPointer;
-	file.read((char*)&DataPointer, sizeof(uint64_t));
+		uint64_t* data_pointer = (uint64_t*)file.read(sizeof(uint64_t));
 
-	uint64_t ChildrenPointer = file.tellg();
+		uint64_t ChildrenPointer = file.tellg();
 
-	SYSTEM_BASE_PTR(DataPointer);
+		SYSTEM_BASE_PTR(data_pointer[0]);
+		file.seekg(data_pointer[0]);
 
-	file.seekg(DataPointer);
+		FragPhysTypeChild* fragPhysTypeChild = (FragPhysTypeChild*)file.read(sizeof(FragPhysTypeChild));
 
-	file.read((char*)&FragPhysTypeChild, sizeof(FragPhysTypeChild));
+		SYSTEM_BASE_PTR(fragPhysTypeChild->Drawable1Pointer);
+		file.seekg(fragPhysTypeChild->Drawable1Pointer);
 
-	SYSTEM_BASE_PTR(FragPhysTypeChild.Drawable1Pointer);
+		YdrLoader* ydr = YdrPool.getPool().Load();
+		ydr->isYft = true;
+		ydr->Init(file, systemSize);
+		fragPhysicsLODs->push_back(ydr);
 
-	file.seekg(FragPhysTypeChild.Drawable1Pointer);
-
-	//YdrLoader* ydr = myNew YdrLoader(file, systemSize, world, true);
-
-	/*if (ydr->.size() != 0) {
-	wheels.push_back(ydr);
-	}
-	else {
-	delete ydr;
-	}
-
-	file.seekg(ChildrenPointer);
-	}
+		file.seekg(ChildrenPointer);
 	}*/
 
 	SYSTEM_BASE_PTR(fragPhysicsLOD->BoundPointer);
@@ -72,6 +66,13 @@ void YftLoader::Init(memstream2 & file, int32_t systemSize)
 void YftLoader::Remove()
 {
 	gpuMemory = 0;
+
+	/*for (auto& ydr : *fragPhysicsLODs)
+	{
+		YdrPool.getPool().Remove(ydr);
+	}
+
+	delete fragPhysicsLODs;*/
 
 	if (YdrFile) {
 		YdrPool.getPool().Remove(YdrFile);

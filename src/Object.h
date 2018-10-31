@@ -28,10 +28,6 @@ public:
 	Object(CEntityDef def);
 	~Object();
 
-	glm::mat4& getMatrix() {
-		return modelMatrix;
-	}
-
 private:
 
 };

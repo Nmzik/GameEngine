@@ -5,8 +5,8 @@
 
 class Water
 {
-	unsigned int VBO, EBO, VAO;
-	unsigned int num_indices;
+	uint32_t VBO, EBO, VAO;
+	uint32_t num_indices;
 	GLuint diffuseTextureID;
 public:
 	glm::vec3 BSCenter;

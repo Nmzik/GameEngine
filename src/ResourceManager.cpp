@@ -91,8 +91,8 @@ void ResourceManager::update()
 							printf("ERROR\n");
 						}
 
-						object.CEntity.lodDist *= object.CEntity.lodDist;
-						object.CEntity.childLodDist *= object.CEntity.childLodDist;
+						object.CEntity.lodDist *= object.CEntity.lodDist; //glm::length2
+						object.CEntity.childLodDist *= object.CEntity.childLodDist; //glm::length2
 
 					}
 				}

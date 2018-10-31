@@ -154,4 +154,4 @@ public:
 	void Remove();
 };
 
-static Pool<YbnLoader, 500> YbnPool;
+static Pool<YbnLoader, 1000> YbnPool;

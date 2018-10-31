@@ -102,9 +102,7 @@ YnvLoader::YnvLoader(memstream& file)
 		uint16_t Z;
 	};
 
-	struct NavMeshList {
-		uint32_t VFT;
-		uint32_t Unknown_04h; // 0x00000001
+	struct NavMeshList : datBase {
 		uint32_t ItemCount;
 		uint32_t Unknown_0Ch; // 0x00000000
 		uint64_t ListPartsPointer;

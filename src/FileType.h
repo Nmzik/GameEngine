@@ -217,3 +217,8 @@ public:
 private:
 
 };
+
+class datBase {
+	uint32_t VFT;
+	uint32_t Unknown_4h; // 0x00000001
+};

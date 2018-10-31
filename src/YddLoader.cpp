@@ -11,9 +11,8 @@ void YddLoader::Init(memstream2 & file, int32_t systemSize)
 	YdrFiles->reserve(drawableDictionary->DrawablesCount1);
 
 	SYSTEM_BASE_PTR(drawableDictionary->HashesPointer);
-	std::vector<uint32_t> Hashes;
-	Hashes.resize(drawableDictionary->HashesCount1);
-	memcpy(&Hashes[0], &file.data[drawableDictionary->HashesPointer], sizeof(uint32_t) * drawableDictionary->HashesCount1);
+	file.seekg(drawableDictionary->HashesPointer);
+	uint32_t* YdrHashes = (uint32_t*)file.read(sizeof(uint32_t) * drawableDictionary->HashesCount1);
 
 	SYSTEM_BASE_PTR(drawableDictionary->DrawablesPointer);
 	file.seekg(drawableDictionary->DrawablesPointer);
@@ -31,7 +30,7 @@ void YddLoader::Init(memstream2 & file, int32_t systemSize)
 		YdrLoader* ydr = YdrPool.getPool().Load();
 		ydr->Init(file, systemSize);
 		gpuMemory += ydr->gpuMemory;
-		YdrFiles->insert({Hashes[i], ydr});
+		YdrFiles->insert({ YdrHashes[i], ydr});
 
 		file.seekg(DrawablePointer);
 	}

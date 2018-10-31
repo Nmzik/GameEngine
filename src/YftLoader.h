@@ -64,9 +64,7 @@ struct FragType : ResourceFileBase {
 	uint32_t Unknown_12Ch; // 0x00000000
 };
 
-struct FragPhysicsLODGroup {
-	uint32_t VFT;
-	uint32_t Unknown_04h; // 0x00000001
+struct FragPhysicsLODGroup : datBase {
 	uint32_t Unknown_08h; // 0x00000000
 	uint32_t Unknown_0Ch; // 0x00000000
 	uint64_t PhysicsLOD1Pointer;
@@ -76,9 +74,7 @@ struct FragPhysicsLODGroup {
 	uint32_t Unknown_2Ch; // 0x00000000
 };
 
-struct FragPhysicsLOD {
-	uint32_t VFT;
-	uint32_t Unknown_04h; // 0x00000001
+struct FragPhysicsLOD : datBase {
 	uint32_t Unknown_08h; // 0x00000000
 	uint32_t Unknown_0Ch; // 0x00000000
 	uint32_t Unknown_10h; // 0x00000000
@@ -121,9 +117,7 @@ struct FragPhysicsLOD {
 	uint32_t Unknown_12Ch; // 0x00000000
 };
 
-struct FragPhysTypeChild {
-	uint32_t VFT;
-	uint32_t Unknown_04h; // 0x00000001
+struct FragPhysTypeChild : datBase {
 	float Unknown_08h;
 	float Unknown_0Ch;
 	float Unknown_10h;
@@ -194,7 +188,7 @@ public:
 	YftLoader * next;
 	YdrLoader * YdrFile = nullptr;
 	YbnLoader * ybnFile = nullptr;
-	std::vector<YdrLoader*> wheels;
+	std::vector<YdrLoader*>* fragPhysicsLODs;
 
 	void Init(memstream2& file, int32_t systemSize) override;
 	void Remove();

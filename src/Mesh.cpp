@@ -1,20 +1,21 @@
 #include "Mesh.h"
+#include "YdrLoader.h"
 
-Mesh::Mesh(const uint8_t* meshData, VertexBuffer* vertexBuffer, IndexBuffer* indexBuffer, Material mat) : material(mat), num_indices(indexBuffer->IndicesCount)
+Mesh::Mesh(const uint8_t* meshData, DrawableGeometry* drawGeom, Material mat) : material(mat), num_indices(drawGeom->IndexBufferPointer->IndicesCount)
 {
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
 
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, vertexBuffer->VertexCount * vertexBuffer->VertexStride, &meshData[vertexBuffer->DataPointer1], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, drawGeom->VertexBufferPointer->VertexCount * drawGeom->VertexBufferPointer->VertexStride, &meshData[drawGeom->VertexBufferPointer->DataPointer1], GL_STATIC_DRAW);
 
 	glEnableVertexAttribArray(0); //Positions
 	glEnableVertexAttribArray(1); //NORMALS
 	glEnableVertexAttribArray(2); //COLOR
 	glEnableVertexAttribArray(3); //TEXTCOORD
 
-	switch (vertexBuffer->InfoPointer->Flags)
+	switch (drawGeom->VertexBufferPointer->InfoPointer->Flags)
 	{
 	case Default:
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 36, nullptr);
@@ -194,7 +195,7 @@ Mesh::Mesh(const uint8_t* meshData, VertexBuffer* vertexBuffer, IndexBuffer* ind
 
 	glGenBuffers(1, &EBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBuffer->IndicesCount * sizeof(uint16_t), &meshData[indexBuffer->IndicesPointer], GL_STATIC_DRAW); //16 BIT INDICES max 65536
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, drawGeom->IndexBufferPointer->IndicesCount * sizeof(uint16_t), &meshData[drawGeom->IndexBufferPointer->IndicesPointer], GL_STATIC_DRAW); //16 BIT INDICES max 65536
 }
 
 Mesh::~Mesh()

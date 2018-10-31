@@ -3,9 +3,7 @@
 #include "FileType.h"
 #include "Model.h"
 
-struct ShaderGroup {
-	uint32_t VFT;
-	uint32_t Unknown_4h; // 0x00000001
+struct ShaderGroup : datBase {
 	uint64_t TextureDictionaryPointer;
 	uint64_t ShadersPointer;
 	uint16_t ShadersCount1;
@@ -191,23 +189,102 @@ public:
 	{
 		return (T*)pointer;
 	}
+
+	T* operator*() const
+	{
+		return (T*)pointer;
+	}
+
+	void Resolve(memstream2 & file) {
+		pointer = (T*)&file.data[(uint64_t)on_disk & ~0x50000000];
+	}
 };
 
-struct DrawableGeometry {
-	uint32_t VFT;
-	uint32_t Unknown_4h; // 0x00000001
-	uint32_t Unknown_8h; // 0x00000000
+struct VertexDeclaration {
+	uint32_t Flags;
+	uint16_t Stride;
+	uint8_t Unknown_6h;
+	uint8_t Count;
+	uint64_t Types;
+};
+
+struct VertexBuffer : datBase {
+	uint16_t VertexStride;
+	uint16_t Unknown_Ah;
 	uint32_t Unknown_Ch; // 0x00000000
-	uint32_t Unknown_10h; // 0x00000000
-	uint32_t Unknown_14h; // 0x00000000
-	uint64_t VertexBufferPointer;
+	uint64_t DataPointer1;
+	uint32_t VertexCount;
+	uint32_t Unknown_1Ch; // 0x00000000
+	uint64_t DataPointer2;
+	uint32_t Unknown_28h; // 0x00000000
+	uint32_t Unknown_2Ch; // 0x00000000
+	VertexDeclaration* InfoPointer;
+	uint32_t Unknown_38h; // 0x00000000
+	uint32_t Unknown_3Ch; // 0x00000000
+	uint32_t Unknown_40h; // 0x00000000
+	uint32_t Unknown_44h; // 0x00000000
+	uint32_t Unknown_48h; // 0x00000000
+	uint32_t Unknown_4Ch; // 0x00000000
+	uint32_t Unknown_50h; // 0x00000000
+	uint32_t Unknown_54h; // 0x00000000
+	uint32_t Unknown_58h; // 0x00000000
+	uint32_t Unknown_5Ch; // 0x00000000
+	uint32_t Unknown_60h; // 0x00000000
+	uint32_t Unknown_64h; // 0x00000000
+	uint32_t Unknown_68h; // 0x00000000
+	uint32_t Unknown_6Ch; // 0x00000000
+	uint32_t Unknown_70h; // 0x00000000
+	uint32_t Unknown_74h; // 0x00000000
+	uint32_t Unknown_78h; // 0x00000000
+	uint32_t Unknown_7Ch; // 0x00000000
+
+	void Resolve(memstream2 & file) {
+		SYSTEM_BASE_PTR(DataPointer1);
+		InfoPointer = (VertexDeclaration*)&file.data[(uint64_t)InfoPointer & ~0x50000000];
+	}
+};
+
+struct IndexBuffer : datBase{
+	uint32_t IndicesCount;
+	uint32_t Unknown_Ch; // 0x00000000
+	uint64_t IndicesPointer;
+	uint32_t Unknown_18h; // 0x00000000
+	uint32_t Unknown_1Ch; // 0x00000000
 	uint32_t Unknown_20h; // 0x00000000
 	uint32_t Unknown_24h; // 0x00000000
 	uint32_t Unknown_28h; // 0x00000000
 	uint32_t Unknown_2Ch; // 0x00000000
 	uint32_t Unknown_30h; // 0x00000000
 	uint32_t Unknown_34h; // 0x00000000
-	uint64_t IndexBufferPointer;
+	uint32_t Unknown_38h; // 0x00000000
+	uint32_t Unknown_3Ch; // 0x00000000
+	uint32_t Unknown_40h; // 0x00000000
+	uint32_t Unknown_44h; // 0x00000000
+	uint32_t Unknown_48h; // 0x00000000
+	uint32_t Unknown_4Ch; // 0x00000000
+	uint32_t Unknown_50h; // 0x00000000
+	uint32_t Unknown_54h; // 0x00000000
+	uint32_t Unknown_58h; // 0x00000000
+	uint32_t Unknown_5Ch; // 0x00000000
+
+	void Resolve(memstream2 & file) {
+		SYSTEM_BASE_PTR(IndicesPointer);
+	}
+};
+
+struct DrawableGeometry : datBase {
+	uint32_t Unknown_8h; // 0x00000000
+	uint32_t Unknown_Ch; // 0x00000000
+	uint32_t Unknown_10h; // 0x00000000
+	uint32_t Unknown_14h; // 0x00000000
+	pgPtr<VertexBuffer> VertexBufferPointer;
+	uint32_t Unknown_20h; // 0x00000000
+	uint32_t Unknown_24h; // 0x00000000
+	uint32_t Unknown_28h; // 0x00000000
+	uint32_t Unknown_2Ch; // 0x00000000
+	uint32_t Unknown_30h; // 0x00000000
+	uint32_t Unknown_34h; // 0x00000000
+	pgPtr<IndexBuffer> IndexBufferPointer;
 	uint32_t Unknown_40h; // 0x00000000
 	uint32_t Unknown_44h; // 0x00000000
 	uint32_t Unknown_48h; // 0x00000000
@@ -232,14 +309,36 @@ struct DrawableGeometry {
 	uint32_t Unknown_94h; // 0x00000000
 
 	void Resolve(memstream2 & file) {
-		//VertexBufferPointer = (VertexBuffer*)&file.data[(uint64_t)VertexBufferPointer & ~0x50000000];
-		//IndexBufferPointer = (VertexBuffer*)&file.data[(uint64_t)VertexBufferPointer & ~0x50000000];
+		VertexBufferPointer.Resolve(file);
+		IndexBufferPointer.Resolve(file);
+
+		VertexBufferPointer->Resolve(file);
+		IndexBufferPointer->Resolve(file);
 	}
 };
 
-struct DrawableModel {
-	uint32_t VFT;
-	uint32_t Unknown_4h;
+template<typename TValue>
+class pgObjectArray
+{
+private:
+	pgPtr<pgPtr<TValue>> m_objects;
+	uint16_t m_count;
+	uint16_t m_size;
+
+public:
+	inline void Resolve(memstream2 & file)
+	{
+		m_objects.Resolve(file);
+
+		for (int i = 0; i < m_size; i++)
+		{
+			(*m_objects)[i].Resolve(file);
+			(*m_objects)[i]->Resolve(file);
+		}
+	}
+};
+
+struct DrawableModel : datBase {
 	uint64_t GeometriesPointer;
 	uint16_t GeometriesCount1;
 	uint16_t GeometriesCount2;
@@ -248,6 +347,10 @@ struct DrawableModel {
 	uint64_t ShaderMappingPointer;
 	uint32_t Unknown_28h;
 	uint32_t Unknown_2Ch;
+
+	void Resolve(memstream2 & file) {
+		//m_geometries.Resolve(file);
+	}
 };
 
 class YtdLoader;

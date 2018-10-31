@@ -28,7 +28,7 @@ public:
 
 	}
 
-	glm::mat4& getModel() {
+	glm::mat4& getMatrix() {
 		return modelMatrix;
 	}
 
