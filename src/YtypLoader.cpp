@@ -1,6 +1,6 @@
 #include "YtypLoader.h"
 
-YtypLoader::YtypLoader(memstream2& file)
+YtypLoader::YtypLoader(memstream& file)
 {
 	Meta meta(file);
 

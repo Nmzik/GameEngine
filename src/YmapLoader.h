@@ -123,10 +123,9 @@ public:
 	std::vector<Object> RootObjects;
 	std::vector<CCarGen> CCarGens;
 
-	void Init(memstream2 & file) override;
+	void Init(memstream & file) override;
 	void Finalize() override;
 	void Remove();
 };
 
 static Pool<YmapLoader, 1000> YmapPool;
-

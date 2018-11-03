@@ -3,7 +3,8 @@
 Player::Player(glm::vec3 position, YddLoader * ydd, btDiscreteDynamicsWorld * world) : 
 	vehicle(nullptr), 
 	player(ydd),
-	Entity(position, glm::quat(-1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(1.0f))
+	Entity(position, glm::quat(-1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(1.0f)),
+	weapons(13)
 {
 	health = 200;
 	playerModel.push_back((*ydd->YdrFiles)[121241095]);

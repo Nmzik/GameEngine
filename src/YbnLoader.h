@@ -148,8 +148,8 @@ public:
 	btCompoundShape* compound = nullptr;
 	btRigidBody * rigidBody = nullptr;
 
-	void Init(memstream2 & file) override;
-	void ParseYbn(memstream2& file);
+	void Init(memstream & file) override;
+	void ParseYbn(memstream& file);
 	void Finalize(btDiscreteDynamicsWorld* world) override;
 	void Remove();
 };

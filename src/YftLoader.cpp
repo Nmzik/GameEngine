@@ -2,7 +2,7 @@
 #include "YdrLoader.h"
 #include "YbnLoader.h"
 
-void YftLoader::Init(memstream2 & file, int32_t systemSize)
+void YftLoader::Init(memstream & file, int32_t systemSize)
 {
 	Loaded = true;
 

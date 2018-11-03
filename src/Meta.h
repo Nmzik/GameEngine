@@ -31,7 +31,7 @@ public:
 
 	std::vector<MetaStructureEntryInfo_s*> entryInfos;
 
-	MetaStructureInfo(memstream2& file) {
+	MetaStructureInfo(memstream& file) {
 		MetaStructureInfo_struct = (MetaStructureInfoStruct*)file.read(sizeof(MetaStructureInfoStruct));
 
 		uint64_t pos = file.tellg();
@@ -63,7 +63,7 @@ public:
 
 	std::vector<MetaEnumEntryInfo_s*> infos;
 
-	MetaEnumInfo(memstream2& file) {
+	MetaEnumInfo(memstream& file) {
 		MetaEnumInfo_struct = (MetaEnumInfoStruct*)file.read(sizeof(MetaEnumInfoStruct));
 
 		SYSTEM_BASE_PTR(MetaEnumInfo_struct->EntriesPointer);
@@ -90,7 +90,7 @@ public:
 		uint64_t DataPointer;
 	} *MetaDataBlock_struct;
 
-	MetaDataBlock(memstream2& file) {
+	MetaDataBlock(memstream& file) {
 		MetaDataBlock_struct = (MetaDataBlockStruct*)file.read(sizeof(MetaDataBlockStruct));
 
 		TranslatePTR(MetaDataBlock_struct->DataPointer);
@@ -129,7 +129,7 @@ public:
 	std::vector<MetaEnumInfo> EnumInfos;
 	std::vector<MetaDataBlock> MetaBlocks;
 
-	Meta(memstream2& file) {
+	Meta(memstream& file) {
 		Meta_struct = (MetaStruct*)file.read(sizeof(MetaStruct));
 
 		SYSTEM_BASE_PTR(Meta_struct->StructureInfosPointer);

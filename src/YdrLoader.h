@@ -17,6 +17,10 @@ struct ShaderGroup : datBase {
 	uint32_t Unknown_34h; // 0x00000000
 	uint32_t Unknown_38h; // 0x00000000
 	uint32_t Unknown_3Ch; // 0x00000000
+
+	void Resolve(memstream & file) {
+		
+	}
 };
 
 struct ShaderFX {
@@ -145,61 +149,6 @@ struct FragDrawable {
 	uint32_t Unknown_14Ch; // 0x00000000
 };
 
-struct DrawableBase : ResourceFileBase {
-	uint64_t ShaderGroupPointer;
-	uint64_t SkeletonPointer;
-	glm::vec3 BoundingCenter;
-	float BoundingSphereRadius;
-	glm::vec4 BoundingBoxMin;
-	glm::vec4 BoundingBoxMax;
-	uint64_t DrawableModelsHighPointer;
-	uint64_t DrawableModelsMediumPointer;
-	uint64_t DrawableModelsLowPointer;
-	uint64_t DrawableModelsVeryLowPointer;
-	float LodGroupHigh;
-	float LodGroupMed;
-	float LodGroupLow;
-	float LodGroupVlow;
-	uint32_t Unknown_80h;
-	uint32_t Unknown_84h;
-	uint32_t Unknown_88h;
-	uint32_t Unknown_8Ch;
-	uint64_t JointsPointer;
-	uint32_t Unknown_98h;
-	uint32_t Unknown_9Ch;
-	uint64_t DrawableModelsXPointer;
-};
-
-struct pgPtrRepresentation
-{
-	uint32_t pointer : 28;
-	uint32_t blockType : 4;
-};
-
-template <typename T>
-class pgPtr {
-public:
-	union
-	{
-		uint64_t on_disk;
-		T* pointer;
-	};
-
-	T* operator->() const
-	{
-		return (T*)pointer;
-	}
-
-	T* operator*() const
-	{
-		return (T*)pointer;
-	}
-
-	void Resolve(memstream2 & file) {
-		pointer = (T*)&file.data[(uint64_t)on_disk & ~0x50000000];
-	}
-};
-
 struct VertexDeclaration {
 	uint32_t Flags;
 	uint16_t Stride;
@@ -238,13 +187,13 @@ struct VertexBuffer : datBase {
 	uint32_t Unknown_78h; // 0x00000000
 	uint32_t Unknown_7Ch; // 0x00000000
 
-	void Resolve(memstream2 & file) {
+	void Resolve(memstream & file) {
 		SYSTEM_BASE_PTR(DataPointer1);
 		InfoPointer = (VertexDeclaration*)&file.data[(uint64_t)InfoPointer & ~0x50000000];
 	}
 };
 
-struct IndexBuffer : datBase{
+struct IndexBuffer : datBase {
 	uint32_t IndicesCount;
 	uint32_t Unknown_Ch; // 0x00000000
 	uint64_t IndicesPointer;
@@ -267,7 +216,7 @@ struct IndexBuffer : datBase{
 	uint32_t Unknown_58h; // 0x00000000
 	uint32_t Unknown_5Ch; // 0x00000000
 
-	void Resolve(memstream2 & file) {
+	void Resolve(memstream & file) {
 		SYSTEM_BASE_PTR(IndicesPointer);
 	}
 };
@@ -308,7 +257,7 @@ struct DrawableGeometry : datBase {
 	uint32_t Unknown_90h; // 0x00000000
 	uint32_t Unknown_94h; // 0x00000000
 
-	void Resolve(memstream2 & file) {
+	void Resolve(memstream & file) {
 		VertexBufferPointer.Resolve(file);
 		IndexBufferPointer.Resolve(file);
 
@@ -317,39 +266,53 @@ struct DrawableGeometry : datBase {
 	}
 };
 
-template<typename TValue>
-class pgObjectArray
-{
-private:
-	pgPtr<pgPtr<TValue>> m_objects;
-	uint16_t m_count;
-	uint16_t m_size;
-
-public:
-	inline void Resolve(memstream2 & file)
-	{
-		m_objects.Resolve(file);
-
-		for (int i = 0; i < m_size; i++)
-		{
-			(*m_objects)[i].Resolve(file);
-			(*m_objects)[i]->Resolve(file);
-		}
-	}
-};
-
 struct DrawableModel : datBase {
-	uint64_t GeometriesPointer;
-	uint16_t GeometriesCount1;
-	uint16_t GeometriesCount2;
-	uint32_t Unknown_14h;
+	pgObjectArray<DrawableGeometry> m_geometries;
 	uint64_t BoundsPointer;
-	uint64_t ShaderMappingPointer;
+	pgPtr<uint16_t> ShaderMappingPointer;
 	uint32_t Unknown_28h;
 	uint32_t Unknown_2Ch;
 
-	void Resolve(memstream2 & file) {
-		//m_geometries.Resolve(file);
+	void Resolve(memstream & file) {
+		m_geometries.Resolve(file);
+
+		ShaderMappingPointer.Resolve(file);
+	}
+};
+
+struct DrawableBase : ResourceFileBase {
+	pgPtr<ShaderGroup> ShaderGroupPointer;
+	uint64_t SkeletonPointer;
+	glm::vec3 BoundingCenter;
+	float BoundingSphereRadius;
+	glm::vec4 BoundingBoxMin;
+	glm::vec4 BoundingBoxMax;
+	pgPtr<pgObjectArray<DrawableModel>> DrawableModels[4];
+	float LodGroupHigh;
+	float LodGroupMed;
+	float LodGroupLow;
+	float LodGroupVlow;
+	uint32_t Unknown_80h;
+	uint32_t Unknown_84h;
+	uint32_t Unknown_88h;
+	uint32_t Unknown_8Ch;
+	uint64_t JointsPointer;
+	uint32_t Unknown_98h;
+	uint32_t Unknown_9Ch;
+	uint64_t DrawableModelsX;
+
+	inline void Resolve(memstream & file)
+	{
+		ShaderGroupPointer.Resolve(file);
+		ShaderGroupPointer->Resolve(file);
+
+		for (int i = 0; i < 4; i++)
+		{
+			if (DrawableModels[i].pointer) {
+				DrawableModels[i].Resolve(file);
+				DrawableModels[i]->Resolve(file);
+			}
+		}
 	}
 };
 
@@ -365,7 +328,7 @@ public:
 	YbnLoader* ybnfile = nullptr;
 	bool isYft = false;
 
-	void Init(memstream2& file, int32_t systemSize) override;
+	void Init(memstream& file, int32_t systemSize) override;
 	void Remove();
 
 	void UploadMeshes();

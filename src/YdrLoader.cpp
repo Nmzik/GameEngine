@@ -4,15 +4,16 @@
 #include "GTAEncryption.h"
 #include <algorithm>
 
-void YdrLoader::Init(memstream2 & file, int32_t systemSize)
+void YdrLoader::Init(memstream & file, int32_t systemSize)
 {
 	Loaded = true;
 
 	DrawableBase* drawBase = (DrawableBase*)file.read(sizeof(DrawableBase));
+	drawBase->Resolve(file);
 
-	if (drawBase->DrawableModelsXPointer == 0) {
+	/*if (!drawBase->DrawableModelsX.pointer) {
 		printf("");
-	}
+	}*/
 
 
 	//READ COLLISION DATA FROM YDR
@@ -54,26 +55,23 @@ void YdrLoader::Init(memstream2 & file, int32_t systemSize)
 	}
 
 	//Shader stuff
-	if (drawBase->ShaderGroupPointer != 0) { //IF POINTER = 0 NO OBJECTS???
-		SYSTEM_BASE_PTR(drawBase->ShaderGroupPointer);
-		file.seekg(drawBase->ShaderGroupPointer);
+	if (drawBase->ShaderGroupPointer.pointer) { //IF POINTER = 0 NO OBJECTS???
 
-		ShaderGroup* _ShaderGroup = (ShaderGroup*)file.read(sizeof(ShaderGroup));
 
-		if (_ShaderGroup->TextureDictionaryPointer != 0) {
-			SYSTEM_BASE_PTR(_ShaderGroup->TextureDictionaryPointer);
-			file.seekg(_ShaderGroup->TextureDictionaryPointer);
+		if (drawBase->ShaderGroupPointer->TextureDictionaryPointer != 0) {
+			SYSTEM_BASE_PTR(drawBase->ShaderGroupPointer->TextureDictionaryPointer);
+			file.seekg(drawBase->ShaderGroupPointer->TextureDictionaryPointer);
 			Ytd = YtdPool.getPool().Load();
 			Ytd->Init(file, systemSize);
 		}
 
-		SYSTEM_BASE_PTR(_ShaderGroup->ShadersPointer);
-		file.seekg(_ShaderGroup->ShadersPointer);
+		SYSTEM_BASE_PTR(drawBase->ShaderGroupPointer->ShadersPointer);
+		file.seekg(drawBase->ShaderGroupPointer->ShadersPointer);
 
 		std::vector<Material> materials;
-		materials.reserve(_ShaderGroup->ShadersCount1);
+		materials.reserve(drawBase->ShaderGroupPointer->ShadersCount1);
 
-		for (int i = 0; i < _ShaderGroup->ShadersCount1; i++)
+		for (int i = 0; i < drawBase->ShaderGroupPointer->ShadersCount1; i++)
 		{
 			uint64_t* data_pointer = (uint64_t*)file.read(sizeof(uint64_t));
 			uint64_t posOriginal = file.tellg();
@@ -177,84 +175,46 @@ void YdrLoader::Init(memstream2 & file, int32_t systemSize)
 
 		}
 
-		SYSTEM_BASE_PTR(drawBase->DrawableModelsXPointer);
-		file.seekg(drawBase->DrawableModelsXPointer);
+		//////////
 
-		ResourcePointerList64* resourcePointerList = (ResourcePointerList64*)file.read(sizeof(ResourcePointerList64));
-
-		SYSTEM_BASE_PTR(resourcePointerList->EntriesPointer);
-		file.seekg(resourcePointerList->EntriesPointer);
-
-		//Optimization
 		models = new std::vector<Model>();
-		models->resize(resourcePointerList->EntriesCount);
+		models->resize(drawBase->DrawableModels[0]->getSize());
 
-		for (int i = 0; i < resourcePointerList->EntriesCount; i++) //NOT ALWAYS EQUAL TO 0!!! WTF IS GOING ON HERE??? Models...
+		for (int i = 0; i < drawBase->DrawableModels[0]->getSize(); i++)
 		{
-			uint64_t* data_pointer = (uint64_t*)file.read(sizeof(uint64_t));
-			uint64_t posOriginal = file.tellg();
-
-			SYSTEM_BASE_PTR(data_pointer[0]);
-			file.seekg(data_pointer[0]);
-
-			DrawableModel* drawModel = (DrawableModel*)file.read(sizeof(DrawableModel));
-			//drawModel->Resolve(file);
-
-			SYSTEM_BASE_PTR(drawModel->ShaderMappingPointer);
-			file.seekg(drawModel->ShaderMappingPointer);
-
-			//std::vector<uint16_t*> ShaderMapping;
-			//ShaderMapping.resize(sizeof(uint16_t) * drawModel->GeometriesCount1);
-			//ShaderMapping.data() = (uint16_t*)file.read(sizeof(uint16_t) * drawModel->GeometriesCount1);
-			//file.read((char*)&ShaderMapping[0], sizeof(uint16_t) * drawModel.GeometriesCount1);
-
-			SYSTEM_BASE_PTR(drawModel->GeometriesPointer);
-			file.seekg(drawModel->GeometriesPointer);
-
 			//Optimization
-			(*models)[i].meshes.reserve(drawModel->GeometriesCount1);
+			(*models)[i].meshes.reserve(drawBase->DrawableModels[0]->Get(i)->m_geometries.getSize());
 
-			for (int j = 0; j < drawModel->GeometriesCount1; j++) //no difference btween geometriescount1 and 2
+			for (int j = 0; j < drawBase->DrawableModels[0]->Get(i)->m_geometries.getSize(); j++)
 			{
-				uint64_t* data_pointer = (uint64_t*)file.read(sizeof(uint64_t));
-				uint64_t pos = file.tellg();
-
-				SYSTEM_BASE_PTR(data_pointer[0]);
-				file.seekg(data_pointer[0]);
-
-				DrawableGeometry* drawGeom = (DrawableGeometry*)file.read(sizeof(DrawableGeometry));
-				drawGeom->Resolve(file);
-
-				switch (drawGeom->VertexBufferPointer->InfoPointer->Types)
+				switch (drawBase->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->InfoPointer->Types)
 				{
 					/*case 8598872888530528662: //YDR - 0x7755555555996996
 					break;*/
 					case 216172782140628998:  //YFT - 0x030000000199A006
-						switch (drawGeom->VertexBufferPointer->InfoPointer->Flags)
+						switch (drawBase->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->InfoPointer->Flags)
 						{
 							case 16473:
-								drawGeom->VertexBufferPointer->InfoPointer->Flags = VertexType::PCCH2H4;
-								break;  //  PCCH2H4 
+								drawBase->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->InfoPointer->Flags = VertexType::PCCH2H4;
+								break;  //  PCCH2H4
 						}
 						break;
 					case 216172782140612614:  //YFT - 0x0300000001996006  PNCH2H4
-						switch (drawGeom->VertexBufferPointer->InfoPointer->Flags)
+						switch (drawBase->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->InfoPointer->Flags)
 						{
 							case 89:
-								drawGeom->VertexBufferPointer->InfoPointer->Flags = VertexType::PNCH2;
+								drawBase->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->InfoPointer->Flags = VertexType::PNCH2;
 								break;     //  PNCH2
 						}
 						break;
 				}
 
-				gpuMemory += drawGeom->VertexBufferPointer->VertexCount * drawGeom->VertexBufferPointer->VertexStride;
-				gpuMemory += drawGeom->IndexBufferPointer->IndicesCount * sizeof(uint16_t);
+				gpuMemory += drawBase->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->VertexCount * drawBase->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->VertexStride;
+				gpuMemory += drawBase->DrawableModels[0]->Get(i)->m_geometries.Get(j)->IndexBufferPointer->IndicesCount * sizeof(uint16_t);
 
-				(*models)[i].meshes.emplace_back(file.data, drawGeom, materials[file.data[drawModel->ShaderMappingPointer + j * sizeof(uint16_t)]]);
-
-				file.seekg(pos);
+				(*models)[i].meshes.emplace_back(file.data, drawBase->DrawableModels[0]->Get(i)->m_geometries.Get(j), materials[(*drawBase->DrawableModels[0]->Get(i)->ShaderMappingPointer)[j]]);
 			}
-			file.seekg(posOriginal);
+
 		}
 	}
 }

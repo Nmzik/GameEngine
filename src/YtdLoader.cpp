@@ -1,13 +1,14 @@
 #include "YtdLoader.h"
 
-void YtdLoader::Init(memstream2 & file, int32_t systemSize)
+void YtdLoader::Init(memstream & file, int32_t systemSize)
 {
 	Loaded = true;
 
 	TextureDictionary* texDictionary = (TextureDictionary*)file.read(sizeof(TextureDictionary));
+	texDictionary->Resolve(file);
 	Textures = new std::unordered_map<uint32_t, GLuint>(texDictionary->TextureNameHashesPtr.EntriesCount);
 
-	if (texDictionary->Textures.EntriesCount != 0) {
+	/*if (texDictionary->Textures.EntriesCount != 0) {
 		SYSTEM_BASE_PTR(texDictionary->TextureNameHashesPtr.EntriesPointer);
 		file.seekg(texDictionary->TextureNameHashesPtr.EntriesPointer);
 		uint32_t* TexturesHashes = (uint32_t*)file.read(sizeof(uint32_t) * texDictionary->TextureNameHashesPtr.EntriesCount);
@@ -111,7 +112,7 @@ void YtdLoader::Init(memstream2 & file, int32_t systemSize)
 			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 			//glPixelStorei(GL_UNPACK_ALIGNMENT, 1);*/
 
-			unsigned int offset = 0;
+		/*	unsigned int offset = 0;
 
 			if (compressed)
 			{
@@ -149,7 +150,7 @@ void YtdLoader::Init(memstream2 & file, int32_t systemSize)
 
 			file.seekg(posOriginal);
 		}
-	}
+	}*/
 }
 
 void YtdLoader::Remove()

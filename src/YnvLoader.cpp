@@ -14,7 +14,7 @@ YnvLoader::YnvLoader(memstream& file)
 		printf("DONE");
 	}*/
 
-	enum NavMeshFlags
+	/*enum NavMeshFlags
 	{
 		None = 0,
 		Vertices = 1,
@@ -567,7 +567,7 @@ YnvLoader::YnvLoader(memstream& file)
 		rcFreePolyMeshDetail(rcpolymeshdetail);
 		rcpolymeshdetail = NULL;
 	}
-
+	*/
 }
 
 

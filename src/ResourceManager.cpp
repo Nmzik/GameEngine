@@ -71,7 +71,7 @@ void ResourceManager::update()
 
 					YmapLoader* iter = static_cast<YmapLoader*>(res.file);
 
-					memstream2 stream(res.Buffer.data(), res.Buffer.size());
+					memstream stream(res.Buffer.data(), res.Buffer.size());
 					iter->Init(stream);
 
 					for (auto& object : *iter->Objects)
@@ -150,7 +150,7 @@ void ResourceManager::update()
 					gameworld->getGameData()->ExtractFileResource(*(it->second), res.Buffer);
 					res.SystemSize = it->second->SystemSize;
 
-					memstream2 stream(res.Buffer.data(), res.Buffer.size());
+					memstream stream(res.Buffer.data(), res.Buffer.size());
 					res.file->Init(stream);
 				}
 				AddToMainQueue(res);

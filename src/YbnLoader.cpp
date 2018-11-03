@@ -1,7 +1,7 @@
 #include "YbnLoader.h"
 #include "GameWorld.h"
 
-void YbnLoader::Init(memstream2& file)
+void YbnLoader::Init(memstream& file)
 {
 	compound = new btCompoundShape();
 
@@ -13,7 +13,7 @@ void YbnLoader::Init(memstream2& file)
 	ParseYbn(file);
 }
 
-void YbnLoader::ParseYbn(memstream2 & file)
+void YbnLoader::ParseYbn(memstream & file)
 {
 	Bounds* bounds = (Bounds*)file.read(sizeof(Bounds));
 

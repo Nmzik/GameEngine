@@ -118,7 +118,7 @@ class YtypLoader
 public:
 	std::vector<Archetype*> ArchetypeDefs;
 	//std::vector<CEntityDef> CEntityDefs;
-	YtypLoader(memstream2& file);
+	YtypLoader(memstream& file);
 	~YtypLoader();
 };
 

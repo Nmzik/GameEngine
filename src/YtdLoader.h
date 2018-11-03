@@ -62,6 +62,10 @@ struct Texture : TextureBase {
 	uint32_t Unknown_84h; // 0x00000000
 	uint32_t Unknown_88h; // 0x00000000
 	uint32_t Unknown_8Ch; // 0x00000000
+
+	void Resolve(memstream& file) {
+		GRAPHICS_BASE_PTR(DataPointer);
+	}
 };
 
 struct TextureDictionary : ResourceFileBase {
@@ -70,7 +74,11 @@ struct TextureDictionary : ResourceFileBase {
 	uint32_t Unknown_18h; // 0x00000001
 	uint32_t Unknown_1Ch; // 0x00000000
 	ResourceSimpleList64Ptr TextureNameHashesPtr;
-	ResourcePointerList64 Textures;
+	pgObjectArray<Texture> Textures;
+
+	void Resolve(memstream& file) {
+		Textures.Resolve(file);
+	}
 };
 
 class YtdLoader : public FileType
@@ -79,7 +87,7 @@ public:
 	YtdLoader * next;
 	std::unordered_map<uint32_t, GLuint>* Textures = nullptr;
 
-	void Init(memstream2& file, int32_t systemSize);
+	void Init(memstream& file, int32_t systemSize);
 	void Remove();
 };
 

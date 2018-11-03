@@ -118,7 +118,7 @@ GameData::GameData()
 				std::vector<uint8_t> outputBuffer(entry.SystemSize + entry.GraphicsSize);
 				ExtractFileResource(entry, outputBuffer);
 
-				memstream2 stream(outputBuffer.data(), outputBuffer.size());
+				memstream stream(outputBuffer.data(), outputBuffer.size());
 
 				YtypLoader file(stream);
 				for (auto& def : file.ArchetypeDefs)

@@ -2,7 +2,7 @@
 
 YndLoader::YndLoader(memstream& file)
 {
-	file.read((char*)&NodeDictionary, sizeof(NodeDictionary));
+	/*file.read((char*)&NodeDictionary, sizeof(NodeDictionary));
 
 	TranslatePTR(NodeDictionary.NodesPointer);
 
@@ -52,7 +52,7 @@ YndLoader::YndLoader(memstream& file)
 	for (int i = 0; i < NodeDictionary.JunctionRefsCount1; i++)
 	{
 		file.read((char*)&NodeJunctionRefs[i], sizeof(NodeJunctionRef));
-	}
+	}*/
 }
 
 

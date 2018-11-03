@@ -17,7 +17,7 @@ class Player : public Entity
 	btCapsuleShapeZ* physShape;
 	btRigidBody *body;
 
-	std::array<CharacterWeaponSlot, 13> weapons;
+	atArray<CharacterWeaponSlot> weapons;
 	uint16_t currentWeapon = 0;
 	bool inWater = false;
 	glm::vec3 playerDirection;

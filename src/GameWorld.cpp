@@ -48,7 +48,7 @@ GameWorld::GameWorld()
 			std::vector<uint8_t> Buffer(it->second->SystemSize + it->second->GraphicsSize);
 			data.ExtractFileResource(*(it->second), Buffer);
 
-			memstream2 stream(Buffer.data(), Buffer.size());
+			memstream stream(Buffer.data(), Buffer.size());
 			YdrLoader* loader = new YdrLoader();
 			loader->Init(stream, it->second->SystemSize);
 			ydrs.push_back(loader);
@@ -69,7 +69,7 @@ GameWorld::GameWorld()
 			std::vector<uint8_t> Buffer(it->second->SystemSize + it->second->GraphicsSize);
 			data.ExtractFileResource(*(it->second), Buffer);
 
-			memstream2 stream(Buffer.data(), Buffer.size());
+			memstream stream(Buffer.data(), Buffer.size());
 			YdrLoader* loader = new YdrLoader();
 			loader->Init(stream, it->second->SystemSize);
 			
@@ -166,7 +166,7 @@ GameWorld::GameWorld()
 		std::vector<uint8_t> Buffer(it->second->SystemSize + it->second->GraphicsSize);
 		getGameData()->ExtractFileResource(*(it->second), Buffer);
 
-		memstream2 stream(Buffer.data(), Buffer.size());
+		memstream stream(Buffer.data(), Buffer.size());
 		loader->Init(stream);
 	}*/
 
@@ -423,7 +423,7 @@ YmapLoader* GameWorld::GetYmap(uint32_t hash)
 		std::vector<uint8_t> outputBuffer;
 		data.ExtractFileResource(element, outputBuffer);
 
-		memstream2 stream(outputBuffer.data(), outputBuffer.size());
+		memstream stream(outputBuffer.data(), outputBuffer.size());
 
 		YtypLoader* file = myNew YtypLoader(stream);
 		ytypLoader.push_back(file);
@@ -772,7 +772,7 @@ void GameWorld::LoadQueuedResources()
 			res.file->Loaded = true;
 		}
 		else {
-			memstream2 stream(res.Buffer.data(), res.Buffer.size());
+			memstream stream(res.Buffer.data(), res.Buffer.size());
 			switch (res.type)
 			{
 				case ymap:

@@ -2,7 +2,7 @@
 #include <btBulletDynamicsCommon.h>
 #include "Object.h"
 
-void YmapLoader::Init(memstream2& file)
+void YmapLoader::Init(memstream& file)
 {
 	//Could be an additional extraction code here
 
