@@ -89,24 +89,24 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 
 	InverseProjMatrix = glm::inverse(projection);
 
-	SkyboxShader = std::make_unique<Shader>("assets/shaders/skybox.shader");
-	gbuffer = std::make_unique<Shader>("assets/shaders/gbuffer.shader");
-	shaderSSAO = std::make_unique<Shader>("assets/shaders/ssao.shader");
-	shaderSSAOBlur = std::make_unique<Shader>("assets/shaders/ssao_blur.shader");
-	gbufferLighting = std::make_unique<Shader>("assets/shaders/gbufferLighting.shader");
-	DepthTexture = std::make_unique<Shader>("assets/shaders/DepthTexture.shader");
-	hdrShader = std::make_unique<Shader>("assets/shaders/hdrShader.shader");
-	debugDepthQuad = std::make_unique<Shader>("assets/shaders/debug_quad.shader");
+	//SkyboxShader = std::make_unique<Shader>("assets/shaders/skybox");
+	gbuffer = std::make_unique<Shader>("assets/shaders/gbuffer");
+	shaderSSAO = std::make_unique<Shader>("assets/shaders/ssao");
+	shaderSSAOBlur = std::make_unique<Shader>("assets/shaders/ssao_blur");
+	gbufferLighting = std::make_unique<Shader>("assets/shaders/gbufferLighting");
+	//DepthTexture = std::make_unique<Shader>("assets/shaders/DepthTexture.shader");
+	hdrShader = std::make_unique<Shader>("assets/shaders/hdrShader");
+	//debugDepthQuad = std::make_unique<Shader>("assets/shaders/debug_quad.shader");
 
 	camera = std::make_unique<Camera>(glm::vec3(1982.886353, 3833.829102, 32.140667));
 
-	createDepthFBO();
+	//createDepthFBO();
 	createGBuffer();
 	createSSAO();
 	createHDRFBO();
 
-	debugDepthQuad->use();
-	debugDepthQuad->setInt("depthMap", 0);
+	//debugDepthQuad->use();
+	//debugDepthQuad->setInt("depthMap", 0);
 
 	gbuffer->use();
 	gbuffer->setInt("DiffuseSampler", 0);

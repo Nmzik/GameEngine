@@ -11,32 +11,34 @@ class Shader
 public:
 	GLuint ID;
 
-	Shader(const char* ShaderPath)
+	Shader(std::string ShaderPath)
 	{
 		std::string vertexCode;
 		std::string fragmentCode;
 		std::ifstream ShaderFile;
 		std::string line;
-		uint32_t type;
 		std::stringstream ss[2];
 		// open files
-		ShaderFile.open(ShaderPath);
+        ShaderFile.open(ShaderPath  + ".vert");
+
+		if (!ShaderFile.is_open()) {
+            printf("FILE NOT FOUND\n");
+		}
 
 		while (std::getline(ShaderFile, line)) {
-			if (line.find("#shader") != std::string::npos)
-			{
-				if (line.find("vertex") != std::string::npos)
-					type = 0;
-				else if (line.find("fragment") != std::string::npos)
-					type = 1;
-			}
-			else
-			{
-				ss[type] << line << '\n';
-			}
+				ss[0] << line << '\n';
 		}
-		// close file handlers
+
 		ShaderFile.close();
+        ShaderFile.clear();
+        ShaderFile.open(ShaderPath + ".frag");
+
+		while (std::getline(ShaderFile, line)) {
+            ss[1] << line << '\n';
+        }
+
+		ShaderFile.close();
+
 		// convert stream into string
 		vertexCode = ss[0].str();
 		fragmentCode = ss[1].str();
