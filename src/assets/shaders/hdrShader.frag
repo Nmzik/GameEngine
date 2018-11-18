@@ -1,13 +1,13 @@
-#version 330 core
-out vec4 FragColor;
+#version 430 core
+layout (location = 0) out vec4 FragColor;
 
-in vec2 TexCoords;
+layout (location = 0) in vec2 TexCoords;
 
 float FXAA_SPAN_MAX = 8.0f;
 float FXAA_REDUCE_MUL = 1.0f/8.0f;
 float FXAA_REDUCE_MIN = 1.0f/128.0f;
 
-uniform sampler2D hdrBuffer;
+layout(binding = 0) uniform sampler2D hdrBuffer;
 uniform bool UseBlur;
 uniform float exposure;
 uniform vec2 hdrBufferOffset;

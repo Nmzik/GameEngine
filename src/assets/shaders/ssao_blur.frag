@@ -1,9 +1,9 @@
-#version 330 core
-out float FragColor;
+#version 430 core
+layout (location = 0) out float FragColor;
 
-in vec2 TexCoords;
+layout (location = 0) in vec2 TexCoords;
 
-uniform sampler2D ssaoInput;
+layout(binding = 0) uniform sampler2D ssaoInput;
 
 void main() 
 {

@@ -1,13 +1,13 @@
-#version 330 core
-out vec4 FragColor;
+#version 430 core
+layout (location = 0) out vec4 FragColor;
 
-in vec2 TexCoords;
+layout (location = 0) in vec2 TexCoords;
 
-uniform sampler2D gDepth;
-uniform sampler2D gAlbedoSpec;
-uniform sampler2D gNormal;
-uniform sampler2D shadowMap;
-uniform sampler2D ssao;
+layout(binding = 0) uniform sampler2D gDepth;
+layout(binding = 1) uniform sampler2D gAlbedoSpec;
+layout(binding = 2) uniform sampler2D gNormal;
+layout(binding = 3) uniform sampler2D shadowMap;
+layout(binding = 4) uniform sampler2D ssao;
 
 uniform mat4 InverseProjectionMatrix;
 uniform mat4 lightSpaceMatrix;

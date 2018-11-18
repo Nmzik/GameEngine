@@ -87,6 +87,16 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 	projection = glm::perspective(glm::radians(45.0f), (float)ScreenResWidth / (float)ScreenResHeight, 0.1f, 10000.0f);
 #endif // USE_DX_REVERSE_Z
 
+	/*glGenBuffers(1, &uboGlobal);
+	glBindBuffer(GL_UNIFORM_BUFFER, uboGlobal);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2, &projection[0], GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	glGenBuffers(1, &uboModel);
+    glBindBuffer(GL_UNIFORM_BUFFER, uboModel);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), NULL, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);*/
+
 	InverseProjMatrix = glm::inverse(projection);
 
 	//SkyboxShader = std::make_unique<Shader>("assets/shaders/skybox");
@@ -105,22 +115,7 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 	createSSAO();
 	createHDRFBO();
 
-	//debugDepthQuad->use();
-	//debugDepthQuad->setInt("depthMap", 0);
-
-	gbuffer->use();
-	gbuffer->setInt("DiffuseSampler", 0);
-	gbuffer->setInt("BumpSampler", 1);
-	gbuffer->setInt("SpecSampler", 2);
-
-	ModelUniformLoc = glGetUniformLocation(gbuffer->ID, "model");
-	ViewUniformLoc = glGetUniformLocation(gbuffer->ID, "view");
-	ProjUniformLoc = glGetUniformLocation(gbuffer->ID, "projection");
-
 	shaderSSAO->use();
-	shaderSSAO->setInt("gDepth", 0);
-	shaderSSAO->setInt("gNormal", 1);
-	shaderSSAO->setInt("texNoise", 2);
 	for (unsigned int i = 0; i < 64; ++i)
 		shaderSSAO->setVec3("samples[" + std::to_string(i) + "]", ssaoKernel[i]);
 	shaderSSAO->setVec2("noiseScale", glm::vec2((float)ScreenResWidth / 4.0, (float)ScreenResHeight / 4.0));
@@ -131,16 +126,7 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 	shaderSSAO->setMat4(ssaoProjection, projection);
 	shaderSSAO->setMat4(ssaoInverseProjectionMatrix, InverseProjMatrix);
 
-	shaderSSAOBlur->use();
-	shaderSSAOBlur->setInt("ssaoInput", 0);
-
 	gbufferLighting->use();
-	gbufferLighting->setInt("gDepth", 0);
-	gbufferLighting->setInt("gAlbedoSpec", 1);
-	gbufferLighting->setInt("gNormal", 2);
-	gbufferLighting->setInt("shadowMap", 3);
-	gbufferLighting->setInt("ssao", 4);
-
 	gbufferLighting->setMat4("InverseProjectionMatrix", InverseProjMatrix);
 
 	hdrShader->use();
@@ -385,6 +371,10 @@ void RenderingSystem::render(GameWorld* world)
 	glm::mat4 view = camera->GetViewMatrix();
 	camera->UpdateFrustum(projection * view);
 
+	//glBindBuffer(GL_UNIFORM_BUFFER, uboGlobal);
+    //glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), &view[0]);
+    //glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
 	if (gpuTimer && !mWaiting)
 		glBeginQuery(GL_TIME_ELAPSED, m_nQueryIDDrawTime);
 
@@ -397,8 +387,8 @@ void RenderingSystem::render(GameWorld* world)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	gbuffer->use();
-	gbuffer->setMat4(ViewUniformLoc, view);
-	gbuffer->setMat4(ProjUniformLoc, projection);
+	gbuffer->setMat4(1, view);
+	gbuffer->setMat4(2, projection);
 
 	DrawCalls = 0;
 
@@ -449,9 +439,16 @@ void RenderingSystem::render(GameWorld* world)
 		//}
 	}*/
 
+	//glUniformBlockBinding(gbuffer->ID, uboGlobal, 0);
+	//glBindBufferBase(GL_UNIFORM_BUFFER, 0, uboGlobal);
+    //glBindBufferBase(GL_UNIFORM_BUFFER, 1, uboModel);
+
 	for (auto& model : world->renderList)
 	{
-		gbuffer->setMat4(ModelUniformLoc, model.modelMatrix);
+        gbuffer->setMat4(0, model.modelMatrix);
+		//glBindBuffer(GL_UNIFORM_BUFFER, uboModel);
+        //glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &model.modelMatrix[0]);
+        //glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 		for (auto &model : *model.ydr->models)
 		{
@@ -475,7 +472,7 @@ void RenderingSystem::render(GameWorld* world)
 				glBindVertexArray(mesh.VAO);
 
 				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, DefaultTexture);
+                glBindTexture(GL_TEXTURE_2D, DefaultTexture);
 
 				glActiveTexture(GL_TEXTURE1);
 				glBindTexture(GL_TEXTURE_2D, DefaultTexture);
@@ -497,14 +494,14 @@ void RenderingSystem::render(GameWorld* world)
 
 	if (RenderDebugWorld) {
 		world->GetDynamicsWorld()->debugDrawWorld();
-		gbuffer->setMat4(ModelUniformLoc, glm::mat4(1.0));
+		gbuffer->setMat4(0, glm::mat4(1.0));
 		world->getDebugDrawer()->render();
 	}
 
 	for (auto& waterMesh : world->WaterMeshes)
 	{
 		if (camera->intersects(waterMesh.BSCenter, waterMesh.BSRadius)) {
-			gbuffer->setMat4(ModelUniformLoc, glm::mat4(1.0));
+			gbuffer->setMat4(0, glm::mat4(1.0));
 			waterMesh.Draw();
 
 			DrawCalls++;

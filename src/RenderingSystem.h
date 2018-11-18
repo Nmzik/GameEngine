@@ -20,12 +20,12 @@ class RenderingSystem
 private:
 	DirectonalLight dirLight;
 
+	GLuint uboGlobal;
+    GLuint uboModel;
+
 	std::unique_ptr<Shader> SkyboxShader;
 
 	std::unique_ptr<Shader> gbuffer;
-	GLuint ModelUniformLoc;
-	GLuint ViewUniformLoc;
-	GLuint ProjUniformLoc;
 
 	GLuint ssaoProjection;
 	GLuint ssaoInverseProjectionMatrix;
