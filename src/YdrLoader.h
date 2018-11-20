@@ -2,6 +2,7 @@
 
 #include "FileType.h"
 #include "Model.h"
+#include "GlobalPool.h"
 
 struct ShaderGroup : datBase {
 	uint64_t TextureDictionaryPointer;
@@ -319,6 +320,9 @@ struct DrawableBase : ResourceFileBase {
 class YtdLoader;
 class YbnLoader;
 
+//REMOVE DEFAULT INITIALIZATION IN CLASS
+//CAUSES CLASS IN ASSEMBLER
+
 class YdrLoader : public FileType
 {
 	YtdLoader* Ytd = nullptr;
@@ -333,5 +337,3 @@ public:
 
 	void UploadMeshes();
 };
-
-static Pool<YdrLoader, 6000> YdrPool;

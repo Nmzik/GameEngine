@@ -15,8 +15,8 @@ class ResourceManager;
 class YmapLoader;
 class Water;
 class Camera;
-class Player;
-class Vehicle;
+class CPed;
+class CVehicle;
 class YdrLoader;
 class YddLoader;
 class YtdLoader;
@@ -54,24 +54,16 @@ public:
 	uint32_t culled = 0;
 	float LODMultiplier = 1.0f;
 	std::vector<Water> WaterMeshes;
-	std::unordered_map<uint32_t, YdrLoader*> ydrLoader;
-	std::unordered_map<uint32_t, YddLoader*> yddLoader;
-	std::unordered_map<uint32_t, YftLoader*> yftLoader;
-	std::unordered_map<uint32_t, YtdLoader*> ytdLoader;
-	std::unordered_map<uint32_t, YbnLoader*> ybnLoader;
-	std::unordered_map<uint32_t, YmapLoader*> ymapLoader;
 	//std::vector<YndLoader> yndLoader;
 	std::vector<YtypLoader*> ytypLoader;
 	std::unordered_map<uint32_t, CarHandling> vehiclesPool;
-	std::vector<Player> pedestrians;
-	std::vector<Vehicle> vehicles;
+	std::vector<CPed> peds;
+	std::vector<CVehicle> vehicles;
 
 	std::mutex resources_lock;
 	std::vector<Resource> resources;
 
 	RenderList renderList;
-	uint64_t GlobalGpuMemory = 0;
-	uint64_t TextureMemory = 0;
 
 	float accumulatedTime = 0.0f;
 
@@ -88,18 +80,6 @@ public:
 	~GameWorld();
 
 	void LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position);
-	YmapLoader* GetYmap(uint32_t hash);
-	//bool LoadYTYP(uint32_t hash);
-
-	void LoadGtxd(uint32_t hash);
-
-	//GetFile<YdrLoader, Type::ydr>(uint32_t hash, uint32_t TextureDictionaryHash);
-
-	YdrLoader* GetYdr(uint32_t hash, uint32_t TextureDictionaryHash);
-	YtdLoader* GetYtd(uint32_t hash);
-	YddLoader* GetYdd(uint32_t hash, uint32_t TextureDictionaryHash);
-	YftLoader* GetYft(uint32_t hash, uint32_t TextureDictionaryHash);
-	YbnLoader* GetYbn(uint32_t hash);
 
 	void GetVisibleYmaps(Camera* camera);
 
@@ -126,7 +106,7 @@ public:
 	void UpdateDynamicObjects();
 	void Update();
 	void UpdateTraffic(Camera* camera, glm::vec3 pos);
-	Vehicle* FindNearestVehicle();
+	CVehicle* FindNearestVehicle();
 	void DetectWeaponHit(glm::vec3 CameraPosition, glm::vec3 lookDirection);
 	void update(float delta_time, Camera* camera);
 

@@ -23,10 +23,14 @@ void YmapLoader::Init(memstream& file)
 				break;
 			}
 			case 3461354627: {
-				for (int i = 0; i < Block.MetaDataBlock_struct->DataLength / sizeof(CEntityDef); i++)
+                for (int i = 0; i < Block.MetaDataBlock_struct->DataLength / sizeof(fwEntityDef);
+                     i++)
 				{
-					CEntityDef def;
-					std::memcpy(&def, &file.data[Block.MetaDataBlock_struct->DataPointer + i * sizeof(CEntityDef)], sizeof(CEntityDef));
+					fwEntityDef def;
+                    std::memcpy(&def,
+                                &file.data[Block.MetaDataBlock_struct->DataPointer +
+                                           i * sizeof(fwEntityDef)],
+                                sizeof(fwEntityDef));
 
 					bool isreflproxy = false;
 					switch (def.flags)

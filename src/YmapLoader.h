@@ -3,7 +3,7 @@
 
 struct CMloInstanceDef //160 bytes, Key:2151576752
 {
-	CEntityDef CEntityDef;
+    fwEntityDef fwEntityDef;
 	uint32_t groupId; //128   128: UnsignedInt: 0: 2501631252
 	uint32_t floorId; //132   132: UnsignedInt: 0: floorId//2187650609
 	Array_uint defaultEntitySets; //136   136: Array: 0: defaultEntitySets//1407157833  {0: Hash: 0: 256}
@@ -120,12 +120,9 @@ public:
 	CMapData _CMapData;
 	std::vector<CMloInstanceDef> CMloInstanceDefs;
 	std::vector<Object>* Objects;
-	std::vector<Object> RootObjects;
 	std::vector<CCarGen> CCarGens;
 
 	void Init(memstream & file) override;
 	void Finalize() override;
 	void Remove();
 };
-
-static Pool<YmapLoader, 1000> YmapPool;

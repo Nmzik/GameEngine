@@ -27,7 +27,7 @@ void YddLoader::Init(memstream & file, int32_t systemSize)
 
 		file.seekg(data_pointer[0]);
 
-		YdrLoader* ydr = YdrPool.getPool().Load();
+		YdrLoader* ydr = GlobalPool::getInstance().YdrPool.Load();
 		ydr->Init(file, systemSize);
 		gpuMemory += ydr->gpuMemory;
 		YdrFiles->insert({ YdrHashes[i], ydr});
@@ -42,7 +42,7 @@ void YddLoader::Remove()
 
 	for (auto& ydr : *YdrFiles)
 	{
-		YdrPool.getPool().Remove(ydr.second);
+        GlobalPool::getInstance().YdrPool.Remove(ydr.second);
 	}
 	delete YdrFiles;
 }

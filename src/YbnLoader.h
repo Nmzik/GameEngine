@@ -153,5 +153,3 @@ public:
 	void Finalize(btDiscreteDynamicsWorld* world) override;
 	void Remove();
 };
-
-static Pool<YbnLoader, 1000> YbnPool;

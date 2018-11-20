@@ -28,5 +28,3 @@ public:
 	void Init(memstream & file, int32_t systemSize) override;
 	void Remove();
 };
-
-static Pool<YddLoader, 1000> YddPool;

@@ -11,7 +11,7 @@ enum Unk_1991964615 //archetype assetType
 	ASSET_TYPE_ASSETLESS = 4, //4161085041
 };
 
-struct CBaseArchetypeDef //144 bytes, Key:2411387556
+struct fwArchetypeDef // 144 bytes, Key:2411387556
 {
 	uint32_t Unused00;//0
 	uint32_t Unused01;//4
@@ -52,7 +52,7 @@ struct CTimeArchetypeDefData
 
 struct CTimeArchetypeDef //160 bytes, Key:2520619910
 {
-	CBaseArchetypeDef _BaseArchetypeDef;
+    fwArchetypeDef _BaseArchetypeDef;
 	CTimeArchetypeDefData _TimeArchetypeDef;
 };
 
@@ -70,7 +70,7 @@ struct CMloArchetypeDefData
 };
 
 struct CMloArchetypeDef {
-	CBaseArchetypeDef _BaseArchetypeDef;
+    fwArchetypeDef _BaseArchetypeDef;
 	CMloArchetypeDefData _MloArchetypeDefData;
 };
 
@@ -88,7 +88,7 @@ struct CMapTypes //80 bytes, Key:2608875220
 
 class Archetype {
 public:
-	CBaseArchetypeDef BaseArchetypeDef;
+    fwArchetypeDef BaseArchetypeDef;
 
 	virtual uint32_t GetType() {
 		return 0;
@@ -117,7 +117,7 @@ class YtypLoader
 {
 public:
 	std::vector<Archetype*> ArchetypeDefs;
-	//std::vector<CEntityDef> CEntityDefs;
+	//std::vector<fwEntityDef> fwEntityDefs;
 	YtypLoader(memstream& file);
 	~YtypLoader();
 };

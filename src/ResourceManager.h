@@ -1,32 +1,60 @@
 #pragma once
 
-#include <thread>
 #include <mutex>
+#include <thread>
+#include <unordered_map>
 #include "includes.h"
+#include "FileType.h"
 
 class GameWorld;
 class RpfEntry;
 
 class RpfResourceFileEntry;
 
-class ResourceManager
-{
-	std::thread ResourcesThread;
-	std::mutex mylock;
-	std::condition_variable loadCondition;
-	bool running;
+class YdrLoader;
+class YddLoader;
+class YftLoader;
+class YtdLoader;
+class YbnLoader;
+class YmapLoader;
 
-	std::vector<Resource> waitingList;
-	GameWorld *gameworld;
+class ResourceManager {
+    std::thread ResourcesThread;
+    std::mutex mylock;
+    std::condition_variable loadCondition;
+    bool running;
+
+    std::vector<Resource> waitingList;
+    GameWorld* gameworld;
+
 public:
+    std::unordered_map<uint32_t, YdrLoader*> ydrLoader;
+    std::unordered_map<uint32_t, YddLoader*> yddLoader;
+    std::unordered_map<uint32_t, YftLoader*> yftLoader;
+    std::unordered_map<uint32_t, YtdLoader*> ytdLoader;
+    std::unordered_map<uint32_t, YbnLoader*> ybnLoader;
+    std::unordered_map<uint32_t, YmapLoader*> ymapLoader;
 
-	ResourceManager(GameWorld *world);
-	~ResourceManager();
+    ResourceManager(GameWorld* world);
+    ~ResourceManager();
 
-	void LoadDrawable(RpfResourceFileEntry * entry, Resource& res);
-	inline void AddToMainQueue(Resource& res);
-	void AddToWaitingList(Resource& res);
+    uint64_t GlobalGpuMemory = 0;
+    uint64_t TextureMemory = 0;
 
-	void update();
+    void GetGtxd(uint32_t hash);
+    // GetFile<YdrLoader, Type::ydr>(uint32_t hash, uint32_t TextureDictionaryHash);
+    YmapLoader* GetYmap(uint32_t hash);
+    YdrLoader* GetYdr(uint32_t hash, uint32_t TextureDictionaryHash);
+    YtdLoader* GetYtd(uint32_t hash);
+    YddLoader* GetYdd(uint32_t hash, uint32_t TextureDictionaryHash);
+    YftLoader* GetYft(uint32_t hash, uint32_t TextureDictionaryHash);
+    YbnLoader* GetYbn(uint32_t hash);
+
+    void LoadDrawable(RpfResourceFileEntry* entry, Resource& res);
+    inline void AddToMainQueue(Resource& res);
+    void AddToWaitingList(Resource& res);
+
+    void update();
+
+    void UpdateResourceCache();
 };
-

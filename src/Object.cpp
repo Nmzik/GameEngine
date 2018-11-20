@@ -6,7 +6,7 @@
 
 #include <btBulletDynamicsCommon.h>
 
-Object::Object(CEntityDef def)
+Object::Object(fwEntityDef def)
 	: Entity(def.position, def.rotation, glm::vec3(def.scaleXY, def.scaleXY, def.scaleZ))
 	, CEntity(def)
 {

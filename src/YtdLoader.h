@@ -38,7 +38,7 @@ struct TextureBase : datBase {
 	uint32_t Unknown_3Ch; // 0x00000000
 };
 
-struct Texture : TextureBase {
+struct grcTexture : TextureBase {
 	uint32_t Unknown_40h;
 	uint32_t Unknown_44h; // 0x00000000
 	uint32_t Unknown_48h;
@@ -74,7 +74,7 @@ struct TextureDictionary : ResourceFileBase {
 	uint32_t Unknown_18h; // 0x00000001
 	uint32_t Unknown_1Ch; // 0x00000000
 	ResourceSimpleList64Ptr TextureNameHashesPtr;
-	pgObjectArray<Texture> Textures;
+    pgObjectArray<grcTexture> Textures;
 
 	void Resolve(memstream& file) {
 		Textures.Resolve(file);
@@ -90,6 +90,4 @@ public:
 	void Init(memstream& file, int32_t systemSize);
 	void Remove();
 };
-
-static Pool<YtdLoader, 2500> YtdPool;
 

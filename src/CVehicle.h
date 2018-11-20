@@ -6,12 +6,12 @@
 #include "Entity.h"
 #include "YdrLoader.h"
 
-class Vehicle : public Entity
+class CVehicle : public Entity
 {
 	YftLoader* vehicle;
 public:
-	Vehicle(glm::vec3 position, float mass, YftLoader* yft, btDiscreteDynamicsWorld* world);
-	~Vehicle();
+	CVehicle(glm::vec3 position, float mass, YftLoader* yft, btDiscreteDynamicsWorld* world);
+	~CVehicle();
 
 	glm::mat4 GetMat4();
 

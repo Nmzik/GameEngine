@@ -112,7 +112,7 @@ enum Unk_648413703 //entity priorityLevel
 	PRI_OPTIONAL_LOW = 3, //329627604
 };
 
-struct CEntityDef //128 bytes, Key:1825799514
+struct fwEntityDef // 128 bytes, Key:1825799514
 {
 	uint32_t Unused0;//0
 	uint32_t Unused1;//4

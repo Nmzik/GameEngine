@@ -1,4 +1,4 @@
-#include "Vehicle.h"
+#include "CVehicle.h"
 
 #define CUBE_HALF_EXTENTS 1
 btVector3 wheelDirectionCS0(0, 0, -1);
@@ -18,7 +18,7 @@ float	rollInfluence = 0.1f;//1.0f;
 btScalar suspensionRestLength(0.6f);
 btScalar m_defaultContactProcessingThreshold(BT_LARGE_FLOAT);
 
-Vehicle::Vehicle(glm::vec3 position, float mass, YftLoader* yft, btDiscreteDynamicsWorld* world) : throttle(0), steeringValue(0), vehicle(yft), Entity(position, glm::quat(-1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(1.0f))
+CVehicle::CVehicle(glm::vec3 position, float mass, YftLoader* yft, btDiscreteDynamicsWorld* world) : throttle(0), steeringValue(0), vehicle(yft), Entity(position, glm::quat(-1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(1.0f))
 {
 	btRaycastVehicle::btVehicleTuning m_tuning;
 
@@ -94,7 +94,7 @@ Vehicle::Vehicle(glm::vec3 position, float mass, YftLoader* yft, btDiscreteDynam
 
 }
 
-Vehicle::~Vehicle()
+CVehicle::~CVehicle()
 {
 	delete m_carChassis->getMotionState();
 	delete m_carChassis;
@@ -109,14 +109,14 @@ Vehicle::~Vehicle()
 	//delete vehicle;
 }
 
-glm::mat4 Vehicle::GetMat4()
+glm::mat4 CVehicle::GetMat4()
 {
 	m_carChassis->getWorldTransform().getOpenGLMatrix(&modelMatrix[0][0]);
 
 	return modelMatrix;
 }
 
-void Vehicle::PhysicsTick()
+void CVehicle::PhysicsTick()
 {
 	float engineForce = throttle * 5000.0f;
 

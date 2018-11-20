@@ -128,7 +128,7 @@ GameData::GameData()
 
 				/*if (file.CMloArchetypeDefs.size() != 0)
 				{
-					MloDictionary[file.CMloArchetypeDefs[0]._BaseArchetypeDef.assetName] = file.CEntityDefs;
+					MloDictionary[file.CMloArchetypeDefs[0]._BaseArchetypeDef.assetName] = file.fwEntityDefs;
 				}*/
 			}
 		}

@@ -3,7 +3,7 @@
 #include "GameWorld.h"
 #include "RenderingSystem.h"
 #include "GameData.h"
-#include "Player.h"
+#include "CPed.h"
 
 Game::Game() {
 
@@ -92,7 +92,7 @@ void Game::updateFPS(float delta_time) {
 	if (time_since_last_fps_output >= 1.0f) {
 		time_since_last_fps_output = 0.0f;
 		std::ostringstream osstr;
-		osstr << "Game window" << " (" << (1.0f / delta_time) << " FPS, " << (delta_time * 1000.0f) << " CPU time, " << rendering_system->gpuTime * 0.000001f << " GPU time) | " << gameWorld->renderList.size() << " Objects, " << rendering_system->DrawCalls << " Draw Calls, " << gameWorld->GlobalGpuMemory / 1024 / 1024 << " MB GPU memory, " << gameWorld->TextureMemory / 1024 / 1024 << " MB Texture Memory";
+		osstr << "Game window" << " (" << (1.0f / delta_time) << " FPS, " << (delta_time * 1000.0f) << " CPU time, " << rendering_system->gpuTime * 0.000001f << " GPU time) | " << gameWorld->renderList.size() << " Objects, " << rendering_system->DrawCalls << " Draw Calls, " << gameWorld->GetResourceManager()->GlobalGpuMemory / 1024 / 1024 << " MB GPU memory, " << gameWorld->GetResourceManager()->TextureMemory / 1024 / 1024 << " MB Texture Memory";
 		SDL_SetWindowTitle(window, osstr.str().c_str());
 	}
 }
@@ -180,12 +180,12 @@ void Game::tick(float delta_time)
 	if (getInput()->IsKeyTriggered(SDL_SCANCODE_B)) {
 		getWorld()->currentPlayerID = 0;
 		uint32_t random = rand() % getWorld()->getGameData()->Scenes.size();
-		getWorld()->pedestrians[getWorld()->currentPlayerID].SetPosition(glm::vec3(-205.28, 6432.15, 36.87));
-		getWorld()->pedestrians[getWorld()->currentPlayerID].getPhysCharacter()->setGravity(getWorld()->GetDynamicsWorld()->getGravity());
+		getWorld()->peds[getWorld()->currentPlayerID].SetPosition(glm::vec3(-205.28, 6432.15, 36.87));
+		getWorld()->peds[getWorld()->currentPlayerID].getPhysCharacter()->setGravity(getWorld()->GetDynamicsWorld()->getGravity());
 		for (int i = 0; i < 3; i++)
 		{
 			if (getWorld()->currentPlayerID != i) {
-				getWorld()->pedestrians[i].getPhysCharacter()->setGravity(btVector3(0, 0, 0));
+				getWorld()->peds[i].getPhysCharacter()->setGravity(btVector3(0, 0, 0));
 			}
 		}
 	}
@@ -196,24 +196,24 @@ void Game::tick(float delta_time)
 		std::mt19937 gen(rd());
 		std::uniform_int_distribution<uint32_t> dis(0, getWorld()->getGameData()->Scenes.size());
 
-		getWorld()->pedestrians[getWorld()->currentPlayerID].SetPosition(getWorld()->getGameData()->Scenes[dis(gen)]);
-		getWorld()->pedestrians[getWorld()->currentPlayerID].getPhysCharacter()->setGravity(getWorld()->GetDynamicsWorld()->getGravity());
+		getWorld()->peds[getWorld()->currentPlayerID].SetPosition(getWorld()->getGameData()->Scenes[dis(gen)]);
+		getWorld()->peds[getWorld()->currentPlayerID].getPhysCharacter()->setGravity(getWorld()->GetDynamicsWorld()->getGravity());
 		for (int i = 0; i < 3; i++)
 		{
 			if (getWorld()->currentPlayerID != i) {
-				getWorld()->pedestrians[i].getPhysCharacter()->setGravity(btVector3(0, 0, 0));
+				getWorld()->peds[i].getPhysCharacter()->setGravity(btVector3(0, 0, 0));
 			}
 		}
 	}
 	if (getInput()->IsKeyTriggered(SDL_SCANCODE_M)) {
 		getWorld()->currentPlayerID = 2;
 		uint32_t random = rand() % getWorld()->getGameData()->Scenes.size();
-		getWorld()->pedestrians[getWorld()->currentPlayerID].SetPosition(getWorld()->getGameData()->Scenes[random]);
-		getWorld()->pedestrians[getWorld()->currentPlayerID].getPhysCharacter()->setGravity(getWorld()->GetDynamicsWorld()->getGravity());
+		getWorld()->peds[getWorld()->currentPlayerID].SetPosition(getWorld()->getGameData()->Scenes[random]);
+		getWorld()->peds[getWorld()->currentPlayerID].getPhysCharacter()->setGravity(getWorld()->GetDynamicsWorld()->getGravity());
 		for (int i = 0; i < 3; i++)
 		{
 			if (getWorld()->currentPlayerID != i) {
-				getWorld()->pedestrians[i].getPhysCharacter()->setGravity(btVector3(0, 0, 0));
+				getWorld()->peds[i].getPhysCharacter()->setGravity(btVector3(0, 0, 0));
 			}
 		}
 	}
@@ -221,7 +221,7 @@ void Game::tick(float delta_time)
 		getRenderer()->RenderDebugWorld = !getRenderer()->RenderDebugWorld;
 	}
 
-	Player* player = &getWorld()->pedestrians[getWorld()->currentPlayerID];
+	CPed* player = &getWorld()->peds[getWorld()->currentPlayerID];
 
 	//printf("CURRENT HEALTH %f\n", player->getCurrentHealth());
 

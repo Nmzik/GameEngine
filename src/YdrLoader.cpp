@@ -24,7 +24,7 @@ void YdrLoader::Init(memstream & file, int32_t systemSize)
 			SYSTEM_BASE_PTR(fragDrawable->BoundPointer);
 			file.seekg(fragDrawable->BoundPointer);
 
-			ybnfile = YbnPool.getPool().Load();
+			ybnfile = GlobalPool::getInstance().YbnPool.Load();
 			ybnfile->Init(file);
 		}
 	}
@@ -48,7 +48,7 @@ void YdrLoader::Init(memstream & file, int32_t systemSize)
 			SYSTEM_BASE_PTR(drawable->BoundPointer);
 			file.seekg(drawable->BoundPointer);
 
-			ybnfile = YbnPool.getPool().Load();
+			ybnfile = GlobalPool::getInstance().YbnPool.Load();
 			ybnfile->Init(file);
 			//ybnfile->Finalize(world);
 		}
@@ -61,7 +61,7 @@ void YdrLoader::Init(memstream & file, int32_t systemSize)
 		if (drawBase->ShaderGroupPointer->TextureDictionaryPointer != 0) {
 			SYSTEM_BASE_PTR(drawBase->ShaderGroupPointer->TextureDictionaryPointer);
 			file.seekg(drawBase->ShaderGroupPointer->TextureDictionaryPointer);
-			Ytd = YtdPool.getPool().Load();
+            Ytd = GlobalPool::getInstance().YtdPool.Load();
 			Ytd->Init(file, systemSize);
 		}
 
@@ -225,11 +225,11 @@ void YdrLoader::Remove()
 	isYft = false;
 
 	if (ybnfile) {
-		YbnPool.getPool().Remove(ybnfile);
+        GlobalPool::getInstance().YbnPool.Remove(ybnfile);
 		ybnfile = nullptr;
 	}
 	if (Ytd) {
-		YtdPool.getPool().Remove(Ytd);
+        GlobalPool::getInstance().YtdPool.Remove(Ytd);
 		Ytd = nullptr;
 	}
 	delete models;

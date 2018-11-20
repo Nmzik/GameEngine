@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Entity.h"
-#include "Vehicle.h"
+#include "CVehicle.h"
 #include "YddLoader.h"
 #include <array>
 
@@ -12,7 +12,7 @@ struct CharacterWeaponSlot {
 	uint32_t bulletsTotal;
 };
 
-class Player : public Entity
+class CPed : public Entity
 {
 	btCapsuleShapeZ* physShape;
 	btRigidBody *body;
@@ -21,14 +21,14 @@ class Player : public Entity
 	uint16_t currentWeapon = 0;
 	bool inWater = false;
 	glm::vec3 playerDirection;
-	Vehicle* vehicle;
+	CVehicle* vehicle;
 	YddLoader* player;
 public:
-	Player(glm::vec3 position, YddLoader* ydd, btDiscreteDynamicsWorld* world);
-	~Player();
+    CPed(glm::vec3 position, YddLoader* ydd, btDiscreteDynamicsWorld* world);
+    ~CPed();
 
 	std::vector<YdrLoader*> playerModel;
-	Player* next;
+    CPed* next;
 	bool on_ground = false;
 	bool isAlive() {
 		return health > 0;
@@ -45,8 +45,8 @@ public:
 	void TakeDamage(float dmg);
 	void PhysicsTick();
 	void ExitVehicle();
-	void EnterVehicle(Vehicle* nearestVehicle);
-	Vehicle* GetCurrentVehicle();
+	void EnterVehicle(CVehicle* nearestVehicle);
+	CVehicle* GetCurrentVehicle();
 	void addToInventory(uint32_t slot, uint32_t ammo);
 	void setActiveWeapon(uint32_t slot);
 	void Jump();

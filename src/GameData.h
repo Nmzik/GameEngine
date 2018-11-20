@@ -51,7 +51,7 @@ public:
 	std::unique_ptr<CacheDatFile> cacheFile;
 
 	std::unordered_map<uint32_t, Archetype*> Archetypes;
-	//std::unordered_map<uint32_t, std::vector<CEntityDef>> MloDictionary;
+	//std::unordered_map<uint32_t, std::vector<fwEntityDef>> MloDictionary;
 	std::unordered_map<uint32_t, RpfResourceFileEntry*> YdrEntries;
 	std::unordered_map<uint32_t, RpfResourceFileEntry*> YddEntries;
 	std::unordered_map<uint32_t, RpfResourceFileEntry*> YtdEntries;
