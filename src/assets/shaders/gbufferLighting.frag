@@ -9,10 +9,10 @@ layout(binding = 2) uniform sampler2D gNormal;
 layout(binding = 3) uniform sampler2D shadowMap;
 layout(binding = 4) uniform sampler2D ssao;
 
-uniform mat4 InverseProjectionMatrix;
-uniform mat4 lightSpaceMatrix;
-uniform vec3 viewPos;
-uniform int type;
+layout (location = 0) uniform mat4 InverseProjectionMatrix;
+layout (location = 1) uniform mat4 lightSpaceMatrix;
+layout (location = 2) uniform vec3 viewPos;
+layout (location = 3) uniform int type;
 
 struct DirectionalLight {
 	vec3 direction;

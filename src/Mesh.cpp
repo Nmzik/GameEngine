@@ -6,8 +6,9 @@ Mesh::Mesh(const uint8_t* meshData, DrawableGeometry* drawGeom, Material mat) : 
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
 
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glGenBuffers(2, VBO);
+	//////////////
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
 	glBufferData(GL_ARRAY_BUFFER, drawGeom->VertexBufferPointer->VertexCount * drawGeom->VertexBufferPointer->VertexStride, &meshData[drawGeom->VertexBufferPointer->DataPointer1], GL_STATIC_DRAW);
 
 	glEnableVertexAttribArray(0); //Positions
@@ -193,14 +194,12 @@ Mesh::Mesh(const uint8_t* meshData, DrawableGeometry* drawGeom, Material mat) : 
 		break;
 	}
 
-	glGenBuffers(1, &EBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, VBO[1]);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, drawGeom->IndexBufferPointer->IndicesCount * sizeof(uint16_t), &meshData[drawGeom->IndexBufferPointer->IndicesPointer], GL_STATIC_DRAW); //16 BIT INDICES max 65536
 }
 
 Mesh::~Mesh()
 {
-	glDeleteBuffers(1, &EBO);
-	glDeleteBuffers(1, &VBO);
-	glDeleteVertexArrays(1, &VAO);
+    glDeleteVertexArrays(1, &VAO);
+	glDeleteBuffers(2, VBO);
 }

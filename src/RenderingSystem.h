@@ -81,7 +81,9 @@ public:
 	uint32_t DrawCalls;
 	glm::vec3 lightPos;
 	bool RenderDebugWorld = false;
-	Camera& getCamera();
+	Camera& getCamera() {
+        return *camera;
+    }
 	void createGBuffer();
 	void createDepthFBO();
 	void createSSAO();

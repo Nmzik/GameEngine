@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include "includes.h"
 #include "FileType.h"
+#include <deque>
 
 class GameWorld;
 class RpfEntry;
@@ -24,7 +25,7 @@ class ResourceManager {
     std::condition_variable loadCondition;
     bool running;
 
-    std::vector<Resource> waitingList;
+    std::deque<Resource*> waitingList;
     GameWorld* gameworld;
 
 public:
@@ -44,15 +45,15 @@ public:
     void GetGtxd(uint32_t hash);
     // GetFile<YdrLoader, Type::ydr>(uint32_t hash, uint32_t TextureDictionaryHash);
     YmapLoader* GetYmap(uint32_t hash);
-    YdrLoader* GetYdr(uint32_t hash, uint32_t TextureDictionaryHash);
+    YdrLoader* GetYdr(uint32_t hash);
     YtdLoader* GetYtd(uint32_t hash);
-    YddLoader* GetYdd(uint32_t hash, uint32_t TextureDictionaryHash);
-    YftLoader* GetYft(uint32_t hash, uint32_t TextureDictionaryHash);
+    YddLoader* GetYdd(uint32_t hash);
+    YftLoader* GetYft(uint32_t hash);
     YbnLoader* GetYbn(uint32_t hash);
 
-    void LoadDrawable(RpfResourceFileEntry* entry, Resource& res);
-    inline void AddToMainQueue(Resource& res);
-    void AddToWaitingList(Resource& res);
+    void Load(RpfResourceFileEntry* entry, Resource* res);
+    inline void AddToMainQueue(Resource* res);
+    void AddToWaitingList(Resource* res);
 
     void update();
 

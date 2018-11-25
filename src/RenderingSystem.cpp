@@ -37,7 +37,7 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 
-	//SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
 
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
@@ -51,8 +51,8 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 	//if (!GLEW_EXT_texture_compression_s3tc) printf("NOT INITALIZED s3tc\n");
 	//if (!GLEW_EXT_texture_compression_rgtc) printf("NOT INITALIZED rgtc\n");
 
-	//glEnable(GL_DEBUG_OUTPUT);
-	//glDebugMessageCallback(myDebugCallback, nullptr);
+	glEnable(GL_DEBUG_OUTPUT);
+	glDebugMessageCallback(myDebugCallback, nullptr);
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
@@ -127,7 +127,7 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 	shaderSSAO->setMat4(ssaoInverseProjectionMatrix, InverseProjMatrix);
 
 	gbufferLighting->use();
-	gbufferLighting->setMat4("InverseProjectionMatrix", InverseProjMatrix);
+	gbufferLighting->setMat4(0, InverseProjMatrix);
 
 	hdrShader->use();
 	hdrShader->setVec2("hdrBufferOffset", glm::vec2(1.0f / (float)ScreenResWidth, 1.0f / (float)ScreenResHeight));
@@ -136,11 +136,13 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 	//MeshManager::GetManager().Initialize();
 
 	float quadVertices[] = {
-		// positions        // texture Coords
-		-1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
-		-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-		1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
-		1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+		-1.0f,  1.0f,  0.0f, 1.0f,
+		-1.0f, -1.0f,  0.0f, 0.0f,
+		 1.0f, -1.0f,  1.0f, 0.0f,
+
+		-1.0f,  1.0f,  0.0f, 1.0f,
+		1.0f, -1.0f,  1.0f, 0.0f,
+		1.0f,  1.0f,  1.0f, 1.0f
 	};
 	// setup plane VAO
 	glGenVertexArrays(1, &quadVAO);
@@ -148,10 +150,10 @@ RenderingSystem::RenderingSystem(SDL_Window* window_) : window{ window_ }, dirLi
 	glGenBuffers(1, &quadVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 
 	glGenQueries(1, &m_nQueryIDDrawTime);
 
@@ -177,11 +179,6 @@ RenderingSystem::~RenderingSystem()
 	////
 	glDeleteQueries(1, &m_nQueryIDDrawTime);
 	SDL_GL_DeleteContext(glcontext);
-}
-
-Camera & RenderingSystem::getCamera()
-{
-	return *camera;
 }
 
 float lerp(float a, float b, float f)
@@ -252,7 +249,7 @@ void RenderingSystem::createDepthFBO()
 
 void RenderingSystem::createSSAO()
 {
-	glGenFramebuffers(1, &ssaoFBO);  glGenFramebuffers(1, &ssaoBlurFBO);
+	glGenFramebuffers(1, &ssaoFBO);  
 	glBindFramebuffer(GL_FRAMEBUFFER, ssaoFBO);
 
 	// SSAO color buffer
@@ -265,6 +262,7 @@ void RenderingSystem::createSSAO()
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		std::cout << "SSAO Framebuffer not complete!" << std::endl;
 	// and blur stage
+    glGenFramebuffers(1, &ssaoBlurFBO);
 	glBindFramebuffer(GL_FRAMEBUFFER, ssaoBlurFBO);
 	glGenTextures(1, &ssaoColorBufferBlur);
 	glBindTexture(GL_TEXTURE_2D, ssaoColorBufferBlur);
@@ -338,8 +336,7 @@ void RenderingSystem::createHDRFBO()
 inline void RenderingSystem::renderQuad()
 {
 	glBindVertexArray(quadVAO);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-	//glBindVertexArray(0);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
 void RenderingSystem::render(GameWorld* world)
@@ -472,7 +469,7 @@ void RenderingSystem::render(GameWorld* world)
 				glBindVertexArray(mesh.VAO);
 
 				glActiveTexture(GL_TEXTURE0);
-                glBindTexture(GL_TEXTURE_2D, DefaultTexture);
+                glBindTexture(GL_TEXTURE_2D, mesh.material.diffuseTextureID);
 
 				glActiveTexture(GL_TEXTURE1);
 				glBindTexture(GL_TEXTURE_2D, DefaultTexture);

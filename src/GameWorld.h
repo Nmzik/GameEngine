@@ -61,7 +61,7 @@ public:
 	std::vector<CVehicle> vehicles;
 
 	std::mutex resources_lock;
-	std::vector<Resource> resources;
+	std::deque<Resource*> resources;
 
 	RenderList renderList;
 

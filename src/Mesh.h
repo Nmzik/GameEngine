@@ -49,7 +49,7 @@ struct DrawableGeometry;
 class Mesh
 {
 public:
-	GLuint VBO, EBO, VAO;
+	GLuint VBO[2], VAO;
 
 	Material material;
 	uint32_t num_indices;

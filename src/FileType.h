@@ -226,7 +226,7 @@ private:
 
 public:
 	inline uint16_t getSize() {
-		return m_size;
+        return m_count;
 	}
 
 	TValue* Get(uint16_t offset)
@@ -238,7 +238,7 @@ public:
 	{
 		m_objects.Resolve(file);
 
-		for (int i = 0; i < m_size; i++)
+		for (int i = 0; i < m_count; i++)
 		{
 			(*m_objects)[i].Resolve(file);
 			(*m_objects)[i]->Resolve(file);

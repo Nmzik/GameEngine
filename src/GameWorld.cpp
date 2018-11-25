@@ -28,10 +28,10 @@ GameWorld::GameWorld()
 
 	dynamicsWorld->setGravity(btVector3(0, 0, -9.8f));
 	//UPDATE STATIC OBJECTS MANUALLY
-	//dynamicsWorld->setForceUpdateAllAabbs(false);
+	dynamicsWorld->setForceUpdateAllAabbs(false);
 
-	debug.setDebugMode(btIDebugDraw::DBG_DrawWireframe);
-	dynamicsWorld->setDebugDrawer(&debug);
+	//debug.setDebugMode(btIDebugDraw::DBG_DrawWireframe);
+	//dynamicsWorld->setDebugDrawer(&debug);
 	//////////////////////////////////////////////////////////////////////////////
 
 	_ResourceManager = std::make_unique<ResourceManager>(this);
@@ -134,11 +134,9 @@ GameWorld::GameWorld()
 
 	//RenderList
 	renderList.reserve(2000);
-	//
-    while (!_ResourceManager->GetYtd(3403519606)->Loaded)
-	{
-		LoadQueuedResources();
-	}
+
+	_ResourceManager->GetYdr(2096445108);
+	_ResourceManager->GetYtd(3403519606);
 
 	for (auto& WaterQuad : data.WaterQuads)
 	{
@@ -161,14 +159,11 @@ GameWorld::GameWorld()
 		loader->Init(stream);
 	}*/
 
-	while (!_ResourceManager->GetYtd(4096714883)->Loaded)
-	{
-		LoadQueuedResources();
-	}
+	_ResourceManager->GetYtd(4096714883);
 
-	YddLoader* playerYDD = _ResourceManager->GetYdd(4096714883, 4096714883);
+	YddLoader* playerYDD = _ResourceManager->GetYdd(4096714883);
 
-	skydome = _ResourceManager->GetYdd(2640562617, 2640562617);
+	skydome = _ResourceManager->GetYdd(2640562617);
 
 	_ResourceManager->GetYtd(GenHash("mapdetail"));
     _ResourceManager->GetYtd(GenHash("vehshare"));
@@ -176,13 +171,10 @@ GameWorld::GameWorld()
     _ResourceManager->GetYtd(GenHash("vehshare_army"));
     _ResourceManager->GetYtd(GenHash("vehshare_truck"));
 
-	/*for (auto& ytd : data.GtxdEntries)
+	for (auto& ytd : data.GtxdEntries)
 	{
-		while (!GetYtd(ytd.second)->Loaded)
-		{
-			LoadQueuedResources();
-		}
-	}*/
+        _ResourceManager->GetYtd(ytd.second);
+	}
 
 	for (auto& vehicle : vehiclesPool)
 	{
@@ -223,11 +215,11 @@ GameWorld::GameWorld()
 
 GameWorld::~GameWorld()
 {
+    delete dynamicsWorld;
+    delete solver;
+    delete dispatcher;
+    delete collisionConfiguration;
 	delete broadphase;
-	delete collisionConfiguration;
-	delete dispatcher;
-	delete solver;
-	//delete dynamicsWorld;
 }
 
 float RandomFloat(float min, float max) {
@@ -248,8 +240,8 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 					{
 						case ASSET_TYPE_DRAWABLE: {
 							if (!object.FoundModel) {
-								object.ydr = _ResourceManager->GetYdr(object.CEntity.archetypeName, object.Archetype->BaseArchetypeDef.textureDictionary);
-								object.ytd = _ResourceManager->GetYtd(object.Archetype->BaseArchetypeDef.textureDictionary);
+                                object.ytd = _ResourceManager->GetYtd(object.Archetype->BaseArchetypeDef.textureDictionary);
+								object.ydr = _ResourceManager->GetYdr(object.CEntity.archetypeName);
 								object.FoundModel = true;
 							}
 							if (object.ydr->Loaded) {
@@ -280,8 +272,8 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 						}
 						case ASSET_TYPE_DRAWABLEDICTIONARY: {
 							if (!object.FoundModel) {
-								object.ydd = _ResourceManager->GetYdd(object.Archetype->BaseArchetypeDef.drawableDictionary, object.Archetype->BaseArchetypeDef.textureDictionary);
-								object.ytd = _ResourceManager->GetYtd(object.Archetype->BaseArchetypeDef.textureDictionary);
+                                object.ytd = _ResourceManager->GetYtd(object.Archetype->BaseArchetypeDef.textureDictionary);
+								object.ydd = _ResourceManager->GetYdd(object.Archetype->BaseArchetypeDef.drawableDictionary);
 								object.FoundModel = true;
 							}
 							if (object.ydd->Loaded) {
@@ -296,8 +288,8 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 						}
 						case ASSET_TYPE_FRAGMENT: {
 							if (!object.FoundModel) {
-								object.yft = _ResourceManager->GetYft(object.CEntity.archetypeName, object.Archetype->BaseArchetypeDef.textureDictionary);
-								object.ytd = _ResourceManager->GetYtd(object.Archetype->BaseArchetypeDef.textureDictionary);
+                                object.ytd = _ResourceManager->GetYtd(object.Archetype->BaseArchetypeDef.textureDictionary);
+								object.yft = _ResourceManager->GetYft(object.CEntity.archetypeName);
 								object.FoundModel = true;
 							}
 							if (object.yft->Loaded) {
@@ -498,16 +490,6 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 		return glm::distance2(lhsPosition, camera->position) < glm::distance2(rhsPosition, camera->position);
 	});
 
-	//printf("YDRS %d\n", YdrPool::getPool().num);
-	//printf("SIZE YMAP %zd\n", ymapLoader.size());
-	//printf("SIZE YDR %zd\n", ydrLoader.size());
-	//printf("SIZE YDD %zd\n", yddLoader.size());
-	//printf("SIZE YFT %zd\n", yftLoader.size());
-	//printf("SIZE YTD %zd\n", ytdLoader.size());
-	//printf("TexturesMapsSize %zd\n", TextureManager::TexturesMap.size());
-	//LoadYBN(Proxy->Name);
-	//LoadYmap(Proxy->Parent, Position);
-
 	//printf("CULLED :%d\n", ydrLoader.size());
 	//culled = 0;
 
@@ -533,58 +515,40 @@ void GameWorld::LoadQueuedResources()
 	resources_lock.lock();
 	while (resources.size() > 0)
 	{
-		Resource res = std::move(resources.back());
-		resources.pop_back();
-
-		/*if (res.Hash == 3486509883) {
-		printf("");
-		}*/
-
+        Resource* res = resources.front(); 
+		resources.pop_front();
 
 		//Object hash equal to texture hash what should we do? there are +hi textures with the same name 
 
-		/*if (res.type == ydr || res.type == ydd || res.type == yft) {
-			if (!res.TextureDictionaryHash == 0) {
-				auto iter = ytdLoader.find(res.TextureDictionaryHash);
-				if (iter != ytdLoader.end())
-				{
-					if (!iter->second->Loaded) {
-						++it;
-						continue;
-					}
-				}
-			}
-		}*/
-
-		if (res.Buffer.size() == 0) {
-			res.file->Loaded = true;
+		if (res->Buffer.size() == 0) {
+			res->file->Loaded = true;
 		}
 		else {
-			memstream stream(res.Buffer.data(), res.Buffer.size());
-			switch (res.type)
+			memstream stream(res->Buffer.data(), res->Buffer.size());
+			switch (res->type)
 			{
 				case ymap:
 				{
-					res.file->Finalize();
+					res->file->Finalize();
 					break;
 				}
 				case ydr:
 				case ydd:
 				case yft:
 				{
-					res.file->Init(stream, res.SystemSize);
-					_ResourceManager->GlobalGpuMemory += res.file->gpuMemory;
+					res->file->Init(stream, res->SystemSize);
+					_ResourceManager->GlobalGpuMemory += res->file->gpuMemory;
 					break;
 				}
 				case ytd:
 				{
-					res.file->Init(stream, res.SystemSize);
-                    _ResourceManager->TextureMemory += res.file->gpuMemory;
+					res->file->Init(stream, res->SystemSize);
+                    _ResourceManager->TextureMemory += res->file->gpuMemory;
 					break;
 				}
 				case ybn:
 				{
-					res.file->Finalize(dynamicsWorld);
+					res->file->Finalize(dynamicsWorld);
 					break;
 				}
 			}
@@ -606,7 +570,8 @@ void GameWorld::createVehicle(glm::vec3 position)
 	auto it = vehiclesPool.begin();
 	std::advance(it, vehicleID);
 	if (it->second.file == nullptr) {
-		it->second.file = _ResourceManager->GetYft(it->first, it->first);
+		it->second.file = _ResourceManager->GetYft(it->first);
+		//YTD???
 	}
 	else {
 		CVehicle veh(position, it->second.mass, it->second.file, dynamicsWorld);

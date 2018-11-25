@@ -55,7 +55,7 @@ YmapLoader* ResourceManager::GetYmap(uint32_t hash) {
         return it->second;
     } else {
         YmapLoader* loader = GlobalPool::getInstance().YmapPool.Load();
-        AddToWaitingList(Resource(ymap, hash, 0, loader));
+        AddToWaitingList(new Resource(ymap, hash, loader));
         loader->RefCount++;
         ymapLoader.insert({hash, loader});
 
@@ -63,14 +63,14 @@ YmapLoader* ResourceManager::GetYmap(uint32_t hash) {
     }
 }
 
-YdrLoader* ResourceManager::GetYdr(uint32_t hash, uint32_t TextureDictionaryHash) {
+YdrLoader* ResourceManager::GetYdr(uint32_t hash) {
     auto iter = ydrLoader.find(hash);
     if (iter != ydrLoader.end()) {
         iter->second->RefCount++;
         return iter->second;
     } else {
         YdrLoader* loader = GlobalPool::getInstance().YdrPool.Load();
-        AddToWaitingList(Resource(ydr, hash, TextureDictionaryHash, loader));
+        AddToWaitingList(new Resource(ydr, hash, loader));
         loader->RefCount++;
         ydrLoader.insert({hash, loader});
 
@@ -86,7 +86,7 @@ YtdLoader* ResourceManager::GetYtd(uint32_t hash) {
     } else {
         // LoadGtxd(hash);
         YtdLoader* loader = GlobalPool::getInstance().YtdPool.Load();
-        AddToWaitingList(Resource(ytd, hash, 0, loader));
+        AddToWaitingList(new Resource(ytd, hash, loader));
         loader->RefCount++;
         ytdLoader.insert({hash, loader});
 
@@ -94,14 +94,14 @@ YtdLoader* ResourceManager::GetYtd(uint32_t hash) {
     }
 }
 
-YddLoader* ResourceManager::GetYdd(uint32_t hash, uint32_t TextureDictionaryHash) {
+YddLoader* ResourceManager::GetYdd(uint32_t hash) {
     auto iter = yddLoader.find(hash);
     if (iter != yddLoader.end()) {
         iter->second->RefCount++;
         return iter->second;
     } else {
         YddLoader* loader = GlobalPool::getInstance().YddPool.Load();
-        AddToWaitingList(Resource(ydd, hash, TextureDictionaryHash, loader));
+        AddToWaitingList(new Resource(ydd, hash, loader));
         loader->RefCount++;
         yddLoader.insert({hash, loader});
 
@@ -109,14 +109,14 @@ YddLoader* ResourceManager::GetYdd(uint32_t hash, uint32_t TextureDictionaryHash
     }
 }
 
-YftLoader* ResourceManager::GetYft(uint32_t hash, uint32_t TextureDictionaryHash) {
+YftLoader* ResourceManager::GetYft(uint32_t hash) {
     auto iter = yftLoader.find(hash);
     if (iter != yftLoader.end()) {
         iter->second->RefCount++;
         return iter->second;
     } else {
         YftLoader* loader = GlobalPool::getInstance().YftPool.Load();
-        AddToWaitingList(Resource(yft, hash, TextureDictionaryHash, loader));
+        AddToWaitingList(new Resource(yft, hash, loader));
         loader->RefCount++;
         yftLoader.insert({hash, loader});
 
@@ -131,33 +131,28 @@ YbnLoader* ResourceManager::GetYbn(uint32_t hash) {
         return iter->second;
     } else {
         YbnLoader* loader = GlobalPool::getInstance().YbnPool.Load();
-        AddToWaitingList(Resource(ybn, hash, 0, loader));
+        AddToWaitingList(new Resource(ybn, hash, loader));
         loader->RefCount++;
         ybnLoader.insert({hash, loader});
         return loader;
     }
 }
 
-void ResourceManager::AddToWaitingList(Resource& res) {
+void ResourceManager::AddToWaitingList(Resource* res) {
     std::lock_guard<std::mutex> lock(mylock);
     waitingList.push_back(res);
     loadCondition.notify_one();
 }
 
-void ResourceManager::LoadDrawable(RpfResourceFileEntry* entry, Resource& res) {
-    res.Buffer.resize(entry->SystemSize + entry->GraphicsSize);
-    gameworld->getGameData()->ExtractFileResource(*(entry), res.Buffer);
-    res.SystemSize = entry->SystemSize;
-
-    auto it = gameworld->getGameData()->YtdEntries.find(res.TextureDictionaryHash);
-    if (it == gameworld->getGameData()->YtdEntries.end()) {
-        res.TextureDictionaryHash = 0;
-    }
+void ResourceManager::Load(RpfResourceFileEntry* entry, Resource* res) {
+    res->Buffer.resize(entry->SystemSize + entry->GraphicsSize);
+    gameworld->getGameData()->ExtractFileResource(*(entry), res->Buffer);
+    res->SystemSize = entry->SystemSize;
 }
 
-inline void ResourceManager::AddToMainQueue(Resource& res) {
+inline void ResourceManager::AddToMainQueue(Resource* res) {
     gameworld->resources_lock.lock();
-    gameworld->resources.push_back(std::move(res));
+    gameworld->resources.push_back(res);
     gameworld->resources_lock.unlock();
 }
 
@@ -167,20 +162,20 @@ void ResourceManager::update() {
 
         loadCondition.wait(lock, [this] { return !waitingList.empty(); });
 
-        auto res = std::move(waitingList.back());
-        waitingList.pop_back();
+        auto res = waitingList.front();
+        waitingList.pop_front();
         lock.unlock();
 
-        switch (res.type) {
+        switch (res->type) {
         case ymap: {
-            auto it = gameworld->getGameData()->YmapEntries.find(res.Hash);
+            auto it = gameworld->getGameData()->YmapEntries.find(res->Hash);
             if (it != gameworld->getGameData()->YmapEntries.end()) {
-                res.Buffer.resize(it->second->SystemSize + it->second->GraphicsSize);
-                gameworld->getGameData()->ExtractFileResource(*(it->second), res.Buffer);
+                res->Buffer.resize(it->second->SystemSize + it->second->GraphicsSize);
+                gameworld->getGameData()->ExtractFileResource(*(it->second), res->Buffer);
 
-                YmapLoader* iter = static_cast<YmapLoader*>(res.file);
+                YmapLoader* iter = static_cast<YmapLoader*>(res->file);
 
-                memstream stream(res.Buffer.data(), res.Buffer.size());
+                memstream stream(res->Buffer.data(), res->Buffer.size());
                 iter->Init(stream);
 
                 for (auto& object : *iter->Objects) {
@@ -211,48 +206,44 @@ void ResourceManager::update() {
             break;
         }
         case ydr: {
-            auto it = gameworld->getGameData()->YdrEntries.find(res.Hash);
+            auto it = gameworld->getGameData()->YdrEntries.find(res->Hash);
             if (it != gameworld->getGameData()->YdrEntries.end()) {
-                LoadDrawable(it->second, res);
+                Load(it->second, res);
             }
             AddToMainQueue(res);
             break;
         }
         case ydd: {
-            auto it = gameworld->getGameData()->YddEntries.find(res.Hash);
+            auto it = gameworld->getGameData()->YddEntries.find(res->Hash);
             if (it != gameworld->getGameData()->YddEntries.end()) {
-                LoadDrawable(it->second, res);
+                Load(it->second, res);
             }
             AddToMainQueue(res);
             break;
         }
         case yft: {
-            auto it = gameworld->getGameData()->YftEntries.find(res.Hash);
+            auto it = gameworld->getGameData()->YftEntries.find(res->Hash);
             if (it != gameworld->getGameData()->YftEntries.end()) {
-                LoadDrawable(it->second, res);
+                Load(it->second, res);
             }
             AddToMainQueue(res);
             break;
         }
         case ytd: {
-            auto it = gameworld->getGameData()->YtdEntries.find(res.Hash);
+            auto it = gameworld->getGameData()->YtdEntries.find(res->Hash);
             if (it != gameworld->getGameData()->YtdEntries.end()) {
-                res.Buffer.resize(it->second->SystemSize + it->second->GraphicsSize);
-                gameworld->getGameData()->ExtractFileResource(*(it->second), res.Buffer);
-                res.SystemSize = it->second->SystemSize;
+                Load(it->second, res);
             }
             AddToMainQueue(res);
             break;
         }
         case ybn: {
-            auto it = gameworld->getGameData()->YbnEntries.find(res.Hash);
+            auto it = gameworld->getGameData()->YbnEntries.find(res->Hash);
             if (it != gameworld->getGameData()->YbnEntries.end()) {
-                res.Buffer.resize(it->second->SystemSize + it->second->GraphicsSize);
-                gameworld->getGameData()->ExtractFileResource(*(it->second), res.Buffer);
-                res.SystemSize = it->second->SystemSize;
+                Load(it->second, res);
 
-                memstream stream(res.Buffer.data(), res.Buffer.size());
-                res.file->Init(stream);
+                memstream stream(res->Buffer.data(), res->Buffer.size());
+                res->file->Init(stream);
             }
             AddToMainQueue(res);
             break;
@@ -274,7 +265,6 @@ void ResourceManager::UpdateResourceCache() {
 
     for (auto it = ymapLoader.begin(); it != ymapLoader.end();) {
         if ((it->second)->RefCount == 0 && (it->second)->Loaded) {
-            // YmapPool::getPool().Remove(it->second, dynamicsWorld);
             GlobalPool::getInstance().YmapPool.Remove(it->second);
             it = ymapLoader.erase(it);
         } else {

@@ -42,7 +42,7 @@ Skybox::~Skybox()
 void Skybox::Draw()
 {
 	//glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
-	SkyboxShader->use();
+	/*SkyboxShader->use();
 	//view = glm::mat4(glm::mat3(camera.GetViewMatrix())); // remove translation from the view matrix
 	glm::mat4 view = glm::mat4(glm::mat3(glm::lookAt(glm::vec3(0, 0.0, -10), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0))));
 	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)1280 / (float)720, 0.1f, 100.0f);
@@ -55,5 +55,5 @@ void Skybox::Draw()
 	//glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
 	glDrawElements(GL_TRIANGLES, num_indices, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
-	//glDepthFunc(GL_LESS); // set depth function back to default
+	//glDepthFunc(GL_LESS); // set depth function back to default*/
 }
