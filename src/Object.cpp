@@ -10,12 +10,12 @@ Object::Object(fwEntityDef def)
 	: Entity(def.position, def.rotation, glm::vec3(def.scaleXY, def.scaleXY, def.scaleZ))
 	, CEntity(def)
 {
-
 }
 
 Object::~Object()
 {
-	if (rigidBody) {
+	if (rigidBody)
+	{
 		delete rigidBody->getMotionState();
 		delete rigidBody;
 		rigidBody = nullptr;

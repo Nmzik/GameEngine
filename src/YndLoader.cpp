@@ -11,7 +11,7 @@ YndLoader::YndLoader(memstream& file)
 
 	for (uint32_t i = 0; i < NodeDictionary.NodesCount; i++)
 	{
-		file.read((char*)&nodes[i], sizeof(Node));
+	 file.read((char*)&nodes[i], sizeof(Node));
 	}
 
 	////////////////
@@ -22,7 +22,7 @@ YndLoader::YndLoader(memstream& file)
 
 	for (uint32_t i = 0; i < NodeDictionary.LinksCount; i++)
 	{
-		file.read((char*)&nodeLinks[i], sizeof(NodeLink));
+	 file.read((char*)&nodeLinks[i], sizeof(NodeLink));
 	}
 
 	/////////////////
@@ -33,7 +33,7 @@ YndLoader::YndLoader(memstream& file)
 
 	for (uint32_t i = 0; i < NodeDictionary.JunctionsCount; i++)
 	{
-		file.read((char*)&nodeJunctions[i], sizeof(NodeJunction));
+	 file.read((char*)&nodeJunctions[i], sizeof(NodeJunction));
 	}
 
 	//////////////////
@@ -51,10 +51,9 @@ YndLoader::YndLoader(memstream& file)
 
 	for (int i = 0; i < NodeDictionary.JunctionRefsCount1; i++)
 	{
-		file.read((char*)&NodeJunctionRefs[i], sizeof(NodeJunctionRef));
+	 file.read((char*)&NodeJunctionRefs[i], sizeof(NodeJunctionRef));
 	}*/
 }
-
 
 YndLoader::~YndLoader()
 {

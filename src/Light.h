@@ -4,11 +4,11 @@
 class PointLight
 {
 public:
-	PointLight() {
-
+	PointLight()
+	{
 	}
-	~PointLight() {
-
+	~PointLight()
+	{
 	}
 };
 
@@ -22,8 +22,7 @@ public:
 	bool castsShadows;
 
 	DirectonalLight(glm::vec3 direction, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, bool castsShadows = false);
-	~DirectonalLight() {
-
+	~DirectonalLight()
+	{
 	}
 };
-

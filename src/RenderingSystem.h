@@ -21,7 +21,7 @@ private:
 	DirectonalLight dirLight;
 
 	GLuint uboGlobal;
-    GLuint uboModel;
+	GLuint uboModel;
 
 	std::unique_ptr<Shader> SkyboxShader;
 
@@ -42,7 +42,7 @@ private:
 	unsigned int quadVAO;
 	unsigned int quadVBO;
 	int type = 0;
-	//Game& game;
+	//	Game& game;
 	int ScreenResWidth;
 	int ScreenResHeight;
 	int ShadowWidth;
@@ -59,7 +59,7 @@ private:
 	///
 	unsigned int hdrFBO;
 	unsigned int colorBuffer;
-	//G-BUFFER
+	//	G-BUFFER
 	unsigned int gBuffer;
 	unsigned int gNormal, gAlbedoSpec, gDepthMap;
 
@@ -81,9 +81,10 @@ public:
 	uint32_t DrawCalls;
 	glm::vec3 lightPos;
 	bool RenderDebugWorld = false;
-	Camera& getCamera() {
-        return *camera;
-    }
+	Camera& getCamera()
+	{
+		return *camera;
+	}
 	void createGBuffer();
 	void createDepthFBO();
 	void createSSAO();
@@ -91,8 +92,8 @@ public:
 	void renderQuad();
 	void render(GameWorld* world);
 
-	void setType(int type) {
+	void setType(int type)
+	{
 		this->type = type;
 	}
 };
-

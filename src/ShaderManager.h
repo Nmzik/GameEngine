@@ -10,4 +10,3 @@ public:
 
 	static std::unordered_map<uint32_t, GLuint> ShaderMap;
 };
-

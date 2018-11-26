@@ -1,7 +1,6 @@
 #pragma once
 #include "State.h"
-class MenuState :
-	public State
+class MenuState : public State
 {
 public:
 	MenuState(Game* game);
@@ -10,4 +9,3 @@ public:
 	virtual void enter() override;
 	virtual void exit() override;
 };
-

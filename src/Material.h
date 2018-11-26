@@ -2,7 +2,6 @@
 
 #include "opengl.h"
 #include "Shader.h"
-#include "TextureManager.h"
 
 class Material
 {
@@ -13,8 +12,7 @@ public:
 	bool useBump = false;
 
 	GLuint diffuseTextureID;
-	GLuint bumpTextureID; //Normal
+	GLuint bumpTextureID; //	Normal
 	GLuint specularTextureID;
 	GLuint detailTextureID;
 };
-

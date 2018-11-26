@@ -2,7 +2,6 @@
 #include "FileType.h"
 #include <unordered_map>
 #include "opengl.h"
-#include "TextureManager.h"
 
 enum TextureFormat
 {
@@ -20,12 +19,13 @@ enum TextureFormat
 	D3DFMT_ATI2 = 0x32495441,
 	D3DFMT_BC7 = 0x20374342,
 
-	//UNKNOWN
+	//	UNKNOWN
 };
 
-struct TextureBase : datBase {
-	uint32_t Unknown_8h; // 0x00000000
-	uint32_t Unknown_Ch; // 0x00000000
+struct TextureBase : datBase
+{
+	uint32_t Unknown_8h;  // 0x00000000
+	uint32_t Unknown_Ch;  // 0x00000000
 	uint32_t Unknown_10h; // 0x00000000
 	uint32_t Unknown_14h; // 0x00000000
 	uint32_t Unknown_18h; // 0x00000000
@@ -39,7 +39,8 @@ struct TextureBase : datBase {
 	uint32_t Unknown_3Ch; // 0x00000000
 };
 
-struct grcTexture : TextureBase {
+struct grcTexture : TextureBase
+{
 	uint32_t Unknown_40h;
 	uint32_t Unknown_44h; // 0x00000000
 	uint32_t Unknown_48h;
@@ -64,20 +65,23 @@ struct grcTexture : TextureBase {
 	uint32_t Unknown_88h; // 0x00000000
 	uint32_t Unknown_8Ch; // 0x00000000
 
-	void Resolve(memstream& file) {
+	void Resolve(memstream& file)
+	{
 		GRAPHICS_BASE_PTR(DataPointer);
 	}
 };
 
-struct TextureDictionary : ResourceFileBase {
+struct TextureDictionary : ResourceFileBase
+{
 	uint32_t Unknown_10h; // 0x00000000
 	uint32_t Unknown_14h; // 0x00000000
 	uint32_t Unknown_18h; // 0x00000001
 	uint32_t Unknown_1Ch; // 0x00000000
 	ResourceSimpleList64Ptr TextureNameHashesPtr;
-    pgObjectArray<grcTexture> Textures;
+	pgObjectArray<grcTexture> Textures;
 
-	void Resolve(memstream& file) {
+	void Resolve(memstream& file)
+	{
 		Textures.Resolve(file);
 	}
 };
@@ -85,11 +89,9 @@ struct TextureDictionary : ResourceFileBase {
 class YtdLoader : public FileType
 {
 public:
-	YtdLoader * next;
-	//std::unordered_map<uint32_t, GLuint>* Textures = nullptr;
-    std::vector<uint32_t>* TexturesHashes = nullptr;
+	YtdLoader* next;
+	std::unordered_map<uint32_t, GLuint>* Textures = nullptr;
 
 	void Init(memstream& file, int32_t systemSize);
 	void Remove();
 };
-

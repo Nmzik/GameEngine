@@ -10,6 +10,7 @@ class Skybox
 	unsigned int vertex_buffer, EBO, VAO, normal_buffer, tex_coord_buffer, tangent_buffer, bitangent_buffer;
 	int num_indices;
 	unsigned int cubemapTexture;
+
 public:
 	Skybox();
 	~Skybox();
@@ -17,4 +18,3 @@ public:
 	unsigned int loadCubemap(std::vector<std::string> faces);
 	void Draw();
 };
-

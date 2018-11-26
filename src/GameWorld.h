@@ -21,15 +21,19 @@ class YdrLoader;
 class YddLoader;
 class YtdLoader;
 class YbnLoader;
+class Object;
 
 class GameWorld
 {
-	struct RenderInstruction {
+	struct RenderInstruction
+	{
 		YdrLoader* ydr;
 		glm::mat4 modelMatrix;
 
-		RenderInstruction(YdrLoader* modelYdr, glm::mat4 Matrix) :ydr(modelYdr), modelMatrix(Matrix) {
-
+		RenderInstruction(YdrLoader* modelYdr, glm::mat4 Matrix)
+			: ydr(modelYdr)
+			, modelMatrix(Matrix)
+		{
 		}
 	};
 
@@ -44,7 +48,7 @@ class GameWorld
 	SpaceGrid spaceGrid;
 	NodeGrid nodeGrid;
 	std::unique_ptr<ResourceManager> _ResourceManager;
-	//SoundManager sound;
+	//	SoundManager sound;
 	PhysicsDebugDrawer debug;
 
 public:
@@ -54,16 +58,16 @@ public:
 	uint32_t culled = 0;
 	float LODMultiplier = 1.0f;
 	std::vector<Water> WaterMeshes;
-	//std::vector<YndLoader> yndLoader;
-	std::vector<YtypLoader*> ytypLoader;
 	std::unordered_map<uint32_t, CarHandling> vehiclesPool;
 	std::vector<CPed> peds;
 	std::vector<CVehicle> vehicles;
 
 	std::mutex resources_lock;
 	std::deque<Resource*> resources;
+	std::deque<Resource*> resourcesThread;
 
-	RenderList renderList;
+	//	RenderList renderList;
+	std::vector<Object*> renderList;
 
 	float accumulatedTime = 0.0f;
 
@@ -72,6 +76,7 @@ public:
 	std::vector<YmapLoader*> CurYmaps;
 	std::vector<YbnLoader*> CurYbns;
 	bool EnableStreaming = true;
+
 	uint8_t gameMinute;
 	uint8_t gameHour;
 	uint8_t currentPlayerID = 0;
@@ -85,19 +90,23 @@ public:
 
 	void LoadQueuedResources();
 
-	GameData* getGameData() {
+	GameData* getGameData()
+	{
 		return &data;
 	}
 
-	ResourceManager* GetResourceManager() {
+	ResourceManager* GetResourceManager()
+	{
 		return _ResourceManager.get();
 	}
 
-	btDiscreteDynamicsWorld* GetDynamicsWorld() {
+	btDiscreteDynamicsWorld* GetDynamicsWorld()
+	{
 		return dynamicsWorld;
 	}
 
-	PhysicsDebugDrawer* getDebugDrawer() {
+	PhysicsDebugDrawer* getDebugDrawer()
+	{
 		return &debug;
 	}
 

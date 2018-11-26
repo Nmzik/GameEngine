@@ -1,8 +1,7 @@
 #pragma once
 #include "State.h"
 
-class PauseState :
-	public State
+class PauseState : public State
 {
 public:
 	PauseState(Game* game);
@@ -11,4 +10,3 @@ public:
 	virtual void enter() override;
 	virtual void exit() override;
 };
-

@@ -23,7 +23,8 @@ void RpfFile::LoadRpf(std::ifstream& rpf, std::string& FileName, uint32_t FileSi
 	rpf.read((char*)&NamesLength, sizeof(uint32_t));
 	rpf.read((char*)&Encryption, sizeof(uint32_t));
 
-	if (Version != 0x52504637) {
+	if (Version != 0x52504637)
+	{
 		printf("SOMETHING WRONG");
 		return;
 	}
@@ -36,20 +37,18 @@ void RpfFile::LoadRpf(std::ifstream& rpf, std::string& FileName, uint32_t FileSi
 
 	switch (Encryption)
 	{
-	case 0x0FFFFFF9:
-		//printf("AES\n");
-		GTAEncryption::DecryptAES(entriesData, EntryCount * 16);
-		GTAEncryption::DecryptAES(namesData, NamesLength);
-		//IsAESEncrypted = true;
-		break;
-	case 0x0FEFFFFF:
-		//printf("NG\n");
-		GTAEncryption::DecryptNG(entriesData, EntryCount * 16, FileName, FileSize);
-		GTAEncryption::DecryptNG(namesData, NamesLength, FileName, FileSize);
-		break;
-	default:
-		printf("OPENIV FORMAR?\n");
-		break;
+		case 0x0FFFFFF9:
+			//	printf("AES\n");
+			GTAEncryption::DecryptAES(entriesData, EntryCount * 16);
+			GTAEncryption::DecryptAES(namesData, NamesLength);
+			//	IsAESEncrypted = true;
+			break;
+		case 0x0FEFFFFF:
+			//	printf("NG\n");
+			GTAEncryption::DecryptNG(entriesData, EntryCount * 16, FileName, FileSize);
+			GTAEncryption::DecryptNG(namesData, NamesLength, FileName, FileSize);
+			break;
+		default: printf("OPENIV FORMAR?\n"); break;
 	}
 
 	memstream EntriesStream(entriesData, EntryCount * 16);
@@ -63,31 +62,33 @@ void RpfFile::LoadRpf(std::ifstream& rpf, std::string& FileName, uint32_t FileSi
 		EntriesStream.read((char*)&x, sizeof(uint32_t));
 		EntriesStream.seekCur(-8);
 
-		if (x == 0x7fffff00) {
-			//printf("DIRECTORY\n");
+		if (x == 0x7fffff00)
+		{
+			//	printf("DIRECTORY\n");
 			RpfDirectoryEntry entry(EntriesStream);
 			NamesStream.seekg(entry.NameOffset);
 			entry.Name = NamesStream.getString();
-			//printf("%s\n", entry.Name.c_str());
+			//	printf("%s\n", entry.Name.c_str());
 		}
 		else if ((x & 0x80000000) == 0)
 		{
-			//printf("BINARY\n");
+			//	printf("BINARY\n");
 			RpfBinaryFileEntry entry(EntriesStream, startPos);
 			NamesStream.seekg(entry.NameOffset);
 			entry.Name = NamesStream.getString();
 			entry.File = this;
-			//printf("%s\n", entry.Name.c_str());
+			//	printf("%s\n", entry.Name.c_str());
 			BinaryEntries.push_back(entry);
 		}
-		else {
-			//printf("RESOURCE\n");
+		else
+		{
+			//	printf("RESOURCE\n");
 			RpfResourceFileEntry entry(EntriesStream, rpf, startPos);
 			NamesStream.seekg(entry.NameOffset);
 			entry.Name = NamesStream.getString();
 			entry.Path = FullPath;
 			entry.File = this;
-			//printf("%s\n", entry.Name.c_str());
+			//	printf("%s\n", entry.Name.c_str());
 			ResourceEntries.push_back(entry);
 		}
 	}
@@ -98,5 +99,4 @@ void RpfFile::LoadRpf(std::ifstream& rpf, std::string& FileName, uint32_t FileSi
 
 RpfFile::~RpfFile()
 {
-
 }

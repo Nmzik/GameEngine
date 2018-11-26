@@ -1,6 +1,6 @@
 #pragma once
 #include <fstream>
-#include <iostream>  
+#include <iostream>
 #include <string>
 #include "membuf.h"
 #include "GTAEncryption.h"
@@ -20,4 +20,3 @@ public:
 
 	~RpfFile();
 };
-

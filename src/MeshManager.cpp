@@ -1,6 +1,6 @@
 #include "MeshManager.h"
 
-//MeshManager MeshManager::manager;
+// MeshManager MeshManager::manager;
 
 void MeshManager::Initialize()
 {
@@ -10,7 +10,6 @@ void MeshManager::Initialize()
 	glGenVertexArrays(40000, &VAOs[0]);
 	glGenBuffers(80000, &VBOs[0]);
 }
-
 
 MeshManager::~MeshManager()
 {

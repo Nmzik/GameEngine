@@ -1,15 +1,13 @@
 #include "MenuState.h"
 #include "Game.h"
 
-MenuState::MenuState(Game* game) : State(game)
+MenuState::MenuState(Game* game)
+	: State(game)
 {
-
 }
-
 
 MenuState::~MenuState()
 {
-
 }
 
 void MenuState::enter()

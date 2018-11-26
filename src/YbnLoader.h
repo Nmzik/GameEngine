@@ -2,7 +2,8 @@
 #include <btBulletDynamicsCommon.h>
 #include "YdrLoader.h"
 
-struct Bounds : ResourceFileBase {
+struct Bounds : ResourceFileBase
+{
 	uint8_t Type;
 	uint8_t Unknown_11h;
 	uint16_t Unknown_12h;
@@ -16,8 +17,8 @@ struct Bounds : ResourceFileBase {
 	glm::vec3 BoundingBoxCenter;
 	uint8_t MaterialIndex;
 	uint8_t ProceduralId;
-	uint8_t RoomId_and_PedDensity; //5bits for RoomID and then 3bits for PedDensity
-	uint8_t Unknown_4Fh; //flags? (bit5 related to Unknown_5Ch, should be a flag called "Has PolyFlags")<-- i don't remember why i wrote this lol
+	uint8_t RoomId_and_PedDensity; //	5bits for RoomID and then 3bits for PedDensity
+	uint8_t Unknown_4Fh;           //	flags? (bit5 related to Unknown_5Ch, should be a flag called "Has PolyFlags")<-- i don't remember why i wrote this lol
 	glm::vec3 Center;
 	uint8_t PolyFlags;
 	uint8_t MaterialColorIndex;
@@ -28,7 +29,8 @@ struct Bounds : ResourceFileBase {
 	float BoundingBoxVolume;
 };
 
-struct BoundGeometry {
+struct BoundGeometry
+{
 	uint32_t Unknown_70h;
 	uint32_t Unknown_74h;
 	uint64_t Unknown_78h_Pointer;
@@ -77,7 +79,8 @@ enum BoundPolygonType
 	Cylinder = 4,
 };
 
-struct BoundPolygonTriangle {
+struct BoundPolygonTriangle
+{
 	float triArea;
 	uint16_t triIndex1;
 	uint16_t triIndex2;
@@ -87,7 +90,8 @@ struct BoundPolygonTriangle {
 	int16_t edgeIndex3;
 };
 
-struct BoundPolygonSphere {
+struct BoundPolygonSphere
+{
 	uint16_t sphereType;
 	uint16_t sphereIndex;
 	float sphereRadius;
@@ -95,7 +99,8 @@ struct BoundPolygonSphere {
 	uint32_t unused1;
 };
 
-struct BoundPolygonCapsule {
+struct BoundPolygonCapsule
+{
 	uint16_t capsuleType;
 	uint16_t capsuleIndex1;
 	float capsuleRadius;
@@ -104,7 +109,8 @@ struct BoundPolygonCapsule {
 	uint32_t unused1;
 };
 
-struct BoundPolygonBox {
+struct BoundPolygonBox
+{
 	uint32_t boxType;
 	int16_t boxIndex1;
 	int16_t boxIndex2;
@@ -113,7 +119,8 @@ struct BoundPolygonBox {
 	uint32_t unused0;
 };
 
-struct BoundPolygonCylinder {
+struct BoundPolygonCylinder
+{
 	uint16_t cylinderType;
 	uint16_t cylinderIndex1;
 	float cylinderRadius;
@@ -122,7 +129,8 @@ struct BoundPolygonCylinder {
 	uint32_t unused1;
 };
 
-struct BoundComposite {
+struct BoundComposite
+{
 	uint64_t ChildrenPointer;
 	uint64_t ChildrenTransformation1Pointer;
 	uint64_t ChildrenTransformation2Pointer;
@@ -142,13 +150,14 @@ class YbnLoader : public FileType
 
 	std::vector<btCollisionShape*>* Shapes;
 	std::vector<btTriangleIndexVertexArray*>* VertIndicesArray;
+
 public:
-	YbnLoader * next;
+	YbnLoader* next;
 
 	btCompoundShape* compound = nullptr;
-	btRigidBody * rigidBody = nullptr;
+	btRigidBody* rigidBody = nullptr;
 
-	void Init(memstream & file) override;
+	void Init(memstream& file) override;
 	void ParseYbn(memstream& file);
 	void Finalize(btDiscreteDynamicsWorld* world) override;
 	void Remove();

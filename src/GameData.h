@@ -51,7 +51,7 @@ public:
 	std::unique_ptr<CacheDatFile> cacheFile;
 
 	std::unordered_map<uint32_t, Archetype*> Archetypes;
-	//std::unordered_map<uint32_t, std::vector<fwEntityDef>> MloDictionary;
+	//	std::unordered_map<uint32_t, std::vector<fwEntityDef>> MloDictionary;
 	std::unordered_map<uint32_t, RpfResourceFileEntry*> YdrEntries;
 	std::unordered_map<uint32_t, RpfResourceFileEntry*> YddEntries;
 	std::unordered_map<uint32_t, RpfResourceFileEntry*> YtdEntries;
@@ -76,7 +76,6 @@ public:
 
 	void LoadRpf(std::ifstream& rpf, std::string& FullPath_, std::string& FileName_, uint32_t FileSize_, uint64_t FileOffset);
 
-	void ExtractFileBinary(RpfBinaryFileEntry & entry, std::vector<uint8_t>& output);
+	void ExtractFileBinary(RpfBinaryFileEntry& entry, std::vector<uint8_t>& output);
 	void ExtractFileResource(RpfResourceFileEntry& entry, std::vector<uint8_t>& output);
 };
-

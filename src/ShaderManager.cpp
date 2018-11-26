@@ -6,7 +6,6 @@ ShaderManager::ShaderManager()
 {
 }
 
-
 ShaderManager::~ShaderManager()
 {
 }

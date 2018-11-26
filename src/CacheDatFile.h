@@ -7,7 +7,8 @@
 #include "zlib.h"
 #include "glm/glm.hpp"
 
-struct MapDataStoreNode {
+struct MapDataStoreNode
+{
 	uint32_t Name;
 	uint32_t ParentName;
 	uint32_t ContentFlags;
@@ -21,12 +22,13 @@ struct MapDataStoreNode {
 	uint8_t Unk4;
 };
 
-struct CInteriorProxy {
+struct CInteriorProxy
+{
 	uint32_t Unk01;
 	uint32_t Unk02;
 	uint32_t Unk03;
-	uint32_t Name; //YBN FILE NAME
-	uint32_t Parent; //YMAP FILE NAME
+	uint32_t Name;   //	YBN FILE NAME
+	uint32_t Parent; //	YMAP FILE NAME
 	glm::vec3 Position;
 	glm::vec4 Orientation;
 	glm::vec3 BBMin;
@@ -40,7 +42,8 @@ struct CInteriorProxy {
 	uint32_t Unk17;
 	uint32_t Unk18;
 };
-struct BoundsStoreItem {
+struct BoundsStoreItem
+{
 	uint32_t Name;
 	glm::vec3 Min;
 	glm::vec3 Max;
@@ -57,4 +60,3 @@ public:
 	CacheDatFile(std::vector<uint8_t>& Data);
 	~CacheDatFile();
 };
-

@@ -1,6 +1,6 @@
 #include "RpfEntry.h"
 
-RpfDirectoryEntry::RpfDirectoryEntry(memstream & stream)
+RpfDirectoryEntry::RpfDirectoryEntry(memstream& stream)
 {
 	stream.read((char*)&NameOffset, sizeof(uint32_t));
 	uint32_t ident;
@@ -13,7 +13,7 @@ RpfDirectoryEntry::RpfDirectoryEntry(memstream & stream)
 	stream.read((char*)&EntriesCount, sizeof(uint32_t));
 }
 
-RpfBinaryFileEntry::RpfBinaryFileEntry(memstream & stream, uint64_t StartPos)
+RpfBinaryFileEntry::RpfBinaryFileEntry(memstream& stream, uint64_t StartPos)
 {
 	uint64_t buf;
 	stream.read((char*)&buf, sizeof(uint64_t));
@@ -24,12 +24,12 @@ RpfBinaryFileEntry::RpfBinaryFileEntry(memstream & stream, uint64_t StartPos)
 
 	stream.read((char*)&EncryptionType, sizeof(uint32_t));
 
-	//if (EncryptionType == 1) IsEncrypted = true;
+	//	if (EncryptionType == 1) IsEncrypted = true;
 
 	FileOffset = StartPos + ((uint64_t)FileOffset * 512);
 }
 
-RpfResourceFileEntry::RpfResourceFileEntry(memstream & stream, std::istream & originalFile, uint64_t StartPos)
+RpfResourceFileEntry::RpfResourceFileEntry(memstream& stream, std::istream& originalFile, uint64_t StartPos)
 {
 	uint16_t buf;
 	stream.read((char*)&buf, sizeof(uint16_t));
@@ -64,5 +64,4 @@ RpfResourceFileEntry::RpfResourceFileEntry(memstream & stream, std::istream & or
 
 	FileSize = FileSize - 0x10;
 	FileOffset = StartPos + ((long)FileOffset * 512) + 0x10;
-
 }

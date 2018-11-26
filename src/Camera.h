@@ -10,11 +10,13 @@
 // An abstract camera class that processes input and calculates the corresponding Eular Angles, Vectors and Matrices for use in OpenGL
 class Camera
 {
-	class ViewPlane {
+	class ViewPlane
+	{
 	public:
 		glm::vec3 normal{};
 		float distance{};
 	};
+
 public:
 	ViewPlane planes[6];
 	// Camera Attributes
@@ -22,21 +24,22 @@ public:
 	glm::quat rotation;
 
 	// Constructor with vectors
-	Camera(glm::vec3 pos) : position(pos), rotation(1.0f, 0.0f, 0.0f, 0.0f)
+	Camera(glm::vec3 pos)
+		: position(pos)
+		, rotation(1.0f, 0.0f, 0.0f, 0.0f)
 	{
-
 	}
 
 	// Returns the view matrix calculated using Eular Angles and the LookAt Matrix
 	glm::mat4 GetViewMatrix()
 	{
-		//printf("POSITION %f, %f, %f\n", position.x, position.y, position.z);
+		//	printf("POSITION %f, %f, %f\n", position.x, position.y, position.z);
 		auto up = rotation * glm::vec3(0.f, 0.f, 1.f);
-		return glm::lookAt(position,
-			position + rotation * glm::vec3(1.f, 0.f, 0.f), up);
+		return glm::lookAt(position, position + rotation * glm::vec3(1.f, 0.f, 0.f), up);
 	}
 
-	void UpdateFrustum(const glm::mat4& proj) {
+	void UpdateFrustum(const glm::mat4& proj)
+	{
 
 		planes[0].normal.x = proj[0][3] + proj[0][0];
 		planes[0].normal.y = proj[1][3] + proj[1][0];
@@ -98,9 +101,11 @@ public:
 		planes[5].distance /= l;
 	}
 
-	bool intersects(glm::vec3 center, float radius) const {
+	bool intersects(glm::vec3 center, float radius) const
+	{
 
-		for (const auto &plane : planes) {
+		for (const auto& plane : planes)
+		{
 			if (glm::dot(plane.normal, center) + plane.distance < -radius)
 				return false;
 		}
@@ -109,4 +114,3 @@ public:
 	}
 };
 #endif
-

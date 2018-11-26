@@ -5,8 +5,8 @@
 
 enum VertexType : uint32_t
 {
-	Default = 89, //PNCT
-	DefaultEx = 16473, //PNCTX
+	Default = 89,    // PNCT
+	DefaultEx = 16473, //	PNCTX
 	PNCCT = 121,
 	PNCCTTTT = 1017,
 	PCCNCCTTX = 16639,
@@ -29,9 +29,9 @@ enum VertexType : uint32_t
 	PNC = 25,
 	PC = 17,
 	PCC = 7,
-	PCCH2H4 = 2147500121, //0x80004059  (16473 + 0x80000000) DefaultEx Cloth?
-	PNCH2 = 2147483737, //0x80000059  (89 + 0x80000000) Default Cloth?
-	PNCTTTTX = 19673,  //normal_spec_detail_dpm_vertdecal_tnt
+	PCCH2H4 = 2147500121, // 0x80004059  (16473 + 0x80000000) DefaultEx Cloth?
+	PNCH2 = 2147483737, // 0x80000059  (89 + 0x80000000) Default Cloth?
+	PNCTTTTX = 19673,      // normal_spec_detail_dpm_vertdecal_tnt
 	PNCTTTT = 985,
 	PCCNCCTT = 255,
 	PCTT = 209,
@@ -57,4 +57,3 @@ public:
 	Mesh(const uint8_t* meshData, DrawableGeometry* drawGeom, Material mat);
 	~Mesh();
 };
-

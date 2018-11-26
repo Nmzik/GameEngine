@@ -2,7 +2,8 @@
 #include "FileType.h"
 #include <unordered_map>
 
-struct DrawableDictionary : ResourceFileBase {
+struct DrawableDictionary : ResourceFileBase
+{
 	uint32_t Unknown_10h; // 0x00000000
 	uint32_t Unknown_14h; // 0x00000000
 	uint32_t Unknown_18h; // 0x00000001
@@ -22,9 +23,9 @@ class YdrLoader;
 class YddLoader : public FileType
 {
 public:
-	YddLoader * next;
+	YddLoader* next;
 	std::unordered_map<uint32_t, YdrLoader*>* YdrFiles;
 
-	void Init(memstream & file, int32_t systemSize) override;
+	void Init(memstream& file, int32_t systemSize) override;
 	void Remove();
 };

@@ -13,12 +13,11 @@ PhysicsDebugDrawer::PhysicsDebugDrawer()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-
 PhysicsDebugDrawer::~PhysicsDebugDrawer()
 {
 }
 
-void PhysicsDebugDrawer::drawLine(const btVector3 & from, const btVector3 & to, const btVector3 & color)
+void PhysicsDebugDrawer::drawLine(const btVector3& from, const btVector3& to, const btVector3& color)
 {
 	m_points.push_back(glm::vec3(from.getX(), from.getY(), from.getZ()));
 	m_colors.push_back(glm::vec3(color.getX(), color.getY(), color.getZ()));
@@ -26,15 +25,15 @@ void PhysicsDebugDrawer::drawLine(const btVector3 & from, const btVector3 & to, 
 	m_colors.push_back(glm::vec3(color.getX(), color.getY(), color.getZ()));
 }
 
-void PhysicsDebugDrawer::drawContactPoint(const btVector3 & pointOnB, const btVector3 & normalOnB, btScalar distance, int lifeTime, const btVector3 & color)
+void PhysicsDebugDrawer::drawContactPoint(const btVector3& pointOnB, const btVector3& normalOnB, btScalar distance, int lifeTime, const btVector3& color)
 {
 }
 
-void PhysicsDebugDrawer::reportErrorWarning(const char * warningString)
+void PhysicsDebugDrawer::reportErrorWarning(const char* warningString)
 {
 }
 
-void PhysicsDebugDrawer::draw3dText(const btVector3 & location, const char * textString)
+void PhysicsDebugDrawer::draw3dText(const btVector3& location, const char* textString)
 {
 }
 

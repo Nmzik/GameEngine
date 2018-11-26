@@ -3,7 +3,8 @@
 
 class YndLoader
 {
-	struct : ResourceFileBase {
+	struct : ResourceFileBase
+	{
 		uint64_t NodesPointer;
 		uint32_t NodesCount;
 		uint32_t NodesCountVehicle;
@@ -19,21 +20,22 @@ class YndLoader
 		uint64_t JunctionRefsPtr;
 		uint16_t JunctionRefsCount0;
 		uint16_t JunctionRefsCount1; // same as JunctionRefsCount0
-		uint32_t Unk5C; // 0x00000000
-		uint32_t JunctionsCount; // same as JunctionRefsCount0
+		uint32_t Unk5C;              // 0x00000000
+		uint32_t JunctionsCount;     // same as JunctionRefsCount0
 		uint32_t JunctionHeightmapBytesCount;
 		uint32_t Unk68; // 0x00000000
 		uint32_t Unk6C; // 0x00000000
 	} NodeDictionary;
 
-	struct Node {
+	struct Node
+	{
 		uint32_t Unused0; // 0x00000000
 		uint32_t Unused1; // 0x00000000
 		uint32_t Unused2; // 0x00000000
 		uint32_t Unused3; // 0x00000000
 		uint16_t AreaID;
 		uint16_t NodeID;
-		uint32_t StreetName; //TextHash 
+		uint32_t StreetName; //	TextHash
 		uint16_t Unused4;
 		uint16_t LinkID;
 		int16_t PositionX;
@@ -47,7 +49,8 @@ class YndLoader
 		uint8_t Flags4;
 	};
 
-	struct NodeLink {
+	struct NodeLink
+	{
 		uint16_t AreaID;
 		uint16_t NodeID;
 		uint8_t Flags0;
@@ -56,7 +59,8 @@ class YndLoader
 		uint8_t LinkLength;
 	};
 
-	struct NodeJunction {
+	struct NodeJunction
+	{
 		int16_t MaxZ;
 		int16_t PositionX;
 		int16_t PositionY;
@@ -66,13 +70,14 @@ class YndLoader
 		int8_t HeightmapDimY;
 	};
 
-	struct NodeJunctionRef {
+	struct NodeJunctionRef
+	{
 		uint16_t AreaID;
 		uint16_t NodeID;
 		uint16_t JunctionID;
 		uint16_t Unk0;
-
 	};
+
 public:
 	std::vector<Node> nodes;
 	std::vector<NodeLink> nodeLinks;
@@ -83,4 +88,3 @@ public:
 	YndLoader(memstream& file);
 	~YndLoader();
 };
-

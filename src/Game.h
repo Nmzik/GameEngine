@@ -25,7 +25,7 @@ class RenderingSystem;
 
 class Game
 {
-	SDL_Window *window;
+	SDL_Window* window;
 
 	std::unique_ptr<GameWorld> gameWorld;
 	std::unique_ptr<RenderingSystem> rendering_system;
@@ -41,20 +41,23 @@ public:
 
 	void tick(float delta_time);
 
-	InputManager* getInput() {
+	InputManager* getInput()
+	{
 		return input.get();
 	}
 
-	GameWorld* getWorld() {
+	GameWorld* getWorld()
+	{
 		return gameWorld.get();
 	}
 
-	SDL_Window* getWindow() {
+	SDL_Window* getWindow()
+	{
 		return window;
 	}
 
-	RenderingSystem* getRenderer() {
+	RenderingSystem* getRenderer()
+	{
 		return rendering_system.get();
 	}
 };
-

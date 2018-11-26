@@ -1,21 +1,20 @@
 #pragma once
 /*#include <iostream>
 
-#include "al.h" 
-#include "alc.h" 
+#include "al.h"
+#include "alc.h"
 //#include "alut.h"
 
 class SoundManager
 {
-	ALCcontext* alContext = nullptr;
-	ALCdevice* alDevice = nullptr;
+ ALCcontext* alContext = nullptr;
+ ALCdevice* alDevice = nullptr;
 
-	ALuint source;
-	ALuint buffer;
+ ALuint source;
+ ALuint buffer;
 public:
-	SoundManager();
-	~SoundManager();
+ SoundManager();
+ ~SoundManager();
 
-	void InitializeOpenAL();
+ void InitializeOpenAL();
 };*/
-

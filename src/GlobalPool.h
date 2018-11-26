@@ -8,17 +8,19 @@
 #include "YbnLoader.h"
 #include "YmapLoader.h"
 
-class GlobalPool {
+class GlobalPool
+{
 public:
-	static GlobalPool& getInstance() {
+	static GlobalPool& getInstance()
+	{
 		return pool;
 	}
-    static GlobalPool pool;
+	static GlobalPool pool;
 
 	Pool<YdrLoader, 6000> YdrPool;
-    Pool<YbnLoader, 1000> YbnPool;
-    Pool<YddLoader, 1000> YddPool;
-    Pool<YftLoader, 1000> YftPool;
-    Pool<YmapLoader, 1000> YmapPool;
-    Pool<YtdLoader, 2500> YtdPool;
+	Pool<YbnLoader, 1000> YbnPool;
+	Pool<YddLoader, 1000> YddPool;
+	Pool<YftLoader, 1000> YftPool;
+	Pool<YmapLoader, 1000> YmapPool;
+	Pool<YtdLoader, 2500> YtdPool;
 };

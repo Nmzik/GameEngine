@@ -6,6 +6,7 @@
 class Entity
 {
 	bool visible;
+
 public:
 	glm::vec3 position;
 	glm::quat rotation;
@@ -15,23 +16,22 @@ public:
 	float health = 100.0f;
 
 	Entity(glm::vec3& pos, glm::quat rot, glm::vec3 scale_)
-		:
-		position(pos),
-		rotation(rot),
-		scale(scale_),
-		visible(true)
+		: position(pos)
+		, rotation(rot)
+		, scale(scale_)
+		, visible(true)
 	{
 		modelMatrix = glm::translate(glm::mat4(1.0f), position) * glm::mat4_cast(rotation) * glm::scale(glm::mat4(1.0f), scale);
 	}
 
-	~Entity() {
-
+	~Entity()
+	{
 	}
 
-	glm::mat4& getMatrix() {
+	glm::mat4& getMatrix()
+	{
 		return modelMatrix;
 	}
 
 private:
-
 };

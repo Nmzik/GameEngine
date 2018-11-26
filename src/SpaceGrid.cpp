@@ -4,9 +4,8 @@
 
 SpaceGrid::SpaceGrid()
 {
-	//Grid = myNew SpaceGridCell[500*500];
+	//	Grid = myNew SpaceGridCell[500*500];
 }
-
 
 SpaceGrid::~SpaceGrid()
 {
@@ -29,7 +28,7 @@ void SpaceGrid::AddBoundsItem(BoundsStoreItem* item, uint16_t id)
 
 void SpaceGrid::AddMapNode(MapDataStoreNode* node, uint16_t id)
 {
-	glm::vec2 min = GetCellPos(node->streamingExtentsMin); //NOT entitiesExtents !!!! GIVES WEIRD RESULTS 
+	glm::vec2 min = GetCellPos(node->streamingExtentsMin); //	NOT entitiesExtents !!!! GIVES WEIRD RESULTS
 	glm::vec2 max = GetCellPos(node->streamingExtentsMax);
 
 	for (int x = min.x; x <= max.x; x++)
@@ -42,7 +41,7 @@ void SpaceGrid::AddMapNode(MapDataStoreNode* node, uint16_t id)
 	}
 }
 
-void SpaceGrid::AddCInteriorProxy(CInteriorProxy * proxy, uint16_t id)
+void SpaceGrid::AddCInteriorProxy(CInteriorProxy* proxy, uint16_t id)
 {
 	glm::vec2 min = GetCellPos(proxy->BBMin);
 	glm::vec2 max = GetCellPos(proxy->BBMax);
@@ -66,16 +65,16 @@ SpaceGridCell& SpaceGrid::GetCell(glm::i32vec2 g)
 {
 	/*if ((g.x < 0) || (g.y < 0) || (g.x >= CellCount) || (g.y >= CellCount))
 	{
-		printf("ERROR HERE\n");
-		return Grid[0];
+	 printf("ERROR HERE\n");
+	 return Grid[0];
 	}*/
 	return Grid[g.x * 500 + g.y];
 	/*const SpaceGridCell cell = Grid[g.x, g.y];
 	Grid[300][250]
 	if (cell == null)
 	{
-		cell = myNew SpaceGridCell();
-		Cells[g.X, g.Y] = cell;
+	 cell = myNew SpaceGridCell();
+	 Cells[g.X, g.Y] = cell;
 	}
 	return cell;*/
 }

@@ -1,15 +1,13 @@
 #include "PauseState.h"
 #include "Game.h"
 
-PauseState::PauseState(Game* game) : State(game)
+PauseState::PauseState(Game* game)
+	: State(game)
 {
-
 }
-
 
 PauseState::~PauseState()
 {
-
 }
 
 void PauseState::enter()

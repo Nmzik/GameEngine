@@ -7,7 +7,7 @@ GameData::GameData()
 {
 	GTAEncryption::LoadKeys();
 
-	std::vector <std::string> RpfsFiles = {
+	std::vector<std::string> RpfsFiles = {
 		"common.rpf",
 		"x64a.rpf",
 		"x64b.rpf",
@@ -41,7 +41,8 @@ GameData::GameData()
 		std::ifstream* rpf = myNew std::ifstream(Path + rpfFile, std::ios::binary);
 		Files.push_back(rpf);
 
-		if (!rpf->is_open()) {
+		if (!rpf->is_open())
+		{
 			printf("NOT FOUND RPF!\n");
 			return;
 		}
@@ -69,51 +70,60 @@ GameData::GameData()
 	{
 		for (auto& entry : rpfFile->ResourceEntries)
 		{
-			//NO FILES DETECTED WITH uppercase in their names
-			//also it seems that full name (with extension) is never used in game engine
-			//std::transform(entry.Name.begin(), entry.Name.end(), entry.Name.begin(), tolower);
-			//entry.NameHash = GenHash(entry.Name);
+			//	NO FILES DETECTED WITH uppercase in their names
+			//	also it seems that full name (with extension) is never used in game engine
+			//	std::transform(entry.Name.begin(), entry.Name.end(), entry.Name.begin(), tolower);
+			//	entry.NameHash = GenHash(entry.Name);
 
 			size_t index = entry.Name.find_last_of('.');
 			std::string extension = entry.Name.substr(index);
 			entry.ShortNameHash = GenHash(entry.Name.substr(0, index));
 
-			if (extension == ".ydr") {
-				//YdrEntries[GenHash(entry.Name.substr(0, entry.Name.length() - 4) + "_lod")] = &entry; //WHY????
-				//YdrEntries[entry.NameHash] = &entry;
+			if (extension == ".ydr")
+			{
+				//	YdrEntries[GenHash(entry.Name.substr(0, entry.Name.length() - 4) + "_lod")] = &entry; //WHY????
+				//	YdrEntries[entry.NameHash] = &entry;
 				YdrEntries[entry.ShortNameHash] = &entry;
 			}
-			else if (extension == ".ydd") {
-				//YddEntries[entry.NameHash] = &entry;
+			else if (extension == ".ydd")
+			{
+				//	YddEntries[entry.NameHash] = &entry;
 				YddEntries[entry.ShortNameHash] = &entry;
 			}
-			else if (extension == ".yft") {
-				//YftEntries[entry.NameHash] = &entry;
+			else if (extension == ".yft")
+			{
+				//	YftEntries[entry.NameHash] = &entry;
 				YftEntries[entry.ShortNameHash] = &entry;
 			}
-			else if (extension == ".ynd") {
-				//YndEntries[entry.NameHash] = &entry;
+			else if (extension == ".ynd")
+			{
+				//	YndEntries[entry.NameHash] = &entry;
 				YndEntries[entry.ShortNameHash] = &entry;
 			}
-			else if (extension == ".ynv") {
-				//YnvEntries[entry.NameHash] = &entry;
+			else if (extension == ".ynv")
+			{
+				//	YnvEntries[entry.NameHash] = &entry;
 				YnvEntries[entry.ShortNameHash] = &entry;
 			}
-			else if (extension == ".ytd") {
-				//YtdEntries[entry.NameHash] = &entry;
+			else if (extension == ".ytd")
+			{
+				//	YtdEntries[entry.NameHash] = &entry;
 				YtdEntries[entry.ShortNameHash] = &entry;
 			}
-			else if (extension == ".ybn") {
-				//YbnEntries[entry.NameHash] = &entry;
+			else if (extension == ".ybn")
+			{
+				//	YbnEntries[entry.NameHash] = &entry;
 				YbnEntries[entry.ShortNameHash] = &entry;
 			}
-			else if (extension == ".ymap") {
-				//YmapEntries[entry.NameHash] = &entry;
+			else if (extension == ".ymap")
+			{
+				//	YmapEntries[entry.NameHash] = &entry;
 				YmapEntries[entry.ShortNameHash] = &entry;
 			}
-			else if (extension == ".ytyp") {
-				//YtypEntries[entry.NameHash] = &entry;
-				//YtypEntries[entry.ShortNameHash] = &entry;
+			else if (extension == ".ytyp")
+			{
+				//	YtypEntries[entry.NameHash] = &entry;
+				//	YtypEntries[entry.ShortNameHash] = &entry;
 
 				std::vector<uint8_t> outputBuffer(entry.SystemSize + entry.GraphicsSize);
 				ExtractFileResource(entry, outputBuffer);
@@ -128,31 +138,35 @@ GameData::GameData()
 
 				/*if (file.CMloArchetypeDefs.size() != 0)
 				{
-					MloDictionary[file.CMloArchetypeDefs[0]._BaseArchetypeDef.assetName] = file.fwEntityDefs;
+				 MloDictionary[file.CMloArchetypeDefs[0]._BaseArchetypeDef.assetName] = file.fwEntityDefs;
 				}*/
 			}
 		}
 		for (auto& entry : rpfFile->BinaryEntries)
 		{
-			if (entry.Name == "handling.meta" && !foundHandling) {
+			if (entry.Name == "handling.meta" && !foundHandling)
+			{
 				std::vector<uint8_t> Buffer(entry.FileUncompressedSize);
 				ExtractFileBinary(entry, Buffer);
 				LoadHandlingData(Buffer);
 				foundHandling = true;
 			}
-			if (entry.Name == "gta5_cache_y.dat") {
+			if (entry.Name == "gta5_cache_y.dat")
+			{
 				std::vector<uint8_t> Buffer(entry.FileUncompressedSize);
 				ExtractFileBinary(entry, Buffer);
 
 				cacheFile = std::make_unique<CacheDatFile>(Buffer);
 			}
-			if (entry.Name == "water.xml" && !WaterFound) {
+			if (entry.Name == "water.xml" && !WaterFound)
+			{
 				std::vector<uint8_t> Buffer(entry.FileUncompressedSize);
 				ExtractFileBinary(entry, Buffer);
 				LoadWaterQuads(Buffer);
 				WaterFound = true;
 			}
-			if (entry.Name == "playerswitchestablishingshots.meta") {
+			if (entry.Name == "playerswitchestablishingshots.meta")
+			{
 				std::vector<uint8_t> Buffer(entry.FileUncompressedSize);
 				ExtractFileBinary(entry, Buffer);
 				LoadScenesSwitch(Buffer);
@@ -160,7 +174,6 @@ GameData::GameData()
 		}
 	}
 }
-
 
 GameData::~GameData()
 {
@@ -182,12 +195,14 @@ void GameData::LoadHandlingData(std::vector<uint8_t>& Buffer)
 	tinyxml2::XMLDocument doc;
 	tinyxml2::XMLError eResult = doc.Parse((char*)&Buffer[0], Buffer.size());
 
-	tinyxml2::XMLElement * root = doc.FirstChildElement("CHandlingDataMgr");
+	tinyxml2::XMLElement* root = doc.FirstChildElement("CHandlingDataMgr");
 
-	if (root == nullptr) printf("ERROR");
+	if (root == nullptr)
+		printf("ERROR");
 
 	tinyxml2::XMLElement* element = root->FirstChildElement("HandlingData");
-	if (element == nullptr) printf("ERROR ELEMENT");
+	if (element == nullptr)
+		printf("ERROR ELEMENT");
 
 	for (tinyxml2::XMLElement* e = element->FirstChildElement("Item"); e != NULL; e = e->NextSiblingElement("Item"))
 	{
@@ -213,12 +228,14 @@ void GameData::LoadGtxd()
 	tinyxml2::XMLDocument doc;
 	tinyxml2::XMLError eResult = doc.LoadFile("assets/gtxd.ymt.rbf.xml");
 
-	tinyxml2::XMLElement * root = doc.FirstChildElement("CMapParentTxds");
+	tinyxml2::XMLElement* root = doc.FirstChildElement("CMapParentTxds");
 
-	if (root == nullptr) printf("ERROR");
+	if (root == nullptr)
+		printf("ERROR");
 
 	tinyxml2::XMLElement* element = root->FirstChildElement("txdRelationships");
-	if (element == nullptr) printf("ERROR ELEMENT");
+	if (element == nullptr)
+		printf("ERROR ELEMENT");
 
 	for (tinyxml2::XMLElement* e = element->FirstChildElement("item"); e != NULL; e = e->NextSiblingElement("item"))
 	{
@@ -237,15 +254,17 @@ void GameData::LoadWaterQuads(std::vector<uint8_t>& Buffer)
 	tinyxml2::XMLDocument doc;
 	tinyxml2::XMLError eResult = doc.Parse((char*)&Buffer[0], Buffer.size());
 
-	tinyxml2::XMLElement * root = doc.FirstChildElement("WaterData");
+	tinyxml2::XMLElement* root = doc.FirstChildElement("WaterData");
 
-	if (root == nullptr) printf("ERROR");
+	if (root == nullptr)
+		printf("ERROR");
 
 	tinyxml2::XMLElement* element = root->FirstChildElement("WaterQuads");
-	if (element == nullptr) printf("ERROR ELEMENT");
+	if (element == nullptr)
+		printf("ERROR ELEMENT");
 
-	//tinyxml2::XMLElement* ItemElement = element->FirstChildElement("Item");
-	//if (ItemElement == nullptr) printf("ERROR ELEMENT");
+	//	tinyxml2::XMLElement* ItemElement = element->FirstChildElement("Item");
+	//	if (ItemElement == nullptr) printf("ERROR ELEMENT");
 
 	for (tinyxml2::XMLElement* e = element->FirstChildElement("Item"); e != NULL; e = e->NextSiblingElement("Item"))
 	{
@@ -298,12 +317,14 @@ void GameData::LoadScenesSwitch(std::vector<uint8_t>& Buffer)
 	tinyxml2::XMLDocument doc;
 	tinyxml2::XMLError eResult = doc.Parse((char*)&Buffer[0], Buffer.size());
 
-	tinyxml2::XMLElement * root = doc.FirstChildElement("CPlayerSwitchEstablishingShotMetadataStore");
+	tinyxml2::XMLElement* root = doc.FirstChildElement("CPlayerSwitchEstablishingShotMetadataStore");
 
-	if (root == nullptr) printf("ERROR");
+	if (root == nullptr)
+		printf("ERROR");
 
 	tinyxml2::XMLElement* element = root->FirstChildElement("ShotList");
-	if (element == nullptr) printf("ERROR ELEMENT");
+	if (element == nullptr)
+		printf("ERROR ELEMENT");
 
 	for (tinyxml2::XMLElement* e = element->FirstChildElement("Item"); e != NULL; e = e->NextSiblingElement("Item"))
 	{
@@ -334,7 +355,7 @@ void GameData::LoadRpf(std::ifstream& rpf, std::string& FullPath_, std::string& 
 	}
 }
 
-uint8_t tbytes[20*1024*1024]; //20MB ?? IS IT ENOUGHT???
+uint8_t tbytes[20 * 1024 * 1024]; // 20MB ?? IS IT ENOUGHT???
 
 void GameData::ExtractFileBinary(RpfBinaryFileEntry& entry, std::vector<uint8_t>& output)
 {
@@ -355,20 +376,20 @@ void GameData::ExtractFileResource(RpfResourceFileEntry& entry, std::vector<uint
 	rpf->seekg(entry.FileOffset);
 	rpf->read((char*)&tbytes[0], entry.FileSize);
 
-	//uint8_t* decr = tbytes;
-	//if (entry.IsEncrypted)
+	//	uint8_t* decr = tbytes;
+	//	if (entry.IsEncrypted)
 	//{
-		/*if (IsAESEncrypted)
-		{
-			decr = GTACrypto.DecryptAES(tbytes);
-		}
-		else //if (IsNGEncrypted) //assume the archive is set to NG encryption if not AES... (comment: fix for openIV modded files)
-		{*/
-		//decr = GTACrypto.DecryptNG(tbytes, entry.Name, entry.FileSize);
+	/*if (IsAESEncrypted)
+	{
+	 decr = GTACrypto.DecryptAES(tbytes);
+	}
+	else //if (IsNGEncrypted) //assume the archive is set to NG encryption if not AES... (comment: fix for openIV modded files)
+	{*/
+	//	decr = GTACrypto.DecryptNG(tbytes, entry.Name, entry.FileSize);
 	//}
-	//else
+	//	else
 	//{ }
-//}
+	//}
 
 	GTAEncryption::DecompressBytes(tbytes, entry.FileSize, output);
 }

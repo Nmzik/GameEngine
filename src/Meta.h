@@ -2,7 +2,8 @@
 #include "FileType.h"
 #include <vector>
 
-struct MetaStructureEntryInfo_s {
+struct MetaStructureEntryInfo_s
+{
 	uint32_t EntryNameHash;
 	int32_t DataOffset;
 	uint8_t DataType;
@@ -11,27 +12,31 @@ struct MetaStructureEntryInfo_s {
 	uint32_t ReferenceKey;
 };
 
-struct MetaEnumEntryInfo_s {
+struct MetaEnumEntryInfo_s
+{
 	uint32_t EntryNameHash;
 	int32_t EntryValue;
 };
 
-class MetaStructureInfo {
+class MetaStructureInfo
+{
 public:
-	struct MetaStructureInfoStruct {
+	struct MetaStructureInfoStruct
+	{
 		uint32_t StructureNameHash;
 		uint32_t StructureKey;
 		uint32_t Unknown_8h;
-		uint32_t Unknown_Ch; //0x00000000;
+		uint32_t Unknown_Ch; //	0x00000000;
 		uint64_t EntriesPointer;
 		int32_t StructureSize;
-		int16_t Unknown_1Ch; //0x0000;
+		int16_t Unknown_1Ch; //	0x0000;
 		int16_t EntriesCount;
 	} *MetaStructureInfo_struct;
 
 	std::vector<MetaStructureEntryInfo_s*> entryInfos;
 
-	MetaStructureInfo(memstream& file) {
+	MetaStructureInfo(memstream& file)
+	{
 		MetaStructureInfo_struct = (MetaStructureInfoStruct*)file.read(sizeof(MetaStructureInfoStruct));
 
 		uint64_t pos = file.tellg();
@@ -48,22 +53,24 @@ public:
 		}
 		file.seekg(pos);
 	}
-
 };
 
-class MetaEnumInfo {
+class MetaEnumInfo
+{
 public:
-	struct MetaEnumInfoStruct{
+	struct MetaEnumInfoStruct
+	{
 		uint32_t EnumNameHash;
 		uint32_t EnumKey;
 		uint64_t EntriesPointer;
 		int32_t EntriesCount;
-		int32_t Unknown_14h; //0x00000000;
+		int32_t Unknown_14h; //	0x00000000;
 	} *MetaEnumInfo_struct;
 
 	std::vector<MetaEnumEntryInfo_s*> infos;
 
-	MetaEnumInfo(memstream& file) {
+	MetaEnumInfo(memstream& file)
+	{
 		MetaEnumInfo_struct = (MetaEnumInfoStruct*)file.read(sizeof(MetaEnumInfoStruct));
 
 		SYSTEM_BASE_PTR(MetaEnumInfo_struct->EntriesPointer);
@@ -82,24 +89,29 @@ public:
 	}
 };
 
-class MetaDataBlock {
+class MetaDataBlock
+{
 public:
-	struct MetaDataBlockStruct {
+	struct MetaDataBlockStruct
+	{
 		uint32_t StructureNameHash;
 		int32_t DataLength;
 		uint64_t DataPointer;
 	} *MetaDataBlock_struct;
 
-	MetaDataBlock(memstream& file) {
+	MetaDataBlock(memstream& file)
+	{
 		MetaDataBlock_struct = (MetaDataBlockStruct*)file.read(sizeof(MetaDataBlockStruct));
 
 		TranslatePTR(MetaDataBlock_struct->DataPointer);
 	}
 };
 
-class Meta {
+class Meta
+{
 public:
-	struct MetaStruct : ResourceFileBase {
+	struct MetaStruct : ResourceFileBase
+	{
 		int32_t Unknown_10h;
 		uint16_t Unknown_14h;
 		uint8_t HasUselessData;
@@ -129,7 +141,8 @@ public:
 	std::vector<MetaEnumInfo> EnumInfos;
 	std::vector<MetaDataBlock> MetaBlocks;
 
-	Meta(memstream& file) {
+	Meta(memstream& file)
+	{
 		Meta_struct = (MetaStruct*)file.read(sizeof(MetaStruct));
 
 		SYSTEM_BASE_PTR(Meta_struct->StructureInfosPointer);
@@ -166,8 +179,7 @@ public:
 		}
 	}
 
-	~Meta() {
-		
+	~Meta()
+	{
 	}
-
 };

@@ -4,7 +4,8 @@
 #include "Model.h"
 #include "GlobalPool.h"
 
-struct ShaderGroup : datBase {
+struct ShaderGroup : datBase
+{
 	uint64_t TextureDictionaryPointer;
 	uint64_t ShadersPointer;
 	uint16_t ShadersCount1;
@@ -19,24 +20,25 @@ struct ShaderGroup : datBase {
 	uint32_t Unknown_38h; // 0x00000000
 	uint32_t Unknown_3Ch; // 0x00000000
 
-	void Resolve(memstream & file) {
-		
+	void Resolve(memstream& file)
+	{
 	}
 };
 
-struct ShaderFX {
+struct ShaderFX
+{
 	uint64_t ParametersPointer;
-	uint32_t Name; //530103687, 2401522793, 1912906641
+	uint32_t Name;       //	530103687, 2401522793, 1912906641
 	uint32_t Unknown_Ch; // 0x00000000
 	uint8_t ParameterCount;
-	uint8_t Unknown_11h; // 2, 0, 
+	uint8_t Unknown_11h;  // 2, 0,
 	uint16_t Unknown_12h; // 32768
-	uint32_t Unknown_14h; //10485872, 17826000, 26214720
-	uint32_t FileName; //2918136469, 2635608835, 2247429097
+	uint32_t Unknown_14h; //	10485872, 17826000, 26214720
+	uint32_t FileName;    //	2918136469, 2635608835, 2247429097
 	uint32_t Unknown_1Ch; // 0x00000000
-	uint32_t Unknown_20h; //65284, 65281
-	uint16_t Unknown_24h; //0
-	uint8_t Unknown_26h; //0
+	uint32_t Unknown_20h; //	65284, 65281
+	uint16_t Unknown_24h; //	0
+	uint8_t Unknown_26h;  //	0
 	uint8_t TextureParametersCount;
 	uint32_t Unknown_28h; // 0x00000000
 	uint32_t Unknown_2Ch; // 0x00000000
@@ -111,7 +113,8 @@ struct LightAttributes_s
 	uint32_t Unknown_A4h; // 0x00000000
 };
 
-struct Drawable {
+struct Drawable
+{
 	uint64_t NamePointer;
 	uint64_t LightAttributesPointer;
 	uint16_t LightAttributesCount1;
@@ -122,7 +125,8 @@ struct Drawable {
 	uint64_t BoundPointer;
 };
 
-struct FragDrawable {
+struct FragDrawable
+{
 	uint32_t Unknown_0A8h;
 	uint32_t Unknown_0ACh;
 	glm::mat4 Unknown_0B0h;
@@ -150,7 +154,8 @@ struct FragDrawable {
 	uint32_t Unknown_14Ch; // 0x00000000
 };
 
-struct VertexDeclaration {
+struct VertexDeclaration
+{
 	uint32_t Flags;
 	uint16_t Stride;
 	uint8_t Unknown_6h;
@@ -158,7 +163,8 @@ struct VertexDeclaration {
 	uint64_t Types;
 };
 
-struct VertexBuffer : datBase {
+struct VertexBuffer : datBase
+{
 	uint16_t VertexStride;
 	uint16_t Unknown_Ah;
 	uint32_t Unknown_Ch; // 0x00000000
@@ -188,13 +194,15 @@ struct VertexBuffer : datBase {
 	uint32_t Unknown_78h; // 0x00000000
 	uint32_t Unknown_7Ch; // 0x00000000
 
-	void Resolve(memstream & file) {
+	void Resolve(memstream& file)
+	{
 		SYSTEM_BASE_PTR(DataPointer1);
 		InfoPointer = (VertexDeclaration*)&file.data[(uint64_t)InfoPointer & ~0x50000000];
 	}
 };
 
-struct IndexBuffer : datBase {
+struct IndexBuffer : datBase
+{
 	uint32_t IndicesCount;
 	uint32_t Unknown_Ch; // 0x00000000
 	uint64_t IndicesPointer;
@@ -217,14 +225,16 @@ struct IndexBuffer : datBase {
 	uint32_t Unknown_58h; // 0x00000000
 	uint32_t Unknown_5Ch; // 0x00000000
 
-	void Resolve(memstream & file) {
+	void Resolve(memstream& file)
+	{
 		SYSTEM_BASE_PTR(IndicesPointer);
 	}
 };
 
-struct DrawableGeometry : datBase {
-	uint32_t Unknown_8h; // 0x00000000
-	uint32_t Unknown_Ch; // 0x00000000
+struct DrawableGeometry : datBase
+{
+	uint32_t Unknown_8h;  // 0x00000000
+	uint32_t Unknown_Ch;  // 0x00000000
 	uint32_t Unknown_10h; // 0x00000000
 	uint32_t Unknown_14h; // 0x00000000
 	pgPtr<VertexBuffer> VertexBufferPointer;
@@ -258,7 +268,8 @@ struct DrawableGeometry : datBase {
 	uint32_t Unknown_90h; // 0x00000000
 	uint32_t Unknown_94h; // 0x00000000
 
-	void Resolve(memstream & file) {
+	void Resolve(memstream& file)
+	{
 		VertexBufferPointer.Resolve(file);
 		IndexBufferPointer.Resolve(file);
 
@@ -267,21 +278,24 @@ struct DrawableGeometry : datBase {
 	}
 };
 
-struct DrawableModel : datBase {
+struct DrawableModel : datBase
+{
 	pgObjectArray<DrawableGeometry> m_geometries;
 	uint64_t BoundsPointer;
 	pgPtr<uint16_t> ShaderMappingPointer;
 	uint32_t Unknown_28h;
 	uint32_t Unknown_2Ch;
 
-	void Resolve(memstream & file) {
+	void Resolve(memstream& file)
+	{
 		m_geometries.Resolve(file);
 
 		ShaderMappingPointer.Resolve(file);
 	}
 };
 
-struct DrawableBase : ResourceFileBase {
+struct DrawableBase : ResourceFileBase
+{
 	pgPtr<ShaderGroup> ShaderGroupPointer;
 	uint64_t SkeletonPointer;
 	glm::vec3 BoundingCenter;
@@ -302,14 +316,15 @@ struct DrawableBase : ResourceFileBase {
 	uint32_t Unknown_9Ch;
 	uint64_t DrawableModelsX;
 
-	inline void Resolve(memstream & file)
+	inline void Resolve(memstream& file)
 	{
 		ShaderGroupPointer.Resolve(file);
 		ShaderGroupPointer->Resolve(file);
 
 		for (int i = 0; i < 4; i++)
 		{
-			if (DrawableModels[i].pointer) {
+			if (DrawableModels[i].pointer)
+			{
 				DrawableModels[i].Resolve(file);
 				DrawableModels[i]->Resolve(file);
 			}
@@ -320,14 +335,15 @@ struct DrawableBase : ResourceFileBase {
 class YtdLoader;
 class YbnLoader;
 
-//REMOVE DEFAULT INITIALIZATION IN CLASS
-//CAUSES CLASS IN ASSEMBLER
+// REMOVE DEFAULT INITIALIZATION IN CLASS
+// CAUSES CLASS IN ASSEMBLER
 
 class YdrLoader : public FileType
 {
 	YtdLoader* Ytd = nullptr;
+
 public:
-	YdrLoader * next;
+	YdrLoader* next;
 	std::vector<Model>* models;
 	YbnLoader* ybnfile = nullptr;
 	bool isYft = false;

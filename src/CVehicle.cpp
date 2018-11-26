@@ -4,21 +4,25 @@
 btVector3 wheelDirectionCS0(0, 0, -1);
 btVector3 wheelAxleCS(1, 0, 0);
 
-float	gVehicleSteering = 0.f;
-float	steeringIncrement = 0.04f;
-float	steeringClamp = 0.3f;
-float	wheelRadius = 0.5f;
-float	wheelWidth = 0.4f;
-float	wheelFriction = 1000;//BT_LARGE_FLOAT;
-float	suspensionStiffness = 50.f;
-float	suspensionDamping = 2.3f;
-float	suspensionCompression = 4.4f;
-float	rollInfluence = 0.1f;//1.0f;
+float gVehicleSteering = 0.f;
+float steeringIncrement = 0.04f;
+float steeringClamp = 0.3f;
+float wheelRadius = 0.5f;
+float wheelWidth = 0.4f;
+float wheelFriction = 1000; // BT_LARGE_FLOAT;
+float suspensionStiffness = 50.f;
+float suspensionDamping = 2.3f;
+float suspensionCompression = 4.4f;
+float rollInfluence = 0.1f; // 1.0f;
 
 btScalar suspensionRestLength(0.6f);
 btScalar m_defaultContactProcessingThreshold(BT_LARGE_FLOAT);
 
-CVehicle::CVehicle(glm::vec3 position, float mass, YftLoader* yft, btDiscreteDynamicsWorld* world) : throttle(0), steeringValue(0), vehicle(yft), Entity(position, glm::quat(-1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(1.0f))
+CVehicle::CVehicle(glm::vec3 position, float mass, YftLoader* yft, btDiscreteDynamicsWorld* world)
+	: throttle(0)
+	, steeringValue(0)
+	, vehicle(yft)
+	, Entity(position, glm::quat(-1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(1.0f))
 {
 	btRaycastVehicle::btVehicleTuning m_tuning;
 
@@ -28,7 +32,7 @@ CVehicle::CVehicle(glm::vec3 position, float mass, YftLoader* yft, btDiscreteDyn
 	compound = new btCompoundShape();
 	btTransform localTrans;
 	localTrans.setIdentity();
-	//localTrans effectively shifts the center of mass with respect to the chassis
+	//	localTrans effectively shifts the center of mass with respect to the chassis
 	localTrans.setOrigin(btVector3(0.f, 0.f, 0.3f));
 
 	compound->addChildShape(localTrans, chassisShape);
@@ -55,10 +59,10 @@ CVehicle::CVehicle(glm::vec3 position, float mass, YftLoader* yft, btDiscreteDyn
 	m_vehicleRayCaster = myNew btDefaultVehicleRaycaster(world);
 	m_vehicle = myNew btRaycastVehicle(m_tuning, m_carChassis, m_vehicleRayCaster);
 
-	///never deactivate the vehicle
+	///	never deactivate the vehicle
 	m_carChassis->setActivationState(DISABLE_DEACTIVATION);
 
-	//choose coordinate system
+	//	choose coordinate system
 	m_vehicle->setCoordinateSystem(0, 2, 1);
 
 	world->addAction(m_vehicle);
@@ -67,21 +71,21 @@ CVehicle::CVehicle(glm::vec3 position, float mass, YftLoader* yft, btDiscreteDyn
 
 	bool isFrontWheel = true;
 
-	btVector3 connectionPointCS0(CUBE_HALF_EXTENTS - (0.3f*wheelWidth), 2 * CUBE_HALF_EXTENTS - wheelRadius, connectionHeight);
+	btVector3 connectionPointCS0(CUBE_HALF_EXTENTS - (0.3f * wheelWidth), 2 * CUBE_HALF_EXTENTS - wheelRadius, connectionHeight);
 	m_vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, m_tuning, isFrontWheel);
 
-	connectionPointCS0 = btVector3(-CUBE_HALF_EXTENTS + (0.3f*wheelWidth), 2 * CUBE_HALF_EXTENTS - wheelRadius, connectionHeight);
-	m_vehicle->addWheel(connectionPointCS0,wheelDirectionCS0,wheelAxleCS,suspensionRestLength,wheelRadius,m_tuning,isFrontWheel);
+	connectionPointCS0 = btVector3(-CUBE_HALF_EXTENTS + (0.3f * wheelWidth), 2 * CUBE_HALF_EXTENTS - wheelRadius, connectionHeight);
+	m_vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, m_tuning, isFrontWheel);
 
 	isFrontWheel = false;
 
-	connectionPointCS0 = btVector3(-CUBE_HALF_EXTENTS + (0.3f*wheelWidth), -2 * CUBE_HALF_EXTENTS + wheelRadius, connectionHeight);
+	connectionPointCS0 = btVector3(-CUBE_HALF_EXTENTS + (0.3f * wheelWidth), -2 * CUBE_HALF_EXTENTS + wheelRadius, connectionHeight);
 	m_vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, m_tuning, isFrontWheel);
 
-	connectionPointCS0 = btVector3(CUBE_HALF_EXTENTS - (0.3f*wheelWidth), -2 * CUBE_HALF_EXTENTS + wheelRadius, connectionHeight);
+	connectionPointCS0 = btVector3(CUBE_HALF_EXTENTS - (0.3f * wheelWidth), -2 * CUBE_HALF_EXTENTS + wheelRadius, connectionHeight);
 	m_vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, m_tuning, isFrontWheel);
 
-	for (int i = 0; i<m_vehicle->getNumWheels(); i++)
+	for (int i = 0; i < m_vehicle->getNumWheels(); i++)
 	{
 		btWheelInfo& wheel = m_vehicle->getWheelInfo(i);
 		wheel.m_suspensionStiffness = suspensionStiffness;
@@ -90,8 +94,6 @@ CVehicle::CVehicle(glm::vec3 position, float mass, YftLoader* yft, btDiscreteDyn
 		wheel.m_frictionSlip = wheelFriction;
 		wheel.m_rollInfluence = rollInfluence;
 	}
-
-
 }
 
 CVehicle::~CVehicle()
@@ -106,7 +108,7 @@ CVehicle::~CVehicle()
 	delete m_vehicle;
 	m_vehicle = NULL;
 
-	//delete vehicle;
+	//	delete vehicle;
 }
 
 glm::mat4 CVehicle::GetMat4()

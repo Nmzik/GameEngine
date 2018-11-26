@@ -2,7 +2,8 @@
 #include "FileType.h"
 #include <vector>
 
-struct FragType : ResourceFileBase {
+struct FragType : ResourceFileBase
+{
 	uint32_t Unknown_10h; // 0x00000000
 	uint32_t Unknown_14h; // 0x00000000
 	uint32_t Unknown_18h; // 0x00000000
@@ -64,7 +65,8 @@ struct FragType : ResourceFileBase {
 	uint32_t Unknown_12Ch; // 0x00000000
 };
 
-struct FragPhysicsLODGroup : datBase {
+struct FragPhysicsLODGroup : datBase
+{
 	uint32_t Unknown_08h; // 0x00000000
 	uint32_t Unknown_0Ch; // 0x00000000
 	uint64_t PhysicsLOD1Pointer;
@@ -74,7 +76,8 @@ struct FragPhysicsLODGroup : datBase {
 	uint32_t Unknown_2Ch; // 0x00000000
 };
 
-struct FragPhysicsLOD : datBase {
+struct FragPhysicsLOD : datBase
+{
 	uint32_t Unknown_08h; // 0x00000000
 	uint32_t Unknown_0Ch; // 0x00000000
 	uint32_t Unknown_10h; // 0x00000000
@@ -110,14 +113,15 @@ struct FragPhysicsLOD : datBase {
 	uint8_t Unknown_11Ch;
 	uint8_t ChildrenCount;
 	uint8_t Count3;
-	uint8_t Unknown_11Fh; // 0x00
+	uint8_t Unknown_11Fh;  // 0x00
 	uint32_t Unknown_120h; // 0x00000000
 	uint32_t Unknown_124h; // 0x00000000
 	uint32_t Unknown_128h; // 0x00000000
 	uint32_t Unknown_12Ch; // 0x00000000
 };
 
-struct FragPhysTypeChild : datBase {
+struct FragPhysTypeChild : datBase
+{
 	float Unknown_08h;
 	float Unknown_0Ch;
 	float Unknown_10h;
@@ -185,9 +189,9 @@ class YbnLoader;
 class YftLoader : public FileType
 {
 public:
-	YftLoader * next;
-	YdrLoader * YdrFile = nullptr;
-	YbnLoader * ybnFile = nullptr;
+	YftLoader* next;
+	YdrLoader* YdrFile = nullptr;
+	YbnLoader* ybnFile = nullptr;
 	std::vector<YdrLoader*>* fragPhysicsLODs;
 
 	void Init(memstream& file, int32_t systemSize) override;

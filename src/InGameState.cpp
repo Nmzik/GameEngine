@@ -2,10 +2,10 @@
 #include "MenuState.h"
 #include "Game.h"
 
-InGameState::InGameState(Game* game) : State(game)
+InGameState::InGameState(Game* game)
+	: State(game)
 {
 }
-
 
 InGameState::~InGameState()
 {

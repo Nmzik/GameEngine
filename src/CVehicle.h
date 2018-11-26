@@ -9,6 +9,7 @@
 class CVehicle : public Entity
 {
 	YftLoader* vehicle;
+
 public:
 	CVehicle(glm::vec3 position, float mass, YftLoader* yft, btDiscreteDynamicsWorld* world);
 	~CVehicle();
@@ -24,14 +25,15 @@ public:
 	btRaycastVehicle* m_vehicle;
 	btCollisionShape* m_wheelShape;
 
-	void SetThrottle(float throttle) {
+	void SetThrottle(float throttle)
+	{
 		this->throttle = throttle;
 	}
 
-	void SetSteeringValue(float steeringValue) {
+	void SetSteeringValue(float steeringValue)
+	{
 		this->steeringValue = steeringValue;
 	}
 
 	void PhysicsTick();
 };
-

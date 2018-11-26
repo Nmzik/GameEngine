@@ -5,7 +5,7 @@
 #include <crtdbg.h>
 #include "Game.h"
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
 #if _MSC_VER
 	_CrtSetDbgFlag(_CRTDBG_LEAK_CHECK_DF | _CRTDBG_ALLOC_MEM_DF);

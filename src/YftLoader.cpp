@@ -2,7 +2,7 @@
 #include "YdrLoader.h"
 #include "YbnLoader.h"
 
-void YftLoader::Init(memstream & file, int32_t systemSize)
+void YftLoader::Init(memstream& file, int32_t systemSize)
 {
 	Loaded = true;
 
@@ -35,24 +35,24 @@ void YftLoader::Init(memstream & file, int32_t systemSize)
 
 	for (int i = 0; i < fragPhysicsLOD->ChildrenCount; i++)
 	{
-		uint64_t* data_pointer = (uint64_t*)file.read(sizeof(uint64_t));
+	 uint64_t* data_pointer = (uint64_t*)file.read(sizeof(uint64_t));
 
-		uint64_t ChildrenPointer = file.tellg();
+	 uint64_t ChildrenPointer = file.tellg();
 
-		SYSTEM_BASE_PTR(data_pointer[0]);
-		file.seekg(data_pointer[0]);
+	 SYSTEM_BASE_PTR(data_pointer[0]);
+	 file.seekg(data_pointer[0]);
 
-		FragPhysTypeChild* fragPhysTypeChild = (FragPhysTypeChild*)file.read(sizeof(FragPhysTypeChild));
+	 FragPhysTypeChild* fragPhysTypeChild = (FragPhysTypeChild*)file.read(sizeof(FragPhysTypeChild));
 
-		SYSTEM_BASE_PTR(fragPhysTypeChild->Drawable1Pointer);
-		file.seekg(fragPhysTypeChild->Drawable1Pointer);
+	 SYSTEM_BASE_PTR(fragPhysTypeChild->Drawable1Pointer);
+	 file.seekg(fragPhysTypeChild->Drawable1Pointer);
 
-		YdrLoader* ydr = YdrPool.getPool().Load();
-		ydr->isYft = true;
-		ydr->Init(file, systemSize);
-		fragPhysicsLODs->push_back(ydr);
+	 YdrLoader* ydr = YdrPool.getPool().Load();
+	 ydr->isYft = true;
+	 ydr->Init(file, systemSize);
+	 fragPhysicsLODs->push_back(ydr);
 
-		file.seekg(ChildrenPointer);
+	 file.seekg(ChildrenPointer);
 	}*/
 
 	SYSTEM_BASE_PTR(fragPhysicsLOD->BoundPointer);
@@ -62,24 +62,25 @@ void YftLoader::Init(memstream & file, int32_t systemSize)
 	ybnFile->Init(file);
 }
 
-
 void YftLoader::Remove()
 {
 	gpuMemory = 0;
 
 	/*for (auto& ydr : *fragPhysicsLODs)
 	{
-		YdrPool.getPool().Remove(ydr);
+	 YdrPool.getPool().Remove(ydr);
 	}
 
 	delete fragPhysicsLODs;*/
 
-	if (YdrFile) {
-        GlobalPool::getInstance().YdrPool.Remove(YdrFile);
+	if (YdrFile)
+	{
+		GlobalPool::getInstance().YdrPool.Remove(YdrFile);
 		YdrFile = nullptr;
 	}
-	if (ybnFile) {
-        GlobalPool::getInstance().YbnPool.Remove(ybnFile);
+	if (ybnFile)
+	{
+		GlobalPool::getInstance().YbnPool.Remove(ybnFile);
 		ybnFile = nullptr;
 	}
 }

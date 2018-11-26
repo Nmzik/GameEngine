@@ -10,4 +10,3 @@ public:
 
 	std::vector<Mesh> meshes;
 };
-

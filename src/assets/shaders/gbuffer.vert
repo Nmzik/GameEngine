@@ -9,9 +9,16 @@ layout (location = 0) out vec2 TexCoords;
 layout (location = 1) out vec3 Normal;
 layout (location = 2) out mat3 TBN;
 
-layout(location = 0) uniform mat4 model;
-layout(location = 1) uniform mat4 view;
-layout(location = 2) uniform mat4 projection;
+layout(binding = 0, std140) uniform WorldData
+{
+	mat4 projection;
+	mat4 view;
+};
+
+layout(binding = 1, std140) uniform ObjectData
+{
+	mat4 model;
+};
 
 void main()
 {

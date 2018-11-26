@@ -5,7 +5,8 @@
 #include "YddLoader.h"
 #include <array>
 
-struct CharacterWeaponSlot {
+struct CharacterWeaponSlot
+{
 	// Assuming these match the entries in weapon.dat
 	uint32_t weaponId;
 	uint32_t bulletsClip;
@@ -15,7 +16,7 @@ struct CharacterWeaponSlot {
 class CPed : public Entity
 {
 	btCapsuleShapeZ* physShape;
-	btRigidBody *body;
+	btRigidBody* body;
 
 	atArray<CharacterWeaponSlot> weapons;
 	uint16_t currentWeapon = 0;
@@ -23,18 +24,21 @@ class CPed : public Entity
 	glm::vec3 playerDirection;
 	CVehicle* vehicle;
 	YddLoader* player;
+
 public:
-    CPed(glm::vec3 position, YddLoader* ydd, btDiscreteDynamicsWorld* world);
-    ~CPed();
+	CPed(glm::vec3 position, YddLoader* ydd, btDiscreteDynamicsWorld* world);
+	~CPed();
 
 	std::vector<YdrLoader*> playerModel;
-    CPed* next;
+	CPed* next;
 	bool on_ground = false;
-	bool isAlive() {
+	bool isAlive()
+	{
 		return health > 0;
 	}
 
-	float getCurrentHealth() {
+	float getCurrentHealth()
+	{
 		return health;
 	}
 

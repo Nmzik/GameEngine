@@ -10,4 +10,3 @@ public:
 	YnvLoader(memstream& file);
 	~YnvLoader();
 };
-
