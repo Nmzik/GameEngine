@@ -438,17 +438,7 @@ public:
 	{
 	}
 
-	virtual void Finalize()
-	{
-	}
-
-	virtual void Init(memstream& file, int32_t systemSize)
-	{
-	}
-
-	virtual void Init(memstream& file)
-	{
-	}
+	virtual void Init(memstream& file) = 0;
 
 	virtual void Finalize(btDiscreteDynamicsWorld* world)
 	{
@@ -493,6 +483,7 @@ public:
 	void Remove(T* file)
 	{
 		file->Remove();
+		file->gpuMemory = 0;
 		file->Loaded = false;
 		file->next = firstAvailable_;
 		firstAvailable_ = file;

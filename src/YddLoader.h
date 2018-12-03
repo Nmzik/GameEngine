@@ -26,6 +26,6 @@ public:
 	YddLoader* next;
 	std::unordered_map<uint32_t, YdrLoader*>* YdrFiles;
 
-	void Init(memstream& file, int32_t systemSize) override;
+	void Init(memstream& file) override;
 	void Remove();
 };

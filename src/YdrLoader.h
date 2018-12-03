@@ -348,7 +348,7 @@ public:
 	YbnLoader* ybnfile = nullptr;
 	bool isYft = false;
 
-	void Init(memstream& file, int32_t systemSize) override;
+	void Init(memstream& file) override;
 	void Remove();
 
 	void UploadMeshes();

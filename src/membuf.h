@@ -6,6 +6,7 @@ class memstream
 	uint64_t offset;
 
 public:
+	int32_t systemSize;
 	const uint8_t* data;
 
 	memstream(const uint8_t* buffer, size_t sizeData)

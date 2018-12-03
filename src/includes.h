@@ -20,7 +20,6 @@ public:
 	uint32_t Hash;
 	int32_t SystemSize;
 	FileType* file;
-	bool loaded = false;
 	std::vector<uint8_t> Buffer;
 
 	Resource(Type t, uint32_t hash, FileType* _file)

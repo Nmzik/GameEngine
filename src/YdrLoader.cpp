@@ -4,16 +4,12 @@
 #include "GTAEncryption.h"
 #include <algorithm>
 
-void YdrLoader::Init(memstream& file, int32_t systemSize)
+void YdrLoader::Init(memstream& file)
 {
 	Loaded = true;
 
 	DrawableBase* drawBase = (DrawableBase*)file.read(sizeof(DrawableBase));
 	drawBase->Resolve(file);
-
-	/*if (!drawBase->DrawableModelsX.pointer) {
-	 printf("");
-	}*/
 
 	//	READ COLLISION DATA FROM YDR
 	if (isYft)
@@ -67,7 +63,7 @@ void YdrLoader::Init(memstream& file, int32_t systemSize)
 			SYSTEM_BASE_PTR(drawBase->ShaderGroupPointer->TextureDictionaryPointer);
 			file.seekg(drawBase->ShaderGroupPointer->TextureDictionaryPointer);
 			Ytd = GlobalPool::getInstance().YtdPool.Load();
-			Ytd->Init(file, systemSize);
+			Ytd->Init(file);
 		}
 
 		SYSTEM_BASE_PTR(drawBase->ShaderGroupPointer->ShadersPointer);
@@ -164,15 +160,15 @@ void YdrLoader::Init(memstream& file, int32_t systemSize)
 					{ //	DiffuseSampler
 						DiffuseSampler = TexturesHashes[i];
 					}
-					if (ShaderName[0] == 1186448975)
+					else if (ShaderName[0] == 1186448975)
 					{ //	BumpSampler
 						BumpSampler = TexturesHashes[i];
 					}
-					if (ShaderName[0] == 1619499462)
+					else if (ShaderName[0] == 1619499462)
 					{ //	SpecularSampler
 						SpecularSampler = TexturesHashes[i];
 					}
-					if (ShaderName[0] == 3393362404)
+					else if (ShaderName[0] == 3393362404)
 					{ //	DetailSampler
 						DetailSampler = TexturesHashes[i];
 					}
@@ -227,7 +223,6 @@ void YdrLoader::Init(memstream& file, int32_t systemSize)
 
 void YdrLoader::Remove()
 {
-	gpuMemory = 0;
 	isYft = false;
 
 	if (ybnfile)

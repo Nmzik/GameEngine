@@ -1,7 +1,7 @@
 #include "YddLoader.h"
 #include "YdrLoader.h"
 
-void YddLoader::Init(memstream& file, int32_t systemSize)
+void YddLoader::Init(memstream& file)
 {
 	Loaded = true;
 
@@ -28,7 +28,7 @@ void YddLoader::Init(memstream& file, int32_t systemSize)
 		file.seekg(data_pointer[0]);
 
 		YdrLoader* ydr = GlobalPool::getInstance().YdrPool.Load();
-		ydr->Init(file, systemSize);
+		ydr->Init(file);
 		gpuMemory += ydr->gpuMemory;
 		YdrFiles->insert({ YdrHashes[i], ydr });
 
@@ -38,8 +38,6 @@ void YddLoader::Init(memstream& file, int32_t systemSize)
 
 void YddLoader::Remove()
 {
-	gpuMemory = 0;
-
 	for (auto& ydr : *YdrFiles)
 	{
 		GlobalPool::getInstance().YdrPool.Remove(ydr.second);

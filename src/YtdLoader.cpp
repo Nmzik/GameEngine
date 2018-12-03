@@ -1,6 +1,6 @@
 #include "YtdLoader.h"
 
-void YtdLoader::Init(memstream& file, int32_t systemSize)
+void YtdLoader::Init(memstream& file)
 {
 	Loaded = true;
 
@@ -146,8 +146,6 @@ void YtdLoader::Init(memstream& file, int32_t systemSize)
 
 void YtdLoader::Remove()
 {
-	gpuMemory = 0;
-
 	if (Textures)
 	{
 		for (auto& texture : *Textures)

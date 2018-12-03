@@ -92,6 +92,6 @@ public:
 	YtdLoader* next;
 	std::unordered_map<uint32_t, GLuint>* Textures = nullptr;
 
-	void Init(memstream& file, int32_t systemSize);
+	void Init(memstream& file) override;
 	void Remove();
 };

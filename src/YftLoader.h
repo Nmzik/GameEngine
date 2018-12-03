@@ -194,6 +194,6 @@ public:
 	YbnLoader* ybnFile = nullptr;
 	std::vector<YdrLoader*>* fragPhysicsLODs;
 
-	void Init(memstream& file, int32_t systemSize) override;
+	void Init(memstream& file) override;
 	void Remove();
 };

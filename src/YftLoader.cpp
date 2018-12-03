@@ -2,7 +2,7 @@
 #include "YdrLoader.h"
 #include "YbnLoader.h"
 
-void YftLoader::Init(memstream& file, int32_t systemSize)
+void YftLoader::Init(memstream& file)
 {
 	Loaded = true;
 
@@ -14,7 +14,7 @@ void YftLoader::Init(memstream& file, int32_t systemSize)
 
 	YdrFile = GlobalPool::getInstance().YdrPool.Load();
 	YdrFile->isYft = true;
-	YdrFile->Init(file, systemSize);
+	YdrFile->Init(file);
 	gpuMemory += YdrFile->gpuMemory;
 
 	SYSTEM_BASE_PTR(fragType->PhysicsLODGroupPointer);
@@ -64,8 +64,6 @@ void YftLoader::Init(memstream& file, int32_t systemSize)
 
 void YftLoader::Remove()
 {
-	gpuMemory = 0;
-
 	/*for (auto& ydr : *fragPhysicsLODs)
 	{
 	 YdrPool.getPool().Remove(ydr);

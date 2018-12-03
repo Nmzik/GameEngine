@@ -123,6 +123,5 @@ public:
 	std::vector<CCarGen> CCarGens;
 
 	void Init(memstream& file) override;
-	void Finalize() override;
 	void Remove();
 };

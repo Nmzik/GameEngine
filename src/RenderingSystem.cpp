@@ -73,7 +73,7 @@ RenderingSystem::RenderingSystem(SDL_Window* window_)
 
 	glGenBuffers(1, &uboGlobal);
 	glBindBuffer(GL_UNIFORM_BUFFER, uboGlobal);
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2, &projection[0], GL_DYNAMIC_DRAW);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), NULL, GL_DYNAMIC_DRAW);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	glGenBuffers(1, &uboModel);
@@ -341,10 +341,13 @@ void RenderingSystem::render(GameWorld* world)
 	//	glClearColor(0.0, 0.0, 0.0, 0.0);
 	//	MULTIPLE CAMERAS???
 	glm::mat4 view = camera->GetViewMatrix();
-	camera->UpdateFrustum(projection * view);
+
+	glm::mat4 ProjectionView = projection * view;
+
+	camera->UpdateFrustum(ProjectionView);
 
 	glBindBuffer(GL_UNIFORM_BUFFER, uboGlobal);
-	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), &view[0]);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &ProjectionView[0]);
 	//	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	if (gpuTimer && !mWaiting)
@@ -572,8 +575,7 @@ void RenderingSystem::render(GameWorld* world)
 	gbufferLighting->setVec3("light.ambient", dirLight.ambient);
 	gbufferLighting->setVec3("light.diffuse", dirLight.diffuse);
 	gbufferLighting->setVec3("light.specular", dirLight.specular);
-	gbufferLighting->setInt("type", 0);
-	gbufferLighting->setVec3("viewPos", camera->position + camera->rotation * glm::vec3(1.f, 0.f, 0.f));
+	gbufferLighting->setVec3("viewPos", camera->position);
 	//	gbufferLighting->setMat4("lightSpaceMatrix", lightSpaceMatrix);
 	renderQuad();
 

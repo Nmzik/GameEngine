@@ -146,18 +146,6 @@ GameWorld::GameWorld()
 	gameHour = 10;
 	gameMinute = 0;
 
-	/*auto it = getGameData()->YmapEntries.find(3606201153);
-	if (it != getGameData()->YmapEntries.end())
-	{
-	 YmapLoader* loader = YmapPool::getPool().Load();
-
-	 std::vector<uint8_t> Buffer(it->second->SystemSize + it->second->GraphicsSize);
-	 getGameData()->ExtractFileResource(*(it->second), Buffer);
-
-	 memstream stream(Buffer.data(), Buffer.size());
-	 loader->Init(stream);
-	}*/
-
 	_ResourceManager->GetYtd(4096714883);
 
 	YddLoader* playerYDD = _ResourceManager->GetYdd(4096714883);
@@ -188,27 +176,6 @@ GameWorld::GameWorld()
 	peds.emplace_back(glm::vec3(-2020.47, -449.58, 19.71), playerYDD, dynamicsWorld);
 	peds.emplace_back(glm::vec3(9.66, -1184.98, 75.74), playerYDD, dynamicsWorld);
 	peds.emplace_back(glm::vec3(2250.18f, 3471.40f, 56.50f), playerYDD, dynamicsWorld);
-
-	//	YdrLoader* test = GetFile<YdrLoader, YdrPool, Type::ydr>(4234, 42423);
-	//	ClearTestFunction();
-	/*std::unordered_map<uint32_t, CMloArchetypeDef>::iterator it;
-	it = data.MloDictionary.find(210892389);
-	if (it != data.MloDictionary.end())
-	{
-	 printf("");
-	}
-	else {
-	 printf("");
-	}
-
-	it = data.MloDictionary.find(1681413451);
-	if (it != data.MloDictionary.end())
-	{
-	 printf("");
-	}
-	else {
-	 printf("");
-	}*/
 }
 
 GameWorld::~GameWorld()
@@ -548,24 +515,25 @@ void GameWorld::LoadQueuedResources()
 		else
 		{
 			memstream stream(res->Buffer.data(), res->Buffer.size());
+			stream.systemSize = res->SystemSize;
 			switch (res->type)
 			{
 				case ymap:
 				{
-					res->file->Finalize();
+					res->file->Loaded = true;
 					break;
 				}
 				case ydr:
 				case ydd:
 				case yft:
 				{
-					res->file->Init(stream, res->SystemSize);
+					res->file->Init(stream);
 					_ResourceManager->GlobalGpuMemory += res->file->gpuMemory;
 					break;
 				}
 				case ytd:
 				{
-					res->file->Init(stream, res->SystemSize);
+					res->file->Init(stream);
 					_ResourceManager->TextureMemory += res->file->gpuMemory;
 					break;
 				}
