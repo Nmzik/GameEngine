@@ -11,8 +11,7 @@ layout (location = 2) out mat3 TBN;
 
 layout(binding = 0, std140) uniform WorldData
 {
-	mat4 projection;
-	mat4 view;
+	mat4 projectionView;
 };
 
 layout(binding = 1, std140) uniform ObjectData
@@ -22,7 +21,6 @@ layout(binding = 1, std140) uniform ObjectData
 
 void main()
 {
-    vec4 viewPos = view * model * vec4(aPos, 1.0);
     TexCoords = aTexCoords;
     
     mat3 normalMatrix = transpose(inverse(mat3(model)));
@@ -35,5 +33,5 @@ void main()
 
 	TBN = transpose(mat3(T, B, N));
 
-    gl_Position = projection * viewPos;
+    gl_Position = projectionView * model * vec4(aPos, 1.0);
 }
