@@ -544,6 +544,8 @@ void GameWorld::LoadQueuedResources()
 				}
 			}
 		}
+
+		delete res;
 	}
 }
 
