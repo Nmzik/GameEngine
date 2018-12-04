@@ -86,11 +86,13 @@ struct TextureDictionary : ResourceFileBase
 	}
 };
 
+class Texture;
+
 class YtdLoader : public FileType
 {
 public:
 	YtdLoader* next;
-	std::unordered_map<uint32_t, GLuint>* Textures = nullptr;
+	std::unordered_map<uint32_t, Texture>* Textures = nullptr;
 
 	void Init(memstream& file) override;
 	void Remove();
