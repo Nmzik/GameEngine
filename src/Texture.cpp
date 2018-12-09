@@ -3,8 +3,9 @@
 #include "YtdLoader.h"
 #include "membuf.h"
 #include "opengl.h"
+#include "TextureManager.h"
 
-Texture::Texture(grcTexture* texture, memstream& file)
+Texture::Texture(uint32_t Hash, grcTexture* texture, memstream& file) : TextureHash(Hash)
 {
 	unsigned int InternalFormat;
 	unsigned int format;
@@ -120,9 +121,16 @@ Texture::Texture(grcTexture* texture, memstream& file)
 			texture->Height /= 2;
 		}
 	}
+	std::unordered_map<uint32_t, TextureManager::Texture>::iterator it = TextureManager::GetTextureManager().TexturesMap.find(Hash);
+	if (it == TextureManager::GetTextureManager().TexturesMap.end())
+		TextureManager::GetTextureManager().LoadTexture(Hash, textureID);
+	else
+		it->second.referenceCount++;
 }
 
 Texture::~Texture()
 {
+	TextureManager::GetTextureManager().RemoveTexture(TextureHash);
+
 	glDeleteTextures(1, &textureID);
 }

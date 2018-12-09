@@ -45,7 +45,7 @@ class RpfFileEntry : public RpfEntry
 {
 public:
 	RpfFile* File;
-	uint32_t FileOffset;
+	uint64_t FileOffset;
 	uint32_t FileSize;
 	bool IsEncrypted;
 };

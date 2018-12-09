@@ -1,22 +1,33 @@
-#version 430 core
-layout (location = 0) out vec4 FragColor;
+#shader vertex
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec2 aTexCoords;
 
-layout (location = 0) in vec2 TexCoords;
+out vec2 TexCoords;
 
-layout(binding = 0) uniform sampler2D gDepth;
-layout(binding = 1) uniform sampler2D gAlbedoSpec;
-layout(binding = 2) uniform sampler2D gNormal;
-layout(binding = 3) uniform sampler2D shadowMap;
-layout(binding = 4) uniform sampler2D ssao;
+void main()
+{
+    TexCoords = aTexCoords;
+    gl_Position = vec4(aPos, 1.0);
+}
 
-layout (location = 0) uniform mat4 InverseProjectionMatrix;
-layout (location = 1) uniform mat4 lightSpaceMatrix;
-layout (location = 2) uniform vec3 viewPos;
-layout (location = 3) uniform int type;
-layout (location = 4) uniform vec3 Lightdirection;
-layout (location = 5) uniform vec3 Lightambient;
-layout (location = 6) uniform vec3 Lightdiffuse;
-layout (location = 7) uniform vec3 Lightspecular;
+#shader fragment
+#version 330 core
+out vec4 FragColor;
+
+in vec2 TexCoords;
+
+uniform sampler2D gDepth;
+uniform sampler2D gAlbedoSpec;
+uniform sampler2D gNormal;
+uniform sampler2D shadowMap;
+uniform sampler2D ssao;
+
+uniform mat4 InverseProjectionMatrix;
+uniform mat4 lightSpaceMatrix;
+uniform vec3 viewPos;
+uniform int type;
+
 struct DirectionalLight {
 	vec3 direction;
 
@@ -24,7 +35,7 @@ struct DirectionalLight {
     vec3 diffuse;
     vec3 specular;
 };
-//uniform DirectionalLight light;
+uniform DirectionalLight light;
 
 struct PointLight {    
     vec3 position;
@@ -91,16 +102,16 @@ void main()
     float Specular = texture(gAlbedoSpec, TexCoords).a;
     //float AmbientOcclusion = texture(ssao, TexCoords).r;
 	float AmbientOcclusion = 1.0f;
-	vec3 ambient = Lightambient * Diffuse * AmbientOcclusion;
+	vec3 ambient = light.ambient * Diffuse * AmbientOcclusion;
     // diffuse
-    vec3 lightDir = normalize(-Lightdirection);
+    vec3 lightDir = normalize(-light.direction);
     float diff = max(dot(Normal, lightDir), 0.0);
-	vec3 diffuse = Lightdiffuse * diff * Diffuse;
+	vec3 diffuse = light.diffuse * diff * Diffuse;
     // specular
 	vec3 viewDir  = normalize(viewPos - FragPos);
     vec3 halfwayDir = normalize(lightDir + viewDir);  
     float spec = pow(max(dot(Normal, halfwayDir), 0.0), 16.0);
-    vec3 specular = Lightspecular * spec * Specular;
+    vec3 specular = light.specular * spec * Specular;
 	float shadow = 0.0f;
 	if (type == 1) {
 		vec4 FragPosLightSpace = lightSpaceMatrix * vec4(FragPos, 1.0);

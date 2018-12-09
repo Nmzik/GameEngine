@@ -48,7 +48,7 @@ void YmapLoader::Init(memstream& file)
 					}
 
 					//	FIX OPENGL
-					//def.rotation.w = -def.rotation.w;
+					def.rotation.w = -def.rotation.w;
 
 					//	if (def.lodLevel == Unk_1264241711::LODTYPES_DEPTH_ORPHANHD) def.lodDist *= 1.5f;
 

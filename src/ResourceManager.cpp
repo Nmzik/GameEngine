@@ -299,6 +299,48 @@ void ResourceManager::update()
 	}
 }
 
+void ResourceManager::RemoveAll()
+{
+	for (auto it = ybnLoader.begin(); it != ybnLoader.end();)
+	{
+			GlobalPool::getInstance().YbnPool.Remove(it->second);
+			it = ybnLoader.erase(it);
+	}
+
+	for (auto it = ymapLoader.begin(); it != ymapLoader.end();)
+	{
+			GlobalPool::getInstance().YmapPool.Remove(it->second);
+			it = ymapLoader.erase(it);
+	}
+	for (auto it = ydrLoader.begin(); it != ydrLoader.end();)
+	{
+			GlobalGpuMemory -= it->second->gpuMemory;
+			GlobalPool::getInstance().YdrPool.Remove(it->second);
+			it = ydrLoader.erase(it);
+	}
+
+	for (auto it = yddLoader.begin(); it != yddLoader.end();)
+	{
+			GlobalGpuMemory -= it->second->gpuMemory;
+			GlobalPool::getInstance().YddPool.Remove(it->second);
+			it = yddLoader.erase(it);
+	}
+
+	for (auto it = yftLoader.begin(); it != yftLoader.end();)
+	{
+			GlobalGpuMemory -= it->second->gpuMemory;
+			GlobalPool::getInstance().YftPool.Remove(it->second);
+			it = yftLoader.erase(it);
+	}
+
+	for (auto it = ytdLoader.begin(); it != ytdLoader.end();)
+	{
+			TextureMemory -= it->second->gpuMemory;
+			GlobalPool::getInstance().YtdPool.Remove(it->second);
+			it = ytdLoader.erase(it);
+	}
+}
+
 void ResourceManager::UpdateResourceCache()
 {
 	// REMOVE OBJECTS WHEN WE ARE IN ANOTHER CELL????  RUN GARBAGE COLLECTOR WHEN IN ANOTHER CEL

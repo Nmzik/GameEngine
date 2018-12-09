@@ -498,9 +498,14 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 void GameWorld::LoadQueuedResources()
 {
 	resources_lock.lock();
-	resourcesThread.swap(resources);
+	if (resources.size() > 0)
+		resourcesThread.swap(resources);
 	resources_lock.unlock();
 
+	//std::chrono::duration< double > fs(0);
+
+	//auto old_time = std::chrono::steady_clock::now();
+	//&& fs.count() < 0.003
 	while (resourcesThread.size() > 0)
 	{
 		Resource* res = resourcesThread.front();
@@ -546,6 +551,9 @@ void GameWorld::LoadQueuedResources()
 		}
 
 		delete res;
+
+		//auto current_time = std::chrono::steady_clock::now();
+		//fs = current_time - old_time;
 	}
 }
 
@@ -644,7 +652,7 @@ void GameWorld::UpdateTraffic(Camera* camera, glm::vec3 pos)
 					vehicles.erase(vehicles.begin() + i);
 				}
 			}
-			uint32_t MaximumAvailableVehicles = 30 - vehicles.size(); //	HARDCODED
+			uint64_t MaximumAvailableVehicles = 30 - vehicles.size(); //	HARDCODED
 			if (camera->position.z < 100.0f)
 			{
 				for (uint32_t i = 0; i < MaximumAvailableVehicles; i++)
@@ -780,7 +788,9 @@ void GameWorld::update(float delta_time, Camera* camera)
 
 void GameWorld::TestFunction(glm::vec3 Position)
 {
-	ClearTestFunction();
+	_ResourceManager->RemoveAll();
+	renderList.clear();
+	EnableStreaming = false;
 }
 
 bool GameWorld::DetectInWater(glm::vec3 Position)

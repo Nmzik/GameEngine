@@ -7,6 +7,7 @@
 #include "opengl.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
 
 #include "Shader.h"
 #include "Skybox.h"
@@ -26,9 +27,6 @@ private:
 	std::unique_ptr<Shader> SkyboxShader;
 
 	std::unique_ptr<Shader> gbuffer;
-
-	GLuint ssaoProjection;
-	GLuint ssaoInverseProjectionMatrix;
 
 	std::unique_ptr<Shader> shaderSSAO;
 	std::unique_ptr<Shader> shaderSSAOBlur;

@@ -1,21 +1,38 @@
-#version 430 core
-layout (location = 0) out float FragColor;
+#shader vertex
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec2 aTexCoords;
 
-layout (location = 0) in vec2 TexCoords;
+out vec2 TexCoords;
 
-layout (binding = 0) uniform sampler2D gDepth;
-layout (binding = 1) uniform sampler2D gNormal;
-layout (binding = 2) uniform sampler2D texNoise;
+void main()
+{
+    TexCoords = aTexCoords;
+    gl_Position = vec4(aPos, 1.0);
+}
 
-layout (location = 0) uniform mat4 projection;
-layout (location = 1) uniform mat4 InverseProjectionMatrix;
-layout (location = 2) uniform vec2 noiseScale; 
-layout (location = 3) uniform vec3 samples[64];
+#shader fragment
+#version 330 core
+out float FragColor;
+
+in vec2 TexCoords;
+
+uniform sampler2D gDepth;
+uniform sampler2D gNormal;
+uniform sampler2D texNoise;
+
+uniform mat4 InverseProjectionMatrix;
+uniform vec3 samples[64];
 
 // parameters (you'd probably want to use them as uniforms to more easily tweak the effect)
 int kernelSize = 64;
 float radius = 0.5;
 float bias = 0.025;
+
+// tile noise texture over screen based on screen dimensions divided by noise size
+uniform vec2 noiseScale; 
+
+uniform mat4 projection;
 
 vec3 getPos(vec2 textureCoords)
 {
@@ -40,21 +57,21 @@ void main()
     for(int i = 0; i < kernelSize; ++i)
     {
         // get sample position
-        vec3 samplePos = TBN * samples[i]; // from tangent to view-space
-        samplePos = fragPos + samplePos * radius; 
+        vec3 sample = TBN * samples[i]; // from tangent to view-space
+        sample = fragPos + sample * radius; 
         
         // project sample position (to sample texture) (to get position on screen/texture)
-        vec4 offset = vec4(samplePos, 1.0);
+        vec4 offset = vec4(sample, 1.0);
         offset = projection * offset; // from view to clip-space
         offset.xyz /= offset.w; // perspective divide
         offset.xyz = offset.xyz * 0.5 + 0.5; // transform to range 0.0 - 1.0
         
         // get sample depth
         float sampleDepth = getPos(offset.xy).z; // get depth value of kernel sample
-        occlusion += (sampleDepth >= samplePos.z + bias ? 1.0 : 0.0);  
+        occlusion += (sampleDepth >= sample.z + bias ? 1.0 : 0.0);  
         // range check & accumulate
         float rangeCheck = smoothstep(0.0, 1.0, radius / abs(fragPos.z - sampleDepth));
-        occlusion += (sampleDepth >= samplePos.z + bias ? 1.0 : 0.0) * rangeCheck;           
+        occlusion += (sampleDepth >= sample.z + bias ? 1.0 : 0.0) * rangeCheck;           
     }
     occlusion = 1.0 - (occlusion / kernelSize);
     

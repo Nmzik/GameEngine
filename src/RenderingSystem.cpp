@@ -6,6 +6,8 @@
 #include "Object.h"
 
 #define USE_DX_REVERSE_Z
+//GLM_FORCE_LEFT_HANDED 
+//GLM_FORCE_DEPTH_ZERO_TO_ONE 
 
 void myDebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
 {
@@ -100,21 +102,17 @@ RenderingSystem::RenderingSystem(SDL_Window* window_)
 	createHDRFBO();
 
 	shaderSSAO->use();
-	for (unsigned int i = 0; i < 64; ++i)
-		shaderSSAO->setVec3("samples[" + std::to_string(i) + "]", ssaoKernel[i]);
-	shaderSSAO->setVec2("noiseScale", glm::vec2((float)ScreenResWidth / 4.0, (float)ScreenResHeight / 4.0));
+	shaderSSAO->setVec2(2, glm::vec2((float)ScreenResWidth / 4.0, (float)ScreenResHeight / 4.0));
+	glUniform3fv(3, 64, glm::value_ptr(ssaoKernel[0]));
 
-	ssaoProjection = glGetUniformLocation(shaderSSAO->ID, "projection");
-	ssaoInverseProjectionMatrix = glGetUniformLocation(shaderSSAO->ID, "InverseProjectionMatrix");
-
-	shaderSSAO->setMat4(ssaoProjection, projection);
-	shaderSSAO->setMat4(ssaoInverseProjectionMatrix, InverseProjMatrix);
+	shaderSSAO->setMat4(0, projection);
+	shaderSSAO->setMat4(1, InverseProjMatrix);
 
 	gbufferLighting->use();
 	gbufferLighting->setMat4(0, InverseProjMatrix);
 
 	hdrShader->use();
-	hdrShader->setVec2("hdrBufferOffset", glm::vec2(1.0f / (float)ScreenResWidth, 1.0f / (float)ScreenResHeight));
+	hdrShader->setVec2(3, glm::vec2(1.0f / (float)ScreenResWidth, 1.0f / (float)ScreenResHeight));
 
 	///////////
 	//	MeshManager::GetManager().Initialize();
@@ -412,7 +410,6 @@ void RenderingSystem::render(GameWorld* world)
 	 //}
 	}*/
 
-	//	glUniformBlockBinding(gbuffer->ID, uboGlobal, 0);
 	glBindBufferBase(GL_UNIFORM_BUFFER, 0, uboGlobal);
 	glBindBufferBase(GL_UNIFORM_BUFFER, 1, uboModel);
 
@@ -426,25 +423,10 @@ void RenderingSystem::render(GameWorld* world)
 		{
 			for (auto& mesh : model.meshes)
 			{
-				/*glBindVertexArray(mesh.VAO);
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, mesh.material.diffuseTextureID);
-				//if (mesh.material.useBump) {
-				gbuffer->setInt("useBump", false);
-				glActiveTexture(GL_TEXTURE1);
-				glBindTexture(GL_TEXTURE_2D, mesh.material.bumpTextureID); //Use real textures otherwise garbage textures will be used (which may be highter resolution = more processing...)
-			//}
-				glActiveTexture(GL_TEXTURE2);
-				glBindTexture(GL_TEXTURE_2D, mesh.material.specularTextureID);
-
-				glDrawElements(GL_TRIANGLES, mesh.num_indices, GL_UNSIGNED_SHORT, 0);
-
-				DrawCalls++;*/
-
 				glBindVertexArray(mesh.VAO);
 
 				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, DefaultTexture);
+				glBindTexture(GL_TEXTURE_2D, mesh.material.diffuseTextureID);
 
 				glActiveTexture(GL_TEXTURE1);
 				glBindTexture(GL_TEXTURE_2D, DefaultTexture);
@@ -571,11 +553,12 @@ void RenderingSystem::render(GameWorld* world)
 	glActiveTexture(GL_TEXTURE4);
 	glBindTexture(GL_TEXTURE_2D, ssaoColorBufferBlur);
 
-	gbufferLighting->setVec3("light.direction", dirLight.direction);
-	gbufferLighting->setVec3("light.ambient", dirLight.ambient);
-	gbufferLighting->setVec3("light.diffuse", dirLight.diffuse);
-	gbufferLighting->setVec3("light.specular", dirLight.specular);
-	gbufferLighting->setVec3("viewPos", camera->position);
+	gbufferLighting->setVec3(4, dirLight.direction);
+	gbufferLighting->setVec3(5, dirLight.ambient);
+	gbufferLighting->setVec3(6, dirLight.diffuse);
+	gbufferLighting->setVec3(7, dirLight.specular);
+
+	gbufferLighting->setVec3(2, camera->position);
 	//	gbufferLighting->setMat4("lightSpaceMatrix", lightSpaceMatrix);
 	renderQuad();
 
@@ -608,8 +591,8 @@ void RenderingSystem::render(GameWorld* world)
 	else*/
 	glBindTexture(GL_TEXTURE_2D, colorBuffer);
 	float exposure = 1.0f;
-	hdrShader->setInt("UseBlur", 0);
-	hdrShader->setFloat("exposure", exposure);
+	hdrShader->setInt(1, 0);
+	hdrShader->setFloat(2, exposure);
 	renderQuad();
 
 	if (gpuTimer)

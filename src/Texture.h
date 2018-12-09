@@ -1,14 +1,16 @@
 #pragma once
 #include "opengl.h"
+#include "stdint.h"
 
 struct grcTexture;
 class memstream;
 
 class Texture
 {
+	uint32_t TextureHash;
 	GLuint textureID;
 public:
-	Texture(grcTexture* texture, memstream& file);
+	Texture(uint32_t Hash, grcTexture* texture, memstream& file);
 	~Texture();
 
 	Texture(const Texture&) = delete;

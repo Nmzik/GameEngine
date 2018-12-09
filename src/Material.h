@@ -2,6 +2,7 @@
 
 #include "opengl.h"
 #include "Shader.h"
+#include "TextureManager.h"
 
 class Material
 {

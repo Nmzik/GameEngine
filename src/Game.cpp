@@ -286,8 +286,8 @@ void Game::tick(float delta_time)
 	}
 
 	glm::vec3 movement{};
-	movement.x = getInput()->IsKeyPressed(SDL_SCANCODE_W) - getInput()->IsKeyPressed(SDL_SCANCODE_S);
-	movement.y = getInput()->IsKeyPressed(SDL_SCANCODE_A) - getInput()->IsKeyPressed(SDL_SCANCODE_D);
+	movement.x = (float)getInput()->IsKeyPressed(SDL_SCANCODE_W) - getInput()->IsKeyPressed(SDL_SCANCODE_S);
+	movement.y = (float)getInput()->IsKeyPressed(SDL_SCANCODE_A) - getInput()->IsKeyPressed(SDL_SCANCODE_D);
 
 	if (player->GetCurrentVehicle())
 	{

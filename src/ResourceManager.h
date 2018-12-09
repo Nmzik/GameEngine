@@ -57,5 +57,7 @@ public:
 
 	void update();
 
+	void RemoveAll();
+
 	void UpdateResourceCache();
 };
