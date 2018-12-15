@@ -1,5 +1,5 @@
 #include "YbnLoader.h"
-#include "GameWorld.h"
+#include "PhysicsSystem.h"
 
 void YbnLoader::Init(memstream& file)
 {
@@ -16,6 +16,8 @@ void YbnLoader::Init(memstream& file)
 void YbnLoader::ParseYbn(memstream& file)
 {
 	Bounds* bounds = (Bounds*)file.read(sizeof(Bounds));
+
+	compound->setMargin(bounds->Margin);
 
 	switch (bounds->Type)
 	{
@@ -208,7 +210,6 @@ void YbnLoader::ParseYbn(memstream& file)
 
 				btBvhTriangleMeshShape* trishape = new btBvhTriangleMeshShape(VertIndices, false);
 				Shapes->push_back(trishape);
-				trishape->setMargin(bounds->Margin);
 
 				btTransform localTrans;
 				localTrans.setIdentity();
@@ -252,16 +253,18 @@ void YbnLoader::ParseYbn(memstream& file)
 
 			break;
 		}
-		default: printf("WTF"); break;
+		default: 
+			break;
+			//12 ???
 	}
 }
 
-void YbnLoader::Finalize(btDiscreteDynamicsWorld* world)
+void YbnLoader::Finalize()
 {
 	btDefaultMotionState* MotionState = new btDefaultMotionState(btTransform(btQuaternion(0.f, 0.f, 0.f, 1.f), btVector3(0, 0, 0)));
 	btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(0, MotionState, compound, btVector3(0, 0, 0));
 	rigidBody = new btRigidBody(groundRigidBodyCI);
-	world->addRigidBody(rigidBody);
+	PhysicsSystem::dynamicsWorld->addRigidBody(rigidBody);
 
 	Loaded = true;
 }
@@ -272,7 +275,7 @@ void YbnLoader::Remove()
 	{
 		delete rigidBody->getMotionState();
 
-		GameWorld::dynamicsWorld->removeRigidBody(rigidBody);
+		PhysicsSystem::dynamicsWorld->removeRigidBody(rigidBody);
 
 		delete rigidBody;
 

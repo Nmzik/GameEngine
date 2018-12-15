@@ -23,7 +23,7 @@ public:
 	glm::vec3 BoundPos;
 	float BoundRadius;
 	fwEntityDef CEntity;
-	Archetype* Archetype;
+	Archetype* archetype;
 
 	Object(fwEntityDef def);
 	~Object();

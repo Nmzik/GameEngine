@@ -1,10 +1,27 @@
 #include "GTAEncryption.h"
 
-z_stream GTAEncryption::strm;
-uint8_t GTAEncryption::PC_AES_KEY[32];
-uint8_t GTAEncryption::LUT[256];
-uint8_t GTAEncryption::PC_NG_KEYS[101][272];
-uint32_t GTAEncryption::PC_NG_DECRYPT_TABLES[17][16][256];
+GTAEncryption GTAEncryption::gtaEncryption;
+
+GTAEncryption::GTAEncryption()
+{
+	//	ZLIB STUFF
+	strm.zalloc = Z_NULL;
+	strm.zfree = Z_NULL;
+	strm.opaque = Z_NULL;
+	strm.next_in = Z_NULL;
+	strm.avail_in = 0;
+
+	int ret = inflateInit2(&strm, -MAX_WBITS);
+	if (ret != Z_OK)
+	{
+		printf("ERROR IN ZLIB");
+	}
+}
+
+GTAEncryption::~GTAEncryption()
+{
+	(void)inflateEnd(&strm);
+}
 
 void GTAEncryption::LoadKeys()
 {
@@ -52,27 +69,9 @@ void GTAEncryption::LoadKeys()
 	}
 
 	ngtables.close();
-
-	//	ZLIB STUFF
-	strm.zalloc = Z_NULL;
-	strm.zfree = Z_NULL;
-	strm.opaque = Z_NULL;
-	strm.next_in = Z_NULL;
-	strm.avail_in = 0;
-
-	int ret = inflateInit2(&strm, -MAX_WBITS);
-	if (ret != Z_OK)
-	{
-		printf("ERROR IN ZLIB");
-	}
 }
 
-void GTAEncryption::Cleanup()
-{
-	(void)inflateEnd(&strm);
-}
-
-uint32_t GTAEncryption::CalculateHash(std::string text)
+uint32_t GTAEncryption::CalculateHash(std::string& text)
 {
 	uint32_t result = 0;
 	for (int index = 0; index < text.size(); index++)
@@ -84,7 +83,7 @@ uint32_t GTAEncryption::CalculateHash(std::string text)
 	return 32769 * ((9 * result >> 11) ^ (9 * result));
 }
 
-uint8_t* GTAEncryption::GetNGKey(std::string name, uint32_t length)
+uint8_t* GTAEncryption::GetNGKey(std::string& name, uint32_t length)
 {
 	uint32_t hash = CalculateHash(name);
 	uint32_t keyidx = (hash + length + (101 - 40)) % 0x65;
@@ -101,7 +100,7 @@ void GTAEncryption::DecryptAES(uint8_t* data, uint32_t DataLength)
 	}
 }
 
-void GTAEncryption::DecryptNG(uint8_t* data, uint32_t dataLength, std::string name, uint32_t length)
+void GTAEncryption::DecryptNG(uint8_t* data, uint32_t dataLength, std::string& name, uint32_t length)
 {
 	uint8_t* key = GetNGKey(name, length);
 	DecryptNG(data, dataLength, key);
@@ -232,7 +231,7 @@ strm.next_out = output.data() + oldSize;
 } while (ret != Z_STREAM_END);
 */
 
-uint32_t GenHash(std::string Name)
+uint32_t GenHash(std::string& Name)
 {
 	uint32_t h = 0;
 	for (int i = 0; i < Name.size(); i++)

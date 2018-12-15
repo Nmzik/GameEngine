@@ -1,12 +1,12 @@
 #pragma once
 #include "FileType.h"
 
-#include "YdrLoader.h"
-#include "YddLoader.h"
-#include "YftLoader.h"
-#include "YtdLoader.h"
-#include "YbnLoader.h"
-#include "YmapLoader.h"
+class YdrLoader;
+class YbnLoader;
+class YddLoader;
+class YftLoader;
+class YmapLoader;
+class YtdLoader;
 
 class GlobalPool
 {

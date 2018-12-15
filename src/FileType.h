@@ -422,7 +422,6 @@ public:
  }
 };
 */
-class btDiscreteDynamicsWorld;
 
 class FileType
 {
@@ -439,10 +438,6 @@ public:
 	}
 
 	virtual void Init(memstream& file) = 0;
-
-	virtual void Finalize(btDiscreteDynamicsWorld* world)
-	{
-	}
 };
 
 template <typename T, uint32_t num>

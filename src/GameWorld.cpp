@@ -1,7 +1,7 @@
 #include "GameWorld.h"
 
+#include "GtaEncryption.h"
 #include "ResourceManager.h"
-#include "PhysicsDebugDrawer.h"
 #include "Water.h"
 #include "Camera.h"
 #include "YtdLoader.h"
@@ -16,25 +16,12 @@
 #include "CPed.h"
 #include "CVehicle.h"
 
-btDiscreteDynamicsWorld* GameWorld::dynamicsWorld = nullptr;
-
-GameWorld::GameWorld()
-{
-	broadphase = new btDbvtBroadphase();
-	collisionConfiguration = new btDefaultCollisionConfiguration();
-	dispatcher = new btCollisionDispatcher(collisionConfiguration);
-	solver = new btSequentialImpulseConstraintSolver();
-	dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
-
-	dynamicsWorld->setGravity(btVector3(0, 0, -9.8f));
-	//	UPDATE STATIC OBJECTS MANUALLY
-	dynamicsWorld->setForceUpdateAllAabbs(false);
-
-	//	debug.setDebugMode(btIDebugDraw::DBG_DrawWireframe);
-	//	dynamicsWorld->setDebugDrawer(&debug);
+GameWorld::GameWorld() :
+	dirLight(glm::vec3(0.1f, 0.8f, 0.1f), glm::vec3(0.2f, 0.2f, 0.2f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1.0f, 1.0f, 1.0f), true)
+	{
 	//////////////////////////////////////////////////////////////////////////////
 
-	_ResourceManager = std::make_unique<ResourceManager>(this);
+	resourceManager = std::make_unique<ResourceManager>(this);
 	/*{
 	 std::vector<YdrLoader*> ydrs;
 	 ydrs.reserve(1500);
@@ -82,10 +69,10 @@ GameWorld::GameWorld()
 	 std::vector<uint8_t> Buffer(YnvIt->second->SystemSize + YnvIt->second->GraphicsSize);
 	 data.ExtractFileResource(*(YnvIt->second), Buffer);
 	 //YnvLoader ynv(stream);
-	}
+	}*/
 
 	//Nodes
-	/*for (int x = 0; x < nodeGrid.CellCountX; x++)
+	for (int x = 0; x < nodeGrid.CellCountX; x++)
 	{
 	 for (int y = 0; y < nodeGrid.CellCountY; y++)
 	 {
@@ -106,7 +93,7 @@ GameWorld::GameWorld()
 	   nodeGrid.cells[x * nodeGrid.CellCountX + y]->ynd = ynd;
 	  }
 	 }
-	}*/
+	}
 
 	for (int i = 0; i < data.cacheFile->AllMapNodes.size(); i++)
 	{
@@ -134,8 +121,8 @@ GameWorld::GameWorld()
 	//	RenderList
 	renderList.reserve(2000);
 
-	_ResourceManager->GetYdr(2096445108);
-	_ResourceManager->GetYtd(3403519606);
+	resourceManager->GetYdr(2096445108);
+	resourceManager->GetYtd(3403519606);
 
 	for (auto& WaterQuad : data.WaterQuads)
 	{
@@ -146,26 +133,26 @@ GameWorld::GameWorld()
 	gameHour = 10;
 	gameMinute = 0;
 
-	_ResourceManager->GetYtd(4096714883);
+	resourceManager->GetYtd(4096714883);
 
-	YddLoader* playerYDD = _ResourceManager->GetYdd(4096714883);
+	YddLoader* playerYDD = resourceManager->GetYdd(4096714883);
 
-	skydome = _ResourceManager->GetYdd(2640562617);
+	skydome = resourceManager->GetYdd(2640562617);
 
-	_ResourceManager->GetYtd(GenHash("mapdetail"));
-	_ResourceManager->GetYtd(GenHash("vehshare"));
-	_ResourceManager->GetYtd(GenHash("vehshare_worn"));
-	_ResourceManager->GetYtd(GenHash("vehshare_army"));
-	_ResourceManager->GetYtd(GenHash("vehshare_truck"));
+	resourceManager->GetYtd(GenHash(std::string("mapdetail")));
+	resourceManager->GetYtd(GenHash(std::string("vehshare")));
+	resourceManager->GetYtd(GenHash(std::string("vehshare_worn")));
+	resourceManager->GetYtd(GenHash(std::string("vehshare_army")));
+	resourceManager->GetYtd(GenHash(std::string("vehshare_truck")));
 
 	for (auto& ytd : data.GtxdEntries)
 	{
-		_ResourceManager->GetYtd(ytd.second);
+		resourceManager->GetYtd(ytd.second);
 	}
 
 	for (auto& vehicle : vehiclesPool)
 	{
-		_ResourceManager->GetYtd(vehicle.first);
+		resourceManager->GetYtd(vehicle.first);
 	}
 
 	while (!skydome->Loaded || !playerYDD->Loaded)
@@ -173,18 +160,16 @@ GameWorld::GameWorld()
 		LoadQueuedResources();
 	}
 
-	peds.emplace_back(glm::vec3(-2020.47, -449.58, 19.71), playerYDD, dynamicsWorld);
-	peds.emplace_back(glm::vec3(9.66, -1184.98, 75.74), playerYDD, dynamicsWorld);
-	peds.emplace_back(glm::vec3(2250.18f, 3471.40f, 56.50f), playerYDD, dynamicsWorld);
+	peds.emplace_back(glm::vec3(-2020.47, -449.58, 19.71), playerYDD);
+	peds.emplace_back(glm::vec3(9.66, -1184.98, 75.74), playerYDD);
+	peds.emplace_back(glm::vec3(2250.18f, 3471.40f, 56.50f), playerYDD);
+
+	vehicles.reserve(50);
 }
 
 GameWorld::~GameWorld()
 {
-	delete dynamicsWorld;
-	delete solver;
-	delete dispatcher;
-	delete collisionConfiguration;
-	delete broadphase;
+
 }
 
 float RandomFloat(float min, float max)
@@ -205,14 +190,14 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 			{
 				if (!object.Loaded)
 				{
-					switch (object.Archetype->BaseArchetypeDef.assetType)
+					switch (object.archetype->BaseArchetypeDef.assetType)
 					{
 						case ASSET_TYPE_DRAWABLE:
 						{
 							if (!object.FoundModel)
 							{
-								object.ytd = _ResourceManager->GetYtd(object.Archetype->BaseArchetypeDef.textureDictionary);
-								object.ydr = _ResourceManager->GetYdr(object.CEntity.archetypeName);
+								object.ytd = resourceManager->GetYtd(object.archetype->BaseArchetypeDef.textureDictionary);
+								object.ydr = resourceManager->GetYdr(object.CEntity.archetypeName);
 								object.FoundModel = true;
 							}
 							if (object.ydr->Loaded)
@@ -246,8 +231,8 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 						{
 							if (!object.FoundModel)
 							{
-								object.ytd = _ResourceManager->GetYtd(object.Archetype->BaseArchetypeDef.textureDictionary);
-								object.ydd = _ResourceManager->GetYdd(object.Archetype->BaseArchetypeDef.drawableDictionary);
+								object.ytd = resourceManager->GetYtd(object.archetype->BaseArchetypeDef.textureDictionary);
+								object.ydd = resourceManager->GetYdd(object.archetype->BaseArchetypeDef.drawableDictionary);
 								object.FoundModel = true;
 							}
 							if (object.ydd->Loaded)
@@ -265,8 +250,8 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 						{
 							if (!object.FoundModel)
 							{
-								object.ytd = _ResourceManager->GetYtd(object.Archetype->BaseArchetypeDef.textureDictionary);
-								object.yft = _ResourceManager->GetYft(object.CEntity.archetypeName);
+								object.ytd = resourceManager->GetYtd(object.archetype->BaseArchetypeDef.textureDictionary);
+								object.yft = resourceManager->GetYft(object.CEntity.archetypeName);
 								object.FoundModel = true;
 							}
 							if (object.yft->Loaded)
@@ -295,13 +280,13 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 				else
 				{
 
-					if ((object.Archetype->BaseArchetypeDef.flags & 2048) > 0)
+					if ((object.archetype->BaseArchetypeDef.flags & 2048) > 0)
 					{
 						//	if (!renderProxies) continue;
 						continue;
 					}
 
-					if (object.Archetype->GetType() == 1)
+					if (object.archetype->GetType() == 1)
 					{ //	TIME ARCHETYPE
 						//	if ((object.Archetype._TimeArchetypeDef.timeFlags >> gameHour) & 1)
 						//{
@@ -383,7 +368,7 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 
 void GameWorld::GetVisibleYmaps(Camera* camera)
 {
-	glm::vec3 PlayerPos = peds[currentPlayerID].getPos();
+	glm::vec3 PlayerPos = peds[currentPlayerID].getPosition();
 	//	glm::vec3 PlayerPos = camera->position;
 
 	auto cellID = spaceGrid.GetCellPos(PlayerPos);
@@ -417,15 +402,15 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 
 		for (auto& BoundsItem : cell.BoundsStoreItems)
 		{
-			CurYbns.emplace_back(_ResourceManager->GetYbn(data.cacheFile->AllBoundsStoreItems[BoundsItem].Name));
+			CurYbns.emplace_back(resourceManager->GetYbn(data.cacheFile->AllBoundsStoreItems[BoundsItem].Name));
 		}
 
 		for (auto& mapNode : cell.MapNodes)
 		{
-			CurYmaps.emplace_back(_ResourceManager->GetYmap(data.cacheFile->AllMapNodes[mapNode].Name));
+			CurYmaps.emplace_back(resourceManager->GetYmap(data.cacheFile->AllMapNodes[mapNode].Name));
 		}
 
-		_ResourceManager->UpdateResourceCache();
+		resourceManager->UpdateResourceCache();
 	}
 
 	for (auto& mapNode : CurYmaps)
@@ -533,18 +518,19 @@ void GameWorld::LoadQueuedResources()
 				case yft:
 				{
 					res->file->Init(stream);
-					_ResourceManager->GlobalGpuMemory += res->file->gpuMemory;
+					resourceManager->GlobalGpuMemory += res->file->gpuMemory;
 					break;
 				}
 				case ytd:
 				{
 					res->file->Init(stream);
-					_ResourceManager->TextureMemory += res->file->gpuMemory;
+					resourceManager->TextureMemory += res->file->gpuMemory;
 					break;
 				}
 				case ybn:
 				{
-					res->file->Finalize(dynamicsWorld);
+					YbnLoader* ybn = static_cast<YbnLoader*>(res->file);
+					ybn->Finalize();
 					break;
 				}
 			}
@@ -571,13 +557,15 @@ void GameWorld::createVehicle(glm::vec3 position)
 	std::advance(it, vehicleID);
 	if (it->second.file == nullptr)
 	{
-		it->second.file = _ResourceManager->GetYft(it->first);
+		it->second.file = resourceManager->GetYft(it->first);
 		//	YTD???
 	}
 	else
 	{
-		CVehicle veh(position, it->second.mass, it->second.file, dynamicsWorld);
-		vehicles.push_back(veh);
+		if (it->second.file->Loaded) {
+			CVehicle* veh = new CVehicle(position, it->second.mass, it->second.file);
+			vehicles.emplace_back(veh);
+		}
 	}
 }
 
@@ -607,14 +595,39 @@ void GameWorld::Update()
 
 	for (auto& vehicle : vehicles)
 	{
-		vehicle.PhysicsTick();
+		vehicle->PhysicsTick();
 	}
 }
 
 void GameWorld::UpdateTraffic(Camera* camera, glm::vec3 pos)
 {
-	float radiusTraffic = 5.0f;
+	float radiusTraffic = 20.0f;
 	//	peds
+
+	for (int i = 0; i < vehicles.size(); i++)
+	{
+		glm::vec3 vehiclePosition(vehicles[i]->m_carChassis->getWorldTransform().getOrigin().getX(), vehicles[i]->m_carChassis->getWorldTransform().getOrigin().getY(),
+			vehicles[i]->m_carChassis->getWorldTransform().getOrigin().getZ());
+		if (glm::distance(pos, vehiclePosition) >= 100.0f)
+		{
+			delete vehicles[i];
+			vehicles.erase(vehicles.begin() + i);
+		}
+	}
+
+	uint64_t MaximumAvailableVehicles = 30 - vehicles.size(); //	HARDCODED
+	if (pos.z < 100.0f)
+	{
+		for (uint32_t i = 0; i < MaximumAvailableVehicles; i++)
+		{
+			float xRandom = RandomFloat(pos.x - radiusTraffic, pos.x + radiusTraffic);
+			float yRandom = RandomFloat(pos.y - radiusTraffic, pos.y + radiusTraffic);
+			if (!camera->intersects(glm::vec3(xRandom, yRandom, pos.z), 1.0f))
+			{
+				createVehicle(glm::vec3(xRandom, yRandom, pos.z));
+			}
+		}
+	}
 
 	/*if (pedPool.firstAvailable_ == nullptr) {
 	 for (auto& ped : pedPool.peds)
@@ -634,7 +647,7 @@ void GameWorld::UpdateTraffic(Camera* camera, glm::vec3 pos)
 	 //}
 	}*/
 	//	CARS
-	if (nodeGrid.cells[CurNodeCell.x * 32 + CurNodeCell.y]->ynd)
+	/*if (nodeGrid.cells[CurNodeCell.x * 32 + CurNodeCell.y]->ynd)
 	{
 
 		for (auto& node : nodeGrid.cells[CurNodeCell.x * 32 + CurNodeCell.y]->ynd->nodes)
@@ -666,7 +679,7 @@ void GameWorld::UpdateTraffic(Camera* camera, glm::vec3 pos)
 				}
 			}
 		}
-	}
+	}*/
 }
 
 CVehicle* GameWorld::FindNearestVehicle()
@@ -679,13 +692,12 @@ CVehicle* GameWorld::FindNearestVehicle()
 	{
 		glm::vec3 PlayerPosition(peds[currentPlayerID].getPhysCharacter()->getWorldTransform().getOrigin().getX(), peds[currentPlayerID].getPhysCharacter()->getWorldTransform().getOrigin().getY(),
 			peds[currentPlayerID].getPhysCharacter()->getWorldTransform().getOrigin().getZ());
-		glm::vec3 VehiclePosition(
-			vehicle.m_carChassis->getWorldTransform().getOrigin().getX(), vehicle.m_carChassis->getWorldTransform().getOrigin().getY(), vehicle.m_carChassis->getWorldTransform().getOrigin().getZ());
+		glm::vec3 VehiclePosition(vehicle->m_carChassis->getWorldTransform().getOrigin().getX(), vehicle->m_carChassis->getWorldTransform().getOrigin().getY(), vehicle->m_carChassis->getWorldTransform().getOrigin().getZ());
 		float vd = glm::length(PlayerPosition - VehiclePosition);
 		if (vd < d)
 		{
 			d = vd;
-			nearestVehicle = &vehicle;
+			nearestVehicle = vehicle;
 		}
 	}
 
@@ -698,7 +710,7 @@ void GameWorld::DetectWeaponHit(glm::vec3 CameraPosition, glm::vec3 lookDirectio
 	btVector3 from(CameraPosition.x, CameraPosition.y, CameraPosition.z), to(HitPos.x, HitPos.y, HitPos.z);
 	btCollisionWorld::ClosestRayResultCallback cb(from, to);
 	cb.m_collisionFilterGroup = btBroadphaseProxy::AllFilter;
-	dynamicsWorld->rayTest(from, to, cb);
+	PhysicsSystem::dynamicsWorld->rayTest(from, to, cb);
 
 	if (cb.hasHit())
 	{
@@ -722,62 +734,38 @@ void GameWorld::DetectWeaponHit(glm::vec3 CameraPosition, glm::vec3 lookDirectio
 	}
 }
 
-constexpr float deltaTime = 1.f / 120.f;
+constexpr float myOWNdeltaTime = 1.f / 120.f;
 
 void GameWorld::update(float delta_time, Camera* camera)
 {
-	dynamicsWorld->stepSimulation(delta_time, 10);
+	physicsSystem.Update(delta_time);
 
-	/*if (delta_time > 0.25f) {
-	 delta_time = 0.25f;
+	double SUNRISE = 5.47f; // % of Day
+	double SUNSET = 19.35f;
+	uint8_t MOONRISE = 17; // % of Day
+	uint8_t MOONSET = 4;
+	float tod = gameHour + gameMinute / 60.f;
+	if (tod > SUNRISE && tod < SUNSET)
+	{
+		double sunT = ((double)tod - SUNRISE) / (SUNSET - SUNRISE);
+		float phi = glm::pi<float>() / 2.0f - (float)sunT * glm::pi<float>();
+		float theta = 0.0f;
+
+		dirLight.direction = glm::normalize(glm::vec3(-glm::sin(phi) * glm::cos(theta), glm::sin(phi) * glm::sin(theta), glm::cos(phi)));
 	}
 
-	accumulatedTime += delta_time;
-
-	while (accumulatedTime >= deltaTime) {
-	 dynamicsWorld->stepSimulation(deltaTime, 2, deltaTime);
-
-	 int numManifolds = dynamicsWorld->getDispatcher()->getNumManifolds();
-	 for (int i = 0; i < numManifolds; ++i)
-	 {
-	  btPersistentManifold* contactManifold = dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);
-	  btCollisionObject* obA = const_cast<btCollisionObject*>(contactManifold->getBody0());
-	  btCollisionObject* obB = const_cast<btCollisionObject*>(contactManifold->getBody1());
-
-	  int numContacts = contactManifold->getNumContacts();
-	  for (int j = 0; j < numContacts; j++)
-	  {
-
-	   btManifoldPoint& pt = contactManifold->getContactPoint(j);
-	   if (pt.getAppliedImpulse() > 1) {
-
-		Player* player1 = static_cast<Player*>(obA->getUserPointer());
-		Player* player2 = static_cast<Player*>(obB->getUserPointer());
-
-		if (player1 != nullptr) {
-		 player1->TakeDamage(pt.getAppliedImpulse());
-		}
-		else if (player2 != nullptr) {
-		 player2->TakeDamage(pt.getAppliedImpulse());
-		}
-	   }
-	   /*if (pt.getDistance()<0.f)
-	   {
-		if (pt.getAppliedImpulse() != 0) {
-		 printf("");
-		}
-
-	   }
-	  }
-
-	 }
-
-	 accumulatedTime -= deltaTime;
-	}*/
-
 	UpdateDynamicObjects();
-	//	UpdateTraffic(camera, camera->position);
-	Update();
+	//UpdateTraffic(camera, peds[currentPlayerID].getPosition());
+	for (auto& pedestrian : peds)
+	{
+		pedestrian.PhysicsTick();
+	}
+
+	for (auto& vehicle : vehicles)
+	{
+		vehicle->PhysicsTick();
+	}
+
 
 	if (EnableStreaming)
 	{
@@ -788,7 +776,7 @@ void GameWorld::update(float delta_time, Camera* camera)
 
 void GameWorld::TestFunction(glm::vec3 Position)
 {
-	_ResourceManager->RemoveAll();
+	resourceManager->RemoveAll();
 	renderList.clear();
 	EnableStreaming = false;
 }

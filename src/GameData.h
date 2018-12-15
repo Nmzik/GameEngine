@@ -2,7 +2,6 @@
 #include "RpfFile.h"
 #include <algorithm>
 #include <unordered_map>
-#include "tinyxml2.h"
 #include "glm/glm.hpp"
 
 class RpfFile;

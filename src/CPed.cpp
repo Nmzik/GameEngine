@@ -1,6 +1,6 @@
 #include "CPed.h"
 
-CPed::CPed(glm::vec3 position, YddLoader* ydd, btDiscreteDynamicsWorld* world)
+CPed::CPed(glm::vec3 position, YddLoader* ydd)
 	: vehicle(nullptr)
 	, player(ydd)
 	, Entity(position, glm::quat(-1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(1.0f))
@@ -35,13 +35,15 @@ CPed::CPed(glm::vec3 position, YddLoader* ydd, btDiscreteDynamicsWorld* world)
 	body->setAngularFactor(0.0);
 	body->forceActivationState(DISABLE_DEACTIVATION);
 
-	world->addRigidBody(body, btBroadphaseProxy::KinematicFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::KinematicFilter | btBroadphaseProxy::DefaultFilter);
+	PhysicsSystem::dynamicsWorld->addRigidBody(body, btBroadphaseProxy::KinematicFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::KinematicFilter | btBroadphaseProxy::DefaultFilter);
 
 	playerDirection = glm::vec3(0.0f, 0.0f, 0.0f);
 }
 
 CPed::~CPed()
 {
+	PhysicsSystem::dynamicsWorld->removeRigidBody(body);
+
 	delete physShape;
 
 	delete body->getMotionState();
@@ -71,12 +73,12 @@ void CPed::TakeDamage(float dmg)
 		health -= dmg;
 }
 
-glm::vec3& CPed::getPos()
+glm::vec3& CPed::getPosition()
 {
 	return position;
 }
 
-glm::mat4& CPed::getPosition()
+glm::mat4& CPed::getMatrix()
 {
 	body->getWorldTransform().getOpenGLMatrix(&modelMatrix[0][0]);
 
@@ -100,7 +102,7 @@ void CPed::EnterVehicle(CVehicle* nearestVehicle)
 {
 	if (nearestVehicle != nullptr)
 	{
-		printf("WE ARE IN VEHICLE");
+		printf("WE ARE IN VEHICLE\n");
 		vehicle = nearestVehicle;
 	}
 }

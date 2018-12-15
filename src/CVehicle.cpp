@@ -18,7 +18,7 @@ float rollInfluence = 0.1f; // 1.0f;
 btScalar suspensionRestLength(0.6f);
 btScalar m_defaultContactProcessingThreshold(BT_LARGE_FLOAT);
 
-CVehicle::CVehicle(glm::vec3 position, float mass, YftLoader* yft, btDiscreteDynamicsWorld* world)
+CVehicle::CVehicle(glm::vec3 position, float mass, YftLoader* yft)
 	: throttle(0)
 	, steeringValue(0)
 	, vehicle(yft)
@@ -52,11 +52,11 @@ CVehicle::CVehicle(glm::vec3 position, float mass, YftLoader* yft, btDiscreteDyn
 	m_carChassis->setContactProcessingThreshold(m_defaultContactProcessingThreshold);
 
 	m_carChassis->setWorldTransform(tr);
-	world->addRigidBody(m_carChassis, btBroadphaseProxy::KinematicFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::KinematicFilter);
+	PhysicsSystem::dynamicsWorld->addRigidBody(m_carChassis, btBroadphaseProxy::KinematicFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::KinematicFilter);
 
 	m_wheelShape = new btCylinderShapeX(btVector3(wheelWidth, wheelRadius, wheelRadius));
 
-	m_vehicleRayCaster = myNew btDefaultVehicleRaycaster(world);
+	m_vehicleRayCaster = myNew btDefaultVehicleRaycaster(PhysicsSystem::dynamicsWorld);
 	m_vehicle = myNew btRaycastVehicle(m_tuning, m_carChassis, m_vehicleRayCaster);
 
 	///	never deactivate the vehicle
@@ -65,7 +65,7 @@ CVehicle::CVehicle(glm::vec3 position, float mass, YftLoader* yft, btDiscreteDyn
 	//	choose coordinate system
 	m_vehicle->setCoordinateSystem(0, 2, 1);
 
-	world->addAction(m_vehicle);
+	PhysicsSystem::dynamicsWorld->addAction(m_vehicle);
 
 	float connectionHeight = 0.5f;
 
@@ -98,6 +98,9 @@ CVehicle::CVehicle(glm::vec3 position, float mass, YftLoader* yft, btDiscreteDyn
 
 CVehicle::~CVehicle()
 {
+	PhysicsSystem::dynamicsWorld->removeAction(m_vehicle);
+	PhysicsSystem::dynamicsWorld->removeRigidBody(m_carChassis);
+
 	delete m_carChassis->getMotionState();
 	delete m_carChassis;
 	delete chassisShape;
@@ -107,8 +110,6 @@ CVehicle::~CVehicle()
 	m_vehicleRayCaster = NULL;
 	delete m_vehicle;
 	m_vehicle = NULL;
-
-	//	delete vehicle;
 }
 
 glm::mat4 CVehicle::GetMat4()

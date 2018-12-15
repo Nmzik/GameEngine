@@ -40,6 +40,7 @@ public:
 	void run();
 
 	void tick(float delta_time);
+	void ChangePlayer();
 
 	InputManager* getInput()
 	{

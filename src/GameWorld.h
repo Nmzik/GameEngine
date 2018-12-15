@@ -3,10 +3,10 @@
 #include "includes.h"
 #include "SoundManager.h"
 #include "ResourceManager.h"
-#include "PhysicsDebugDrawer.h"
-#include <btBulletDynamicsCommon.h>
 #include "GameData.h"
 #include "SpaceGrid.h"
+#include "Light.h"
+#include "PhysicsSystem.h"
 //////////
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtx/norm.hpp"
@@ -39,28 +39,21 @@ class GameWorld
 
 	typedef std::vector<RenderInstruction> RenderList;
 
-	btBroadphaseInterface* broadphase;
-	btDefaultCollisionConfiguration* collisionConfiguration;
-	btCollisionDispatcher* dispatcher;
-	btSequentialImpulseConstraintSolver* solver;
-
 	GameData data;
 	SpaceGrid spaceGrid;
 	NodeGrid nodeGrid;
-	std::unique_ptr<ResourceManager> _ResourceManager;
+	std::unique_ptr<ResourceManager> resourceManager;
+	PhysicsSystem physicsSystem;
 	//	SoundManager sound;
-	PhysicsDebugDrawer debug;
 
 public:
-	static btDiscreteDynamicsWorld* dynamicsWorld;
-
 	YddLoader* skydome;
 	uint32_t culled = 0;
 	float LODMultiplier = 1.0f;
 	std::vector<Water> WaterMeshes;
 	std::unordered_map<uint32_t, CarHandling> vehiclesPool;
 	std::vector<CPed> peds;
-	std::vector<CVehicle> vehicles;
+	std::vector<CVehicle*> vehicles;
 
 	std::mutex resources_lock;
 	std::deque<Resource*> resources;
@@ -77,6 +70,7 @@ public:
 	std::vector<YbnLoader*> CurYbns;
 	bool EnableStreaming = true;
 
+	DirectionalLight dirLight;
 	uint8_t gameMinute;
 	uint8_t gameHour;
 	uint8_t currentPlayerID = 0;
@@ -97,17 +91,12 @@ public:
 
 	ResourceManager* GetResourceManager()
 	{
-		return _ResourceManager.get();
+		return resourceManager.get();
 	}
 
-	btDiscreteDynamicsWorld* GetDynamicsWorld()
+	PhysicsDebugDrawer& getDebugDrawer()
 	{
-		return dynamicsWorld;
-	}
-
-	PhysicsDebugDrawer* getDebugDrawer()
-	{
-		return &debug;
+		return physicsSystem.getDebugDrawer();
 	}
 
 	void createPedestrian();

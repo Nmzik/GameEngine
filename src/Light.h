@@ -12,7 +12,7 @@ public:
 	}
 };
 
-class DirectonalLight
+class DirectionalLight
 {
 public:
 	glm::vec3 direction;
@@ -21,8 +21,8 @@ public:
 	glm::vec3 specular;
 	bool castsShadows;
 
-	DirectonalLight(glm::vec3 direction, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, bool castsShadows = false);
-	~DirectonalLight()
+	DirectionalLight(glm::vec3 direction, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, bool castsShadows = false);
+	~DirectionalLight()
 	{
 	}
 };

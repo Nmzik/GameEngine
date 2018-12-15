@@ -220,10 +220,10 @@ void ResourceManager::update()
 						std::unordered_map<uint32_t, Archetype*>::iterator it = gameworld->getGameData()->Archetypes.find(object.CEntity.archetypeName);
 						if (it != gameworld->getGameData()->Archetypes.end())
 						{
-							object.Archetype = it->second;
+							object.archetype = it->second;
 
-							object.BoundPos = object.CEntity.position - object.Archetype->BaseArchetypeDef.bsCentre;
-							object.BoundRadius = object.Archetype->BaseArchetypeDef.bsRadius * std::max(object.CEntity.scaleXY, object.CEntity.scaleZ);
+							object.BoundPos = object.CEntity.position - object.archetype->BaseArchetypeDef.bsCentre;
+							object.BoundRadius = object.archetype->BaseArchetypeDef.bsRadius * std::max(object.CEntity.scaleXY, object.CEntity.scaleZ);
 
 							if (object.CEntity.lodDist <= 0)
 								object.CEntity.lodDist = it->second->BaseArchetypeDef.lodDist;

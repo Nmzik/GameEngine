@@ -131,7 +131,7 @@ void Game::run()
 		}
 
 		rendering_system->render(gameWorld.get());
-		SDL_GL_SwapWindow(window);
+		//SDL_GL_SwapWindow(window);
 
 		updateFPS(delta_time);
 	}
@@ -195,51 +195,25 @@ void Game::tick(float delta_time)
 	{
 		getWorld()->TestFunction(getRenderer()->getCamera().position);
 	}
+
+	//getWorld()->peds[getWorld()->currentPlayerID].SetPosition(glm::vec3(-205.28, 6432.15, 36.87));
 	if (getInput()->IsKeyTriggered(SDL_SCANCODE_B))
 	{
 		getWorld()->currentPlayerID = 0;
-		uint32_t random = rand() % getWorld()->getGameData()->Scenes.size();
-		getWorld()->peds[getWorld()->currentPlayerID].SetPosition(glm::vec3(-205.28, 6432.15, 36.87));
-		getWorld()->peds[getWorld()->currentPlayerID].getPhysCharacter()->setGravity(getWorld()->GetDynamicsWorld()->getGravity());
-		for (int i = 0; i < 3; i++)
-		{
-			if (getWorld()->currentPlayerID != i)
-			{
-				getWorld()->peds[i].getPhysCharacter()->setGravity(btVector3(0, 0, 0));
-			}
-		}
+
+		ChangePlayer();
 	}
 	if (getInput()->IsKeyTriggered(SDL_SCANCODE_N))
 	{
 		getWorld()->currentPlayerID = 1;
 
-		std::random_device rd;
-		std::mt19937 gen(rd());
-		std::uniform_int_distribution<uint32_t> dis(0, getWorld()->getGameData()->Scenes.size());
-
-		getWorld()->peds[getWorld()->currentPlayerID].SetPosition(getWorld()->getGameData()->Scenes[dis(gen)]);
-		getWorld()->peds[getWorld()->currentPlayerID].getPhysCharacter()->setGravity(getWorld()->GetDynamicsWorld()->getGravity());
-		for (int i = 0; i < 3; i++)
-		{
-			if (getWorld()->currentPlayerID != i)
-			{
-				getWorld()->peds[i].getPhysCharacter()->setGravity(btVector3(0, 0, 0));
-			}
-		}
+		ChangePlayer();
 	}
 	if (getInput()->IsKeyTriggered(SDL_SCANCODE_M))
 	{
 		getWorld()->currentPlayerID = 2;
-		uint32_t random = rand() % getWorld()->getGameData()->Scenes.size();
-		getWorld()->peds[getWorld()->currentPlayerID].SetPosition(getWorld()->getGameData()->Scenes[random]);
-		getWorld()->peds[getWorld()->currentPlayerID].getPhysCharacter()->setGravity(getWorld()->GetDynamicsWorld()->getGravity());
-		for (int i = 0; i < 3; i++)
-		{
-			if (getWorld()->currentPlayerID != i)
-			{
-				getWorld()->peds[i].getPhysCharacter()->setGravity(btVector3(0, 0, 0));
-			}
-		}
+
+		ChangePlayer();
 	}
 	if (getInput()->IsKeyTriggered(SDL_SCANCODE_I))
 	{
@@ -271,7 +245,7 @@ void Game::tick(float delta_time)
 			player->ExitVehicle();
 			player->getPhysCharacter()->getBroadphaseHandle()->m_collisionFilterMask = btBroadphaseProxy::StaticFilter | btBroadphaseProxy::KinematicFilter;
 
-			player->getPhysCharacter()->setGravity(getWorld()->GetDynamicsWorld()->getGravity());
+			player->getPhysCharacter()->setGravity(PhysicsSystem::dynamicsWorld->getGravity());
 		}
 		else
 		{
@@ -299,7 +273,7 @@ void Game::tick(float delta_time)
 		}
 
 		getRenderer()->getCamera().position = glm::vec3(player->GetCurrentVehicle()->m_carChassis->getWorldTransform().getOrigin().getX(),
-			player->GetCurrentVehicle()->m_carChassis->getWorldTransform().getOrigin().getY(), player->GetCurrentVehicle()->m_carChassis->getWorldTransform().getOrigin().getZ());
+			player->GetCurrentVehicle()->m_carChassis->getWorldTransform().getOrigin().getY() - 5.f, player->GetCurrentVehicle()->m_carChassis->getWorldTransform().getOrigin().getZ() + 5.0f);
 		if (getInput()->IsKeyPressed(SDL_SCANCODE_W))
 		{
 			player->GetCurrentVehicle()->SetThrottle(1.0);
@@ -335,7 +309,7 @@ void Game::tick(float delta_time)
 
 			btDynamicsWorld::ClosestRayResultCallback rr(rayFrom, rayTo);
 
-			getWorld()->GetDynamicsWorld()->rayTest(rayFrom, rayTo, rr);
+			PhysicsSystem::dynamicsWorld->rayTest(rayFrom, rayTo, rr);
 
 			if (rr.hasHit())
 			{
@@ -357,34 +331,6 @@ void Game::tick(float delta_time)
 		{
 
 			float speed = getInput()->IsKeyPressed(SDL_SCANCODE_LSHIFT) ? 2.0f : 1.0f;
-
-			//	MOUSE
-			int x;
-			int y;
-			SDL_GetMouseState(&x, &y);
-
-			glm::vec3 targetPosition = glm::vec3(player->position.x, player->position.y, player->position.z);
-
-			auto look = glm::vec2(x * 0.01f, y * 0.01f);
-			// Determine the "ideal" camera position for the current view angles
-			auto yaw = glm::angleAxis(-look.x - glm::half_pi<float>(), glm::vec3(0.f, 0.f, 1.f));
-			auto pitch = glm::angleAxis(look.y, glm::vec3(0.f, 1.f, 0.f));
-			auto cameraOffset = yaw * pitch * glm::vec3(0.f, 0.f, 5.0f);
-			glm::vec3 cameraPosition = targetPosition + cameraOffset;
-
-			glm::vec3 lookTargetPosition(targetPosition);
-			targetPosition += glm::vec3(0.f, 0.f, 1.f);
-			lookTargetPosition += glm::vec3(0.f, 0.f, 0.5f);
-
-			auto lookdir = glm::normalize(lookTargetPosition - cameraPosition);
-			// Calculate the angles to look at the target position
-			float len2d = glm::length(glm::vec2(lookdir));
-			float anglePitch = glm::atan(lookdir.z, len2d);
-			float angleYaw = glm::atan(lookdir.y, lookdir.x);
-			glm::quat angle(glm::vec3(0.f, -anglePitch, angleYaw));
-
-			getRenderer()->getCamera().position = cameraPosition;
-			getRenderer()->getCamera().rotation = angle;
 
 			/*bool inWater = false;
 			if (getWorld()->DetectInWater(glm::vec3(player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getX(),
@@ -421,7 +367,7 @@ void Game::tick(float delta_time)
 				// rayCallback
 				btCollisionWorld::ClosestRayResultCallback rayCallback(m_rayStart, m_rayEnd);
 
-				getWorld()->GetDynamicsWorld()->rayTest(m_rayStart, m_rayEnd, rayCallback);
+				PhysicsSystem::dynamicsWorld->rayTest(m_rayStart, m_rayEnd, rayCallback);
 				if (rayCallback.hasHit())
 				{ //	JUMP!
 					player->getPhysCharacter()->applyCentralImpulse(btVector3(0.f, 0.f, 50.0f));
@@ -429,6 +375,35 @@ void Game::tick(float delta_time)
 			}
 		}
 	}
+
+
+	//	MOUSE
+	int x;
+	int y;
+	SDL_GetMouseState(&x, &y);
+
+	glm::vec3 targetPosition = glm::vec3(player->position.x, player->position.y, player->position.z);
+
+	auto look = glm::vec2(x * 0.01f, y * 0.01f);
+	// Determine the "ideal" camera position for the current view angles
+	auto yaw = glm::angleAxis(-look.x - glm::half_pi<float>(), glm::vec3(0.f, 0.f, 1.f));
+	auto pitch = glm::angleAxis(look.y, glm::vec3(0.f, 1.f, 0.f));
+	auto cameraOffset = yaw * pitch * glm::vec3(0.f, 0.f, 5.0f);
+	glm::vec3 cameraPosition = targetPosition + cameraOffset;
+
+	glm::vec3 lookTargetPosition(targetPosition);
+	targetPosition += glm::vec3(0.f, 0.f, 1.f);
+	lookTargetPosition += glm::vec3(0.f, 0.f, 0.5f);
+
+	auto lookdir = glm::normalize(lookTargetPosition - cameraPosition);
+	// Calculate the angles to look at the target position
+	float len2d = glm::length(glm::vec2(lookdir));
+	float anglePitch = glm::atan(lookdir.z, len2d);
+	float angleYaw = glm::atan(lookdir.y, lookdir.x);
+	glm::quat angle(glm::vec3(0.f, -anglePitch, angleYaw));
+
+	getRenderer()->getCamera().position = cameraPosition;
+	getRenderer()->getCamera().rotation = angle;
 
 	/*auto rayEnd = getRenderer()->getCamera().Position;
 	auto rayStart = glm::vec3(player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getX(), player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getY() -
@@ -447,4 +422,18 @@ void Game::tick(float delta_time)
 	}*/
 
 	//	getRenderer()->getCamera().ProcessMouseMovement(-x, -y);
+}
+
+void Game::ChangePlayer()
+{
+	uint32_t random = rand() % getWorld()->getGameData()->Scenes.size();
+	getWorld()->peds[getWorld()->currentPlayerID].SetPosition(glm::vec3(-205.28, 6432.15, 36.87));
+	getWorld()->peds[getWorld()->currentPlayerID].getPhysCharacter()->setGravity(PhysicsSystem::dynamicsWorld->getGravity());
+	for (int i = 0; i < 3; i++)
+	{
+		if (getWorld()->currentPlayerID != i)
+		{
+			getWorld()->peds[i].getPhysCharacter()->setGravity(btVector3(0, 0, 0));
+		}
+	}
 }

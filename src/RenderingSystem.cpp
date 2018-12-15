@@ -4,6 +4,7 @@
 #include "Water.h"
 #include "YdrLoader.h"
 #include "Object.h"
+#include "CPed.h"
 
 #define USE_DX_REVERSE_Z
 //GLM_FORCE_LEFT_HANDED 
@@ -22,7 +23,6 @@ void myDebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLs
 
 RenderingSystem::RenderingSystem(SDL_Window* window_)
 	: window{ window_ }
-	, dirLight(glm::vec3(0.1, 0.8, 0.1), glm::vec3(0.2f, 0.2f, 0.2f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1.0f, 1.0f, 1.0f), true)
 {
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
@@ -51,8 +51,8 @@ RenderingSystem::RenderingSystem(SDL_Window* window_)
 	glDisable(GL_MULTISAMPLE);
 	glDisable(GL_DITHER);
 
+	glClipControl(GL_LOWER_LEFT, GL_ZERO_TO_ONE); //always zero to one
 #ifdef USE_DX_REVERSE_Z
-	glClipControl(GL_LOWER_LEFT, GL_ZERO_TO_ONE);
 	glDepthFunc(GL_GEQUAL);
 	glClearDepth(0.0);
 #endif // USE_DX_REVERSE_Z
@@ -63,12 +63,14 @@ RenderingSystem::RenderingSystem(SDL_Window* window_)
 
 	//	skybox = myNew Skybox();
 #ifdef USE_DX_REVERSE_Z
-	const float zNear = 0.001f;
-	const double viewAngleVertical = 45.0f;
-	const float f = 1.0 / tan(viewAngleVertical / 2.0); // 1.0 / tan == cotangent
-	const float aspect = float(ScreenResWidth) / float(ScreenResHeight);
-
-	projection = { f / aspect, 0.0f, 0.0f, 0.0f, 0.0f, f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 2 * zNear, 0.0f };
+	const float zNear = 0.01f;
+	const float viewAngleVertical = 45.0f;
+	float f = 1.0f / tan(viewAngleVertical / 2.0f);
+	const float aspect = (float)ScreenResWidth/ScreenResHeight;
+	projection = { f / aspect, 0.0f,  0.0f,  0.0f,
+				  0.0f,    f,  0.0f,  0.0f,
+				  0.0f, 0.0f,  0.0f, -1.0f,
+				  0.0f, 0.0f, zNear,  0.0f};
 #else
 	projection = glm::perspective(glm::radians(45.0f), (float)ScreenResWidth / (float)ScreenResHeight, 0.1f, 10000.0f);
 #endif // USE_DX_REVERSE_Z
@@ -87,18 +89,18 @@ RenderingSystem::RenderingSystem(SDL_Window* window_)
 
 	//	SkyboxShader = std::make_unique<Shader>("assets/shaders/skybox");
 	gbuffer = std::make_unique<Shader>("assets/shaders/gbuffer");
-	shaderSSAO = std::make_unique<Shader>("assets/shaders/ssao");
-	shaderSSAOBlur = std::make_unique<Shader>("assets/shaders/ssao_blur");
+	//shaderSSAO = std::make_unique<Shader>("assets/shaders/ssao");
+	//shaderSSAOBlur = std::make_unique<Shader>("assets/shaders/ssao_blur");
 	gbufferLighting = std::make_unique<Shader>("assets/shaders/gbufferLighting");
 	//	DepthTexture = std::make_unique<Shader>("assets/shaders/DepthTexture.shader");
-	hdrShader = std::make_unique<Shader>("assets/shaders/hdrShader");
+	//hdrShader = std::make_unique<Shader>("assets/shaders/hdrShader");
 	//	debugDepthQuad = std::make_unique<Shader>("assets/shaders/debug_quad.shader");
 
 	camera = std::make_unique<Camera>(glm::vec3(1982.886353, 3833.829102, 32.140667));
 
 	//	createDepthFBO();
 	createGBuffer();
-	createSSAO();
+	/*createSSAO();
 	createHDRFBO();
 
 	shaderSSAO->use();
@@ -106,16 +108,13 @@ RenderingSystem::RenderingSystem(SDL_Window* window_)
 	glUniform3fv(3, 64, glm::value_ptr(ssaoKernel[0]));
 
 	shaderSSAO->setMat4(0, projection);
-	shaderSSAO->setMat4(1, InverseProjMatrix);
+	shaderSSAO->setMat4(1, InverseProjMatrix);*/
 
 	gbufferLighting->use();
 	gbufferLighting->setMat4(0, InverseProjMatrix);
 
-	hdrShader->use();
-	hdrShader->setVec2(3, glm::vec2(1.0f / (float)ScreenResWidth, 1.0f / (float)ScreenResHeight));
-
-	///////////
-	//	MeshManager::GetManager().Initialize();
+	/*hdrShader->use();
+	hdrShader->setVec2(3, glm::vec2(1.0f / (float)ScreenResWidth, 1.0f / (float)ScreenResHeight));*/
 
 	float quadVertices[] = { -1.0f, 1.0f, 0.0f, 1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, -1.0f, 1.0f, 0.0f,
 
@@ -140,9 +139,6 @@ RenderingSystem::RenderingSystem(SDL_Window* window_)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 2, 2, 0, GL_RGB, GL_FLOAT, pixels);
-	//	TextureManager::GetTextureManager().DefaultTexture = TextureID;
-	//	TextureManager::GetTextureManager().LoadTexture(1551155749, TextureID); //FIX?
-	//	TextureManager::GetTextureManager().LoadTexture(475118591, TextureID); //FIX?
 }
 
 RenderingSystem::~RenderingSystem()
@@ -174,7 +170,7 @@ void RenderingSystem::createGBuffer()
 	// normal color buffer
 	glGenTextures(1, &gNormal);
 	glBindTexture(GL_TEXTURE_2D, gNormal);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, ScreenResWidth, ScreenResHeight, 0, GL_RGB, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, ScreenResWidth, ScreenResHeight, 0, GL_RGBA, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gNormal, 0);
@@ -189,7 +185,7 @@ void RenderingSystem::createGBuffer()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 #ifdef USE_DX_REVERSE_Z
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, ScreenResWidth, ScreenResHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, ScreenResWidth, ScreenResHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 #else
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, ScreenResWidth, ScreenResHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 #endif // USE_DX_REVERSE_Z
@@ -313,31 +309,9 @@ inline void RenderingSystem::renderQuad()
 
 void RenderingSystem::render(GameWorld* world)
 {
-	double SUNRISE = 5.47f; // % of Day
-	double SUNSET = 19.35f;
-	uint8_t MOONRISE = 17; // % of Day
-	uint8_t MOONSET = 4;
-	float tod = world->gameHour + world->gameMinute / 60.f;
-	if (tod > SUNRISE && tod < SUNSET)
-	{
-		double sunT = ((double)tod - SUNRISE) / (SUNSET - SUNRISE);
-		float phi = glm::pi<float>() / 2.0f - (float)sunT * glm::pi<float>();
-		float theta = 0.0f;
+	//TIMEofDAY
+	beginFrame();
 
-		dirLight.direction = glm::normalize(glm::vec3(-glm::sin(phi) * glm::cos(theta), glm::sin(phi) * glm::sin(theta), glm::cos(phi)));
-	}
-
-	/*if (world->gameHour < MOONSET || world->gameHour < MOONRISE) {
-	 double total = 1.0 - MOONRISE + MOONSET;
-	 double moonT = (CurrentTime < MOONRISE ? CurrentTime + 1.0 - MOONRISE : CurrentTime - MOONRISE) / total;
-	 float phi = glm::pi<float>() / 2.0f - (float)moonT * glm::pi<float>();
-	 float theta = 0.0f;
-
-	 MoonDirection = glm::normalize(glm::vec3(-glm::sin(phi)*glm::cos(theta), glm::cos(phi), glm::sin(phi)*glm::sin(theta)));
-	}*/
-
-	//	glClearColor(0.0, 0.0, 0.0, 0.0);
-	//	MULTIPLE CAMERAS???
 	glm::mat4 view = camera->GetViewMatrix();
 
 	glm::mat4 ProjectionView = projection * view;
@@ -346,10 +320,6 @@ void RenderingSystem::render(GameWorld* world)
 
 	glBindBuffer(GL_UNIFORM_BUFFER, uboGlobal);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &ProjectionView[0]);
-	//	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-	if (gpuTimer && !mWaiting)
-		glBeginQuery(GL_TIME_ELAPSED, m_nQueryIDDrawTime);
 
 	///	geometry to gbuffer->shadowmaps(directional light)->shadowmaps(point light)->ssao->lighting(Final)->skybox
 	// --------------------------------GeometryPass Deferred Rendering----------------------------------
@@ -362,53 +332,6 @@ void RenderingSystem::render(GameWorld* world)
 	gbuffer->use();
 
 	DrawCalls = 0;
-
-	/*for (int i = 0; i < 20; i++) {
-	 if (world->pedPool.peds[i].loaded) {
-	  auto& model = world->pedPool.peds[i].getPosition();
-	  if (camera->intersects(glm::vec3(model[3]), 1.0f)) {
-	   gbuffer->setMat4(ModelUniformLoc, model);
-	   world->pedPool.peds[i].Draw(gbuffer);
-	  }
-	 }
-	}*/
-
-	/*for (auto& vehicle : world->vehicles) {
-	 auto modelVehicle = vehicle->GetMat4();
-
-	 //if (camera->intersects(glm::vec3(modelVehicle[3]), 1.0f)) {
-	  gbuffer->setMat4(ModelUniformLoc, modelVehicle);
-	  if (vehicle->Loaded) {
-	 for (auto &mesh : *vehicle->YdrFile->meshes)
-	 {
-	  glBindVertexArray(mesh.VAO);
-	  glActiveTexture(GL_TEXTURE0);
-	  glBindTexture(GL_TEXTURE_2D, mesh.material.diffuseTextureID);
-	  glDrawElements(GL_TRIANGLES, mesh.num_indices, GL_UNSIGNED_SHORT, 0);
-	 }
-
-	 for (int i = 0; i < m_vehicle->getNumWheels(); i++)
-	 {
-	  glm::mat4 model;
-
-	  m_vehicle->getWheelTransformWS(i).getOpenGLMatrix(&model[0][0]);
-	  for (auto& wheel : vehicle->wheels)
-	  {
-	   shader->setMat4(3, model);
-
-	   for (auto &mesh : *wheel->meshes)
-	   {
-		glBindVertexArray(mesh.VAO);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, mesh.material.diffuseTextureID);
-		glDrawElements(GL_TRIANGLES, mesh.num_indices, GL_UNSIGNED_SHORT, 0);
-	   }
-
-	  }
-	 }
-	}
-	 //}
-	}*/
 
 	glBindBufferBase(GL_UNIFORM_BUFFER, 0, uboGlobal);
 	glBindBufferBase(GL_UNIFORM_BUFFER, 1, uboModel);
@@ -448,9 +371,9 @@ void RenderingSystem::render(GameWorld* world)
 
 	if (RenderDebugWorld)
 	{
-		world->GetDynamicsWorld()->debugDrawWorld();
+		PhysicsSystem::dynamicsWorld->debugDrawWorld();
 		gbuffer->setMat4(0, glm::mat4(1.0));
-		world->getDebugDrawer()->render();
+		world->getDebugDrawer().render();
 	}
 
 	for (auto& waterMesh : world->WaterMeshes)
@@ -466,76 +389,7 @@ void RenderingSystem::render(GameWorld* world)
 
 	glEnable(GL_CULL_FACE);
 
-	//	RENDER SCENE FOR EVERY LIGHT THAT is able CREATE SHADOW
-	//	for all lights (point lights etc)
-	//	if light can cast shadowsfu
-	//	render scene
-
-	//	ssr
-	//	screen space reflection
-	//	bloom
-	//	glDisable(GL_CULL_FACE);
-
-	//	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	//	dirLight.direction = glm::rotateX(dirLight.direction, -0.005f);
-	// --------------------------------ShadowPass----------------------------------
-	/*glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-	glViewport(0, 0, 1024, 1024);
-	glClear(GL_DEPTH_BUFFER_BIT);
-	glm::mat4 lightProjection, lightView;
-	glm::mat4 lightSpaceMatrix;
-	float near_plane = 1.f, far_plane = 5000.f;
-	lightProjection = glm::ortho(-50.0f, 50.0f, -50.0f, 50.0f, 0.f, 200.f);
-	lightView = glm::lookAt(dirLight.direction + camera->position, camera->position, glm::vec3(0, 0, 1));
-	lightSpaceMatrix = lightProjection * lightView;
-	// render scene from light's point of view
-	DepthTexture->use();
-	DepthTexture->setMat4("lightSpaceMatrix", lightSpaceMatrix);
-	//glCullFace(GL_BACK);
-
-	//glCullFace(GL_FRONT);
-	//printf("SUN %s\n",glm::to_string(sunDirection).c_str());
-
-	/*glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glViewport(0, 0, 1280, 720);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	debugDepthQuad->use();
-	debugDepthQuad->setFloat("near_plane", near_plane);
-	debugDepthQuad->setFloat("far_plane", far_plane);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, depthMap);
-	renderQuad();*/
-
-	//	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	//	glViewport(0, 0, ScreenResWidth, ScreenResHeight);
-
-	// generate SSAO texture
-	// ------------------------
-	//	glViewport(0, 0, ScreenResWidth / 2, ScreenResHeight / 2);
-	glBindFramebuffer(GL_FRAMEBUFFER, ssaoFBO);
-	glClear(GL_COLOR_BUFFER_BIT);
-	shaderSSAO->use();
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, gDepthMap);
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, gNormal);
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, noiseTexture);
-	renderQuad();
-	//	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	// blur SSAO texture to remove noise
-	// ------------------------------------
-	glBindFramebuffer(GL_FRAMEBUFFER, ssaoBlurFBO);
-	glClear(GL_COLOR_BUFFER_BIT);
-	shaderSSAOBlur->use();
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, ssaoColorBuffer);
-	renderQuad();
-
-	// --------------------------------LightingPass Deferred Rendering----------------------------------
-	//	glViewport(0, 0, ScreenResWidth, ScreenResHeight);
-	glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 #ifdef USE_DX_REVERSE_Z
 	glClearDepth(0.0);
 #endif // USE_DX_REVERSE_Z
@@ -548,53 +402,33 @@ void RenderingSystem::render(GameWorld* world)
 	glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, gNormal);
-	glActiveTexture(GL_TEXTURE3);
+	/*glActiveTexture(GL_TEXTURE3);
 	glBindTexture(GL_TEXTURE_2D, depthMap);
 	glActiveTexture(GL_TEXTURE4);
-	glBindTexture(GL_TEXTURE_2D, ssaoColorBufferBlur);
+	glBindTexture(GL_TEXTURE_2D, ssaoColorBufferBlur);*/
 
-	gbufferLighting->setVec3(4, dirLight.direction);
-	gbufferLighting->setVec3(5, dirLight.ambient);
-	gbufferLighting->setVec3(6, dirLight.diffuse);
-	gbufferLighting->setVec3(7, dirLight.specular);
+	gbufferLighting->setVec3(4, world->dirLight.direction);
+	gbufferLighting->setVec3(5, world->dirLight.ambient);
+	gbufferLighting->setVec3(6, world->dirLight.diffuse);
+	gbufferLighting->setVec3(7, world->dirLight.specular);
 
 	gbufferLighting->setVec3(2, camera->position);
-	//	gbufferLighting->setMat4("lightSpaceMatrix", lightSpaceMatrix);
+
 	renderQuad();
 
-	/*glEnable(GL_DEPTH_CLAMP);
+	endFrame();
 
-	glDepthMask(GL_FALSE); //SKYDOME IS STATIONARY - SHOULD BE RENDERED LAST - PLAYER CAN GO OUT OF SKYDOME IF HE IS TOO FAR FROM IT
-	glm::mat4 SkydomeMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.f, 0.f, 0.f)) * glm::mat4_cast(glm::quat(-1, 0, 0, 0)) * glm::scale(glm::mat4(1.0f), glm::vec3(10000.f, 10000.f, 10000.f));
-	gbuffer->setMat4(ModelUniformLoc, SkydomeMatrix);
+	presentFrame();
+}
 
-	for (auto &mesh : world->skydome->YdrFiles[2640562617]->meshes)
-	{
-	 glBindVertexArray(mesh.VAO);
-	 glActiveTexture(GL_TEXTURE0);
-	 glBindTexture(GL_TEXTURE_2D, mesh.material.diffuseTextureID);
-	 glDrawElements(GL_TRIANGLES, mesh.num_indices, GL_UNSIGNED_SHORT, 0);
-	}
-	glDepthMask(GL_TRUE);
-	glDisable(GL_DEPTH_CLAMP);*/
+void RenderingSystem::beginFrame()
+{
+	if (gpuTimer && !mWaiting)
+		glBeginQuery(GL_TIME_ELAPSED, m_nQueryIDDrawTime);
+}
 
-	// --------------------------------HDR----------------------------------
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-#ifdef USE_DX_REVERSE_Z
-	glClearDepth(0.0);
-#endif // USE_DX_REVERSE_Z
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	hdrShader->use();
-	glActiveTexture(GL_TEXTURE0);
-	/*if (ShowTexture)
-	 glBindTexture(GL_TEXTURE_2D, TextureManager::GetTexture(1328663666));
-	else*/
-	glBindTexture(GL_TEXTURE_2D, colorBuffer);
-	float exposure = 1.0f;
-	hdrShader->setInt(1, 0);
-	hdrShader->setFloat(2, exposure);
-	renderQuad();
-
+void RenderingSystem::endFrame()
+{
 	if (gpuTimer)
 	{
 		if (!mWaiting)
@@ -613,6 +447,349 @@ void RenderingSystem::render(GameWorld* world)
 		}
 	}
 }
+
+void RenderingSystem::presentFrame()
+{
+	SDL_GL_SwapWindow(window);
+}
+
+//FULL RENDERING PASS
+/*
+double SUNRISE = 5.47f; // % of Day
+	double SUNSET = 19.35f;
+	uint8_t MOONRISE = 17; // % of Day
+	uint8_t MOONSET = 4;
+	float tod = world->gameHour + world->gameMinute / 60.f;
+	if (tod > SUNRISE && tod < SUNSET)
+	{
+		double sunT = ((double)tod - SUNRISE) / (SUNSET - SUNRISE);
+		float phi = glm::pi<float>() / 2.0f - (float)sunT * glm::pi<float>();
+		float theta = 0.0f;
+
+		dirLight.direction = glm::normalize(glm::vec3(-glm::sin(phi) * glm::cos(theta), glm::sin(phi) * glm::sin(theta), glm::cos(phi)));
+	}
+
+	/*if (world->gameHour < MOONSET || world->gameHour < MOONRISE) {
+	 double total = 1.0 - MOONRISE + MOONSET;
+	 double moonT = (CurrentTime < MOONRISE ? CurrentTime + 1.0 - MOONRISE : CurrentTime - MOONRISE) / total;
+	 float phi = glm::pi<float>() / 2.0f - (float)moonT * glm::pi<float>();
+	 float theta = 0.0f;
+
+	 MoonDirection = glm::normalize(glm::vec3(-glm::sin(phi)*glm::cos(theta), glm::cos(phi), glm::sin(phi)*glm::sin(theta)));
+	}*/
+
+	//	glClearColor(0.0, 0.0, 0.0, 0.0);
+	//	MULTIPLE CAMERAS???
+/*glm::mat4 view = camera->GetViewMatrix();
+
+glm::mat4 ProjectionView = projection * view;
+
+camera->UpdateFrustum(ProjectionView);
+
+glBindBuffer(GL_UNIFORM_BUFFER, uboGlobal);
+glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &ProjectionView[0]);
+//	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+if (gpuTimer && !mWaiting)
+glBeginQuery(GL_TIME_ELAPSED, m_nQueryIDDrawTime);
+
+///	geometry to gbuffer->shadowmaps(directional light)->shadowmaps(point light)->ssao->lighting(Final)->skybox
+// --------------------------------GeometryPass Deferred Rendering----------------------------------
+glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
+#ifdef USE_DX_REVERSE_Z
+glClearDepth(0.0);
+#endif // USE_DX_REVERSE_Z
+glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+gbuffer->use();
+
+DrawCalls = 0;
+
+/*for (auto& vehicle : world->vehicles) {
+		auto modelVehicle = vehicle->GetMat4();
+
+		glBindBuffer(GL_UNIFORM_BUFFER, uboModel);
+		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &modelVehicle[0]);
+		glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+		YftLoader* veh = vehicle->GetDrawable();
+		if (veh->YdrFile) {
+			for (auto& ydr : *veh->YdrFile->models)
+			{
+				for (auto& mesh : ydr.meshes)
+				{
+					glBindVertexArray(mesh.VAO);
+					glActiveTexture(GL_TEXTURE0);
+					glBindTexture(GL_TEXTURE_2D, mesh.material.diffuseTextureID);
+					glDrawElements(GL_TRIANGLES, mesh.num_indices, GL_UNSIGNED_SHORT, 0);
+				}
+			}
+		}
+	}
+
+	/*for (auto& ped : world->peds)
+	{
+		//if ped loaded
+		auto& model = ped.getMatrix();
+		if (camera->intersects(model[3], 1.0f)) {
+
+			glBindBuffer(GL_UNIFORM_BUFFER, uboModel);
+			glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &model[0]);
+			glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+			for (auto& ydr : ped.playerModel)
+			{
+				for (auto& model : *ydr->models)
+				{
+					for (auto& mesh : model.meshes)
+					{
+						glBindVertexArray(mesh.VAO);
+
+						glActiveTexture(GL_TEXTURE0);
+						glBindTexture(GL_TEXTURE_2D, mesh.material.diffuseTextureID);
+
+						glActiveTexture(GL_TEXTURE1);
+						glBindTexture(GL_TEXTURE_2D, DefaultTexture);
+
+						glActiveTexture(GL_TEXTURE2);
+						glBindTexture(GL_TEXTURE_2D, DefaultTexture);
+
+						glDrawElements(GL_TRIANGLES, mesh.num_indices, GL_UNSIGNED_SHORT, 0);
+
+						DrawCalls++;
+					}
+				}
+			}
+		}
+	}
+
+ for (int i = 0; i < m_vehicle->getNumWheels(); i++)
+ {
+  glm::mat4 model;
+
+  m_vehicle->getWheelTransformWS(i).getOpenGLMatrix(&model[0][0]);
+  for (auto& wheel : vehicle->wheels)
+  {
+   shader->setMat4(3, model);
+
+   for (auto &mesh : *wheel->meshes)
+   {
+	glBindVertexArray(mesh.VAO);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, mesh.material.diffuseTextureID);
+	glDrawElements(GL_TRIANGLES, mesh.num_indices, GL_UNSIGNED_SHORT, 0);
+   }
+
+  }
+ }
+}
+ //}
+}*/
+
+/*glBindBufferBase(GL_UNIFORM_BUFFER, 0, uboGlobal);
+glBindBufferBase(GL_UNIFORM_BUFFER, 1, uboModel);
+
+for (auto& GameObject : world->renderList)
+{
+	glBindBuffer(GL_UNIFORM_BUFFER, uboModel);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &GameObject->modelMatrix[0]);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	for (auto& model : *GameObject->ydr->models)
+	{
+		for (auto& mesh : model.meshes)
+		{
+			glBindVertexArray(mesh.VAO);
+
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, mesh.material.diffuseTextureID);
+
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, DefaultTexture);
+
+			glActiveTexture(GL_TEXTURE2);
+			glBindTexture(GL_TEXTURE_2D, DefaultTexture);
+
+			glDrawElements(GL_TRIANGLES, mesh.num_indices, GL_UNSIGNED_SHORT, 0);
+
+			DrawCalls++;
+		}
+	}
+}
+
+glActiveTexture(GL_TEXTURE0);
+glBindTexture(GL_TEXTURE_2D, 0);
+
+glDisable(GL_CULL_FACE);
+
+if (RenderDebugWorld)
+{
+	world->GetDynamicsWorld()->debugDrawWorld();
+	gbuffer->setMat4(0, glm::mat4(1.0));
+	world->getDebugDrawer()->render();
+}
+
+for (auto& waterMesh : world->WaterMeshes)
+{
+	if (camera->intersects(waterMesh.BSCenter, waterMesh.BSRadius))
+	{
+		gbuffer->setMat4(0, glm::mat4(1.0));
+		waterMesh.Draw();
+
+		DrawCalls++;
+	}
+}
+
+glEnable(GL_CULL_FACE);
+
+//	RENDER SCENE FOR EVERY LIGHT THAT is able CREATE SHADOW
+//	for all lights (point lights etc)
+//	if light can cast shadowsfu
+//	render scene
+
+//	ssr
+//	screen space reflection
+//	bloom
+//	glDisable(GL_CULL_FACE);
+
+//	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+//	dirLight.direction = glm::rotateX(dirLight.direction, -0.005f);
+// --------------------------------ShadowPass----------------------------------
+/*glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+glViewport(0, 0, 1024, 1024);
+glClear(GL_DEPTH_BUFFER_BIT);
+glm::mat4 lightProjection, lightView;
+glm::mat4 lightSpaceMatrix;
+float near_plane = 1.f, far_plane = 5000.f;
+lightProjection = glm::ortho(-50.0f, 50.0f, -50.0f, 50.0f, 0.f, 200.f);
+lightView = glm::lookAt(dirLight.direction + camera->position, camera->position, glm::vec3(0, 0, 1));
+lightSpaceMatrix = lightProjection * lightView;
+// render scene from light's point of view
+DepthTexture->use();
+DepthTexture->setMat4("lightSpaceMatrix", lightSpaceMatrix);
+//glCullFace(GL_BACK);
+
+//glCullFace(GL_FRONT);
+//printf("SUN %s\n",glm::to_string(sunDirection).c_str());
+
+/*glBindFramebuffer(GL_FRAMEBUFFER, 0);
+glViewport(0, 0, 1280, 720);
+glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+debugDepthQuad->use();
+debugDepthQuad->setFloat("near_plane", near_plane);
+debugDepthQuad->setFloat("far_plane", far_plane);
+glActiveTexture(GL_TEXTURE0);
+glBindTexture(GL_TEXTURE_2D, depthMap);
+renderQuad();*/
+
+//	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+//	glViewport(0, 0, ScreenResWidth, ScreenResHeight);
+
+// generate SSAO texture
+// ------------------------
+//	glViewport(0, 0, ScreenResWidth / 2, ScreenResHeight / 2);
+/*glBindFramebuffer(GL_FRAMEBUFFER, ssaoFBO);
+glClear(GL_COLOR_BUFFER_BIT);
+shaderSSAO->use();
+glActiveTexture(GL_TEXTURE0);
+glBindTexture(GL_TEXTURE_2D, gDepthMap);
+glActiveTexture(GL_TEXTURE1);
+glBindTexture(GL_TEXTURE_2D, gNormal);
+glActiveTexture(GL_TEXTURE2);
+glBindTexture(GL_TEXTURE_2D, noiseTexture);
+renderQuad();
+//	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+// blur SSAO texture to remove noise
+// ------------------------------------
+glBindFramebuffer(GL_FRAMEBUFFER, ssaoBlurFBO);
+glClear(GL_COLOR_BUFFER_BIT);
+shaderSSAOBlur->use();
+glActiveTexture(GL_TEXTURE0);
+glBindTexture(GL_TEXTURE_2D, ssaoColorBuffer);
+renderQuad();
+
+// --------------------------------LightingPass Deferred Rendering----------------------------------
+//	glViewport(0, 0, ScreenResWidth, ScreenResHeight);
+//glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
+glBindFramebuffer(GL_FRAMEBUFFER, 0);
+#ifdef USE_DX_REVERSE_Z
+glClearDepth(0.0);
+#endif // USE_DX_REVERSE_Z
+glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+gbufferLighting->use();
+glActiveTexture(GL_TEXTURE0);
+glBindTexture(GL_TEXTURE_2D, gDepthMap);
+glActiveTexture(GL_TEXTURE1);
+glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
+glActiveTexture(GL_TEXTURE2);
+glBindTexture(GL_TEXTURE_2D, gNormal);
+glActiveTexture(GL_TEXTURE3);
+glBindTexture(GL_TEXTURE_2D, depthMap);
+glActiveTexture(GL_TEXTURE4);
+glBindTexture(GL_TEXTURE_2D, ssaoColorBufferBlur);
+
+gbufferLighting->setVec3(4, dirLight.direction);
+gbufferLighting->setVec3(5, dirLight.ambient);
+gbufferLighting->setVec3(6, dirLight.diffuse);
+gbufferLighting->setVec3(7, dirLight.specular);
+
+gbufferLighting->setVec3(2, camera->position);
+//	gbufferLighting->setMat4("lightSpaceMatrix", lightSpaceMatrix);
+renderQuad();
+
+/*glEnable(GL_DEPTH_CLAMP);
+
+glDepthMask(GL_FALSE); //SKYDOME IS STATIONARY - SHOULD BE RENDERED LAST - PLAYER CAN GO OUT OF SKYDOME IF HE IS TOO FAR FROM IT
+glm::mat4 SkydomeMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.f, 0.f, 0.f)) * glm::mat4_cast(glm::quat(-1, 0, 0, 0)) * glm::scale(glm::mat4(1.0f), glm::vec3(10000.f, 10000.f, 10000.f));
+gbuffer->setMat4(ModelUniformLoc, SkydomeMatrix);
+
+for (auto &mesh : world->skydome->YdrFiles[2640562617]->meshes)
+{
+ glBindVertexArray(mesh.VAO);
+ glActiveTexture(GL_TEXTURE0);
+ glBindTexture(GL_TEXTURE_2D, mesh.material.diffuseTextureID);
+ glDrawElements(GL_TRIANGLES, mesh.num_indices, GL_UNSIGNED_SHORT, 0);
+}
+glDepthMask(GL_TRUE);
+glDisable(GL_DEPTH_CLAMP);*/
+
+// --------------------------------HDR----------------------------------
+/*glBindFramebuffer(GL_FRAMEBUFFER, 0);
+#ifdef USE_DX_REVERSE_Z
+	glClearDepth(0.0);
+#endif // USE_DX_REVERSE_Z
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	hdrShader->use();
+	glActiveTexture(GL_TEXTURE0);
+	/*if (ShowTexture)
+	 glBindTexture(GL_TEXTURE_2D, TextureManager::GetTexture(1328663666));
+	else*/
+	/*glBindTexture(GL_TEXTURE_2D, colorBuffer);
+	float exposure = 1.0f;
+	hdrShader->setInt(1, 0);
+	hdrShader->setFloat(2, exposure);
+	renderQuad();
+
+if (gpuTimer)
+{
+	if (!mWaiting)
+	{
+		glEndQuery(GL_TIME_ELAPSED);
+		mWaiting = true;
+	}
+
+	GLint resultReady = 0;
+	glGetQueryObjectiv(m_nQueryIDDrawTime, GL_QUERY_RESULT_AVAILABLE, &resultReady);
+
+	if (resultReady)
+	{
+		glGetQueryObjectuiv(m_nQueryIDDrawTime, GL_QUERY_RESULT, &gpuTime);
+		mWaiting = false;
+	}
+}
+*/
 
 void RenderingSystem::skyboxPass()
 {

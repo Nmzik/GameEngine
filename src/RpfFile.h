@@ -3,8 +3,8 @@
 #include <iostream>
 #include <string>
 #include "membuf.h"
-#include "GTAEncryption.h"
 #include "RpfEntry.h"
+#include <vector>
 
 class RpfFile
 {

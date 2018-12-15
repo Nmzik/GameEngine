@@ -17,4 +17,8 @@ public:
 	Texture(Texture &&) = delete;
 	Texture& operator=(const Texture &) = delete;
 	Texture& operator=(Texture &&) = delete;
+
+	GLuint getTextureID() const{
+		return textureID;
+	}
 };

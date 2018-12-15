@@ -159,6 +159,6 @@ public:
 
 	void Init(memstream& file) override;
 	void ParseYbn(memstream& file);
-	void Finalize(btDiscreteDynamicsWorld* world) override;
+	void Finalize();
 	void Remove();
 };

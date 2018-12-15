@@ -2,10 +2,13 @@
 
 #include "YtypLoader.h"
 #include "CacheDatFile.h"
+#include "GTAEncryption.h"
+
+#include "tinyxml2.h"
 
 GameData::GameData()
 {
-	GTAEncryption::LoadKeys();
+	GTAEncryption::getInstance().LoadKeys();
 
 	std::vector<std::string> RpfsFiles = {
 		"common.rpf",
@@ -62,9 +65,6 @@ GameData::GameData()
 	YftEntries.reserve(6026);
 	YmapEntries.reserve(4588);
 	YbnEntries.reserve(8709);
-
-	bool foundHandling = false;
-	bool WaterFound = false;
 
 	for (auto& rpfFile : RpfFiles)
 	{
@@ -144,12 +144,11 @@ GameData::GameData()
 		}
 		for (auto& entry : rpfFile->BinaryEntries)
 		{
-			if (entry.Name == "handling.meta" && !foundHandling)
+			if (entry.Name == "handling.meta")
 			{
 				std::vector<uint8_t> Buffer(entry.FileUncompressedSize);
 				ExtractFileBinary(entry, Buffer);
 				LoadHandlingData(Buffer);
-				foundHandling = true;
 			}
 			if (entry.Name == "gta5_cache_y.dat")
 			{
@@ -158,12 +157,11 @@ GameData::GameData()
 
 				cacheFile = std::make_unique<CacheDatFile>(Buffer);
 			}
-			if (entry.Name == "water.xml" && !WaterFound)
+			if (entry.Name == "water.xml")
 			{
 				std::vector<uint8_t> Buffer(entry.FileUncompressedSize);
 				ExtractFileBinary(entry, Buffer);
 				LoadWaterQuads(Buffer);
-				WaterFound = true;
 			}
 			if (entry.Name == "playerswitchestablishingshots.meta")
 			{
@@ -177,8 +175,6 @@ GameData::GameData()
 
 GameData::~GameData()
 {
-	GTAEncryption::Cleanup();
-
 	for (auto& rpf : RpfFiles)
 	{
 		delete rpf;
@@ -256,59 +252,53 @@ void GameData::LoadWaterQuads(std::vector<uint8_t>& Buffer)
 
 	tinyxml2::XMLElement* root = doc.FirstChildElement("WaterData");
 
-	if (root == nullptr)
-		printf("ERROR");
-
 	tinyxml2::XMLElement* element = root->FirstChildElement("WaterQuads");
-	if (element == nullptr)
-		printf("ERROR ELEMENT");
-
-	//	tinyxml2::XMLElement* ItemElement = element->FirstChildElement("Item");
-	//	if (ItemElement == nullptr) printf("ERROR ELEMENT");
 
 	for (tinyxml2::XMLElement* e = element->FirstChildElement("Item"); e != NULL; e = e->NextSiblingElement("Item"))
 	{
-		WaterQuad waterQuad;
-		tinyxml2::XMLElement* element = e->FirstChildElement("minX");
-		element->QueryFloatAttribute("value", &waterQuad.minX);
-		///
-		element = element->NextSiblingElement("maxX");
-		element->QueryFloatAttribute("value", &waterQuad.maxX);
-		///
-		element = element->NextSiblingElement("minY");
-		element->QueryFloatAttribute("value", &waterQuad.minY);
-		///
-		element = element->NextSiblingElement("maxY");
-		element->QueryFloatAttribute("value", &waterQuad.maxY);
-		///
-		element = element->NextSiblingElement("Type");
-		element->QueryIntAttribute("value", &waterQuad.Type);
-		///
-		element = element->NextSiblingElement("IsInvisible");
-		element->QueryBoolAttribute("value", &waterQuad.IsInvisible);
-		///
-		element = element->NextSiblingElement("HasLimitedDepth");
-		element->QueryBoolAttribute("value", &waterQuad.HasLimitedDepth);
-		///
-		element = element->NextSiblingElement("z");
-		element->QueryFloatAttribute("value", &waterQuad.z);
-		///
-		element = element->NextSiblingElement("a1");
-		element->QueryFloatAttribute("value", &waterQuad.a1);
-		///
-		element = element->NextSiblingElement("a2");
-		element->QueryFloatAttribute("value", &waterQuad.a2);
-		///
-		element = element->NextSiblingElement("a3");
-		element->QueryFloatAttribute("value", &waterQuad.a3);
-		///
-		element = element->NextSiblingElement("a4");
-		element->QueryFloatAttribute("value", &waterQuad.a4);
-		///
-		element = element->NextSiblingElement("NoStencil");
-		element->QueryBoolAttribute("value", &waterQuad.NoStencil);
+		if (e->FirstChild() != nullptr) { // water.xml DLC
+			WaterQuad waterQuad;
+			tinyxml2::XMLElement* element = e->FirstChildElement("minX");
+			element->QueryFloatAttribute("value", &waterQuad.minX);
+			///
+			element = element->NextSiblingElement("maxX");
+			element->QueryFloatAttribute("value", &waterQuad.maxX);
+			///
+			element = element->NextSiblingElement("minY");
+			element->QueryFloatAttribute("value", &waterQuad.minY);
+			///
+			element = element->NextSiblingElement("maxY");
+			element->QueryFloatAttribute("value", &waterQuad.maxY);
+			///
+			element = element->NextSiblingElement("Type");
+			element->QueryIntAttribute("value", &waterQuad.Type);
+			///
+			element = element->NextSiblingElement("IsInvisible");
+			element->QueryBoolAttribute("value", &waterQuad.IsInvisible);
+			///
+			element = element->NextSiblingElement("HasLimitedDepth");
+			element->QueryBoolAttribute("value", &waterQuad.HasLimitedDepth);
+			///
+			element = element->NextSiblingElement("z");
+			element->QueryFloatAttribute("value", &waterQuad.z);
+			///
+			element = element->NextSiblingElement("a1");
+			element->QueryFloatAttribute("value", &waterQuad.a1);
+			///
+			element = element->NextSiblingElement("a2");
+			element->QueryFloatAttribute("value", &waterQuad.a2);
+			///
+			element = element->NextSiblingElement("a3");
+			element->QueryFloatAttribute("value", &waterQuad.a3);
+			///
+			element = element->NextSiblingElement("a4");
+			element->QueryFloatAttribute("value", &waterQuad.a4);
+			///
+			element = element->NextSiblingElement("NoStencil");
+			element->QueryBoolAttribute("value", &waterQuad.NoStencil);
 
-		WaterQuads.push_back(waterQuad);
+			WaterQuads.push_back(waterQuad);
+		}
 	}
 }
 
@@ -364,9 +354,9 @@ void GameData::ExtractFileBinary(RpfBinaryFileEntry& entry, std::vector<uint8_t>
 	rpf->seekg(entry.FileOffset);
 	rpf->read((char*)&tbytes[0], entry.FileSize);
 
-	GTAEncryption::DecryptNG(tbytes, entry.FileSize, entry.Name, entry.FileUncompressedSize);
+	GTAEncryption::getInstance().DecryptNG(tbytes, entry.FileSize, entry.Name, entry.FileUncompressedSize);
 
-	GTAEncryption::DecompressBytes(tbytes, entry.FileSize, output);
+	GTAEncryption::getInstance().DecompressBytes(tbytes, entry.FileSize, output);
 }
 
 void GameData::ExtractFileResource(RpfResourceFileEntry& entry, std::vector<uint8_t>& output)
@@ -391,5 +381,5 @@ void GameData::ExtractFileResource(RpfResourceFileEntry& entry, std::vector<uint
 	//{ }
 	//}
 
-	GTAEncryption::DecompressBytes(tbytes, entry.FileSize, output);
+	GTAEncryption::getInstance().DecompressBytes(tbytes, entry.FileSize, output);
 }

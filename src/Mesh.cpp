@@ -13,147 +13,95 @@ Mesh::Mesh(const uint8_t* meshData, DrawableGeometry* drawGeom, Material mat)
 	glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
 	glBufferData(GL_ARRAY_BUFFER, drawGeom->VertexBufferPointer->VertexCount * drawGeom->VertexBufferPointer->VertexStride, &meshData[drawGeom->VertexBufferPointer->DataPointer1], GL_STATIC_DRAW);
 
-	glEnableVertexAttribArray(0); //	Positions
-	glEnableVertexAttribArray(1); //	NORMALS
-	glEnableVertexAttribArray(2); //	COLOR
-	glEnableVertexAttribArray(3); //	TEXTCOORD
+	//const Position = 0; //	Positions
+	//const Normals = 1; //	NORMALS
+	//const Color = 2; //	COLOR
+	//const TexCoord = 3; //	TEXTCOORD
+
+	const std::vector<VertexAttributes>* Attributes;
 
 	switch (drawGeom->VertexBufferPointer->InfoPointer->Flags)
 	{
 		case Default:
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 36, nullptr);
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 36, (GLvoid*)12);
-			glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_FALSE, 36, (GLvoid*)24);
-			glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 36, (GLvoid*)28);
+			Attributes = &DefaultAttrib;
 			break;
 		case DefaultEx:
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 52, nullptr);
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 52, (GLvoid*)12);
-			glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_FALSE, 52, (GLvoid*)24);
-			glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 52, (GLvoid*)28);
+			Attributes = &DefaultExAttrib;
 			break;
 		case PNCCT:
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 40, nullptr);
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 40, (GLvoid*)12);
-			glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_FALSE, 40, (GLvoid*)24);
-			glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 40, (GLvoid*)32);
+			Attributes = &PNCCTAttrib;
 			break;
 		case PNCCTTTT:
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 64, nullptr);
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 64, (GLvoid*)12);
-			glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_FALSE, 64, (GLvoid*)24);
-			glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 64, (GLvoid*)32);
+			Attributes = &PNCCTTTTAttrib;
 			break;
 		case PCCNCCTTX:
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 72, nullptr);
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 72, (GLvoid*)20);
-			glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_FALSE, 72, (GLvoid*)12);
-			glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 72, (GLvoid*)40);
+			Attributes = &PCCNCCTTXAttrib;
 			break;
 		case PCCNCCT:
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 48, nullptr);
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 48, (GLvoid*)20);
-			glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_FALSE, 48, (GLvoid*)12);
-			glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 48, (GLvoid*)40);
+			Attributes = &PCCNCCTAttrib;
 			break;
 		case PNCTTTX:
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 68, nullptr);
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 68, (GLvoid*)12);
-			glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_FALSE, 68, (GLvoid*)24);
-			glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 68, (GLvoid*)28);
+			Attributes = &PNCTTTXAttrib;
 			break;
 		case PNCTTX:
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 60, nullptr);
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 60, (GLvoid*)12);
-			glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 60, (GLvoid*)28);
+			Attributes = &PNCTTXAttrib;
 			break;
 		case PNCTTTX_2:
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 68, nullptr);
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 68, (GLvoid*)12);
-			glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 68, (GLvoid*)28);
+			Attributes = &PNCTTTX_2Attrib;
 			break;
 		case PNCTTTX_3:
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 68, nullptr);
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 68, (GLvoid*)12);
-			glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 68, (GLvoid*)28);
+			Attributes = &PNCTTTX_3Attrib;
 			break;
 		case PNCCTTX:
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 64, nullptr);
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 64, (GLvoid*)12);
-			glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 64, (GLvoid*)32);
+			Attributes = &PNCCTTXAttrib;
 			break;
 		case PNCCTTX_2:
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 64, nullptr);
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 64, (GLvoid*)12);
-			glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 64, (GLvoid*)32);
+			Attributes = &PNCCTTX_2Attrib;
 			break;
 		case PNCCTTTX:
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 72, nullptr);
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 72, (GLvoid*)12);
-			glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 72, (GLvoid*)32);
+			Attributes = &PNCCTTTXAttrib;
 			break;
 		case PCCNCCTX:
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 64, nullptr);
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 64, (GLvoid*)20);
-			glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 64, (GLvoid*)40);
+			Attributes = &PCCNCCTXAttrib;
 			break;
 		case PCCNCTX:
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 60, nullptr);
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 60, (GLvoid*)20);
-			glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 60, (GLvoid*)36);
+			Attributes = &PCCNCTXAttrib;
 			break;
 		case PCCNCT:
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 44, nullptr);
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 44, (GLvoid*)20);
-			glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 44, (GLvoid*)36);
+			Attributes = &PCCNCTAttrib;
 			break;
 		case PNCCTT:
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 48, nullptr);
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 48, (GLvoid*)12);
-			glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 48, (GLvoid*)32);
+			Attributes = &PNCCTTAttrib;
 			break;
 		case PNCCTX:
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 56, nullptr);
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 56, (GLvoid*)12);
-			glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 56, (GLvoid*)32);
+			Attributes = &PNCCTXAttrib;
 			break;
 		case PCT:
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 24, nullptr);
-			//	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 24, (GLvoid*)12);
-			glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 24, (GLvoid*)16);
+			Attributes = &PCTAttrib;
 			break;
 		case PT:
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 20, nullptr);
-			glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 20, (GLvoid*)12);
+			Attributes = &PTAttrib;
 			break;
 		case PTT:
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 28, nullptr);
-			glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 28, (GLvoid*)12);
+			Attributes = &PTTAttrib;
 			break;
 		case PNC:
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 28, nullptr);
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 28, (GLvoid*)12);
-			//	glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 28, (GLvoid*)24);
+			Attributes = &PNCAttrib;
 			break;
-		case PC: glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 16, nullptr); break;
-		case PCC: glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 20, nullptr); break;
+		case PC:
+			Attributes = &PCAttrib;
+			break;
+		case PCC:
+			Attributes = &PCCAttrib;
+			break;
 		case PCCH2H4:
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 32, nullptr);
-			glVertexAttribPointer(1, 4, GL_BYTE, GL_FALSE, 32, (GLvoid*)12);
-			glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_FALSE, 32, (GLvoid*)16);
-			glVertexAttribPointer(3, 2, GL_HALF_FLOAT, GL_FALSE, 32, (GLvoid*)20); //	FIXED
+			Attributes = &PCCH2H4Attrib;
 			break;
 		case PNCH2:
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 32, nullptr);
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 32, (GLvoid*)12);
-			glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_FALSE, 32, (GLvoid*)24);
-			glVertexAttribPointer(3, 2, GL_HALF_FLOAT, GL_FALSE, 32, (GLvoid*)28); //	FIXED
+			Attributes = &PNCH2Attrib;
 			break;
 		case PNCTTTTX:
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 76, nullptr);
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 76, (GLvoid*)12);
-			glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_FALSE, 76, (GLvoid*)24);
-			glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 76, (GLvoid*)28);
+			Attributes = &PNCTTTTXAttrib;
 			break;
 			/*case PNCTTTT:
 			break;
@@ -166,28 +114,27 @@ Mesh::Mesh(const uint8_t* meshData, DrawableGeometry* drawGeom, Material mat)
 			case PCCNC:
 			break;*/
 		case PCCNCTT:
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 52, nullptr);
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 52, (GLvoid*)20);
-			glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_FALSE, 52, (GLvoid*)12);
-			glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 52, (GLvoid*)36);
+			Attributes = &PCCNCTTAttrib;
 			break;
 		case PCCNCTTX:
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 68, nullptr);
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 68, (GLvoid*)20);
-			glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_FALSE, 68, (GLvoid*)12);
-			glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 68, (GLvoid*)36);
+			Attributes = &PCCNCTTXAttrib;
 			break;
 		case PCCNCTTT:
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 60, nullptr);
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 60, (GLvoid*)20);
-			glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_FALSE, 60, (GLvoid*)12);
-			glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 60, (GLvoid*)36);
+			Attributes = &PCCNCTTTAttrib;
 			break;
 			/*case PNCTT:
 			break;
 			case PNCTTT:
 			break;*/
-		default: printf("VERTEX\n"); break;
+		default:
+			printf("VERTEX\n");
+			break;
+	}
+
+	for (auto& Attribute : *Attributes)
+	{
+		glEnableVertexAttribArray(Attribute.index);
+		glVertexAttribPointer(Attribute.index, Attribute.size, Attribute.type, GL_FALSE, Attribute.stride, Attribute.pointer);
 	}
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, VBO[1]);

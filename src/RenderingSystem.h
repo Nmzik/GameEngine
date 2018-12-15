@@ -12,14 +12,12 @@
 #include "Shader.h"
 #include "Skybox.h"
 #include "Camera.h"
-#include "Light.h"
 
 class GameWorld;
 
 class RenderingSystem
 {
 private:
-	DirectonalLight dirLight;
 
 	GLuint uboGlobal;
 	GLuint uboModel;
@@ -90,6 +88,9 @@ public:
 	void renderQuad();
 	void render(GameWorld* world);
 
+	void beginFrame();
+	void endFrame();
+	void presentFrame();
 	void setType(int type)
 	{
 		this->type = type;

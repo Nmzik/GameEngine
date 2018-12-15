@@ -3,6 +3,7 @@
 #include "Entity.h"
 #include "CVehicle.h"
 #include "YddLoader.h"
+#include "PhysicsSystem.h"
 #include <array>
 
 struct CharacterWeaponSlot
@@ -26,7 +27,7 @@ class CPed : public Entity
 	YddLoader* player;
 
 public:
-	CPed(glm::vec3 position, YddLoader* ydd, btDiscreteDynamicsWorld* world);
+	CPed(glm::vec3 position, YddLoader* ydd);
 	~CPed();
 
 	std::vector<YdrLoader*> playerModel;
@@ -43,8 +44,8 @@ public:
 	}
 
 	void SetPosition(glm::vec3& pos);
-	glm::vec3& getPos();
-	glm::mat4& getPosition();
+	glm::vec3& getPosition();
+	glm::mat4& getMatrix();
 
 	void TakeDamage(float dmg);
 	void PhysicsTick();

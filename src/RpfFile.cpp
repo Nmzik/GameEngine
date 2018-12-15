@@ -1,4 +1,5 @@
 #include "RpfFile.h"
+#include "GTAEncryption.h"
 
 RpfFile::RpfFile(std::ifstream& rpf, std::string& FullPath_, std::string& FileName_, uint32_t FileSize_, uint64_t FileOffset)
 {
@@ -39,14 +40,14 @@ void RpfFile::LoadRpf(std::ifstream& rpf, std::string& FileName, uint32_t FileSi
 	{
 		case 0x0FFFFFF9:
 			//	printf("AES\n");
-			GTAEncryption::DecryptAES(entriesData, EntryCount * 16);
-			GTAEncryption::DecryptAES(namesData, NamesLength);
+			GTAEncryption::getInstance().DecryptAES(entriesData, EntryCount * 16);
+			GTAEncryption::getInstance().DecryptAES(namesData, NamesLength);
 			//	IsAESEncrypted = true;
 			break;
 		case 0x0FEFFFFF:
 			//	printf("NG\n");
-			GTAEncryption::DecryptNG(entriesData, EntryCount * 16, FileName, FileSize);
-			GTAEncryption::DecryptNG(namesData, NamesLength, FileName, FileSize);
+			GTAEncryption::getInstance().DecryptNG(entriesData, EntryCount * 16, FileName, FileSize);
+			GTAEncryption::getInstance().DecryptNG(namesData, NamesLength, FileName, FileSize);
 			break;
 		default: printf("OPENIV FORMAR?\n"); break;
 	}
