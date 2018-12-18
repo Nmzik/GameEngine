@@ -6,6 +6,7 @@
 #include "includes.h"
 #include "FileType.h"
 #include <deque>
+#include "FreeListAllocator.h"
 
 class GameWorld;
 class RpfEntry;
@@ -25,6 +26,7 @@ class ResourceManager
 	std::mutex mylock;
 	std::condition_variable loadCondition;
 	bool running;
+	aqua::FreeListAllocator* _main_allocator;
 
 	std::deque<Resource*> waitingList;
 	GameWorld* gameworld;
@@ -51,7 +53,6 @@ public:
 	YftLoader* GetYft(uint32_t hash);
 	YbnLoader* GetYbn(uint32_t hash);
 
-	void Load(RpfResourceFileEntry* entry, Resource* res);
 	inline void AddToMainQueue(Resource* res);
 	void AddToWaitingList(Resource* res);
 

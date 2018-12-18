@@ -29,7 +29,7 @@ RenderingSystem::RenderingSystem(SDL_Window* window_)
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 
-	//	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
+	//SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
 
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
@@ -43,8 +43,8 @@ RenderingSystem::RenderingSystem(SDL_Window* window_)
 	//	if (!GLEW_EXT_texture_compression_s3tc) printf("NOT INITALIZED s3tc\n");
 	//	if (!GLEW_EXT_texture_compression_rgtc) printf("NOT INITALIZED rgtc\n");
 
-	//	glEnable(GL_DEBUG_OUTPUT);
-	//	glDebugMessageCallback(myDebugCallback, nullptr);
+	//glEnable(GL_DEBUG_OUTPUT);
+	//glDebugMessageCallback(myDebugCallback, nullptr);
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
@@ -92,13 +92,13 @@ RenderingSystem::RenderingSystem(SDL_Window* window_)
 	//shaderSSAO = std::make_unique<Shader>("assets/shaders/ssao");
 	//shaderSSAOBlur = std::make_unique<Shader>("assets/shaders/ssao_blur");
 	gbufferLighting = std::make_unique<Shader>("assets/shaders/gbufferLighting");
-	//	DepthTexture = std::make_unique<Shader>("assets/shaders/DepthTexture.shader");
+	DepthTexture = std::make_unique<Shader>("assets/shaders/DepthTexture");
+	debugDepthQuad = std::make_unique<Shader>("assets/shaders/debug_quad");
 	//hdrShader = std::make_unique<Shader>("assets/shaders/hdrShader");
-	//	debugDepthQuad = std::make_unique<Shader>("assets/shaders/debug_quad.shader");
 
-	camera = std::make_unique<Camera>(glm::vec3(1982.886353, 3833.829102, 32.140667));
+	camera = std::make_unique<Camera>(glm::vec3(0.0, 0.0, 0.0));
 
-	//	createDepthFBO();
+	createDepthFBO();
 	createGBuffer();
 	/*createSSAO();
 	createHDRFBO();
@@ -148,11 +148,6 @@ RenderingSystem::~RenderingSystem()
 	////
 	glDeleteQueries(1, &m_nQueryIDDrawTime);
 	SDL_GL_DeleteContext(glcontext);
-}
-
-float lerp(float a, float b, float f)
-{
-	return a + f * (b - a);
 }
 
 void RenderingSystem::createGBuffer()
@@ -309,7 +304,6 @@ inline void RenderingSystem::renderQuad()
 
 void RenderingSystem::render(GameWorld* world)
 {
-	//TIMEofDAY
 	beginFrame();
 
 	glm::mat4 view = camera->GetViewMatrix();
@@ -317,6 +311,12 @@ void RenderingSystem::render(GameWorld* world)
 	glm::mat4 ProjectionView = projection * view;
 
 	camera->UpdateFrustum(ProjectionView);
+
+	if (world->EnableStreaming)
+	{
+		world->renderList.clear();
+		world->GetVisibleYmaps(camera.get());
+	}
 
 	glBindBuffer(GL_UNIFORM_BUFFER, uboGlobal);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &ProjectionView[0]);
@@ -331,10 +331,28 @@ void RenderingSystem::render(GameWorld* world)
 
 	gbuffer->use();
 
-	DrawCalls = 0;
-
 	glBindBufferBase(GL_UNIFORM_BUFFER, 0, uboGlobal);
 	glBindBufferBase(GL_UNIFORM_BUFFER, 1, uboModel);
+
+	glDepthMask(GL_FALSE); //SKYDOME IS STATIONARY - SHOULD BE RENDERED LAST - PLAYER CAN GO OUT OF SKYDOME IF HE IS TOO FAR FROM IT
+	glm::mat4 SkydomeMatrix = glm::translate(glm::mat4(1.0f), world->peds[world->currentPlayerID].getPosition()) * glm::mat4_cast(glm::quat(-1, 0, 0, 0)) * glm::scale(glm::mat4(1.0f), glm::vec3(10.f, 10.f, 10.f));
+
+	glBindBuffer(GL_UNIFORM_BUFFER, uboModel);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &SkydomeMatrix[0]);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	for (auto& model : *world->skydome->YdrFiles->begin()->second->models)
+	{
+		for (auto& mesh : model.meshes)
+		{
+			glBindVertexArray(mesh.VAO);
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, DefaultTexture);
+			glDrawElements(GL_TRIANGLES, mesh.num_indices, GL_UNSIGNED_SHORT, 0);
+		}
+	}
+	glDepthMask(GL_TRUE);
+		
 
 	for (auto& GameObject : world->renderList)
 	{
@@ -376,7 +394,7 @@ void RenderingSystem::render(GameWorld* world)
 		world->getDebugDrawer().render();
 	}
 
-	for (auto& waterMesh : world->WaterMeshes)
+	/*for (auto& waterMesh : world->WaterMeshes)
 	{
 		if (camera->intersects(waterMesh.BSCenter, waterMesh.BSRadius))
 		{
@@ -385,7 +403,7 @@ void RenderingSystem::render(GameWorld* world)
 
 			DrawCalls++;
 		}
-	}
+	}*/
 
 	glEnable(GL_CULL_FACE);
 
@@ -416,6 +434,51 @@ void RenderingSystem::render(GameWorld* world)
 
 	renderQuad();
 
+	/*glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+	glViewport(0, 0, 1024, 1024);
+	glClear(GL_DEPTH_BUFFER_BIT);
+	glm::mat4 lightProjection, lightView;
+	glm::mat4 lightSpaceMatrix;
+	float near_plane = 1.f, far_plane = 1000.f;
+	float scale = 2;
+	lightProjection = glm::ortho(-10.0f*scale, 10.0f*scale, -10.0f*scale, 10.0f*scale, near_plane, far_plane);
+	lightView = glm::lookAt(world->peds[world->currentPlayerID].getPosition(), world->peds[world->currentPlayerID].getPosition() + world->dirLight.direction, glm::vec3(0.0, 0.0, 1.0));
+	lightSpaceMatrix = lightProjection * lightView;
+	// render scene from light's point of view
+	DepthTexture->use();
+	DepthTexture->setMat4(0, lightSpaceMatrix);
+	//glCullFace(GL_BACK);
+
+	for (auto& GameObject : world->renderList)
+	{
+		DepthTexture->setMat4(1, GameObject->getMatrix());
+
+		for (auto& model : *GameObject->ydr->models)
+		{
+			for (auto& mesh : model.meshes)
+			{
+				glBindVertexArray(mesh.VAO);
+
+				glDrawElements(GL_TRIANGLES, mesh.num_indices, GL_UNSIGNED_SHORT, 0);
+
+				DrawCalls++;
+			}
+		}
+	}
+
+	//glCullFace(GL_FRONT);
+	//printf("SUN %s\n",glm::to_string(sunDirection).c_str());
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glViewport(0, 0, ScreenResWidth, ScreenResHeight);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	debugDepthQuad->use();
+	//debugDepthQuad->setFloat(0, near_plane);
+	//debugDepthQuad->setFloat(1, far_plane);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+	renderQuad();*/
+
 	endFrame();
 
 	presentFrame();
@@ -423,6 +486,8 @@ void RenderingSystem::render(GameWorld* world)
 
 void RenderingSystem::beginFrame()
 {
+	DrawCalls = 0;
+
 	if (gpuTimer && !mWaiting)
 		glBeginQuery(GL_TIME_ELAPSED, m_nQueryIDDrawTime);
 }
@@ -771,24 +836,6 @@ glDisable(GL_DEPTH_CLAMP);*/
 	hdrShader->setInt(1, 0);
 	hdrShader->setFloat(2, exposure);
 	renderQuad();
-
-if (gpuTimer)
-{
-	if (!mWaiting)
-	{
-		glEndQuery(GL_TIME_ELAPSED);
-		mWaiting = true;
-	}
-
-	GLint resultReady = 0;
-	glGetQueryObjectiv(m_nQueryIDDrawTime, GL_QUERY_RESULT_AVAILABLE, &resultReady);
-
-	if (resultReady)
-	{
-		glGetQueryObjectuiv(m_nQueryIDDrawTime, GL_QUERY_RESULT, &gpuTime);
-		mWaiting = false;
-	}
-}
 */
 
 void RenderingSystem::skyboxPass()

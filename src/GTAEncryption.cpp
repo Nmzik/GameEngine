@@ -108,35 +108,22 @@ void GTAEncryption::DecryptNG(uint8_t* data, uint32_t dataLength, std::string& n
 
 void GTAEncryption::DecryptNG(uint8_t* data, uint32_t dataLength, uint8_t* key)
 {
-	uint32_t keyuints[272 / 4]; //	KEYLENGTH HARDCODED
-	memcpy(keyuints, key, 272);
-
 	for (uint32_t blockIndex = 0; blockIndex < dataLength / 16; blockIndex++)
 	{
 		uint8_t encryptedBlock[16];
 		memcpy(encryptedBlock, data + 16 * blockIndex, 16);
-		DecryptNGBlock(encryptedBlock, 16, keyuints);
+		DecryptNGBlock(encryptedBlock, 16, (uint32_t*)&key[0]);
 		memcpy(data + 16 * blockIndex, encryptedBlock, 16);
 	}
 }
 
 void GTAEncryption::DecryptNGBlock(uint8_t* data, uint32_t dataLength, uint32_t* key)
 {
-	// prepare key...
-	uint32_t subKeys[17][4];
-	for (int i = 0; i < 17; i++)
-	{
-		subKeys[i][0] = key[4 * i + 0];
-		subKeys[i][1] = key[4 * i + 1];
-		subKeys[i][2] = key[4 * i + 2];
-		subKeys[i][3] = key[4 * i + 3];
-	}
-
-	data = DecryptNGRoundA(data, subKeys[0], PC_NG_DECRYPT_TABLES[0]);
-	data = DecryptNGRoundA(data, subKeys[1], PC_NG_DECRYPT_TABLES[1]);
+	data = DecryptNGRoundA(data, &key[0], PC_NG_DECRYPT_TABLES[0]);
+	data = DecryptNGRoundA(data, &key[4], PC_NG_DECRYPT_TABLES[1]);
 	for (int k = 2; k <= 15; k++)
-		data = DecryptNGRoundB(data, subKeys[k], PC_NG_DECRYPT_TABLES[k]);
-	data = DecryptNGRoundA(data, subKeys[16], PC_NG_DECRYPT_TABLES[16]);
+		data = DecryptNGRoundB(data, &key[4 * k], PC_NG_DECRYPT_TABLES[k]);
+	data = DecryptNGRoundA(data, &key[4 * 16], PC_NG_DECRYPT_TABLES[16]);
 }
 
 uint8_t* GTAEncryption::DecryptNGRoundA(uint8_t* data, uint32_t* key, uint32_t table[][256])

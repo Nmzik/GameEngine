@@ -8,10 +8,16 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
+#include "glm/gtx/rotate_vector.hpp"
 
 #include "Shader.h"
 #include "Skybox.h"
 #include "Camera.h"
+
+inline float lerp(float a, float b, float f)
+{
+	return a + f * (b - a);
+}
 
 class GameWorld;
 
@@ -38,7 +44,7 @@ private:
 	unsigned int quadVAO;
 	unsigned int quadVBO;
 	int type = 0;
-	//	Game& game;
+
 	int ScreenResWidth;
 	int ScreenResHeight;
 	int ShadowWidth;

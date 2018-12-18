@@ -196,6 +196,11 @@ void Game::tick(float delta_time)
 		getWorld()->TestFunction(getRenderer()->getCamera().position);
 	}
 
+	if (getInput()->IsKeyTriggered(SDL_SCANCODE_C))
+	{
+		getWorld()->ClearTestFunction();
+	}
+
 	//getWorld()->peds[getWorld()->currentPlayerID].SetPosition(glm::vec3(-205.28, 6432.15, 36.87));
 	if (getInput()->IsKeyTriggered(SDL_SCANCODE_B))
 	{

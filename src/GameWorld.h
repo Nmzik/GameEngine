@@ -23,6 +23,11 @@ class YtdLoader;
 class YbnLoader;
 class Object;
 
+inline float RandomFloat(float min, float max)
+{
+	return (max - min) * ((((float)rand()) / (float)RAND_MAX)) + min;
+}
+
 class GameWorld
 {
 	struct RenderInstruction
@@ -102,7 +107,6 @@ public:
 	void createPedestrian();
 	void createVehicle(glm::vec3 position);
 	void UpdateDynamicObjects();
-	void Update();
 	void UpdateTraffic(Camera* camera, glm::vec3 pos);
 	CVehicle* FindNearestVehicle();
 	void DetectWeaponHit(glm::vec3 CameraPosition, glm::vec3 lookDirection);

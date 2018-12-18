@@ -29,6 +29,18 @@ ResourceManager::ResourceManager(GameWorld* world)
 	ytdLoader.reserve(1500);
 	ybnLoader.reserve(50);
 	ymapLoader.reserve(500);
+
+
+	/*size_t memory_size = 1024ULL * 1024 * 1024; //1GB
+	uint8_t* _memory = (uint8_t*)malloc(memory_size);
+
+	if (_memory == nullptr)
+	{
+		printf("ERROR");
+	}
+
+	_main_allocator = new aqua::FreeListAllocator(memory_size - sizeof(aqua::FreeListAllocator), pointer_math::add(_memory, sizeof(aqua::FreeListAllocator)));
+	uint8_t* test = (uint8_t*)_main_allocator->allocate(10 * 1024 * 1024, 16);*/
 }
 
 ResourceManager::~ResourceManager()
@@ -174,13 +186,6 @@ void ResourceManager::AddToWaitingList(Resource* res)
 	loadCondition.notify_one();
 }
 
-void ResourceManager::Load(RpfResourceFileEntry* entry, Resource* res)
-{
-	res->Buffer.resize(entry->SystemSize + entry->GraphicsSize);
-	gameworld->getGameData()->ExtractFileResource(*(entry), res->Buffer);
-	res->SystemSize = entry->SystemSize;
-}
-
 inline void ResourceManager::AddToMainQueue(Resource* res)
 {
 	gameworld->resources_lock.lock();
@@ -203,94 +208,18 @@ void ResourceManager::update()
 		switch (res->type)
 		{
 			case ymap:
+			case ydr:
+			case ydd:
+			case yft:
+			case ytd:
+			case ybn:
 			{
-				auto it = gameworld->getGameData()->YmapEntries.find(res->Hash);
-				if (it != gameworld->getGameData()->YmapEntries.end())
+				auto it = gameworld->getGameData()->Entries[res->type].find(res->Hash);
+				if (it != gameworld->getGameData()->Entries[res->type].end())
 				{
 					res->Buffer.resize(it->second->SystemSize + it->second->GraphicsSize);
 					gameworld->getGameData()->ExtractFileResource(*(it->second), res->Buffer);
-
-					YmapLoader* iter = static_cast<YmapLoader*>(res->file);
-
-					memstream stream(res->Buffer.data(), res->Buffer.size());
-					iter->Init(stream);
-
-					for (auto& object : *iter->Objects)
-					{
-						std::unordered_map<uint32_t, Archetype*>::iterator it = gameworld->getGameData()->Archetypes.find(object.CEntity.archetypeName);
-						if (it != gameworld->getGameData()->Archetypes.end())
-						{
-							object.archetype = it->second;
-
-							object.BoundPos = object.CEntity.position - object.archetype->BaseArchetypeDef.bsCentre;
-							object.BoundRadius = object.archetype->BaseArchetypeDef.bsRadius * std::max(object.CEntity.scaleXY, object.CEntity.scaleZ);
-
-							if (object.CEntity.lodDist <= 0)
-								object.CEntity.lodDist = it->second->BaseArchetypeDef.lodDist;
-							if (object.CEntity.childLodDist <= 0)
-								object.CEntity.childLodDist = it->second->BaseArchetypeDef.lodDist;
-						}
-						else
-						{
-							printf("ERROR\n");
-						}
-
-						object.CEntity.lodDist *= object.CEntity.lodDist;           // glm::length2
-						object.CEntity.childLodDist *= object.CEntity.childLodDist; // glm::length2
-					}
-				}
-				AddToMainQueue(res);
-				break;
-			}
-			case ydr:
-			{
-				auto it = gameworld->getGameData()->YdrEntries.find(res->Hash);
-				if (it != gameworld->getGameData()->YdrEntries.end())
-				{
-					Load(it->second, res);
-				}
-				AddToMainQueue(res);
-				break;
-			}
-			case ydd:
-			{
-				auto it = gameworld->getGameData()->YddEntries.find(res->Hash);
-				if (it != gameworld->getGameData()->YddEntries.end())
-				{
-					Load(it->second, res);
-				}
-				AddToMainQueue(res);
-				break;
-			}
-			case yft:
-			{
-				auto it = gameworld->getGameData()->YftEntries.find(res->Hash);
-				if (it != gameworld->getGameData()->YftEntries.end())
-				{
-					Load(it->second, res);
-				}
-				AddToMainQueue(res);
-				break;
-			}
-			case ytd:
-			{
-				auto it = gameworld->getGameData()->YtdEntries.find(res->Hash);
-				if (it != gameworld->getGameData()->YtdEntries.end())
-				{
-					Load(it->second, res);
-				}
-				AddToMainQueue(res);
-				break;
-			}
-			case ybn:
-			{
-				auto it = gameworld->getGameData()->YbnEntries.find(res->Hash);
-				if (it != gameworld->getGameData()->YbnEntries.end())
-				{
-					Load(it->second, res);
-
-					memstream stream(res->Buffer.data(), res->Buffer.size());
-					res->file->Init(stream);
+					res->SystemSize = (it->second->SystemSize);
 				}
 				AddToMainQueue(res);
 				break;

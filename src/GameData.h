@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <unordered_map>
 #include "glm/glm.hpp"
+#include "includes.h"
 
 class RpfFile;
 class YtypLoader;
@@ -42,6 +43,8 @@ struct CarHandling
 
 class GameData
 {
+	uint8_t TempBuffer[20 * 1024 * 1024];
+
 	std::vector<RpfFile*> RpfFiles;
 	std::vector<std::ifstream*> Files;
 
@@ -51,15 +54,7 @@ public:
 
 	std::unordered_map<uint32_t, Archetype*> Archetypes;
 	//	std::unordered_map<uint32_t, std::vector<fwEntityDef>> MloDictionary;
-	std::unordered_map<uint32_t, RpfResourceFileEntry*> YdrEntries;
-	std::unordered_map<uint32_t, RpfResourceFileEntry*> YddEntries;
-	std::unordered_map<uint32_t, RpfResourceFileEntry*> YtdEntries;
-	std::unordered_map<uint32_t, RpfResourceFileEntry*> YftEntries;
-	std::unordered_map<uint32_t, RpfResourceFileEntry*> YmapEntries;
-	std::unordered_map<uint32_t, RpfResourceFileEntry*> YtypEntries;
-	std::unordered_map<uint32_t, RpfResourceFileEntry*> YbnEntries;
-	std::unordered_map<uint32_t, RpfResourceFileEntry*> YndEntries;
-	std::unordered_map<uint32_t, RpfResourceFileEntry*> YnvEntries;
+	std::unordered_map<uint32_t, RpfResourceFileEntry*> Entries[8];
 
 	std::unordered_map<uint32_t, uint32_t> GtxdEntries;
 	std::vector<CarHandling> Vehicles;

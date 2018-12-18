@@ -72,7 +72,7 @@ GameWorld::GameWorld() :
 	}*/
 
 	//Nodes
-	for (int x = 0; x < nodeGrid.CellCountX; x++)
+	/*for (int x = 0; x < nodeGrid.CellCountX; x++)
 	{
 	 for (int y = 0; y < nodeGrid.CellCountY; y++)
 	 {
@@ -93,7 +93,7 @@ GameWorld::GameWorld() :
 	   nodeGrid.cells[x * nodeGrid.CellCountX + y]->ynd = ynd;
 	  }
 	 }
-	}
+	}*/
 
 	for (int i = 0; i < data.cacheFile->AllMapNodes.size(); i++)
 	{
@@ -133,10 +133,9 @@ GameWorld::GameWorld() :
 	gameHour = 10;
 	gameMinute = 0;
 
-	resourceManager->GetYtd(4096714883);
-
+	resourceManager->GetYtd(4096714883); //PLAYER YTD
 	YddLoader* playerYDD = resourceManager->GetYdd(4096714883);
-
+	
 	skydome = resourceManager->GetYdd(2640562617);
 
 	resourceManager->GetYtd(GenHash(std::string("mapdetail")));
@@ -170,11 +169,6 @@ GameWorld::GameWorld() :
 GameWorld::~GameWorld()
 {
 
-}
-
-float RandomFloat(float min, float max)
-{
-	return (max - min) * ((((float)rand()) / (float)RAND_MAX)) + min;
 }
 
 void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
@@ -409,8 +403,6 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 		{
 			CurYmaps.emplace_back(resourceManager->GetYmap(data.cacheFile->AllMapNodes[mapNode].Name));
 		}
-
-		resourceManager->UpdateResourceCache();
 	}
 
 	for (auto& mapNode : CurYmaps)
@@ -477,6 +469,8 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 	 }
 	}*/
 
+	resourceManager->UpdateResourceCache();
+
 	LoadQueuedResources();
 }
 
@@ -488,7 +482,7 @@ void GameWorld::LoadQueuedResources()
 	resources_lock.unlock();
 
 	//std::chrono::duration< double > fs(0);
-
+	//HASH 38759883
 	//auto old_time = std::chrono::steady_clock::now();
 	//&& fs.count() < 0.003
 	while (resourcesThread.size() > 0)
@@ -510,6 +504,34 @@ void GameWorld::LoadQueuedResources()
 			{
 				case ymap:
 				{
+					YmapLoader* iter = static_cast<YmapLoader*>(res->file);
+
+					memstream stream(res->Buffer.data(), res->Buffer.size());
+					iter->Init(stream);
+
+					for (auto& object : *iter->Objects)
+					{
+						std::unordered_map<uint32_t, Archetype*>::iterator it = getGameData()->Archetypes.find(object.CEntity.archetypeName);
+						if (it != getGameData()->Archetypes.end())
+						{
+							object.archetype = it->second;
+
+							object.BoundPos = object.CEntity.position - object.archetype->BaseArchetypeDef.bsCentre;
+							object.BoundRadius = object.archetype->BaseArchetypeDef.bsRadius * std::max(object.CEntity.scaleXY, object.CEntity.scaleZ);
+
+							if (object.CEntity.lodDist <= 0)
+								object.CEntity.lodDist = it->second->BaseArchetypeDef.lodDist;
+							if (object.CEntity.childLodDist <= 0)
+								object.CEntity.childLodDist = it->second->BaseArchetypeDef.lodDist;
+						}
+						else
+						{
+							printf("ERROR\n");
+						}
+
+						object.CEntity.lodDist *= object.CEntity.lodDist;           // glm::length2
+						object.CEntity.childLodDist *= object.CEntity.childLodDist; // glm::length2
+					}
 					res->file->Loaded = true;
 					break;
 				}
@@ -530,6 +552,7 @@ void GameWorld::LoadQueuedResources()
 				case ybn:
 				{
 					YbnLoader* ybn = static_cast<YbnLoader*>(res->file);
+					ybn->Init(stream);
 					ybn->Finalize();
 					break;
 				}
@@ -584,19 +607,6 @@ void GameWorld::UpdateDynamicObjects()
 	  }
 	 }
 	}*/
-}
-
-void GameWorld::Update()
-{
-	for (auto& pedestrian : peds)
-	{
-		pedestrian.PhysicsTick();
-	}
-
-	for (auto& vehicle : vehicles)
-	{
-		vehicle->PhysicsTick();
-	}
 }
 
 void GameWorld::UpdateTraffic(Camera* camera, glm::vec3 pos)
@@ -754,6 +764,11 @@ void GameWorld::update(float delta_time, Camera* camera)
 		dirLight.direction = glm::normalize(glm::vec3(-glm::sin(phi) * glm::cos(theta), glm::sin(phi) * glm::sin(theta), glm::cos(phi)));
 	}
 
+	//float now = (timeOfDay / 24) * glm::two_pi<float>() + glm::pi<float>();
+
+	//glm::vec3 sunDirection(0, cos(now), sin(now));
+	//sunDirection = glm::normalize(sunDirection);
+
 	UpdateDynamicObjects();
 	//UpdateTraffic(camera, peds[currentPlayerID].getPosition());
 	for (auto& pedestrian : peds)
@@ -765,20 +780,13 @@ void GameWorld::update(float delta_time, Camera* camera)
 	{
 		vehicle->PhysicsTick();
 	}
-
-
-	if (EnableStreaming)
-	{
-		renderList.clear();
-		GetVisibleYmaps(camera);
-	}
 }
 
 void GameWorld::TestFunction(glm::vec3 Position)
 {
-	resourceManager->RemoveAll();
+	/*resourceManager->RemoveAll();
 	renderList.clear();
-	EnableStreaming = false;
+	EnableStreaming = false;*/
 }
 
 bool GameWorld::DetectInWater(glm::vec3 Position)
@@ -793,7 +801,8 @@ bool GameWorld::DetectInWater(glm::vec3 Position)
 	}
 	return false;
 }
-
+	
 void GameWorld::ClearTestFunction()
 {
+	resourceManager->GetYtd(38759883);
 }

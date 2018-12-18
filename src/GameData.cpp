@@ -59,12 +59,12 @@ GameData::GameData()
 
 	LoadGtxd();
 
-	YdrEntries.reserve(55112);
-	YddEntries.reserve(8582);
-	YtdEntries.reserve(25504);
-	YftEntries.reserve(6026);
-	YmapEntries.reserve(4588);
-	YbnEntries.reserve(8709);
+	Entries[0].reserve(55112);
+	Entries[1].reserve(8582);
+	Entries[2].reserve(6026);
+	Entries[3].reserve(25504);
+	Entries[4].reserve(8709);
+	Entries[5].reserve(4588);
 
 	for (auto& rpfFile : RpfFiles)
 	{
@@ -83,42 +83,32 @@ GameData::GameData()
 			{
 				//	YdrEntries[GenHash(entry.Name.substr(0, entry.Name.length() - 4) + "_lod")] = &entry; //WHY????
 				//	YdrEntries[entry.NameHash] = &entry;
-				YdrEntries[entry.ShortNameHash] = &entry;
+				Entries[ydr][entry.ShortNameHash] = &entry;
 			}
 			else if (extension == ".ydd")
 			{
 				//	YddEntries[entry.NameHash] = &entry;
-				YddEntries[entry.ShortNameHash] = &entry;
+				Entries[ydd][entry.ShortNameHash] = &entry;
 			}
 			else if (extension == ".yft")
 			{
 				//	YftEntries[entry.NameHash] = &entry;
-				YftEntries[entry.ShortNameHash] = &entry;
-			}
-			else if (extension == ".ynd")
-			{
-				//	YndEntries[entry.NameHash] = &entry;
-				YndEntries[entry.ShortNameHash] = &entry;
-			}
-			else if (extension == ".ynv")
-			{
-				//	YnvEntries[entry.NameHash] = &entry;
-				YnvEntries[entry.ShortNameHash] = &entry;
+				Entries[yft][entry.ShortNameHash] = &entry;
 			}
 			else if (extension == ".ytd")
 			{
 				//	YtdEntries[entry.NameHash] = &entry;
-				YtdEntries[entry.ShortNameHash] = &entry;
+				Entries[ytd][entry.ShortNameHash] = &entry;
 			}
 			else if (extension == ".ybn")
 			{
 				//	YbnEntries[entry.NameHash] = &entry;
-				YbnEntries[entry.ShortNameHash] = &entry;
+				Entries[ybn][entry.ShortNameHash] = &entry;
 			}
 			else if (extension == ".ymap")
 			{
 				//	YmapEntries[entry.NameHash] = &entry;
-				YmapEntries[entry.ShortNameHash] = &entry;
+				Entries[ymap][entry.ShortNameHash] = &entry;
 			}
 			else if (extension == ".ytyp")
 			{
@@ -140,6 +130,16 @@ GameData::GameData()
 				{
 				 MloDictionary[file.CMloArchetypeDefs[0]._BaseArchetypeDef.assetName] = file.fwEntityDefs;
 				}*/
+			}
+			else if (extension == ".ynd")
+			{
+				//	YndEntries[entry.NameHash] = &entry;
+				Entries[ynd][entry.ShortNameHash] = &entry;
+			}
+			else if (extension == ".ynv")
+			{
+				//	YnvEntries[entry.NameHash] = &entry;
+				Entries[ynv][entry.ShortNameHash] = &entry;
 			}
 		}
 		for (auto& entry : rpfFile->BinaryEntries)
@@ -193,12 +193,7 @@ void GameData::LoadHandlingData(std::vector<uint8_t>& Buffer)
 
 	tinyxml2::XMLElement* root = doc.FirstChildElement("CHandlingDataMgr");
 
-	if (root == nullptr)
-		printf("ERROR");
-
 	tinyxml2::XMLElement* element = root->FirstChildElement("HandlingData");
-	if (element == nullptr)
-		printf("ERROR ELEMENT");
 
 	for (tinyxml2::XMLElement* e = element->FirstChildElement("Item"); e != NULL; e = e->NextSiblingElement("Item"))
 	{
@@ -226,12 +221,7 @@ void GameData::LoadGtxd()
 
 	tinyxml2::XMLElement* root = doc.FirstChildElement("CMapParentTxds");
 
-	if (root == nullptr)
-		printf("ERROR");
-
 	tinyxml2::XMLElement* element = root->FirstChildElement("txdRelationships");
-	if (element == nullptr)
-		printf("ERROR ELEMENT");
 
 	for (tinyxml2::XMLElement* e = element->FirstChildElement("item"); e != NULL; e = e->NextSiblingElement("item"))
 	{
@@ -309,12 +299,7 @@ void GameData::LoadScenesSwitch(std::vector<uint8_t>& Buffer)
 
 	tinyxml2::XMLElement* root = doc.FirstChildElement("CPlayerSwitchEstablishingShotMetadataStore");
 
-	if (root == nullptr)
-		printf("ERROR");
-
 	tinyxml2::XMLElement* element = root->FirstChildElement("ShotList");
-	if (element == nullptr)
-		printf("ERROR ELEMENT");
 
 	for (tinyxml2::XMLElement* e = element->FirstChildElement("Item"); e != NULL; e = e->NextSiblingElement("Item"))
 	{
@@ -345,18 +330,16 @@ void GameData::LoadRpf(std::ifstream& rpf, std::string& FullPath_, std::string& 
 	}
 }
 
-uint8_t tbytes[20 * 1024 * 1024]; // 20MB ?? IS IT ENOUGHT???
-
 void GameData::ExtractFileBinary(RpfBinaryFileEntry& entry, std::vector<uint8_t>& output)
 {
 	auto& rpf = entry.File->rpf;
 
 	rpf->seekg(entry.FileOffset);
-	rpf->read((char*)&tbytes[0], entry.FileSize);
+	rpf->read((char*)&TempBuffer[0], entry.FileSize);
 
-	GTAEncryption::getInstance().DecryptNG(tbytes, entry.FileSize, entry.Name, entry.FileUncompressedSize);
+	GTAEncryption::getInstance().DecryptNG(TempBuffer, entry.FileSize, entry.Name, entry.FileUncompressedSize);
 
-	GTAEncryption::getInstance().DecompressBytes(tbytes, entry.FileSize, output);
+	GTAEncryption::getInstance().DecompressBytes(TempBuffer, entry.FileSize, output);
 }
 
 void GameData::ExtractFileResource(RpfResourceFileEntry& entry, std::vector<uint8_t>& output)
@@ -364,7 +347,7 @@ void GameData::ExtractFileResource(RpfResourceFileEntry& entry, std::vector<uint
 	auto& rpf = entry.File->rpf;
 
 	rpf->seekg(entry.FileOffset);
-	rpf->read((char*)&tbytes[0], entry.FileSize);
+	rpf->read((char*)&TempBuffer[0], entry.FileSize);
 
 	//	uint8_t* decr = tbytes;
 	//	if (entry.IsEncrypted)
@@ -381,5 +364,5 @@ void GameData::ExtractFileResource(RpfResourceFileEntry& entry, std::vector<uint
 	//{ }
 	//}
 
-	GTAEncryption::getInstance().DecompressBytes(tbytes, entry.FileSize, output);
+	GTAEncryption::getInstance().DecompressBytes(TempBuffer, entry.FileSize, output);
 }

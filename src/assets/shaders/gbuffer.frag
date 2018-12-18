@@ -24,5 +24,6 @@ void main()
 	} else {*/
 		gNormal = normalize(Normal);
 	//}
-	gAlbedoSpec.a = texture(SpecSampler, TexCoords).r;
+	//gAlbedoSpec.a = texture(SpecSampler, TexCoords).r;
+	gAlbedoSpec.a = 0.5;
 }

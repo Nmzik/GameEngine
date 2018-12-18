@@ -3,12 +3,14 @@
 
 enum Type
 {
-	ymap,
 	ydr,
 	ydd,
 	yft,
 	ytd,
-	ybn
+	ybn,
+	ymap,
+	ynd,
+	ynv
 };
 
 class FileType;
