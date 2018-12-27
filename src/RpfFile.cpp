@@ -66,17 +66,13 @@ void RpfFile::LoadRpf(std::ifstream& rpf, std::string& FileName, uint32_t FileSi
 		if (x == 0x7fffff00)
 		{
 			//	printf("DIRECTORY\n");
-			RpfDirectoryEntry entry(EntriesStream);
-			NamesStream.seekg(entry.NameOffset);
-			entry.Name = NamesStream.getString();
+			RpfDirectoryEntry entry(EntriesStream, NamesStream);
 			//	printf("%s\n", entry.Name.c_str());
 		}
 		else if ((x & 0x80000000) == 0)
 		{
 			//	printf("BINARY\n");
-			RpfBinaryFileEntry entry(EntriesStream, startPos);
-			NamesStream.seekg(entry.NameOffset);
-			entry.Name = NamesStream.getString();
+			RpfBinaryFileEntry entry(EntriesStream, startPos, NamesStream);
 			entry.File = this;
 			//	printf("%s\n", entry.Name.c_str());
 			BinaryEntries.push_back(entry);
@@ -84,9 +80,7 @@ void RpfFile::LoadRpf(std::ifstream& rpf, std::string& FileName, uint32_t FileSi
 		else
 		{
 			//	printf("RESOURCE\n");
-			RpfResourceFileEntry entry(EntriesStream, rpf, startPos);
-			NamesStream.seekg(entry.NameOffset);
-			entry.Name = NamesStream.getString();
+			RpfResourceFileEntry entry(EntriesStream, rpf, startPos, NamesStream);
 			entry.Path = FullPath;
 			entry.File = this;
 			//	printf("%s\n", entry.Name.c_str());

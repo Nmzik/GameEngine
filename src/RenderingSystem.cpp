@@ -92,8 +92,8 @@ RenderingSystem::RenderingSystem(SDL_Window* window_)
 	//shaderSSAO = std::make_unique<Shader>("assets/shaders/ssao");
 	//shaderSSAOBlur = std::make_unique<Shader>("assets/shaders/ssao_blur");
 	gbufferLighting = std::make_unique<Shader>("assets/shaders/gbufferLighting");
-	DepthTexture = std::make_unique<Shader>("assets/shaders/DepthTexture");
-	debugDepthQuad = std::make_unique<Shader>("assets/shaders/debug_quad");
+	//DepthTexture = std::make_unique<Shader>("assets/shaders/DepthTexture");
+	//debugDepthQuad = std::make_unique<Shader>("assets/shaders/debug_quad");
 	//hdrShader = std::make_unique<Shader>("assets/shaders/hdrShader");
 
 	camera = std::make_unique<Camera>(glm::vec3(0.0, 0.0, 0.0));
@@ -341,7 +341,7 @@ void RenderingSystem::render(GameWorld* world)
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &SkydomeMatrix[0]);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-	for (auto& model : *world->skydome->YdrFiles->begin()->second->models)
+	for (auto& model : world->skydome->YdrFiles.begin()->second->models)
 	{
 		for (auto& mesh : model.meshes)
 		{
@@ -360,22 +360,11 @@ void RenderingSystem::render(GameWorld* world)
 		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &GameObject->modelMatrix[0]);
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-		for (auto& model : *GameObject->ydr->models)
+		for (auto& model : GameObject->ydr->models)
 		{
 			for (auto& mesh : model.meshes)
 			{
-				glBindVertexArray(mesh.VAO);
-
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, mesh.material.diffuseTextureID);
-
-				glActiveTexture(GL_TEXTURE1);
-				glBindTexture(GL_TEXTURE_2D, DefaultTexture);
-
-				glActiveTexture(GL_TEXTURE2);
-				glBindTexture(GL_TEXTURE_2D, DefaultTexture);
-
-				glDrawElements(GL_TRIANGLES, mesh.num_indices, GL_UNSIGNED_SHORT, 0);
+				mesh.Draw(DefaultTexture);
 
 				DrawCalls++;
 			}

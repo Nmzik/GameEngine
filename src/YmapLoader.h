@@ -119,9 +119,9 @@ public:
 
 	CMapData _CMapData;
 	std::vector<CMloInstanceDef> CMloInstanceDefs;
-	std::vector<Object>* Objects;
+	std::vector<Object> Objects;
 	std::vector<CCarGen> CCarGens;
 
 	void Init(memstream& file) override;
-	void Remove();
+	YmapLoader::~YmapLoader();
 };

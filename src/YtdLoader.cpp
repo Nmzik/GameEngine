@@ -9,8 +9,6 @@ void YtdLoader::Init(memstream& file)
 	TextureDictionary* texDictionary = (TextureDictionary*)file.read(sizeof(TextureDictionary));
 	texDictionary->Resolve(file);
 
-	Textures = new std::unordered_map<uint32_t, Texture>(texDictionary->TextureNameHashesPtr.EntriesCount);
-
 	if (texDictionary->Textures.getSize() != 0) {
 
 		SYSTEM_BASE_PTR(texDictionary->TextureNameHashesPtr.EntriesPointer);
@@ -29,16 +27,7 @@ void YtdLoader::Init(memstream& file)
 				length /= 4;
 			}
 
-			Textures->emplace(std::piecewise_construct, std::forward_as_tuple(TexturesHashes[i]), std::forward_as_tuple(TexturesHashes[i], texture, file));
+			Textures.emplace(std::piecewise_construct, std::forward_as_tuple(TexturesHashes[i]), std::forward_as_tuple(TexturesHashes[i], texture, file));
 		}
-	}
-}
-
-void YtdLoader::Remove()
-{
-	if (Textures)
-	{
-		delete Textures;
-		Textures = nullptr;
 	}
 }

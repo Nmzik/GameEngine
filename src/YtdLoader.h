@@ -1,7 +1,7 @@
 #pragma once
 #include "FileType.h"
 #include <unordered_map>
-#include "opengl.h"
+#include "Texture.h"
 
 enum TextureFormat
 {
@@ -86,14 +86,10 @@ struct TextureDictionary : ResourceFileBase
 	}
 };
 
-class Texture;
-
 class YtdLoader : public FileType
 {
 public:
-	YtdLoader* next;
-	std::unordered_map<uint32_t, Texture>* Textures = nullptr;
+	std::unordered_map<uint32_t, Texture> Textures;
 
 	void Init(memstream& file) override;
-	void Remove();
 };

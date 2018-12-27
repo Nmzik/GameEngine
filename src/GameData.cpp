@@ -59,12 +59,14 @@ GameData::GameData()
 
 	LoadGtxd();
 
-	Entries[0].reserve(55112);
-	Entries[1].reserve(8582);
-	Entries[2].reserve(6026);
-	Entries[3].reserve(25504);
-	Entries[4].reserve(8709);
-	Entries[5].reserve(4588);
+	Entries[ydr].reserve(58000);
+	Entries[ydd].reserve(8600);
+	Entries[yft].reserve(6100);
+	Entries[ytd].reserve(25600);
+	Entries[ybn].reserve(8800);
+	Entries[ymap].reserve(4600);
+	Entries[ynd].reserve(300);
+	Entries[ynv].reserve(4500);
 
 	for (auto& rpfFile : RpfFiles)
 	{
@@ -72,47 +74,47 @@ GameData::GameData()
 		{
 			//	NO FILES DETECTED WITH uppercase in their names
 			//	also it seems that full name (with extension) is never used in game engine
-			//	std::transform(entry.Name.begin(), entry.Name.end(), entry.Name.begin(), tolower);
-			//	entry.NameHash = GenHash(entry.Name);
+			//	std::transform(entry.FileName.begin(), entry.FileName.end(), entry.FileName.begin(), tolower);
+			//	entry.FileNameHash = GenHash(entry.FileName);
 
-			size_t index = entry.Name.find_last_of('.');
-			std::string extension = entry.Name.substr(index);
-			entry.ShortNameHash = GenHash(entry.Name.substr(0, index));
+			size_t index = entry.FileName.find_last_of('.');
+			std::string extension = entry.FileName.substr(index);
+			entry.ShortNameHash = GenHash(entry.FileName.substr(0, index));
 
 			if (extension == ".ydr")
 			{
-				//	YdrEntries[GenHash(entry.Name.substr(0, entry.Name.length() - 4) + "_lod")] = &entry; //WHY????
-				//	YdrEntries[entry.NameHash] = &entry;
+				//	YdrEntries[GenHash(entry.FileName.substr(0, entry.FileName.length() - 4) + "_lod")] = &entry; //WHY????
+				//	YdrEntries[entry.FileNameHash] = &entry;
 				Entries[ydr][entry.ShortNameHash] = &entry;
 			}
 			else if (extension == ".ydd")
 			{
-				//	YddEntries[entry.NameHash] = &entry;
+				//	YddEntries[entry.FileNameHash] = &entry;
 				Entries[ydd][entry.ShortNameHash] = &entry;
 			}
 			else if (extension == ".yft")
 			{
-				//	YftEntries[entry.NameHash] = &entry;
+				//	YftEntries[entry.FileNameHash] = &entry;
 				Entries[yft][entry.ShortNameHash] = &entry;
 			}
 			else if (extension == ".ytd")
 			{
-				//	YtdEntries[entry.NameHash] = &entry;
+				//	YtdEntries[entry.FileNameHash] = &entry;
 				Entries[ytd][entry.ShortNameHash] = &entry;
 			}
 			else if (extension == ".ybn")
 			{
-				//	YbnEntries[entry.NameHash] = &entry;
+				//	YbnEntries[entry.FileNameHash] = &entry;
 				Entries[ybn][entry.ShortNameHash] = &entry;
 			}
 			else if (extension == ".ymap")
 			{
-				//	YmapEntries[entry.NameHash] = &entry;
+				//	YmapEntries[entry.FileNameHash] = &entry;
 				Entries[ymap][entry.ShortNameHash] = &entry;
 			}
 			else if (extension == ".ytyp")
 			{
-				//	YtypEntries[entry.NameHash] = &entry;
+				//	YtypEntries[entry.FileNameHash] = &entry;
 				//	YtypEntries[entry.ShortNameHash] = &entry;
 
 				std::vector<uint8_t> outputBuffer(entry.SystemSize + entry.GraphicsSize);
@@ -133,37 +135,37 @@ GameData::GameData()
 			}
 			else if (extension == ".ynd")
 			{
-				//	YndEntries[entry.NameHash] = &entry;
+				//	YndEntries[entry.FileNameHash] = &entry;
 				Entries[ynd][entry.ShortNameHash] = &entry;
 			}
 			else if (extension == ".ynv")
 			{
-				//	YnvEntries[entry.NameHash] = &entry;
+				//	YnvEntries[entry.FileNameHash] = &entry;
 				Entries[ynv][entry.ShortNameHash] = &entry;
 			}
 		}
 		for (auto& entry : rpfFile->BinaryEntries)
 		{
-			if (entry.Name == "handling.meta")
+			if (entry.FileName == "handling.meta")
 			{
 				std::vector<uint8_t> Buffer(entry.FileUncompressedSize);
 				ExtractFileBinary(entry, Buffer);
 				LoadHandlingData(Buffer);
 			}
-			if (entry.Name == "gta5_cache_y.dat")
+			if (entry.FileName == "gta5_cache_y.dat")
 			{
 				std::vector<uint8_t> Buffer(entry.FileUncompressedSize);
 				ExtractFileBinary(entry, Buffer);
 
 				cacheFile = std::make_unique<CacheDatFile>(Buffer);
 			}
-			if (entry.Name == "water.xml")
+			if (entry.FileName == "water.xml")
 			{
 				std::vector<uint8_t> Buffer(entry.FileUncompressedSize);
 				ExtractFileBinary(entry, Buffer);
 				LoadWaterQuads(Buffer);
 			}
-			if (entry.Name == "playerswitchestablishingshots.meta")
+			if (entry.FileName == "playerswitchestablishingshots.meta")
 			{
 				std::vector<uint8_t> Buffer(entry.FileUncompressedSize);
 				ExtractFileBinary(entry, Buffer);
@@ -171,6 +173,17 @@ GameData::GameData()
 			}
 		}
 	}
+
+	bool has_collision = false;
+	size_t countBuvket = Entries[ydd].bucket_count();
+	for (size_t bucket = 0; bucket < Entries[ydd].bucket_count(); bucket++) {
+
+		if (Entries[ydd].bucket_size(bucket) > 1) {
+			has_collision = true;
+			break;
+		}
+	}
+
 }
 
 GameData::~GameData()
@@ -322,10 +335,10 @@ void GameData::LoadRpf(std::ifstream& rpf, std::string& FullPath_, std::string& 
 
 	for (auto& BinaryFileEntry : file->BinaryEntries)
 	{
-		if (BinaryFileEntry.Name.substr(BinaryFileEntry.Name.length() - 4) == ".rpf")
+		if (BinaryFileEntry.FileName.substr(BinaryFileEntry.FileName.length() - 4) == ".rpf")
 		{
 			uint32_t RealFileSize = (BinaryFileEntry.FileSize == 0) ? BinaryFileEntry.FileUncompressedSize : BinaryFileEntry.FileSize;
-			LoadRpf(rpf, FullPath_, BinaryFileEntry.Name, RealFileSize, BinaryFileEntry.FileOffset);
+			LoadRpf(rpf, FullPath_, BinaryFileEntry.FileName, RealFileSize, BinaryFileEntry.FileOffset);
 		}
 	}
 }
@@ -337,7 +350,7 @@ void GameData::ExtractFileBinary(RpfBinaryFileEntry& entry, std::vector<uint8_t>
 	rpf->seekg(entry.FileOffset);
 	rpf->read((char*)&TempBuffer[0], entry.FileSize);
 
-	GTAEncryption::getInstance().DecryptNG(TempBuffer, entry.FileSize, entry.Name, entry.FileUncompressedSize);
+	GTAEncryption::getInstance().DecryptNG(TempBuffer, entry.FileSize, entry.FileName, entry.FileUncompressedSize);
 
 	GTAEncryption::getInstance().DecompressBytes(TempBuffer, entry.FileSize, output);
 }
@@ -358,7 +371,7 @@ void GameData::ExtractFileResource(RpfResourceFileEntry& entry, std::vector<uint
 	}
 	else //if (IsNGEncrypted) //assume the archive is set to NG encryption if not AES... (comment: fix for openIV modded files)
 	{*/
-	//	decr = GTACrypto.DecryptNG(tbytes, entry.Name, entry.FileSize);
+	//	decr = GTACrypto.DecryptNG(tbytes, entry.FileName, entry.FileSize);
 	//}
 	//	else
 	//{ }

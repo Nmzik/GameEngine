@@ -1,8 +1,12 @@
 #include "RpfEntry.h"
 
-RpfDirectoryEntry::RpfDirectoryEntry(memstream& stream)
+RpfDirectoryEntry::RpfDirectoryEntry(memstream& stream, memstream& NamesStream)
 {
+	uint32_t NameOffset;
 	stream.read((char*)&NameOffset, sizeof(uint32_t));
+	NamesStream.seekg(NameOffset);
+	FileName = NamesStream.getString();
+
 	uint32_t ident;
 	stream.read((char*)&ident, sizeof(uint32_t));
 	if (ident != 0x7FFFFF00u)
@@ -13,11 +17,14 @@ RpfDirectoryEntry::RpfDirectoryEntry(memstream& stream)
 	stream.read((char*)&EntriesCount, sizeof(uint32_t));
 }
 
-RpfBinaryFileEntry::RpfBinaryFileEntry(memstream& stream, uint64_t StartPos)
+RpfBinaryFileEntry::RpfBinaryFileEntry(memstream& stream, uint64_t StartPos, memstream& NamesStream)
 {
 	uint64_t buf;
 	stream.read((char*)&buf, sizeof(uint64_t));
-	NameOffset = (uint32_t)buf & 0xFFFF;
+	uint32_t NameOffset = (uint32_t)buf & 0xFFFF;
+	NamesStream.seekg(NameOffset);
+	FileName = NamesStream.getString();
+
 	FileSize = (uint32_t)(buf >> 16) & 0xFFFFFF;
 	FileOffset = (uint32_t)(buf >> 40) & 0xFFFFFF;
 	stream.read((char*)&FileUncompressedSize, sizeof(uint32_t));
@@ -29,11 +36,12 @@ RpfBinaryFileEntry::RpfBinaryFileEntry(memstream& stream, uint64_t StartPos)
 	FileOffset = StartPos + ((uint64_t)FileOffset * 512);
 }
 
-RpfResourceFileEntry::RpfResourceFileEntry(memstream& stream, std::istream& originalFile, uint64_t StartPos)
+RpfResourceFileEntry::RpfResourceFileEntry(memstream& stream, std::istream& originalFile, uint64_t StartPos, memstream& NamesStream)
 {
-	uint16_t buf;
-	stream.read((char*)&buf, sizeof(uint16_t));
-	NameOffset = buf;
+	uint16_t NameOffset;
+	stream.read((char*)&NameOffset, sizeof(uint16_t));
+	NamesStream.seekg(NameOffset);
+	FileName = NamesStream.getString();
 
 	uint8_t buf1[3];
 	stream.read((char*)&buf1, 3);

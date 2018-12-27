@@ -340,16 +340,13 @@ class YbnLoader;
 
 class YdrLoader : public FileType
 {
-	YtdLoader* Ytd = nullptr;
+	YtdLoader* ytd = nullptr;
 
 public:
-	YdrLoader* next;
-	std::vector<Model>* models;
-	YbnLoader* ybnfile = nullptr;
+	std::vector<Model> models;
+	YbnLoader* ybn = nullptr;
 	bool isYft = false;
 
 	void Init(memstream& file) override;
-	void Remove();
-
-	void UploadMeshes();
+	~YdrLoader();
 };

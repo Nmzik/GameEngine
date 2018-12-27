@@ -12,10 +12,10 @@ void YftLoader::Init(memstream& file)
 
 	file.seekg(fragType->DrawablePointer);
 
-	YdrFile = GlobalPool::getInstance().YdrPool.Load();
-	YdrFile->isYft = true;
-	YdrFile->Init(file);
-	gpuMemory += YdrFile->gpuMemory;
+	ydr = new YdrLoader();
+	ydr->isYft = true;
+	ydr->Init(file);
+	gpuMemory += ydr->gpuMemory;
 
 	SYSTEM_BASE_PTR(fragType->PhysicsLODGroupPointer);
 	file.seekg(fragType->PhysicsLODGroupPointer);
@@ -58,11 +58,11 @@ void YftLoader::Init(memstream& file)
 	SYSTEM_BASE_PTR(fragPhysicsLOD->BoundPointer);
 	file.seekg(fragPhysicsLOD->BoundPointer);
 
-	ybnFile = GlobalPool::getInstance().YbnPool.Load();
-	ybnFile->Init(file);
+	ybn = new YbnLoader();
+	ybn->Init(file);
 }
 
-void YftLoader::Remove()
+YftLoader::~YftLoader()
 {
 	/*for (auto& ydr : *fragPhysicsLODs)
 	{
@@ -71,14 +71,12 @@ void YftLoader::Remove()
 
 	delete fragPhysicsLODs;*/
 
-	if (YdrFile)
+	if (ydr)
 	{
-		GlobalPool::getInstance().YdrPool.Remove(YdrFile);
-		YdrFile = nullptr;
+		delete ydr;
 	}
-	if (ybnFile)
+	if (ybn)
 	{
-		GlobalPool::getInstance().YbnPool.Remove(ybnFile);
-		ybnFile = nullptr;
+		delete ybn;
 	}
 }

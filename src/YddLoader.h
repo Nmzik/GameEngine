@@ -23,9 +23,8 @@ class YdrLoader;
 class YddLoader : public FileType
 {
 public:
-	YddLoader* next;
-	std::unordered_map<uint32_t, YdrLoader*>* YdrFiles;
+	std::unordered_map<uint32_t, YdrLoader*> YdrFiles;
 
 	void Init(memstream& file) override;
-	void Remove();
+	YddLoader::~YddLoader();
 };

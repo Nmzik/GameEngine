@@ -231,6 +231,9 @@ public:
 	Material material;
 	uint32_t num_indices;
 
+
 	Mesh(const uint8_t* meshData, DrawableGeometry* drawGeom, Material mat);
 	~Mesh();
+
+	void Draw(GLuint tex);
 };

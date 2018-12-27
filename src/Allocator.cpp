@@ -1,7 +1,5 @@
 #include "Allocator.h"
 
-using namespace aqua;
-
 Allocator::Allocator(size_t size) : _size(size), _used_memory(0), _num_allocations(0)
 {
 	

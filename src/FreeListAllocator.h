@@ -137,52 +137,49 @@ namespace pointer_math
 }
 //#define USE_ALLOCATION_IDENTIFIER
 
-namespace aqua
+class FreeListAllocator : public Allocator
 {
-	class FreeListAllocator : public Allocator
-	{
-	public:
-		FreeListAllocator(size_t size, void* start);
-		~FreeListAllocator();
+public:
+	FreeListAllocator(size_t size, void* start);
+	~FreeListAllocator();
 
-		void* allocate(size_t size, uint8_t alignment) override;
+	void* allocate(size_t size, uint8_t alignment) override;
 
-		void deallocate(void* p) override;
+	void deallocate(void* p) override;
 
 #if AQUA_DEBUG || AQUA_DEVELOPMENT
-		void checkFreeBlockList();
+	void checkFreeBlockList();
 #endif
 
-	private:
+private:
 
-		struct AllocationHeader
-		{
-			#if AQUA_DEBUG || AQUA_DEVELOPMENT
-			size_t identifier;
-			u32	   magic_number;
-			#endif
-			size_t size;
-			uint8_t     adjustment;
-		};
-
-		struct FreeBlock
-		{
-			#if AQUA_DEBUG || AQUA_DEVELOPMENT
-			u32 magic_number;
-			#endif
-			size_t     size;
-			FreeBlock* next;
-		};
-
-		static_assert(sizeof(AllocationHeader) >= sizeof(FreeBlock), "sizeof(AllocationHeader) < sizeof(FreeBlock)");
-
-		FreeListAllocator(const FreeListAllocator&);
-		FreeListAllocator& operator=(const FreeListAllocator&);
-
-		FreeBlock* _free_blocks;
-
-		#if AQUA_DEBUG || AQUA_DEVELOPMENT
-		size_t _next_identifier;
-		#endif
+	struct AllocationHeader
+	{
+#if AQUA_DEBUG || AQUA_DEVELOPMENT
+		size_t identifier;
+		u32	   magic_number;
+#endif
+		size_t size;
+		uint8_t     adjustment;
 	};
+
+	struct FreeBlock
+	{
+#if AQUA_DEBUG || AQUA_DEVELOPMENT
+		u32 magic_number;
+#endif
+		size_t     size;
+		FreeBlock* next;
+	};
+
+	static_assert(sizeof(AllocationHeader) >= sizeof(FreeBlock), "sizeof(AllocationHeader) < sizeof(FreeBlock)");
+
+	FreeListAllocator(const FreeListAllocator&);
+	FreeListAllocator& operator=(const FreeListAllocator&);
+
+	FreeBlock* _free_blocks;
+
+#if AQUA_DEBUG || AQUA_DEVELOPMENT
+	size_t _next_identifier;
+#endif
 };

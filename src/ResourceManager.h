@@ -9,8 +9,8 @@
 #include "FreeListAllocator.h"
 
 class GameWorld;
-class RpfEntry;
 
+class RpfEntry;
 class RpfResourceFileEntry;
 
 class YdrLoader;
@@ -26,7 +26,6 @@ class ResourceManager
 	std::mutex mylock;
 	std::condition_variable loadCondition;
 	bool running;
-	aqua::FreeListAllocator* _main_allocator;
 
 	std::deque<Resource*> waitingList;
 	GameWorld* gameworld;

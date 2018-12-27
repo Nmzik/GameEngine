@@ -30,9 +30,9 @@ public:
 		offset += size;
 	}
 
-	std::string getString()
+	char* getString()
 	{
-		return std::string((char*)&data[offset]);
+		return (char*)&data[offset];
 	}
 
 	void seekg(uint64_t OffsetFile)

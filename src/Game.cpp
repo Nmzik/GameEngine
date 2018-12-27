@@ -141,26 +141,6 @@ void Game::run()
 
 void Game::tick(float delta_time)
 {
-	static float clockAccumulator = 0.f;
-
-	clockAccumulator += delta_time;
-	while (clockAccumulator >= 1.f)
-	{
-		getWorld()->gameMinute++;
-		if (getWorld()->gameMinute >= 60)
-		{
-			getWorld()->gameMinute = 0;
-			getWorld()->gameHour++;
-			if (getWorld()->gameHour >= 24)
-			{
-				getWorld()->gameHour = 0;
-			}
-		}
-		clockAccumulator -= 1.f;
-	}
-
-	//	printf("Time %d %d\n", getWorld()->gameHour, getWorld()->gameMinute);
-
 	static bool DebugPressed = true;
 	//	KEYBOARD
 

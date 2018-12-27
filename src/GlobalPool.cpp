@@ -8,4 +8,6 @@
 #include "YbnLoader.h"
 #include "YmapLoader.h"
 
-GlobalPool GlobalPool::pool;
+//GlobalPool GlobalPool::pool;
+
+//FreeListAllocator* _main_allocator;

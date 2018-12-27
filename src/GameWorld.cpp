@@ -175,7 +175,7 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 {
 	if (map->Loaded)
 	{
-		for (auto& object : *map->Objects)
+		/*for (auto& object : map->Objects)
 		{
 			float Dist = glm::length2(position - object.position);
 			bool IsVisible = Dist <= object.CEntity.lodDist * LODMultiplier;
@@ -217,7 +217,7 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 								 }//can be an error here
 								}*/
 
-								object.Loaded = true;
+								/*object.Loaded = true;
 							}
 							break;
 						}
@@ -231,8 +231,8 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 							}
 							if (object.ydd->Loaded)
 							{
-								auto iter2 = object.ydd->YdrFiles->find(object.CEntity.archetypeName);
-								if (iter2 != object.ydd->YdrFiles->end())
+								auto iter2 = object.ydd->YdrFiles.find(object.CEntity.archetypeName);
+								if (iter2 != object.ydd->YdrFiles.end())
 								{
 									object.ydr = iter2->second;
 									object.Loaded = true;
@@ -250,20 +250,9 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 							}
 							if (object.yft->Loaded)
 							{
-								object.ydr = object.yft->YdrFile;
+								object.ydr = object.yft->ydr;
 
-								/*if (object.yft->ybnFile) {
-								 if (object.yft->ybnFile->compound->getNumChildShapes() != 0) {
-
-								  //SET POSITION OF COLLISION TO OBJECT PLACE
-								  btVector3 localInertia(0, 0, 0);
-								  float mass = 0.0f;
-								  btDefaultMotionState* MotionState = new btDefaultMotionState(btTransform(btQuaternion(-object.rotation.x, object.rotation.y, object.rotation.z, object.rotation.w),
-								btVector3(object.position.x, object.position.y, object.position.z))); btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(mass, MotionState, object.yft->ybnFile->compound, localInertia);
-								  object.rigidBody = new btRigidBody(groundRigidBodyCI);
-								  dynamicsWorld->addRigidBody(object.rigidBody);
-								 }//can be an error here
-								}*/
+								
 
 								object.Loaded = true;
 							}
@@ -294,7 +283,7 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 					}
 				}
 			}
-		}
+		}*/
 	}
 	/*if (map->CMloInstanceDefs.size() > 0) {
 	 for (int i = 0; i < map->CMloInstanceDefs.size(); i++)
@@ -375,6 +364,9 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 
 	if (CurCell != cellID)
 	{
+		//	printf("NEW CELL\n");
+		CurCell = cellID;
+
 		for (auto& ybn : CurYbns)
 		{
 			ybn->RefCount--;
@@ -388,9 +380,6 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 		CurYbns.clear();
 		CurYmaps.clear();
 		//	Clear previous Ybns
-
-		//	printf("NEW CELL\n");
-		CurCell = cellID;
 
 		SpaceGridCell& cell = spaceGrid.GetCell(cellID);
 
@@ -509,7 +498,7 @@ void GameWorld::LoadQueuedResources()
 					memstream stream(res->Buffer.data(), res->Buffer.size());
 					iter->Init(stream);
 
-					for (auto& object : *iter->Objects)
+					for (auto& object : iter->Objects)
 					{
 						std::unordered_map<uint32_t, Archetype*>::iterator it = getGameData()->Archetypes.find(object.CEntity.archetypeName);
 						if (it != getGameData()->Archetypes.end())
@@ -750,6 +739,24 @@ void GameWorld::update(float delta_time, Camera* camera)
 {
 	physicsSystem.Update(delta_time);
 
+	static float clockAccumulator = 0.f;
+
+	clockAccumulator += delta_time;
+	while (clockAccumulator >= 1.f) {
+		gameMinute++;
+		while (gameMinute >= 60) {
+			gameMinute = 0;
+			gameHour++;
+			while (gameHour >= 24) {
+				gameHour = 0;
+			}
+		}
+		clockAccumulator -= 1.f;
+	}
+
+	//	printf("Time %d %d\n", getWorld()->gameHour, getWorld()->gameMinute);
+
+
 	double SUNRISE = 5.47f; // % of Day
 	double SUNSET = 19.35f;
 	uint8_t MOONRISE = 17; // % of Day
@@ -782,13 +789,6 @@ void GameWorld::update(float delta_time, Camera* camera)
 	}
 }
 
-void GameWorld::TestFunction(glm::vec3 Position)
-{
-	/*resourceManager->RemoveAll();
-	renderList.clear();
-	EnableStreaming = false;*/
-}
-
 bool GameWorld::DetectInWater(glm::vec3 Position)
 {
 	for (auto& waterQuad : data.WaterQuads)
@@ -802,7 +802,19 @@ bool GameWorld::DetectInWater(glm::vec3 Position)
 	return false;
 }
 	
+void GameWorld::TestFunction(glm::vec3 Position)
+{
+	for (auto& ytd : data.GtxdEntries)
+	{
+		while (!resourceManager->GetYtd(ytd.second))
+		{
+			LoadQueuedResources();
+		}
+	}
+	printf("DONE\n");
+}
+
 void GameWorld::ClearTestFunction()
 {
-	resourceManager->GetYtd(38759883);
+	resourceManager->RemoveAll();
 }

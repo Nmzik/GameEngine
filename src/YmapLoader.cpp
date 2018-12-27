@@ -8,8 +8,6 @@ void YmapLoader::Init(memstream& file)
 
 	Meta meta(file);
 
-	Objects = new std::vector<Object>();
-
 	for (auto& Block : meta.MetaBlocks)
 	{
 		switch (Block.MetaDataBlock_struct->StructureNameHash)
@@ -19,7 +17,7 @@ void YmapLoader::Init(memstream& file)
 				std::memcpy(&_CMapData, &file.data[Block.MetaDataBlock_struct->DataPointer], sizeof(CMapData));
 
 				//	Optimization
-				Objects->reserve(_CMapData.entities.Count1);
+				Objects.reserve(_CMapData.entities.Count1);
 
 				break;
 			}
@@ -52,7 +50,7 @@ void YmapLoader::Init(memstream& file)
 
 					//	if (def.lodLevel == Unk_1264241711::LODTYPES_DEPTH_ORPHANHD) def.lodDist *= 1.5f;
 
-					Objects->emplace_back(def);
+					Objects.emplace_back(def);
 				}
 				break;
 			}
@@ -101,9 +99,9 @@ void YmapLoader::Init(memstream& file)
 	}*/
 }
 
-void YmapLoader::Remove()
+YmapLoader::~YmapLoader()
 {
-	delete Objects;
+
 }
 
 /*void YmapPool::RemoveBeta(YmapLoader* ymap, btDynamicsWorld* world)

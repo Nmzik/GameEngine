@@ -13,6 +13,8 @@
 
 #include "GlobalPool.h"
 
+extern FreeListAllocator* _main_allocator;
+
 ResourceManager::ResourceManager(GameWorld* world)
 	: gameworld{ world }
 	, running(true)
@@ -31,7 +33,7 @@ ResourceManager::ResourceManager(GameWorld* world)
 	ymapLoader.reserve(500);
 
 
-	/*size_t memory_size = 1024ULL * 1024 * 1024; //1GB
+	/*size_t memory_size = 1024 * 1024 * 1024; //1GB
 	uint8_t* _memory = (uint8_t*)malloc(memory_size);
 
 	if (_memory == nullptr)
@@ -39,8 +41,8 @@ ResourceManager::ResourceManager(GameWorld* world)
 		printf("ERROR");
 	}
 
-	_main_allocator = new aqua::FreeListAllocator(memory_size - sizeof(aqua::FreeListAllocator), pointer_math::add(_memory, sizeof(aqua::FreeListAllocator)));
-	uint8_t* test = (uint8_t*)_main_allocator->allocate(10 * 1024 * 1024, 16);*/
+	_main_allocator = new FreeListAllocator(memory_size - sizeof(FreeListAllocator), pointer_math::add(_memory, sizeof(FreeListAllocator)));
+	//uint8_t* test = (uint8_t*)_main_allocator->allocate(10 * 1024 * 1024, 16);*/
 }
 
 ResourceManager::~ResourceManager()
@@ -75,7 +77,7 @@ YmapLoader* ResourceManager::GetYmap(uint32_t hash)
 	}
 	else
 	{
-		YmapLoader* loader = GlobalPool::getInstance().YmapPool.Load();
+		YmapLoader* loader = new YmapLoader();
 		AddToWaitingList(new Resource(ymap, hash, loader));
 		loader->RefCount++;
 		ymapLoader.insert({ hash, loader });
@@ -94,7 +96,7 @@ YdrLoader* ResourceManager::GetYdr(uint32_t hash)
 	}
 	else
 	{
-		YdrLoader* loader = GlobalPool::getInstance().YdrPool.Load();
+		YdrLoader* loader = new YdrLoader();
 		AddToWaitingList(new Resource(ydr, hash, loader));
 		loader->RefCount++;
 		ydrLoader.insert({ hash, loader });
@@ -114,7 +116,7 @@ YtdLoader* ResourceManager::GetYtd(uint32_t hash)
 	else
 	{
 		// LoadGtxd(hash);
-		YtdLoader* loader = GlobalPool::getInstance().YtdPool.Load();
+		YtdLoader* loader = new YtdLoader();
 		AddToWaitingList(new Resource(ytd, hash, loader));
 		loader->RefCount++;
 		ytdLoader.insert({ hash, loader });
@@ -133,7 +135,7 @@ YddLoader* ResourceManager::GetYdd(uint32_t hash)
 	}
 	else
 	{
-		YddLoader* loader = GlobalPool::getInstance().YddPool.Load();
+		YddLoader* loader = new YddLoader();
 		AddToWaitingList(new Resource(ydd, hash, loader));
 		loader->RefCount++;
 		yddLoader.insert({ hash, loader });
@@ -152,7 +154,7 @@ YftLoader* ResourceManager::GetYft(uint32_t hash)
 	}
 	else
 	{
-		YftLoader* loader = GlobalPool::getInstance().YftPool.Load();
+		YftLoader* loader = new YftLoader();
 		AddToWaitingList(new Resource(yft, hash, loader));
 		loader->RefCount++;
 		yftLoader.insert({ hash, loader });
@@ -171,7 +173,7 @@ YbnLoader* ResourceManager::GetYbn(uint32_t hash)
 	}
 	else
 	{
-		YbnLoader* loader = GlobalPool::getInstance().YbnPool.Load();
+		YbnLoader* loader = new YbnLoader();
 		AddToWaitingList(new Resource(ybn, hash, loader));
 		loader->RefCount++;
 		ybnLoader.insert({ hash, loader });
@@ -205,79 +207,36 @@ void ResourceManager::update()
 		waitingList.pop_front();
 		lock.unlock();
 
-		switch (res->type)
+		auto it = gameworld->getGameData()->Entries[res->type].find(res->Hash);
+		if (it != gameworld->getGameData()->Entries[res->type].end())
 		{
-			case ymap:
-			case ydr:
-			case ydd:
-			case yft:
-			case ytd:
-			case ybn:
-			{
-				auto it = gameworld->getGameData()->Entries[res->type].find(res->Hash);
-				if (it != gameworld->getGameData()->Entries[res->type].end())
-				{
-					res->Buffer.resize(it->second->SystemSize + it->second->GraphicsSize);
-					gameworld->getGameData()->ExtractFileResource(*(it->second), res->Buffer);
-					res->SystemSize = (it->second->SystemSize);
-				}
-				AddToMainQueue(res);
-				break;
-			}
+			res->Buffer.resize(it->second->SystemSize + it->second->GraphicsSize);
+			gameworld->getGameData()->ExtractFileResource(*(it->second), res->Buffer);
+			res->SystemSize = (it->second->SystemSize);
 		}
+		AddToMainQueue(res);
 	}
 }
 
 void ResourceManager::RemoveAll()
 {
-	for (auto it = ybnLoader.begin(); it != ybnLoader.end();)
-	{
-			GlobalPool::getInstance().YbnPool.Remove(it->second);
-			it = ybnLoader.erase(it);
-	}
-
-	for (auto it = ymapLoader.begin(); it != ymapLoader.end();)
-	{
-			GlobalPool::getInstance().YmapPool.Remove(it->second);
-			it = ymapLoader.erase(it);
-	}
-	for (auto it = ydrLoader.begin(); it != ydrLoader.end();)
-	{
-			GlobalGpuMemory -= it->second->gpuMemory;
-			GlobalPool::getInstance().YdrPool.Remove(it->second);
-			it = ydrLoader.erase(it);
-	}
-
-	for (auto it = yddLoader.begin(); it != yddLoader.end();)
-	{
-			GlobalGpuMemory -= it->second->gpuMemory;
-			GlobalPool::getInstance().YddPool.Remove(it->second);
-			it = yddLoader.erase(it);
-	}
-
-	for (auto it = yftLoader.begin(); it != yftLoader.end();)
-	{
-			GlobalGpuMemory -= it->second->gpuMemory;
-			GlobalPool::getInstance().YftPool.Remove(it->second);
-			it = yftLoader.erase(it);
-	}
-
 	for (auto it = ytdLoader.begin(); it != ytdLoader.end();)
 	{
 			TextureMemory -= it->second->gpuMemory;
-			GlobalPool::getInstance().YtdPool.Remove(it->second);
+			delete it->second;
 			it = ytdLoader.erase(it);
 	}
 }
 
 void ResourceManager::UpdateResourceCache()
 {
+	//printf("FREE SPACE %zd\n", _main_allocator->getSize() - _main_allocator->getUsedMemory());
 	// REMOVE OBJECTS WHEN WE ARE IN ANOTHER CELL????  RUN GARBAGE COLLECTOR WHEN IN ANOTHER CEL
 	for (auto it = ybnLoader.begin(); it != ybnLoader.end();)
 	{
 		if ((it->second)->RefCount == 0 && (it->second)->Loaded)
 		{
-			GlobalPool::getInstance().YbnPool.Remove(it->second);
+			delete it->second;
 			it = ybnLoader.erase(it);
 		}
 		else
@@ -290,7 +249,7 @@ void ResourceManager::UpdateResourceCache()
 	{
 		if ((it->second)->RefCount == 0 && (it->second)->Loaded)
 		{
-			GlobalPool::getInstance().YmapPool.Remove(it->second);
+			delete it->second;
 			it = ymapLoader.erase(it);
 		}
 		else
@@ -304,7 +263,7 @@ void ResourceManager::UpdateResourceCache()
 		if ((it->second)->RefCount == 0 && (it->second)->Loaded)
 		{
 			GlobalGpuMemory -= it->second->gpuMemory;
-			GlobalPool::getInstance().YdrPool.Remove(it->second);
+			delete it->second;
 			it = ydrLoader.erase(it);
 		}
 		else
@@ -318,7 +277,7 @@ void ResourceManager::UpdateResourceCache()
 		if ((it->second)->RefCount == 0 && (it->second)->Loaded)
 		{
 			GlobalGpuMemory -= it->second->gpuMemory;
-			GlobalPool::getInstance().YddPool.Remove(it->second);
+			delete it->second;
 			it = yddLoader.erase(it);
 		}
 		else
@@ -332,7 +291,7 @@ void ResourceManager::UpdateResourceCache()
 		if ((it->second)->RefCount == 0 && (it->second)->Loaded)
 		{
 			GlobalGpuMemory -= it->second->gpuMemory;
-			GlobalPool::getInstance().YftPool.Remove(it->second);
+			delete it->second;
 			it = yftLoader.erase(it);
 		}
 		else
@@ -346,7 +305,7 @@ void ResourceManager::UpdateResourceCache()
 		if ((it->second)->RefCount == 0 && (it->second)->Loaded)
 		{
 			TextureMemory -= it->second->gpuMemory;
-			GlobalPool::getInstance().YtdPool.Remove(it->second);
+			delete it->second;
 			it = ytdLoader.erase(it);
 		}
 		else

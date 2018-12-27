@@ -21,8 +21,8 @@ void YdrLoader::Init(memstream& file)
 			SYSTEM_BASE_PTR(fragDrawable->BoundPointer);
 			file.seekg(fragDrawable->BoundPointer);
 
-			ybnfile = GlobalPool::getInstance().YbnPool.Load();
-			ybnfile->Init(file);
+			ybn = new YbnLoader();
+			ybn->Init(file);
 		}
 	}
 	else
@@ -48,8 +48,8 @@ void YdrLoader::Init(memstream& file)
 			SYSTEM_BASE_PTR(drawable->BoundPointer);
 			file.seekg(drawable->BoundPointer);
 
-			ybnfile = GlobalPool::getInstance().YbnPool.Load();
-			ybnfile->Init(file);
+			ybn = new YbnLoader();
+			ybn->Init(file);
 			//	ybnfile->Finalize(world);
 		}
 	}
@@ -62,8 +62,8 @@ void YdrLoader::Init(memstream& file)
 		{
 			SYSTEM_BASE_PTR(drawBase->ShaderGroupPointer->TextureDictionaryPointer);
 			file.seekg(drawBase->ShaderGroupPointer->TextureDictionaryPointer);
-			Ytd = GlobalPool::getInstance().YtdPool.Load();
-			Ytd->Init(file);
+			ytd = new YtdLoader();
+			ytd->Init(file);
 		}
 
 		SYSTEM_BASE_PTR(drawBase->ShaderGroupPointer->ShadersPointer);
@@ -183,13 +183,12 @@ void YdrLoader::Init(memstream& file)
 
 		//////////
 
-		models = new std::vector<Model>();
-		models->resize(drawBase->DrawableModels[0]->getSize());
+		models.resize(drawBase->DrawableModels[0]->getSize());
 
 		for (int i = 0; i < drawBase->DrawableModels[0]->getSize(); i++)
 		{
 			//	Optimization
-			(*models)[i].meshes.reserve(drawBase->DrawableModels[0]->Get(i)->m_geometries.getSize());
+			models[i].meshes.reserve(drawBase->DrawableModels[0]->Get(i)->m_geometries.getSize());
 
 			for (int j = 0; j < drawBase->DrawableModels[0]->Get(i)->m_geometries.getSize(); j++)
 			{
@@ -215,31 +214,18 @@ void YdrLoader::Init(memstream& file)
 					drawBase->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->VertexCount * drawBase->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->VertexStride;
 				gpuMemory += drawBase->DrawableModels[0]->Get(i)->m_geometries.Get(j)->IndexBufferPointer->IndicesCount * sizeof(uint16_t);
 
-				(*models)[i].meshes.emplace_back(file.data, drawBase->DrawableModels[0]->Get(i)->m_geometries.Get(j), materials[(*drawBase->DrawableModels[0]->Get(i)->ShaderMappingPointer)[j]]);
+				models[i].meshes.emplace_back(file.data, drawBase->DrawableModels[0]->Get(i)->m_geometries.Get(j), materials[(*drawBase->DrawableModels[0]->Get(i)->ShaderMappingPointer)[j]]);
 			}
 		}
 	}
 }
 
-void YdrLoader::Remove()
+YdrLoader::~YdrLoader()
 {
-	isYft = false;
-
-	if (ybnfile)
-	{
-		GlobalPool::getInstance().YbnPool.Remove(ybnfile);
-		ybnfile = nullptr;
+	if (ybn) {
+		delete ybn;
 	}
-	if (Ytd)
-	{
-		GlobalPool::getInstance().YtdPool.Remove(Ytd);
-		Ytd = nullptr;
+	if (ytd) {
+		delete ytd;
 	}
-	delete models;
-}
-
-void YdrLoader::UploadMeshes()
-{
-
-	Loaded = true;
 }

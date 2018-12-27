@@ -1,7 +1,5 @@
 #include "FreeListAllocator.h"
 
-using namespace aqua;
-
 static const uint32_t ALLOCATION_MAGIC_NUMBER = 0xAEF01762;
 
 FreeListAllocator::FreeListAllocator(size_t size, void* start)

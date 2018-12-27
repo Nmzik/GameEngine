@@ -160,5 +160,5 @@ public:
 	void Init(memstream& file) override;
 	void ParseYbn(memstream& file);
 	void Finalize();
-	void Remove();
+	YbnLoader::~YbnLoader();
 };

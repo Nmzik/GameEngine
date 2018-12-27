@@ -269,7 +269,7 @@ void YbnLoader::Finalize()
 	Loaded = true;
 }
 
-void YbnLoader::Remove()
+YbnLoader::~YbnLoader()
 {
 	if (rigidBody)
 	{

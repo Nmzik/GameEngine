@@ -7,9 +7,9 @@ CPed::CPed(glm::vec3 position, YddLoader* ydd)
 	, weapons(13)
 {
 	health = 200;
-	playerModel.push_back((*ydd->YdrFiles)[121241095]);
-	playerModel.push_back((*ydd->YdrFiles)[1471150075]);
-	playerModel.push_back((*ydd->YdrFiles)[2540683012]);
+	playerModel.push_back((ydd->YdrFiles)[121241095]);
+	playerModel.push_back((ydd->YdrFiles)[1471150075]);
+	playerModel.push_back((ydd->YdrFiles)[2540683012]);
 
 	btScalar mass(1.0f);
 	btVector3 localInertia(0, 0, 0);
