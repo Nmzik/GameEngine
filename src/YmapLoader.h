@@ -115,13 +115,11 @@ class Object;
 class YmapLoader : public FileType
 {
 public:
-	YmapLoader* next;
-
 	CMapData _CMapData;
 	std::vector<CMloInstanceDef> CMloInstanceDefs;
 	std::vector<Object> Objects;
 	std::vector<CCarGen> CCarGens;
 
 	void Init(memstream& file) override;
-	YmapLoader::~YmapLoader();
+	~YmapLoader();
 };

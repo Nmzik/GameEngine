@@ -450,7 +450,7 @@ public:
 		return pool;
 	}
 
-	Pool::Pool()
+	Pool()
 		: objects(num)
 	{
 		firstAvailable_ = &objects[0];
@@ -463,7 +463,7 @@ public:
 		objects[num - 1].next = NULL;
 	}
 
-	T* Pool::Load()
+	T* Load()
 	{
 		// Make sure the pool isn't full.
 		assert(firstAvailable_ != NULL);

@@ -4,7 +4,6 @@
 #include <vector>
 #include <string>
 #include "membuf.h"
-#include "zlib.h"
 #include "glm/glm.hpp"
 
 struct MapDataStoreNode

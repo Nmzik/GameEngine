@@ -171,12 +171,12 @@ void Game::tick(float delta_time)
 		//	getRenderer()->ShowTexture = !getRenderer()->ShowTexture;
 	}
 
-	if (getInput()->IsKeyTriggered(SDL_SCANCODE_V))
+	if (getInput()->IsKeyTriggered(SDL_SCANCODE_C))
 	{
 		getWorld()->TestFunction(getRenderer()->getCamera().position);
 	}
 
-	if (getInput()->IsKeyTriggered(SDL_SCANCODE_C))
+	if (getInput()->IsKeyTriggered(SDL_SCANCODE_V))
 	{
 		getWorld()->ClearTestFunction();
 	}
@@ -387,7 +387,8 @@ void Game::tick(float delta_time)
 	float angleYaw = glm::atan(lookdir.y, lookdir.x);
 	glm::quat angle(glm::vec3(0.f, -anglePitch, angleYaw));
 
-	getRenderer()->getCamera().position = cameraPosition;
+	if (!DebugPressed)
+		getRenderer()->getCamera().position = cameraPosition;
 	getRenderer()->getCamera().rotation = angle;
 
 	/*auto rayEnd = getRenderer()->getCamera().Position;

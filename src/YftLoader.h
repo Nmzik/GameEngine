@@ -194,5 +194,5 @@ public:
 	std::vector<YdrLoader*> fragPhysicsLODs;
 
 	void Init(memstream& file) override;
-	YftLoader::~YftLoader();
+	~YftLoader();
 };

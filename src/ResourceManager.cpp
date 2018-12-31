@@ -115,7 +115,11 @@ YtdLoader* ResourceManager::GetYtd(uint32_t hash)
 	}
 	else
 	{
-		// LoadGtxd(hash);
+		/*auto iter = gameworld->getGameData()->GtxdEntries.find(hash);
+		if (iter != gameworld->getGameData()->GtxdEntries.end())
+		{
+			GetYtd(iter->second);
+		}*/
 		YtdLoader* loader = new YtdLoader();
 		AddToWaitingList(new Resource(ytd, hash, loader));
 		loader->RefCount++;
@@ -203,7 +207,7 @@ void ResourceManager::update()
 
 		loadCondition.wait(lock, [this] { return !waitingList.empty(); });
 
-		auto res = waitingList.front();
+		Resource* res = waitingList.front();
 		waitingList.pop_front();
 		lock.unlock();
 

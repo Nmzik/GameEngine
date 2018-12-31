@@ -5,8 +5,8 @@ class Model
 {
 
 public:
-	Model();
-	~Model();
+	Model() = default;
+	~Model() = default;
 
 	std::vector<Mesh> meshes;
 };

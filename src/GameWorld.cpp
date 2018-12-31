@@ -144,10 +144,10 @@ GameWorld::GameWorld() :
 	resourceManager->GetYtd(GenHash(std::string("vehshare_army")));
 	resourceManager->GetYtd(GenHash(std::string("vehshare_truck")));
 
-	for (auto& ytd : data.GtxdEntries)
+	/*for (auto& ytd : data.GtxdEntries)
 	{
 		resourceManager->GetYtd(ytd.second);
-	}
+	}*/
 
 	for (auto& vehicle : vehiclesPool)
 	{
@@ -175,7 +175,7 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 {
 	if (map->Loaded)
 	{
-		/*for (auto& object : map->Objects)
+		for (auto& object : map->Objects)
 		{
 			float Dist = glm::length2(position - object.position);
 			bool IsVisible = Dist <= object.CEntity.lodDist * LODMultiplier;
@@ -217,7 +217,7 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 								 }//can be an error here
 								}*/
 
-								/*object.Loaded = true;
+								object.Loaded = true;
 							}
 							break;
 						}
@@ -283,7 +283,7 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 					}
 				}
 			}
-		}*/
+		}
 	}
 	/*if (map->CMloInstanceDefs.size() > 0) {
 	 for (int i = 0; i < map->CMloInstanceDefs.size(); i++)
@@ -351,8 +351,8 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 
 void GameWorld::GetVisibleYmaps(Camera* camera)
 {
-	glm::vec3 PlayerPos = peds[currentPlayerID].getPosition();
-	//	glm::vec3 PlayerPos = camera->position;
+	//glm::vec3 PlayerPos = peds[currentPlayerID].getPosition();
+		glm::vec3 PlayerPos = camera->position;
 
 	auto cellID = spaceGrid.GetCellPos(PlayerPos);
 	auto NodeCell = nodeGrid.GetCellPos(PlayerPos);
@@ -383,10 +383,10 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 
 		SpaceGridCell& cell = spaceGrid.GetCell(cellID);
 
-		for (auto& BoundsItem : cell.BoundsStoreItems)
+		/*for (auto& BoundsItem : cell.BoundsStoreItems)
 		{
 			CurYbns.emplace_back(resourceManager->GetYbn(data.cacheFile->AllBoundsStoreItems[BoundsItem].Name));
-		}
+		}*/
 
 		for (auto& mapNode : cell.MapNodes)
 		{
@@ -506,7 +506,7 @@ void GameWorld::LoadQueuedResources()
 							object.archetype = it->second;
 
 							object.BoundPos = object.CEntity.position - object.archetype->BaseArchetypeDef.bsCentre;
-							object.BoundRadius = object.archetype->BaseArchetypeDef.bsRadius * std::max(object.CEntity.scaleXY, object.CEntity.scaleZ);
+							object.BoundRadius = object.archetype->BaseArchetypeDef.bsRadius; //* std::max(object.CEntity.scaleXY, object.CEntity.scaleZ); TREES doesnt render with multiplying by scale
 
 							if (object.CEntity.lodDist <= 0)
 								object.CEntity.lodDist = it->second->BaseArchetypeDef.lodDist;

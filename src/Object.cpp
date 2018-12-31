@@ -18,7 +18,6 @@ Object::~Object()
 	{
 		delete rigidBody->getMotionState();
 		delete rigidBody;
-		rigidBody = nullptr;
 	}
 
 	switch (archetype->BaseArchetypeDef.assetType)

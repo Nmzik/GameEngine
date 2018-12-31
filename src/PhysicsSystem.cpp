@@ -30,7 +30,7 @@ PhysicsSystem::~PhysicsSystem()
 
 void PhysicsSystem::Update(float delta_time)
 {
-	dynamicsWorld->stepSimulation(delta_time, 10);
+	//dynamicsWorld->stepSimulation(delta_time, 10);
 
 	/*if (delta_time > 0.25f) {
 	 delta_time = 0.25f;

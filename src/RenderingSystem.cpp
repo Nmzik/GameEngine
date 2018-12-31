@@ -52,6 +52,8 @@ RenderingSystem::RenderingSystem(SDL_Window* window_)
 	glDisable(GL_DITHER);
 
 	glClipControl(GL_LOWER_LEFT, GL_ZERO_TO_ONE); //always zero to one
+
+
 #ifdef USE_DX_REVERSE_Z
 	glDepthFunc(GL_GEQUAL);
 	glClearDepth(0.0);
@@ -96,7 +98,7 @@ RenderingSystem::RenderingSystem(SDL_Window* window_)
 	//debugDepthQuad = std::make_unique<Shader>("assets/shaders/debug_quad");
 	//hdrShader = std::make_unique<Shader>("assets/shaders/hdrShader");
 
-	camera = std::make_unique<Camera>(glm::vec3(0.0, 0.0, 0.0));
+	camera = std::make_unique<Camera>(glm::vec3(0.0, 0.0, 50.0));
 
 	createDepthFBO();
 	createGBuffer();
@@ -279,7 +281,7 @@ void RenderingSystem::createHDRFBO()
 	// create floating point color buffer
 	glGenTextures(1, &colorBuffer);
 	glBindTexture(GL_TEXTURE_2D, colorBuffer);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, ScreenResWidth, ScreenResHeight, 0, GL_RGBA, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, ScreenResWidth, ScreenResHeight, 0, GL_RGBA, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	// create depth buffer (renderbuffer)
