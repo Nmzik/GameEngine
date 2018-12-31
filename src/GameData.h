@@ -1,6 +1,7 @@
 #pragma once
 #include "RpfFile.h"
 #include <algorithm>
+#include <memory>
 #include <unordered_map>
 #include "glm/glm.hpp"
 #include "includes.h"

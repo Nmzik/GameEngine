@@ -1,8 +1,10 @@
 #include <iostream>
+#if _MSC_VER
 #define _CRTDBG_MAP_ALLOC
 #define _CRTDBG_MAP_ALLOC_NEW
 #include <stdlib.h>
 #include <crtdbg.h>
+#endif
 #include "Game.h"
 
 int main(int argc, char* argv[])

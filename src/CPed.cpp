@@ -56,7 +56,7 @@ btRigidBody* CPed::getPhysCharacter()
 	return body;
 }
 
-void CPed::SetPosition(glm::vec3& pos)
+void CPed::SetPosition(glm::vec3 pos)
 {
 	btTransform transform;
 	transform.setIdentity();

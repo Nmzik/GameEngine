@@ -3,6 +3,7 @@
 #include <mutex>
 #include <thread>
 #include <unordered_map>
+#include <condition_variable>
 #include "includes.h"
 #include "FileType.h"
 #include <deque>

@@ -4,8 +4,9 @@
 #include <vector>
 #include "zlib.h"
 #include "aes.h"
+#include <cstring>
 
-uint32_t GenHash(std::string& Name);
+uint32_t GenHash(std::string Name);
 
 class GTAEncryption
 {

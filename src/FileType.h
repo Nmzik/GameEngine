@@ -1,5 +1,5 @@
 #pragma once
-#include "stdint.h"
+#include <cstdint>
 #include "membuf.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/quaternion.hpp"

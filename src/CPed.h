@@ -43,7 +43,7 @@ public:
 		return health;
 	}
 
-	void SetPosition(glm::vec3& pos);
+	void SetPosition(glm::vec3 pos);
 	glm::vec3& getPosition();
 	glm::mat4& getMatrix();
 

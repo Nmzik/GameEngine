@@ -1,6 +1,6 @@
 #include "GameWorld.h"
 
-#include "GtaEncryption.h"
+#include "GTAEncryption.h"
 #include "ResourceManager.h"
 #include "Water.h"
 #include "Camera.h"

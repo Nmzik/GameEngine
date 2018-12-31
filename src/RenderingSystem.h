@@ -3,6 +3,7 @@
 
 #include "SDL.h"
 #include <random>
+#include <memory>
 #include <iostream>
 #include "opengl.h"
 #include "glm/glm.hpp"

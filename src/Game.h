@@ -7,9 +7,6 @@
 #include "ft2build.h"
 #include FT_FREETYPE_H
 
-#include "StateManager.h"
-#include "MenuState.h"
-#include "InGameState.h"
 #include "InputManager.h"
 
 class GameData;

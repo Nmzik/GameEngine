@@ -1,7 +1,7 @@
 #pragma once
 #include "Meta.h"
 
-struct CMloInstanceDef // 160 bytes, Key:2151576752
+/*struct CMloInstanceDef // 160 bytes, Key:2151576752
 {
 	fwEntityDef fwEntityDef;
 	uint32_t groupId;             //	128   128: UnsignedInt: 0: 2501631252
@@ -9,7 +9,7 @@ struct CMloInstanceDef // 160 bytes, Key:2151576752
 	Array_uint defaultEntitySets; //	136   136: Array: 0: defaultEntitySets//1407157833  {0: Hash: 0: 256}
 	uint32_t numExitPortals;      //	152   152: UnsignedInt: 0: numExitPortals//528711607
 	uint32_t MLOInstflags;        //	156   156: UnsignedInt: 0: MLOInstflags//3761966250
-};
+};*/
 
 struct CCarGen // 80 bytes, Key:2345238261
 {
@@ -116,7 +116,7 @@ class YmapLoader : public FileType
 {
 public:
 	CMapData _CMapData;
-	std::vector<CMloInstanceDef> CMloInstanceDefs;
+	//std::vector<CMloInstanceDef> CMloInstanceDefs;
 	std::vector<Object> Objects;
 	std::vector<CCarGen> CCarGens;
 

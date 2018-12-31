@@ -218,7 +218,7 @@ strm.next_out = output.data() + oldSize;
 } while (ret != Z_STREAM_END);
 */
 
-uint32_t GenHash(std::string& Name)
+uint32_t GenHash(std::string Name)
 {
 	uint32_t h = 0;
 	for (int i = 0; i < Name.size(); i++)

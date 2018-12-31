@@ -32,8 +32,6 @@ Game::Game()
 	gameWorld = std::make_unique<GameWorld>();
 	input = std::make_unique<InputManager>();
 
-	StateManager::get().enter<InGameState>(this);
-
 	//	FT_Library library;
 	//	FT_Init_FreeType(&library);
 
