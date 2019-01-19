@@ -1,7 +1,6 @@
 #pragma once
 #include "opengl.h"
 #include "Material.h"
-#include "MeshManager.h"
 
 enum VertexType : uint32_t
 {
@@ -221,7 +220,13 @@ const std::vector<VertexAttributes> PCCNCTTTAttrib = {
 	{3, 2, GL_FLOAT, 60, (GLvoid*)36},
 };
 
-struct DrawableGeometry;
+const std::vector<VertexAttributes> WaterAttrib = {
+	{0, 3, GL_FLOAT, 5 * sizeof(float), nullptr},
+	{1, 3, GL_FLOAT, 5 * sizeof(float), (GLvoid*)0},
+	{2, 2, GL_FLOAT, 5 * sizeof(float), (GLvoid*)(3 * sizeof(float))}
+};
+
+struct grmGeometry;
 
 class Mesh
 {
@@ -232,7 +237,7 @@ public:
 	uint32_t num_indices;
 
 
-	Mesh(const uint8_t* meshData, DrawableGeometry* drawGeom, Material mat);
+	Mesh(const uint8_t* meshData, grmGeometry* drawGeom, Material mat);
 	~Mesh();
 
 	void Draw(GLuint tex);

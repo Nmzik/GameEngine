@@ -61,7 +61,7 @@ void ResourceManager::GetGtxd(uint32_t hash)
 	 if (iter != data.GtxdEntries.end()) {
 	  auto it = ytdLoader.find(iter->second);
 	  if (it == ytdLoader.end()) {
-	   ytdLoader[iter->second] = myNew YtdLoader();
+	   ytdLoader[iter->second] = new YtdLoader();
 	   AddToWaitingList(Resource(ytd, iter->second, 0, nullptr));
 	  }
 	 }*/
@@ -183,6 +183,45 @@ YbnLoader* ResourceManager::GetYbn(uint32_t hash)
 		ybnLoader.insert({ hash, loader });
 		return loader;
 	}
+}
+
+FileType* ResourceManager::loadSync(Type type, uint32_t Hash)
+{
+	auto it = gameworld->getGameData()->Entries[type].find(Hash);
+	if (it != gameworld->getGameData()->Entries[type].end())
+	{
+		std::vector<uint8_t> Buffer;
+		Buffer.resize(it->second->SystemSize + it->second->GraphicsSize);
+		gameworld->getGameData()->ExtractFileResource(*(it->second), Buffer);
+
+		memstream stream(Buffer.data(), Buffer.size());
+
+		switch (type)
+		{
+		case ydr:
+			break;
+		case ydd:
+			break;
+		case yft:
+			break;
+		case ytd:
+			break;
+		case ybn: {
+			YbnLoader* loader = new YbnLoader();
+			loader->Init(stream);
+			return loader;
+		}
+		case ymap:
+			break;
+		case ynd:
+			break;
+		case ynv:
+			break;
+		default:
+			break;
+		}
+	}
+	return nullptr;
 }
 
 void ResourceManager::AddToWaitingList(Resource* res)

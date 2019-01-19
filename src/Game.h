@@ -7,7 +7,13 @@
 #include "ft2build.h"
 #include FT_FREETYPE_H
 
+#include "FreeListAllocator.h"
+
 #include "InputManager.h"
+
+#include <btBulletDynamicsCommon.h>
+
+#include <LinearMath/btAlignedAllocator.h>
 
 class GameData;
 class GameWorld;

@@ -31,7 +31,6 @@ public:
 	~CPed();
 
 	std::vector<YdrLoader*> playerModel;
-	CPed* next;
 	bool on_ground = false;
 	bool isAlive()
 	{

@@ -8,7 +8,7 @@ void YdrLoader::Init(memstream& file)
 {
 	Loaded = true;
 
-	DrawableBase* drawBase = (DrawableBase*)file.read(sizeof(DrawableBase));
+	rmcDrawable* drawBase = (rmcDrawable*)file.read(sizeof(rmcDrawable));
 	drawBase->Resolve(file);
 
 	//	READ COLLISION DATA FROM YDR
@@ -27,19 +27,19 @@ void YdrLoader::Init(memstream& file)
 	}
 	else
 	{
-		Drawable* drawable = (Drawable*)file.read(sizeof(Drawable));
+		gtaDrawable* drawable = (gtaDrawable*)file.read(sizeof(gtaDrawable));
 
 		if (drawable->LightAttributesPointer != 0)
 		{
 			SYSTEM_BASE_PTR(drawable->LightAttributesPointer);
 			file.seekg(drawable->LightAttributesPointer);
 
-			std::vector<LightAttributes_s> lightAttributes_s;
+			std::vector<CLightAttr > lightAttributes_s;
 			lightAttributes_s.resize(drawable->LightAttributesCount1);
 
 			for (int i = 0; i < drawable->LightAttributesCount1; i++)
 			{
-				LightAttributes_s* light = (LightAttributes_s*)file.read(sizeof(LightAttributes_s));
+				CLightAttr * light = (CLightAttr *)file.read(sizeof(CLightAttr));
 				//	lightAttributes_s.push_back(light);
 			}
 		}
@@ -80,7 +80,7 @@ void YdrLoader::Init(memstream& file)
 			SYSTEM_BASE_PTR(data_pointer[0]);
 			file.seekg(data_pointer[0]);
 
-			ShaderFX* shaderFX = (ShaderFX*)file.read(sizeof(ShaderFX));
+			grmShaderFx* shaderFX = (grmShaderFx*)file.read(sizeof(grmShaderFx));
 
 			SYSTEM_BASE_PTR(shaderFX->ParametersPointer);
 			file.seekg(shaderFX->ParametersPointer);

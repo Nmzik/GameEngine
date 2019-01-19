@@ -1,7 +1,7 @@
 #include "Mesh.h"
 #include "YdrLoader.h"
 
-Mesh::Mesh(const uint8_t* meshData, DrawableGeometry* drawGeom, Material mat)
+Mesh::Mesh(const uint8_t* meshData, grmGeometry* drawGeom, Material mat)
 	: material(mat)
 	, num_indices(drawGeom->IndexBufferPointer->IndicesCount)
 {
@@ -127,7 +127,8 @@ Mesh::Mesh(const uint8_t* meshData, DrawableGeometry* drawGeom, Material mat)
 			case PNCTTT:
 			break;*/
 		default:
-			printf("VERTEX\n");
+			Attributes = &WaterAttrib;
+			//printf("VERTEX\n");
 			break;
 	}
 

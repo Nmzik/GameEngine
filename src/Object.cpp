@@ -14,11 +14,11 @@ Object::Object(fwEntityDef def)
 
 Object::~Object()
 {
-	if (rigidBody)
+	/*if (rigidBody)
 	{
 		delete rigidBody->getMotionState();
 		delete rigidBody;
-	}
+	}*/
 
 	switch (archetype->BaseArchetypeDef.assetType)
 	{

@@ -1,6 +1,7 @@
 #pragma once
 #include <btBulletDynamicsCommon.h>
-#include "YdrLoader.h"
+#include "FileType.h"
+#include <vector>
 
 struct Bounds : ResourceFileBase
 {

@@ -41,7 +41,7 @@ GameData::GameData()
 	{
 		std::string Path("C:\\Program Files\\Rockstar Games\\Grand Theft Auto V\\");
 
-		std::ifstream* rpf = myNew std::ifstream(Path + rpfFile, std::ios::binary);
+		std::ifstream* rpf = new std::ifstream(Path + rpfFile, std::ios::binary);
 		Files.push_back(rpf);
 
 		if (!rpf->is_open())
@@ -330,7 +330,7 @@ void GameData::LoadScenesSwitch(std::vector<uint8_t>& Buffer)
 
 void GameData::LoadRpf(std::ifstream& rpf, std::string& FullPath_, std::string& FileName_, uint32_t FileSize_, uint64_t FileOffset)
 {
-	RpfFile* file = myNew RpfFile(rpf, FullPath_, FileName_, FileSize_, FileOffset);
+	RpfFile* file = new RpfFile(rpf, FullPath_, FileName_, FileSize_, FileOffset);
 	RpfFiles.push_back(file);
 
 	for (auto& BinaryFileEntry : file->BinaryEntries)

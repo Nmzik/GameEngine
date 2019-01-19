@@ -85,7 +85,7 @@ public:
 		{
 			for (int y = 0; y < CellCountY; y++)
 			{
-				cells[x * CellCountX + y] = myNew NodeGridCell(x, y);
+				cells[x * CellCountX + y] = new NodeGridCell(x, y);
 			}
 		}
 	}

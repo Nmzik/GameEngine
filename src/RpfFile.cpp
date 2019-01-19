@@ -30,8 +30,8 @@ void RpfFile::LoadRpf(std::ifstream& rpf, std::string& FileName, uint32_t FileSi
 		return;
 	}
 
-	uint8_t* entriesData = myNew uint8_t[EntryCount * 16];
-	uint8_t* namesData = myNew uint8_t[NamesLength];
+	uint8_t* entriesData = new uint8_t[EntryCount * 16];
+	uint8_t* namesData = new uint8_t[NamesLength];
 
 	rpf.read((char*)&entriesData[0], EntryCount * 16);
 	rpf.read((char*)&namesData[0], NamesLength);

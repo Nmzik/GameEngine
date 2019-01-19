@@ -63,7 +63,7 @@ RenderingSystem::RenderingSystem(SDL_Window* window_)
 	ShadowWidth = 1024;
 	ShadowHeight = 1024;
 
-	//	skybox = myNew Skybox();
+	//	skybox = new Skybox();
 #ifdef USE_DX_REVERSE_Z
 	const float zNear = 0.01f;
 	const float viewAngleVertical = 45.0f;
@@ -336,7 +336,7 @@ void RenderingSystem::render(GameWorld* world)
 	glBindBufferBase(GL_UNIFORM_BUFFER, 0, uboGlobal);
 	glBindBufferBase(GL_UNIFORM_BUFFER, 1, uboModel);
 
-	glDepthMask(GL_FALSE); //SKYDOME IS STATIONARY - SHOULD BE RENDERED LAST - PLAYER CAN GO OUT OF SKYDOME IF HE IS TOO FAR FROM IT
+	/*glDepthMask(GL_FALSE); //SKYDOME IS STATIONARY - SHOULD BE RENDERED LAST - PLAYER CAN GO OUT OF SKYDOME IF HE IS TOO FAR FROM IT
 	glm::mat4 SkydomeMatrix = glm::translate(glm::mat4(1.0f), world->peds[world->currentPlayerID].getPosition()) * glm::mat4_cast(glm::quat(-1, 0, 0, 0)) * glm::scale(glm::mat4(1.0f), glm::vec3(10.f, 10.f, 10.f));
 
 	glBindBuffer(GL_UNIFORM_BUFFER, uboModel);
@@ -353,7 +353,7 @@ void RenderingSystem::render(GameWorld* world)
 			glDrawElements(GL_TRIANGLES, mesh.num_indices, GL_UNSIGNED_SHORT, 0);
 		}
 	}
-	glDepthMask(GL_TRUE);
+	glDepthMask(GL_TRUE);*/
 		
 
 	for (auto& GameObject : world->renderList)

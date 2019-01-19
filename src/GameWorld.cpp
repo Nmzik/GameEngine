@@ -89,7 +89,7 @@ GameWorld::GameWorld() :
 
 	   memstream stream(outputBuffer.data(), outputBuffer.size());
 
-	   YndLoader* ynd = myNew YndLoader(stream);
+	   YndLoader* ynd = new YndLoader(stream);
 	   nodeGrid.cells[x * nodeGrid.CellCountX + y]->ynd = ynd;
 	  }
 	 }
@@ -342,7 +342,7 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 
   memstream stream(outputBuffer.data(), outputBuffer.size());
 
-  YtypLoader* file = myNew YtypLoader(stream);
+  YtypLoader* file = new YtypLoader(stream);
   ytypLoader.push_back(file);
 
   return true;
@@ -351,8 +351,8 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 
 void GameWorld::GetVisibleYmaps(Camera* camera)
 {
-	//glm::vec3 PlayerPos = peds[currentPlayerID].getPosition();
-		glm::vec3 PlayerPos = camera->position;
+	glm::vec3 PlayerPos = peds[currentPlayerID].getPosition();
+		//glm::vec3 PlayerPos = camera->position;
 
 	auto cellID = spaceGrid.GetCellPos(PlayerPos);
 	auto NodeCell = nodeGrid.GetCellPos(PlayerPos);
@@ -383,10 +383,10 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 
 		SpaceGridCell& cell = spaceGrid.GetCell(cellID);
 
-		/*for (auto& BoundsItem : cell.BoundsStoreItems)
+		for (auto& BoundsItem : cell.BoundsStoreItems)
 		{
 			CurYbns.emplace_back(resourceManager->GetYbn(data.cacheFile->AllBoundsStoreItems[BoundsItem].Name));
-		}*/
+		}
 
 		for (auto& mapNode : cell.MapNodes)
 		{
@@ -470,11 +470,13 @@ void GameWorld::LoadQueuedResources()
 		resourcesThread.swap(resources);
 	resources_lock.unlock();
 
-	//std::chrono::duration< double > fs(0);
 	//HASH 38759883
-	//auto old_time = std::chrono::steady_clock::now();
-	//&& fs.count() < 0.003
-	while (resourcesThread.size() > 0)
+
+	auto old_time = std::chrono::steady_clock::now();
+
+	long long diffms = 0;
+
+	while (resourcesThread.size() > 0 && diffms < 2) //2ms
 	{
 		Resource* res = resourcesThread.front();
 		resourcesThread.pop_front();
@@ -550,14 +552,14 @@ void GameWorld::LoadQueuedResources()
 
 		delete res;
 
-		//auto current_time = std::chrono::steady_clock::now();
-		//fs = current_time - old_time;
+		auto new_time = std::chrono::steady_clock::now();
+		diffms = std::chrono::duration_cast<std::chrono::microseconds>(new_time - old_time).count();
 	}
 }
 
 void GameWorld::createPedestrian()
 {
-	//	Player *newPlayer = myNew Player(glm::vec3(0, 20, 0), dynamicsWorld);
+	//	Player *newPlayer = new Player(glm::vec3(0, 20, 0), dynamicsWorld);
 	//	peds.push_back(newPlayer);
 }
 

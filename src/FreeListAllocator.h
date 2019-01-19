@@ -147,27 +147,16 @@ public:
 
 	void deallocate(void* p) override;
 
-#if AQUA_DEBUG || AQUA_DEVELOPMENT
-	void checkFreeBlockList();
-#endif
-
 private:
 
 	struct AllocationHeader
 	{
-#if AQUA_DEBUG || AQUA_DEVELOPMENT
-		size_t identifier;
-		u32	   magic_number;
-#endif
 		size_t size;
 		uint8_t     adjustment;
 	};
 
 	struct FreeBlock
 	{
-#if AQUA_DEBUG || AQUA_DEVELOPMENT
-		u32 magic_number;
-#endif
 		size_t     size;
 		FreeBlock* next;
 	};

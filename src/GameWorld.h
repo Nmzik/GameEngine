@@ -18,8 +18,6 @@ class Camera;
 class CPed;
 class CVehicle;
 class YdrLoader;
-class YddLoader;
-class YtdLoader;
 class YbnLoader;
 class Object;
 

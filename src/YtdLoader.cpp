@@ -6,7 +6,7 @@ void YtdLoader::Init(memstream& file)
 {
 	Loaded = true;
 
-	/*TextureDictionary* texDictionary = (TextureDictionary*)file.read(sizeof(TextureDictionary));
+	TextureDictionary* texDictionary = (TextureDictionary*)file.read(sizeof(TextureDictionary));
 	texDictionary->Resolve(file);
 
 	if (texDictionary->Textures.getSize() != 0) {
@@ -29,5 +29,5 @@ void YtdLoader::Init(memstream& file)
 
 			Textures.emplace(std::piecewise_construct, std::forward_as_tuple(TexturesHashes[i]), std::forward_as_tuple(TexturesHashes[i], texture, file));
 		}
-	}*/
+	}
 }

@@ -53,6 +53,8 @@ public:
 	YftLoader* GetYft(uint32_t hash);
 	YbnLoader* GetYbn(uint32_t hash);
 
+	FileType* loadSync(Type type, uint32_t Hash);
+
 	inline void AddToMainQueue(Resource* res);
 	void AddToWaitingList(Resource* res);
 

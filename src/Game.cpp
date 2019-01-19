@@ -5,6 +5,17 @@
 #include "GameData.h"
 #include "CPed.h"
 
+FreeListAllocator* myAllocator;
+
+void* allocate(size_t size, int alignment)
+{
+	return myAllocator->allocate(size, (uint8_t)alignment);
+}
+void deallocate(void * memblock)
+{
+	myAllocator->deallocate(memblock);
+}
+
 Game::Game()
 {
 
@@ -27,6 +38,11 @@ Game::Game()
 	}
 
 	SDL_SetRelativeMouseMode(SDL_TRUE);
+
+	uint8_t* physicsMemory = new uint8_t[50 * 1024 * 1024]; //20mb
+	myAllocator = new FreeListAllocator(50 * 1024 * 1024, physicsMemory);
+
+	btAlignedAllocSetCustomAligned(allocate, deallocate);
 
 	rendering_system = std::make_unique<RenderingSystem>(window);
 	gameWorld = std::make_unique<GameWorld>();
@@ -94,8 +110,8 @@ void Game::updateFPS(float delta_time)
 		std::ostringstream osstr;
 		osstr << "Game window"
 			<< " (" << (1.0f / delta_time) << " FPS, " << (delta_time * 1000.0f) << " CPU time, " << rendering_system->gpuTime * 0.000001f << " GPU time) | " << gameWorld->renderList.size()
-			<< " Objects, " << rendering_system->DrawCalls << " Draw Calls, " << gameWorld->GetResourceManager()->GlobalGpuMemory / 1024 / 1024 << " MB GPU memory, "
-			<< gameWorld->GetResourceManager()->TextureMemory / 1024 / 1024 << " MB Texture Memory";
+			<< " Objects, " << rendering_system->DrawCalls << " Draw Calls, " << gameWorld->GetResourceManager()->GlobalGpuMemory / 1024 / 1024 << " MB GPU Mem, "
+			<< gameWorld->GetResourceManager()->TextureMemory / 1024 / 1024 << " MB Texture Mem, Bullet Free Mem " << (myAllocator->getSize() - myAllocator->getUsedMemory()) / 1024 / 1024;
 		SDL_SetWindowTitle(window, osstr.str().c_str());
 	}
 }
@@ -124,8 +140,8 @@ void Game::run()
 
 		if (!paused)
 		{
-			gameWorld->update(delta_time, &rendering_system->getCamera());
 			tick(delta_time);
+			gameWorld->update(delta_time, &rendering_system->getCamera());
 		}
 
 		rendering_system->render(gameWorld.get());

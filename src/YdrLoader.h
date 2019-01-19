@@ -4,7 +4,7 @@
 #include "Model.h"
 #include "GlobalPool.h"
 
-struct ShaderGroup : datBase
+struct grmShaderGroup : datBase
 {
 	uint64_t TextureDictionaryPointer;
 	uint64_t ShadersPointer;
@@ -25,7 +25,7 @@ struct ShaderGroup : datBase
 	}
 };
 
-struct ShaderFX
+struct grmShaderFx
 {
 	uint64_t ParametersPointer;
 	uint32_t Name;       //	530103687, 2401522793, 1912906641
@@ -53,7 +53,7 @@ struct ShaderParameter
 	uint64_t DataPointer;
 };
 
-struct LightAttributes_s
+struct CLightAttr
 {
 	// structure data
 	uint32_t Unknown_0h; // 0x00000000
@@ -113,7 +113,7 @@ struct LightAttributes_s
 	uint32_t Unknown_A4h; // 0x00000000
 };
 
-struct Drawable
+struct gtaDrawable
 {
 	uint64_t NamePointer;
 	uint64_t LightAttributesPointer;
@@ -163,7 +163,7 @@ struct VertexDeclaration
 	uint64_t Types;
 };
 
-struct VertexBuffer : datBase
+struct grcVertexBuffer : datBase
 {
 	uint16_t VertexStride;
 	uint16_t Unknown_Ah;
@@ -201,7 +201,7 @@ struct VertexBuffer : datBase
 	}
 };
 
-struct IndexBuffer : datBase
+struct grcIndexBuffer : datBase
 {
 	uint32_t IndicesCount;
 	uint32_t Unknown_Ch; // 0x00000000
@@ -231,26 +231,16 @@ struct IndexBuffer : datBase
 	}
 };
 
-struct DrawableGeometry : datBase
+struct grmGeometry : datBase
 {
 	uint32_t Unknown_8h;  // 0x00000000
 	uint32_t Unknown_Ch;  // 0x00000000
 	uint32_t Unknown_10h; // 0x00000000
 	uint32_t Unknown_14h; // 0x00000000
-	pgPtr<VertexBuffer> VertexBufferPointer;
-	uint32_t Unknown_20h; // 0x00000000
-	uint32_t Unknown_24h; // 0x00000000
-	uint32_t Unknown_28h; // 0x00000000
-	uint32_t Unknown_2Ch; // 0x00000000
-	uint32_t Unknown_30h; // 0x00000000
-	uint32_t Unknown_34h; // 0x00000000
-	pgPtr<IndexBuffer> IndexBufferPointer;
-	uint32_t Unknown_40h; // 0x00000000
-	uint32_t Unknown_44h; // 0x00000000
-	uint32_t Unknown_48h; // 0x00000000
-	uint32_t Unknown_4Ch; // 0x00000000
-	uint32_t Unknown_50h; // 0x00000000
-	uint32_t Unknown_54h; // 0x00000000
+	pgPtr<grcVertexBuffer> VertexBufferPointer;
+	uint32_t m_unk1[6];
+	pgPtr<grcIndexBuffer> IndexBufferPointer;
+	uint32_t m_unk2[6];
 	uint32_t IndicesCount;
 	uint32_t TrianglesCount;
 	uint16_t VerticesCount;
@@ -261,12 +251,7 @@ struct DrawableGeometry : datBase
 	uint16_t Count1;
 	uint32_t Unknown_74h; // 0x00000000
 	uint64_t VertexDataPointer;
-	uint32_t Unknown_80h; // 0x00000000
-	uint32_t Unknown_84h; // 0x00000000
-	uint32_t Unknown_88h; // 0x00000000
-	uint32_t Unknown_8Ch; // 0x00000000
-	uint32_t Unknown_90h; // 0x00000000
-	uint32_t Unknown_94h; // 0x00000000
+	uint32_t m_unk3[6];
 
 	void Resolve(memstream& file)
 	{
@@ -278,9 +263,9 @@ struct DrawableGeometry : datBase
 	}
 };
 
-struct DrawableModel : datBase
+struct grmModel : datBase
 {
-	pgObjectArray<DrawableGeometry> m_geometries;
+	pgObjectArray<grmGeometry> m_geometries;
 	uint64_t BoundsPointer;
 	pgPtr<uint16_t> ShaderMappingPointer;
 	uint32_t Unknown_28h;
@@ -294,15 +279,19 @@ struct DrawableModel : datBase
 	}
 };
 
-struct DrawableBase : ResourceFileBase
+struct rmcDrawableBase : ResourceFileBase
 {
-	pgPtr<ShaderGroup> ShaderGroupPointer;
+	pgPtr<grmShaderGroup> ShaderGroupPointer;
+};
+
+struct rmcDrawable : rmcDrawableBase
+{
 	uint64_t SkeletonPointer;
 	glm::vec3 BoundingCenter;
 	float BoundingSphereRadius;
 	glm::vec4 BoundingBoxMin;
 	glm::vec4 BoundingBoxMax;
-	pgPtr<pgObjectArray<DrawableModel>> DrawableModels[4];
+	pgPtr<pgObjectArray<grmModel>> DrawableModels[4];
 	float LodGroupHigh;
 	float LodGroupMed;
 	float LodGroupLow;

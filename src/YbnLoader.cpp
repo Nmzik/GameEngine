@@ -6,6 +6,10 @@ void YbnLoader::Init(memstream& file)
 	compound = new btCompoundShape();
 
 	ParseYbn(file);
+
+	btDefaultMotionState* MotionState = new btDefaultMotionState(btTransform(btQuaternion(0.f, 0.f, 0.f, 1.f), btVector3(0, 0, 0)));
+	btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(0, MotionState, compound, btVector3(0, 0, 0));
+	rigidBody = new btRigidBody(groundRigidBodyCI);
 }
 
 void YbnLoader::ParseYbn(memstream& file)
@@ -61,7 +65,7 @@ void YbnLoader::ParseYbn(memstream& file)
 
 			glm::i16vec3* CompressedVertices = (glm::i16vec3*)file.read(sizeof(glm::i16vec3));
 
-			glm::vec3* Vertices = myNew glm::vec3[geom->VerticesCount];
+			glm::vec3* Vertices = new glm::vec3[geom->VerticesCount];
 			VerticesArray.push_back(Vertices);
 
 			for (uint32_t i = 0; i < geom->VerticesCount; i++)
@@ -142,7 +146,7 @@ void YbnLoader::ParseYbn(memstream& file)
 						auto size = (max - min) / 2.f;
 						auto mid = (min + max) / 2.f;
 
-						btBoxShape* shape = myNew btBoxShape(btVector3(-size.x, -size.y, size.z));
+						btBoxShape* shape = new btBoxShape(btVector3(-size.x, -size.y, size.z));
 
 						Shapes.push_back(shape);
 
@@ -184,9 +188,9 @@ void YbnLoader::ParseYbn(memstream& file)
 					Indices[i] = glm::u16vec3(PolygonTriangles[i]->triIndex1 & 0x7FFF, PolygonTriangles[i]->triIndex2 & 0x7FFF, PolygonTriangles[i]->triIndex3 & 0x7FFF);
 				}
 
-				/*btQuantizedBvh* quantizedBvh = myNew btQuantizedBvh();
+				/*btQuantizedBvh* quantizedBvh = new btQuantizedBvh();
 				quantizedBvh->setQuantizationValues(btVector3(Bounds.BoundingBoxMin.x, Bounds.BoundingBoxMin.y, Bounds.BoundingBoxMin.z), btVector3(Bounds.BoundingBoxMax.x, Bounds.BoundingBoxMax.y,
-				Bounds.BoundingBoxMax.z)); QuantizedNodeArray&	nodes = quantizedBvh->getLeafNodeArray(); btOptimizedBvh *bvh = myNew btOptimizedBvh();
+				Bounds.BoundingBoxMax.z)); QuantizedNodeArray&	nodes = quantizedBvh->getLeafNodeArray(); btOptimizedBvh *bvh = new btOptimizedBvh();
 				//bvh->build(VertIndicesArray, true, );
 				trishape->setOptimizedBvh(bvh);
 				btQuantizedBvhNode node;*/
@@ -256,9 +260,6 @@ void YbnLoader::ParseYbn(memstream& file)
 
 void YbnLoader::Finalize()
 {
-	btDefaultMotionState* MotionState = new btDefaultMotionState(btTransform(btQuaternion(0.f, 0.f, 0.f, 1.f), btVector3(0, 0, 0)));
-	btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(0, MotionState, compound, btVector3(0, 0, 0));
-	rigidBody = new btRigidBody(groundRigidBodyCI);
 	PhysicsSystem::dynamicsWorld->addRigidBody(rigidBody);
 
 	Loaded = true;
@@ -275,6 +276,26 @@ YbnLoader::~YbnLoader()
 		delete rigidBody;
 
 		rigidBody = nullptr;
+	}
+
+	for (auto& Indices : IndicesArray)
+	{
+		delete Indices;
+	}
+
+	for (auto& Vertices : VerticesArray)
+	{
+		delete Vertices;
+	}
+
+	for (auto& shape : Shapes)
+	{
+		delete shape;
+	}
+
+	for (auto& VertIndices : VertIndicesArray)
+	{
+		delete VertIndices;
 	}
 
 	if (compound)

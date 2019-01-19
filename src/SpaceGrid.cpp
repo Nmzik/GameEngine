@@ -4,7 +4,7 @@
 
 SpaceGrid::SpaceGrid()
 {
-	//	Grid = myNew SpaceGridCell[500*500];
+	//	Grid = new SpaceGridCell[500*500];
 }
 
 SpaceGrid::~SpaceGrid()
@@ -73,7 +73,7 @@ SpaceGridCell& SpaceGrid::GetCell(glm::i32vec2 g)
 	Grid[300][250]
 	if (cell == null)
 	{
-	 cell = myNew SpaceGridCell();
+	 cell = new SpaceGridCell();
 	 Cells[g.X, g.Y] = cell;
 	}
 	return cell;*/

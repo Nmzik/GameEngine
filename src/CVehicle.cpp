@@ -56,8 +56,8 @@ CVehicle::CVehicle(glm::vec3 position, float mass, YftLoader* yft)
 
 	m_wheelShape = new btCylinderShapeX(btVector3(wheelWidth, wheelRadius, wheelRadius));
 
-	m_vehicleRayCaster = myNew btDefaultVehicleRaycaster(PhysicsSystem::dynamicsWorld);
-	m_vehicle = myNew btRaycastVehicle(m_tuning, m_carChassis, m_vehicleRayCaster);
+	m_vehicleRayCaster = new btDefaultVehicleRaycaster(PhysicsSystem::dynamicsWorld);
+	m_vehicle = new btRaycastVehicle(m_tuning, m_carChassis, m_vehicleRayCaster);
 
 	///	never deactivate the vehicle
 	m_carChassis->setActivationState(DISABLE_DEACTIVATION);

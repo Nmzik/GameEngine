@@ -8,11 +8,6 @@ FreeListAllocator::FreeListAllocator(size_t size, void* start)
 
 	_free_blocks->size = size;
 	_free_blocks->next = nullptr;
-
-	#if AQUA_DEBUG || AQUA_DEVELOPMENT
-		_free_blocks->magic_number = ALLOCATION_MAGIC_NUMBER;
-		_next_identifier           = 1;
-	#endif
 }
 
 FreeListAllocator::~FreeListAllocator()
@@ -86,10 +81,6 @@ void* FreeListAllocator::allocate(size_t size, uint8_t alignment)
 		new_block->size      = best_fit->size - best_fit_total_size;
 		new_block->next      = best_fit->next;
 
-		#if AQUA_DEBUG || AQUA_DEVELOPMENT
-			new_block->magic_number = ALLOCATION_MAGIC_NUMBER;
-		#endif
-
 		if(best_fit_prev != nullptr)
 			best_fit_prev->next = new_block;
 		else
@@ -102,19 +93,8 @@ void* FreeListAllocator::allocate(size_t size, uint8_t alignment)
 	header->size             = best_fit_total_size;
 	header->adjustment       = best_fit_adjustment;
 
-	#if AQUA_DEBUG || AQUA_DEVELOPMENT
-		header->identifier   = _next_identifier++;
-		header->magic_number = ALLOCATION_MAGIC_NUMBER;
-	#endif
-
 	_used_memory += best_fit_total_size;
 	_num_allocations++;
-
-	//-----------------------------------------------------------
-
-	#if AQUA_DEBUG || AQUA_DEVELOPMENT
-		checkFreeBlockList();
-	#endif
 
 	//-----------------------------------------------------------
 
@@ -123,20 +103,8 @@ void* FreeListAllocator::allocate(size_t size, uint8_t alignment)
 
 void FreeListAllocator::deallocate(void* p)
 {
-	/*
-	#if AQUA_DEBUG || AQUA_DEVELOPMENT
-		checkFreeBlockList();
-	#endif
-	*/
-	//-----------------------------------------------------------
 
 	AllocationHeader* header = (AllocationHeader*)pointer_math::subtract(p, sizeof(AllocationHeader));
-
-	#if AQUA_DEBUG || AQUA_DEVELOPMENT
-		size_t ident = header->identifier;
-		ASSERT(ident < _next_identifier);
-		ASSERT(header->magic_number == ALLOCATION_MAGIC_NUMBER);
-	#endif
 
 	uptr   block_start = reinterpret_cast<uptr>(p)-header->adjustment;
 	size_t block_size  = header->size;
@@ -160,10 +128,6 @@ void FreeListAllocator::deallocate(void* p)
 		prev_free_block->size         = block_size;
 		prev_free_block->next         = _free_blocks;
 
-		#if AQUA_DEBUG || AQUA_DEVELOPMENT
-			prev_free_block->magic_number = ALLOCATION_MAGIC_NUMBER;
-		#endif
-
 		//free_block   = _free_blocks;
 		_free_blocks = prev_free_block;
 	}
@@ -176,10 +140,6 @@ void FreeListAllocator::deallocate(void* p)
 		FreeBlock* temp       = (FreeBlock*)block_start;
 		temp->size            = block_size;
 		temp->next            = prev_free_block->next;
-
-		#if AQUA_DEBUG || AQUA_DEVELOPMENT
-			temp->magic_number = ALLOCATION_MAGIC_NUMBER;
-		#endif
 
 		prev_free_block->next = temp;
 
@@ -203,24 +163,4 @@ void FreeListAllocator::deallocate(void* p)
 	_used_memory -= block_size;
 
 	//--------------------------------------------------
-	
-#if _DEBUG
-	checkFreeBlockList();
-#endif
 }
-
-#if AQUA_DEBUG || AQUA_DEVELOPMENT
-void FreeListAllocator::checkFreeBlockList()
-{
-	//Make sure that free block list is correctly ordered
-	FreeBlock* free_block = _free_blocks;
-
-	while(free_block != nullptr)
-	{
-		ASSERT(free_block->next == nullptr || free_block < free_block->next);
-		ASSERT(free_block->magic_number == ALLOCATION_MAGIC_NUMBER);
-
-		free_block = free_block->next;
-	}
-}
-#endif
