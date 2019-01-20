@@ -20,8 +20,6 @@ ResourceManager::ResourceManager(GameWorld* world)
 	, running(true)
 {
 	// printf("RESOURCE MANAGER LOADED!\n");
-	ResourcesThread = std::thread(&ResourceManager::update, this);
-	ResourcesThread.detach();
 
 	// yndLoader.reserve(500);
 	// ytypLoader.reserve(500);
@@ -32,6 +30,8 @@ ResourceManager::ResourceManager(GameWorld* world)
 	ybnLoader.reserve(50);
 	ymapLoader.reserve(500);
 
+	ResourcesThread = std::thread(&ResourceManager::update, this);
+	ResourcesThread.detach();
 
 	/*size_t memory_size = 1024 * 1024 * 1024; //1GB
 	uint8_t* _memory = (uint8_t*)malloc(memory_size);

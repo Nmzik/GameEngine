@@ -19,9 +19,9 @@ Object::~Object()
 		delete rigidBody->getMotionState();
 		delete rigidBody;
 	}*/
-
-	switch (archetype->BaseArchetypeDef.assetType)
-	{
+	if (archetype) {
+		switch (archetype->BaseArchetypeDef.assetType)
+		{
 		case ASSET_TYPE_DRAWABLE:
 			if (ydr)
 				ydr->RefCount--;
@@ -34,6 +34,7 @@ Object::~Object()
 			if (yft)
 				yft->RefCount--;
 			break;
+		}
 	}
 	if (ytd)
 		ytd->RefCount--;

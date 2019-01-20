@@ -360,6 +360,11 @@ void GameData::ExtractFileResource(RpfResourceFileEntry& entry, std::vector<uint
 	auto& rpf = entry.File->rpf;
 
 	rpf->seekg(entry.FileOffset);
+
+	if (entry.FileSize > 30 * 1024 * 1024) {
+		printf("ERROR BUFFER SIZE\n");
+	}
+
 	rpf->read((char*)&TempBuffer[0], entry.FileSize);
 
 	//	uint8_t* decr = tbytes;

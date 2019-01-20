@@ -5,6 +5,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "Allocator.h"
+#include <mutex>
 
 typedef uintptr_t uptr;
 
@@ -161,14 +162,12 @@ private:
 		FreeBlock* next;
 	};
 
+	std::mutex allocatorLock;
+
 	static_assert(sizeof(AllocationHeader) >= sizeof(FreeBlock), "sizeof(AllocationHeader) < sizeof(FreeBlock)");
 
 	FreeListAllocator(const FreeListAllocator&);
 	FreeListAllocator& operator=(const FreeListAllocator&);
 
 	FreeBlock* _free_blocks;
-
-#if AQUA_DEBUG || AQUA_DEVELOPMENT
-	size_t _next_identifier;
-#endif
 };

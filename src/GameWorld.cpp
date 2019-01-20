@@ -159,7 +159,7 @@ GameWorld::GameWorld() :
 		LoadQueuedResources();
 	}
 
-	peds.emplace_back(glm::vec3(-2020.47, -449.58, 19.71), playerYDD);
+	peds.emplace_back(glm::vec3(-178.16, 6258.31, 47.23), playerYDD);
 	peds.emplace_back(glm::vec3(9.66, -1184.98, 75.74), playerYDD);
 	peds.emplace_back(glm::vec3(2250.18f, 3471.40f, 56.50f), playerYDD);
 
@@ -517,7 +517,9 @@ void GameWorld::LoadQueuedResources()
 						}
 						else
 						{
-							printf("ERROR\n");
+							//printf("ERROR\n"); ACTUALLY IT CAN HAPPEN
+							object.archetype = nullptr;
+							object.CEntity.lodDist = 0.f; //HACK = DONT RENDER OBJECTS WITH UNKNOWN ARCHETYPE
 						}
 
 						object.CEntity.lodDist *= object.CEntity.lodDist;           // glm::length2
@@ -806,14 +808,14 @@ bool GameWorld::DetectInWater(glm::vec3 Position)
 	
 void GameWorld::TestFunction(glm::vec3 Position)
 {
-	for (auto& ytd : data.GtxdEntries)
+	/*for (auto& ytd : data.GtxdEntries)
 	{
 		while (!resourceManager->GetYtd(ytd.second))
 		{
 			LoadQueuedResources();
 		}
 	}
-	printf("DONE\n");
+	printf("DONE\n");*/
 }
 
 void GameWorld::ClearTestFunction()

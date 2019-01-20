@@ -17,6 +17,7 @@ FreeListAllocator::~FreeListAllocator()
 
 void* FreeListAllocator::allocate(size_t size, uint8_t alignment)
 {
+	//allocatorLock.lock();
 
 	FreeBlock* prev_free_block = nullptr;
 	FreeBlock* free_block      = _free_blocks;
@@ -97,12 +98,14 @@ void* FreeListAllocator::allocate(size_t size, uint8_t alignment)
 	_num_allocations++;
 
 	//-----------------------------------------------------------
+	//allocatorLock.unlock();
 
 	return (void*)aligned_address;
 }
 
 void FreeListAllocator::deallocate(void* p)
 {
+	//allocatorLock.lock();
 
 	AllocationHeader* header = (AllocationHeader*)pointer_math::subtract(p, sizeof(AllocationHeader));
 
@@ -163,4 +166,5 @@ void FreeListAllocator::deallocate(void* p)
 	_used_memory -= block_size;
 
 	//--------------------------------------------------
+	//allocatorLock.unlock();
 }

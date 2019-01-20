@@ -10,6 +10,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_compile_definitions(ECB=1)
 add_compile_definitions(AES256=1)
+add_compile_definitions(GLM_FORCE_XYZW_ONLY)
 add_compile_definitions(GLM_FORCE_DEPTH_ZERO_TO_ONE)
 add_compile_definitions(GLM_ENABLE_EXPERIMENTAL)
 
