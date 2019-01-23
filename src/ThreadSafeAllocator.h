@@ -7,11 +7,11 @@
 #include "Allocator.h"
 #include <mutex>
 
-class FreeListAllocator : public Allocator
+class ThreadSafeAllocator : public Allocator
 {
 public:
-	FreeListAllocator(size_t size, void* start);
-	~FreeListAllocator();
+	ThreadSafeAllocator(size_t size, void* start);
+	~ThreadSafeAllocator();
 
 	void* allocate(size_t size, uint8_t alignment) override;
 
@@ -31,10 +31,12 @@ private:
 		FreeBlock* next;
 	};
 
+	std::mutex allocatorLock;
+
 	static_assert(sizeof(AllocationHeader) >= sizeof(FreeBlock), "sizeof(AllocationHeader) < sizeof(FreeBlock)");
 
-	FreeListAllocator(const FreeListAllocator&);
-	FreeListAllocator& operator=(const FreeListAllocator&);
+	ThreadSafeAllocator(const ThreadSafeAllocator&);
+	ThreadSafeAllocator& operator=(const ThreadSafeAllocator&);
 
 	FreeBlock* _free_blocks;
 };

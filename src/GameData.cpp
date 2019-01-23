@@ -92,6 +92,11 @@ GameData::GameData()
 				//	YddEntries[entry.FileNameHash] = &entry;
 				Entries[ydd][entry.ShortNameHash] = &entry;
 			}
+			else if (extension == ".ycd")
+			{
+				//	YddEntries[entry.FileNameHash] = &entry;
+				Entries[ycd][entry.ShortNameHash] = &entry;
+			}
 			else if (extension == ".yft")
 			{
 				//	YftEntries[entry.FileNameHash] = &entry;
@@ -118,7 +123,7 @@ GameData::GameData()
 				//	YtypEntries[entry.ShortNameHash] = &entry;
 
 				std::vector<uint8_t> outputBuffer(entry.SystemSize + entry.GraphicsSize);
-				ExtractFileResource(entry, outputBuffer);
+				ExtractFileResource(entry, outputBuffer.data(), outputBuffer.size());
 
 				memstream stream(outputBuffer.data(), outputBuffer.size());
 
@@ -174,7 +179,7 @@ GameData::GameData()
 		}
 	}
 
-	bool has_collision = false;
+	/*bool has_collision = false;
 	size_t countBuvket = Entries[ydd].bucket_count();
 	for (size_t bucket = 0; bucket < Entries[ydd].bucket_count(); bucket++) {
 
@@ -182,7 +187,7 @@ GameData::GameData()
 			has_collision = true;
 			break;
 		}
-	}
+	}*/
 
 }
 
@@ -352,10 +357,10 @@ void GameData::ExtractFileBinary(RpfBinaryFileEntry& entry, std::vector<uint8_t>
 
 	GTAEncryption::getInstance().DecryptNG(TempBuffer, entry.FileSize, entry.FileName, entry.FileUncompressedSize);
 
-	GTAEncryption::getInstance().DecompressBytes(TempBuffer, entry.FileSize, output);
+	GTAEncryption::getInstance().DecompressBytes(TempBuffer, entry.FileSize, output.data(), output.size());
 }
 
-void GameData::ExtractFileResource(RpfResourceFileEntry& entry, std::vector<uint8_t>& output)
+void GameData::ExtractFileResource(RpfResourceFileEntry& entry, uint8_t* AllocatedMem, uint64_t AllocatedSize)
 {
 	auto& rpf = entry.File->rpf;
 
@@ -382,5 +387,5 @@ void GameData::ExtractFileResource(RpfResourceFileEntry& entry, std::vector<uint
 	//{ }
 	//}
 
-	GTAEncryption::getInstance().DecompressBytes(TempBuffer, entry.FileSize, output);
+	GTAEncryption::getInstance().DecompressBytes(TempBuffer, entry.FileSize, AllocatedMem, AllocatedSize);
 }

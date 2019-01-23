@@ -181,12 +181,12 @@ uint8_t* GTAEncryption::DecryptNGRoundB(uint8_t* data, uint32_t* key, uint32_t t
 	return data;
 }
 
-void GTAEncryption::DecompressBytes(uint8_t* data, uint32_t dataLength, std::vector<uint8_t>& output)
+void GTAEncryption::DecompressBytes(uint8_t* data, uint32_t dataLength, uint8_t* AllocatedMem, uint64_t AllocatedSize)
 {
 	strm.avail_in = dataLength;
 	strm.next_in = data;
-	strm.avail_out = output.size();
-	strm.next_out = &output[0];
+	strm.avail_out = AllocatedSize;
+	strm.next_out = &AllocatedMem[0];
 
 	int ret = inflate(&strm, Z_FINISH);
 

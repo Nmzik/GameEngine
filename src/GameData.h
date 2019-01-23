@@ -55,7 +55,7 @@ public:
 
 	std::unordered_map<uint32_t, Archetype*> Archetypes;
 	//	std::unordered_map<uint32_t, std::vector<fwEntityDef>> MloDictionary;
-	std::unordered_map<uint32_t, RpfResourceFileEntry*> Entries[8];
+	std::unordered_map<uint32_t, RpfResourceFileEntry*> Entries[9];
 
 	std::unordered_map<uint32_t, uint32_t> GtxdEntries;
 	std::vector<CarHandling> Vehicles;
@@ -72,5 +72,5 @@ public:
 	void LoadRpf(std::ifstream& rpf, std::string& FullPath_, std::string& FileName_, uint32_t FileSize_, uint64_t FileOffset);
 
 	void ExtractFileBinary(RpfBinaryFileEntry& entry, std::vector<uint8_t>& output);
-	void ExtractFileResource(RpfResourceFileEntry& entry, std::vector<uint8_t>& output);
+	void ExtractFileResource(RpfResourceFileEntry& entry, uint8_t* AllocatedMem, uint64_t AllocatedSize);
 };

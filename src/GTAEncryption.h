@@ -42,5 +42,5 @@ public:
 	uint8_t* DecryptNGRoundA(uint8_t* data, uint32_t* key, uint32_t table[][256]);
 	uint8_t* DecryptNGRoundB(uint8_t* data, uint32_t* key, uint32_t table[][256]);
 
-	void DecompressBytes(uint8_t* data, uint32_t dataLength, std::vector<uint8_t>& output);
+	void DecompressBytes(uint8_t* data, uint32_t dataLength, uint8_t* AllocatedMem, uint64_t AllocatedSize);
 };

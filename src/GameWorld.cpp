@@ -483,21 +483,19 @@ void GameWorld::LoadQueuedResources()
 
 		//	Object hash equal to texture hash what should we do? there are +hi textures with the same name
 
-		if (res->Buffer.size() == 0)
+		if (res->BufferSize == 0)
 		{
 			res->file->Loaded = true;
 		}
 		else
 		{
-			memstream stream(res->Buffer.data(), res->Buffer.size());
+			memstream stream(&res->Buffer[0], res->BufferSize);
 			stream.systemSize = res->SystemSize;
 			switch (res->type)
 			{
 				case ymap:
 				{
 					YmapLoader* iter = static_cast<YmapLoader*>(res->file);
-
-					memstream stream(res->Buffer.data(), res->Buffer.size());
 					iter->Init(stream);
 
 					for (auto& object : iter->Objects)
@@ -546,12 +544,14 @@ void GameWorld::LoadQueuedResources()
 				{
 					YbnLoader* ybn = static_cast<YbnLoader*>(res->file);
 					ybn->Init(stream);
-					ybn->Finalize();
+					ybn->Finalize(); //NOT THREAD SAFE!
 					break;
 				}
 			}
 		}
 
+		if (res->BufferSize != 0)
+			resourceManager->resource_allocator->deallocate(res->Buffer);
 		delete res;
 
 		auto new_time = std::chrono::steady_clock::now();

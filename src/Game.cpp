@@ -39,7 +39,7 @@ Game::Game()
 
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 
-	uint8_t* physicsMemory = new uint8_t[50 * 1024 * 1024]; //20mb
+	uint8_t* physicsMemory = new uint8_t[50 * 1024 * 1024]; //50mb
 	myAllocator = new FreeListAllocator(50 * 1024 * 1024, physicsMemory);
 
 	btAlignedAllocSetCustomAligned(allocate, deallocate);

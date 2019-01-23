@@ -13,7 +13,9 @@
 
 #include "GlobalPool.h"
 
-extern FreeListAllocator* _main_allocator;
+//OVERALL
+//50MB for BULLET PHYSICS
+//50MB for ResourceLoader
 
 ResourceManager::ResourceManager(GameWorld* world)
 	: gameworld{ world }
@@ -30,19 +32,11 @@ ResourceManager::ResourceManager(GameWorld* world)
 	ybnLoader.reserve(50);
 	ymapLoader.reserve(500);
 
+	uint8_t* _memory = new uint8_t[50 * 1024 *1024];//50MB
+	resource_allocator = new ThreadSafeAllocator(50 * 1024 * 1024, _memory);
+
 	ResourcesThread = std::thread(&ResourceManager::update, this);
 	ResourcesThread.detach();
-
-	/*size_t memory_size = 1024 * 1024 * 1024; //1GB
-	uint8_t* _memory = (uint8_t*)malloc(memory_size);
-
-	if (_memory == nullptr)
-	{
-		printf("ERROR");
-	}
-
-	_main_allocator = new FreeListAllocator(memory_size - sizeof(FreeListAllocator), pointer_math::add(_memory, sizeof(FreeListAllocator)));
-	//uint8_t* test = (uint8_t*)_main_allocator->allocate(10 * 1024 * 1024, 16);*/
 }
 
 ResourceManager::~ResourceManager()
@@ -190,7 +184,7 @@ FileType* ResourceManager::loadSync(Type type, uint32_t Hash)
 	auto it = gameworld->getGameData()->Entries[type].find(Hash);
 	if (it != gameworld->getGameData()->Entries[type].end())
 	{
-		std::vector<uint8_t> Buffer;
+		/*std::vector<uint8_t> Buffer;
 		Buffer.resize(it->second->SystemSize + it->second->GraphicsSize);
 		gameworld->getGameData()->ExtractFileResource(*(it->second), Buffer);
 
@@ -219,7 +213,7 @@ FileType* ResourceManager::loadSync(Type type, uint32_t Hash)
 			break;
 		default:
 			break;
-		}
+		}*/
 	}
 	return nullptr;
 }
@@ -253,9 +247,24 @@ void ResourceManager::update()
 		auto it = gameworld->getGameData()->Entries[res->type].find(res->Hash);
 		if (it != gameworld->getGameData()->Entries[res->type].end())
 		{
-			res->Buffer.resize(it->second->SystemSize + it->second->GraphicsSize);
-			gameworld->getGameData()->ExtractFileResource(*(it->second), res->Buffer);
-			res->SystemSize = (it->second->SystemSize);
+			uint64_t FileSize = it->second->SystemSize + it->second->GraphicsSize;
+			uint8_t* allocMemory = (uint8_t*)resource_allocator->allocate(FileSize, 16);
+
+			if (allocMemory != nullptr) {
+				res->Buffer = allocMemory;
+				res->BufferSize = FileSize;
+				gameworld->getGameData()->ExtractFileResource(*(it->second), res->Buffer, res->BufferSize);
+				res->SystemSize = (it->second->SystemSize);
+			}
+			else {
+				//printf("NOT ENOUGHT MEMORY IN POOL - WILL TRY NEXT TIME\n");
+
+				lock.lock();
+				waitingList.push_front(res);
+				lock.unlock();
+
+				continue;
+			}
 		}
 		AddToMainQueue(res);
 	}

@@ -7,7 +7,7 @@
 #include "includes.h"
 #include "FileType.h"
 #include <deque>
-#include "FreeListAllocator.h"
+#include "ThreadSafeAllocator.h"
 
 class GameWorld;
 
@@ -44,6 +44,8 @@ public:
 	uint64_t GlobalGpuMemory = 0;
 	uint64_t TextureMemory = 0;
 
+	//std::mutex allocatorMutex;
+	ThreadSafeAllocator* resource_allocator;
 	void GetGtxd(uint32_t hash);
 	// GetFile<YdrLoader, Type::ydr>(uint32_t hash, uint32_t TextureDictionaryHash);
 	YmapLoader* GetYmap(uint32_t hash);

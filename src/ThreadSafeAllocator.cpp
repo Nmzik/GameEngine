@@ -1,6 +1,6 @@
-#include "FreeListAllocator.h"
+#include "ThreadSafeAllocator.h"
 
-FreeListAllocator::FreeListAllocator(size_t size, void* start)
+ThreadSafeAllocator::ThreadSafeAllocator(size_t size, void* start)
 	: Allocator(size), _free_blocks((FreeBlock*)start)
 {
 
@@ -8,13 +8,15 @@ FreeListAllocator::FreeListAllocator(size_t size, void* start)
 	_free_blocks->next = nullptr;
 }
 
-FreeListAllocator::~FreeListAllocator()
+ThreadSafeAllocator::~ThreadSafeAllocator()
 {
 	//_free_blocks = nullptr;
 }
 
-void* FreeListAllocator::allocate(size_t size, uint8_t alignment)
+void* ThreadSafeAllocator::allocate(size_t size, uint8_t alignment)
 {
+	std::unique_lock<std::mutex> lock(allocatorLock);
+
 	FreeBlock* prev_free_block = nullptr;
 	FreeBlock* free_block      = _free_blocks;
 
@@ -98,8 +100,10 @@ void* FreeListAllocator::allocate(size_t size, uint8_t alignment)
 	return (void*)aligned_address;
 }
 
-void FreeListAllocator::deallocate(void* p)
+void ThreadSafeAllocator::deallocate(void* p)
 {
+	std::unique_lock<std::mutex> lock(allocatorLock);
+
 	AllocationHeader* header = (AllocationHeader*)pointer_math::subtract(p, sizeof(AllocationHeader));
 
 	uptr   block_start = reinterpret_cast<uptr>(p)-header->adjustment;
