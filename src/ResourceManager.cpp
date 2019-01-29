@@ -67,14 +67,14 @@ YmapLoader* ResourceManager::GetYmap(uint32_t hash)
 	if (it != ymapLoader.end())
 	{
 		it->second->RefCount++;
-		return it->second;
+		return it->second.get();
 	}
 	else
 	{
 		YmapLoader* loader = new YmapLoader();
 		AddToWaitingList(new Resource(ymap, hash, loader));
 		loader->RefCount++;
-		ymapLoader.insert({ hash, loader });
+		ymapLoader.insert({ hash, std::unique_ptr<YmapLoader>(loader) });
 
 		return loader;
 	}
@@ -86,14 +86,14 @@ YdrLoader* ResourceManager::GetYdr(uint32_t hash)
 	if (iter != ydrLoader.end())
 	{
 		iter->second->RefCount++;
-		return iter->second;
+		return iter->second.get();
 	}
 	else
 	{
 		YdrLoader* loader = new YdrLoader();
 		AddToWaitingList(new Resource(ydr, hash, loader));
 		loader->RefCount++;
-		ydrLoader.insert({ hash, loader });
+		ydrLoader.insert({ hash, std::unique_ptr<YdrLoader>(loader) });
 
 		return loader;
 	}
@@ -105,7 +105,7 @@ YtdLoader* ResourceManager::GetYtd(uint32_t hash)
 	if (it != ytdLoader.end())
 	{
 		it->second->RefCount++;
-		return it->second;
+		return it->second.get();
 	}
 	else
 	{
@@ -114,10 +114,36 @@ YtdLoader* ResourceManager::GetYtd(uint32_t hash)
 		{
 			GetYtd(iter->second);
 		}*/
+
+		bool HDTextures = false;
+		if (HDTextures) {
+			auto iter = gameworld->getGameData()->HDTextures.find(hash);
+			if (iter != gameworld->getGameData()->HDTextures.end()) {
+				auto it = ytdLoader.find(iter->second);
+				if (it != ytdLoader.end())
+				{
+					it->second->RefCount++;
+					return it->second.get();
+				}
+				else
+				{
+					YtdLoader* loader = new YtdLoader();
+					AddToWaitingList(new Resource(ytd, iter->second, loader));
+					loader->RefCount++;
+					ytdLoader.insert({ iter->second, std::unique_ptr<YtdLoader>(loader) });
+
+					return loader;
+				}
+			}
+			else {
+				printf("HD Texture not found\n");
+			}
+		}
+
 		YtdLoader* loader = new YtdLoader();
 		AddToWaitingList(new Resource(ytd, hash, loader));
 		loader->RefCount++;
-		ytdLoader.insert({ hash, loader });
+		ytdLoader.insert({ hash, std::unique_ptr<YtdLoader>(loader) });
 
 		return loader;
 	}
@@ -129,14 +155,14 @@ YddLoader* ResourceManager::GetYdd(uint32_t hash)
 	if (iter != yddLoader.end())
 	{
 		iter->second->RefCount++;
-		return iter->second;
+		return iter->second.get();
 	}
 	else
 	{
 		YddLoader* loader = new YddLoader();
 		AddToWaitingList(new Resource(ydd, hash, loader));
 		loader->RefCount++;
-		yddLoader.insert({ hash, loader });
+		yddLoader.insert({ hash, std::unique_ptr<YddLoader>(loader) });
 
 		return loader;
 	}
@@ -148,14 +174,14 @@ YftLoader* ResourceManager::GetYft(uint32_t hash)
 	if (iter != yftLoader.end())
 	{
 		iter->second->RefCount++;
-		return iter->second;
+		return iter->second.get();
 	}
 	else
 	{
 		YftLoader* loader = new YftLoader();
 		AddToWaitingList(new Resource(yft, hash, loader));
 		loader->RefCount++;
-		yftLoader.insert({ hash, loader });
+		yftLoader.insert({ hash, std::unique_ptr<YftLoader>(loader) });
 
 		return loader;
 	}
@@ -163,18 +189,18 @@ YftLoader* ResourceManager::GetYft(uint32_t hash)
 
 YbnLoader* ResourceManager::GetYbn(uint32_t hash)
 {
-	std::unordered_map<uint32_t, YbnLoader*>::iterator iter = ybnLoader.find(hash);
+	auto iter = ybnLoader.find(hash);
 	if (iter != ybnLoader.end())
 	{
 		iter->second->RefCount++;
-		return iter->second;
+		return iter->second.get();
 	}
 	else
 	{
 		YbnLoader* loader = new YbnLoader();
 		AddToWaitingList(new Resource(ybn, hash, loader));
 		loader->RefCount++;
-		ybnLoader.insert({ hash, loader });
+		ybnLoader.insert({ hash, std::unique_ptr<YbnLoader>(loader) });
 		return loader;
 	}
 }
@@ -275,7 +301,6 @@ void ResourceManager::RemoveAll()
 	for (auto it = ytdLoader.begin(); it != ytdLoader.end();)
 	{
 			TextureMemory -= it->second->gpuMemory;
-			delete it->second;
 			it = ytdLoader.erase(it);
 	}
 }
@@ -288,7 +313,6 @@ void ResourceManager::UpdateResourceCache()
 	{
 		if ((it->second)->RefCount == 0 && (it->second)->Loaded)
 		{
-			delete it->second;
 			it = ybnLoader.erase(it);
 		}
 		else
@@ -301,7 +325,6 @@ void ResourceManager::UpdateResourceCache()
 	{
 		if ((it->second)->RefCount == 0 && (it->second)->Loaded)
 		{
-			delete it->second;
 			it = ymapLoader.erase(it);
 		}
 		else
@@ -315,7 +338,6 @@ void ResourceManager::UpdateResourceCache()
 		if ((it->second)->RefCount == 0 && (it->second)->Loaded)
 		{
 			GlobalGpuMemory -= it->second->gpuMemory;
-			delete it->second;
 			it = ydrLoader.erase(it);
 		}
 		else
@@ -329,7 +351,6 @@ void ResourceManager::UpdateResourceCache()
 		if ((it->second)->RefCount == 0 && (it->second)->Loaded)
 		{
 			GlobalGpuMemory -= it->second->gpuMemory;
-			delete it->second;
 			it = yddLoader.erase(it);
 		}
 		else
@@ -343,7 +364,6 @@ void ResourceManager::UpdateResourceCache()
 		if ((it->second)->RefCount == 0 && (it->second)->Loaded)
 		{
 			GlobalGpuMemory -= it->second->gpuMemory;
-			delete it->second;
 			it = yftLoader.erase(it);
 		}
 		else
@@ -357,7 +377,6 @@ void ResourceManager::UpdateResourceCache()
 		if ((it->second)->RefCount == 0 && (it->second)->Loaded)
 		{
 			TextureMemory -= it->second->gpuMemory;
-			delete it->second;
 			it = ytdLoader.erase(it);
 		}
 		else

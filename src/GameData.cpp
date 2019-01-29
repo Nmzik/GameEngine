@@ -1,5 +1,7 @@
 #include "GameData.h"
 
+#include "YmfLoader.h"
+
 #include "YtypLoader.h"
 #include "CacheDatFile.h"
 #include "GTAEncryption.h"
@@ -41,8 +43,7 @@ GameData::GameData()
 	{
 		std::string Path("C:\\Program Files\\Rockstar Games\\Grand Theft Auto V\\");
 
-		std::ifstream* rpf = new std::ifstream(Path + rpfFile, std::ios::binary);
-		Files.push_back(rpf);
+		std::unique_ptr<std::ifstream> rpf = std::make_unique<std::ifstream>(Path + rpfFile, std::ios::binary);
 
 		if (!rpf->is_open())
 		{
@@ -55,6 +56,8 @@ GameData::GameData()
 		rpf->seekg(0, std::ios::beg);
 
 		LoadRpf(*rpf, rpfFile, rpfFile, FileSize, 0);
+
+		openedFiles.push_back(std::move(rpf));
 	}
 
 	LoadGtxd();
@@ -67,8 +70,9 @@ GameData::GameData()
 	Entries[ymap].reserve(4600);
 	Entries[ynd].reserve(300);
 	Entries[ynv].reserve(4500);
+	HDTextures.reserve(16481);
 
-	for (auto& rpfFile : RpfFiles)
+	for (auto& rpfFile : rpfFiles)
 	{
 		for (auto& entry : rpfFile->ResourceEntries)
 		{
@@ -151,26 +155,43 @@ GameData::GameData()
 		}
 		for (auto& entry : rpfFile->BinaryEntries)
 		{
-			if (entry.FileName == "handling.meta")
+			size_t index = entry.FileName.find_last_of('.');
+			std::string extension = entry.FileName.substr(index);
+
+			if (extension == ".ymf")
+			{
+				std::vector<uint8_t> outputBuffer(entry.FileUncompressedSize);
+				ExtractFileBinary(entry, outputBuffer);
+
+				memstream stream(outputBuffer.data(), outputBuffer.size());
+				YmfLoader loader(stream);
+
+				for (auto texture : loader.HDtextures)
+				{
+					HDTextures[GenHash(texture->targetAsset)] = GenHash(texture->HDTxd);
+				}
+			}
+
+			else if (entry.FileName == "handling.meta")
 			{
 				std::vector<uint8_t> Buffer(entry.FileUncompressedSize);
 				ExtractFileBinary(entry, Buffer);
 				LoadHandlingData(Buffer);
 			}
-			if (entry.FileName == "gta5_cache_y.dat")
+			else if (entry.FileName == "gta5_cache_y.dat")
 			{
 				std::vector<uint8_t> Buffer(entry.FileUncompressedSize);
 				ExtractFileBinary(entry, Buffer);
 
 				cacheFile = std::make_unique<CacheDatFile>(Buffer);
 			}
-			if (entry.FileName == "water.xml")
+			else if (entry.FileName == "water.xml")
 			{
 				std::vector<uint8_t> Buffer(entry.FileUncompressedSize);
 				ExtractFileBinary(entry, Buffer);
 				LoadWaterQuads(Buffer);
 			}
-			if (entry.FileName == "playerswitchestablishingshots.meta")
+			else if (entry.FileName == "playerswitchestablishingshots.meta")
 			{
 				std::vector<uint8_t> Buffer(entry.FileUncompressedSize);
 				ExtractFileBinary(entry, Buffer);
@@ -193,15 +214,7 @@ GameData::GameData()
 
 GameData::~GameData()
 {
-	for (auto& rpf : RpfFiles)
-	{
-		delete rpf;
-	}
 
-	for (auto& file : Files)
-	{
-		delete file;
-	}
 }
 
 void GameData::LoadHandlingData(std::vector<uint8_t>& Buffer)
@@ -228,7 +241,7 @@ void GameData::LoadHandlingData(std::vector<uint8_t>& Buffer)
 
 		car.file = nullptr;
 
-		Vehicles.push_back(car);
+		VehiclesInfo.push_back(car);
 	}
 }
 
@@ -335,8 +348,7 @@ void GameData::LoadScenesSwitch(std::vector<uint8_t>& Buffer)
 
 void GameData::LoadRpf(std::ifstream& rpf, std::string& FullPath_, std::string& FileName_, uint32_t FileSize_, uint64_t FileOffset)
 {
-	RpfFile* file = new RpfFile(rpf, FullPath_, FileName_, FileSize_, FileOffset);
-	RpfFiles.push_back(file);
+	std::unique_ptr<RpfFile> file = std::make_unique<RpfFile>(rpf, FullPath_, FileName_, FileSize_, FileOffset);
 
 	for (auto& BinaryFileEntry : file->BinaryEntries)
 	{
@@ -346,6 +358,7 @@ void GameData::LoadRpf(std::ifstream& rpf, std::string& FullPath_, std::string& 
 			LoadRpf(rpf, FullPath_, BinaryFileEntry.FileName, RealFileSize, BinaryFileEntry.FileOffset);
 		}
 	}
+	rpfFiles.push_back(std::move(file));
 }
 
 void GameData::ExtractFileBinary(RpfBinaryFileEntry& entry, std::vector<uint8_t>& output)
@@ -353,9 +366,17 @@ void GameData::ExtractFileBinary(RpfBinaryFileEntry& entry, std::vector<uint8_t>
 	auto& rpf = entry.File->rpf;
 
 	rpf->seekg(entry.FileOffset);
+
+	if (entry.FileSize > 30 * 1024 * 1024) {
+		printf("ERROR BUFFER SIZE\n");
+	}
+
 	rpf->read((char*)&TempBuffer[0], entry.FileSize);
 
-	GTAEncryption::getInstance().DecryptNG(TempBuffer, entry.FileSize, entry.FileName, entry.FileUncompressedSize);
+	if (entry.File->IsAESEncrypted) //HAPPENS WITH SOME YMF FILES
+		GTAEncryption::getInstance().DecryptAES(&TempBuffer[0], entry.FileSize);
+	else
+		GTAEncryption::getInstance().DecryptNG(TempBuffer, entry.FileSize, entry.FileName, entry.FileUncompressedSize);
 
 	GTAEncryption::getInstance().DecompressBytes(TempBuffer, entry.FileSize, output.data(), output.size());
 }

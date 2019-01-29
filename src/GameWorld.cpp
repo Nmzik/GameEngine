@@ -18,82 +18,10 @@
 
 GameWorld::GameWorld() :
 	dirLight(glm::vec3(0.1f, 0.8f, 0.1f), glm::vec3(0.2f, 0.2f, 0.2f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1.0f, 1.0f, 1.0f), true)
-	{
+{
 	//////////////////////////////////////////////////////////////////////////////
 
 	resourceManager = std::make_unique<ResourceManager>(this);
-	/*{
-	 std::vector<YdrLoader*> ydrs;
-	 ydrs.reserve(1500);
-
-	 uint32_t valuetest = 0;
-
-	 for (auto it = data.YdrEntries.begin(); valuetest < 1500; it++)
-	 {
-	  valuetest++;
-	  std::vector<uint8_t> Buffer(it->second->SystemSize + it->second->GraphicsSize);
-	  data.ExtractFileResource(*(it->second), Buffer);
-
-	  memstream stream(Buffer.data(), Buffer.size());
-	  YdrLoader* loader = new YdrLoader();
-	  loader->Init(stream, it->second->SystemSize);
-	  ydrs.push_back(loader);
-	 }
-
-	 for (int i = 0; i < 1500; i++)
-	 {
-	  ydrs[i]->Remove();
-	  delete ydrs[i];
-	  glFlush();
-	 }
-	 glFinish();
-	}
-
-	 auto it = data.YdrEntries.find(3186271474);
-	 if (it != data.YdrEntries.end())
-	 {
-	  std::vector<uint8_t> Buffer(it->second->SystemSize + it->second->GraphicsSize);
-	  data.ExtractFileResource(*(it->second), Buffer);
-
-	  memstream stream(Buffer.data(), Buffer.size());
-	  YdrLoader* loader = new YdrLoader();
-	  loader->Init(stream, it->second->SystemSize);
-
-	  loader->Remove();
-
-	  delete loader;
-	  glFinish();
-	 }
-	/*auto YnvIt = data.YnvEntries.find(1471038032);
-	if (YnvIt != data.YnvEntries.end()) {
-	 std::vector<uint8_t> Buffer(YnvIt->second->SystemSize + YnvIt->second->GraphicsSize);
-	 data.ExtractFileResource(*(YnvIt->second), Buffer);
-	 //YnvLoader ynv(stream);
-	}*/
-
-	//Nodes
-	/*for (int x = 0; x < nodeGrid.CellCountX; x++)
-	{
-	 for (int y = 0; y < nodeGrid.CellCountY; y++)
-	 {
-	  std::string filename = "nodes" + std::to_string(nodeGrid.cells[x * nodeGrid.CellCountX + y]->ID);
-	  uint32_t fnhash = GenHash(filename);
-
-	  auto it = data.YndEntries.find(fnhash);
-	  if (it != data.YndEntries.end()) {
-
-	   auto& element = *(it->second);
-	   std::vector<uint8_t> outputBuffer;
-	   outputBuffer.resize(it->second->SystemSize + it->second->GraphicsSize);
-	   data.ExtractFileResource(element, outputBuffer);
-
-	   memstream stream(outputBuffer.data(), outputBuffer.size());
-
-	   YndLoader* ynd = new YndLoader(stream);
-	   nodeGrid.cells[x * nodeGrid.CellCountX + y]->ynd = ynd;
-	  }
-	 }
-	}*/
 
 	for (int i = 0; i < data.cacheFile->AllMapNodes.size(); i++)
 	{
@@ -111,7 +39,7 @@ GameWorld::GameWorld() :
 		spaceGrid.AddCInteriorProxy(&data.cacheFile->AllCInteriorProxies[i], i);
 	}
 
-	for (auto& vehicle : data.Vehicles)
+	for (auto& vehicle : data.VehiclesInfo)
 	{
 		vehiclesPool[vehicle.Hash] = vehicle;
 	}
@@ -135,7 +63,7 @@ GameWorld::GameWorld() :
 
 	resourceManager->GetYtd(4096714883); //PLAYER YTD
 	YddLoader* playerYDD = resourceManager->GetYdd(4096714883);
-	
+
 	skydome = resourceManager->GetYdd(2640562617);
 
 	resourceManager->GetYtd(GenHash(std::string("mapdetail")));
@@ -186,78 +114,76 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 				{
 					switch (object.archetype->BaseArchetypeDef.assetType)
 					{
-						case ASSET_TYPE_DRAWABLE:
+					case ASSET_TYPE_DRAWABLE:
+					{
+						if (!object.FoundModel)
 						{
-							if (!object.FoundModel)
+							object.ytd = resourceManager->GetYtd(object.archetype->BaseArchetypeDef.textureDictionary);
+							object.ydr = resourceManager->GetYdr(object.CEntity.archetypeName);
+							object.FoundModel = true;
+						}
+						if (object.ydr->Loaded)
+						{
+							//	NOTE:
+							//
+							//	SPAWN OBJECTS STATICALLY (IN SLEEP STATE)
+							//
+							//	SUPER DIRTY NEED FIX URGENT! UGLY FIX!!!
+							/*if (object.ydr->ybnfile) {
+
+							 if (object.ydr->ybnfile->compound->getNumChildShapes() != 0) {
+
+							  //SET POSITION OF COLLISION TO OBJECT PLACE
+							  //NOTE: SPAWN AT EXACT SAME PLACE!!! "NO +1.0f"
+							  btVector3 localInertia(0, 0, 0);
+							  float mass = 0.0f;
+
+							  btDefaultMotionState* MotionState = new btDefaultMotionState(btTransform(btQuaternion(-object.rotation.x, object.rotation.y, object.rotation.z, object.rotation.w),
+							btVector3(object.position.x, object.position.y, object.position.z))); btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(mass, MotionState, object.ydr->ybnfile->compound, localInertia);
+							  object.rigidBody = new btRigidBody(groundRigidBodyCI);
+							  dynamicsWorld->addRigidBody(object.rigidBody);
+							 }//can be an error here
+							}*/
+
+							object.Loaded = true;
+						}
+						break;
+					}
+					case ASSET_TYPE_DRAWABLEDICTIONARY:
+					{
+						if (!object.FoundModel)
+						{
+							object.ytd = resourceManager->GetYtd(object.archetype->BaseArchetypeDef.textureDictionary);
+							object.ydd = resourceManager->GetYdd(object.archetype->BaseArchetypeDef.drawableDictionary);
+							object.FoundModel = true;
+						}
+						if (object.ydd->Loaded)
+						{
+							auto iter2 = object.ydd->ydrFiles.find(object.CEntity.archetypeName);
+							if (iter2 != object.ydd->ydrFiles.end())
 							{
-								object.ytd = resourceManager->GetYtd(object.archetype->BaseArchetypeDef.textureDictionary);
-								object.ydr = resourceManager->GetYdr(object.CEntity.archetypeName);
-								object.FoundModel = true;
-							}
-							if (object.ydr->Loaded)
-							{
-								//	NOTE:
-								//
-								//	SPAWN OBJECTS STATICALLY (IN SLEEP STATE)
-								//
-								//	SUPER DIRTY NEED FIX URGENT! UGLY FIX!!!
-								/*if (object.ydr->ybnfile) {
-
-								 if (object.ydr->ybnfile->compound->getNumChildShapes() != 0) {
-
-								  //SET POSITION OF COLLISION TO OBJECT PLACE
-								  //NOTE: SPAWN AT EXACT SAME PLACE!!! "NO +1.0f"
-								  btVector3 localInertia(0, 0, 0);
-								  float mass = 0.0f;
-
-								  btDefaultMotionState* MotionState = new btDefaultMotionState(btTransform(btQuaternion(-object.rotation.x, object.rotation.y, object.rotation.z, object.rotation.w),
-								btVector3(object.position.x, object.position.y, object.position.z))); btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(mass, MotionState, object.ydr->ybnfile->compound, localInertia);
-								  object.rigidBody = new btRigidBody(groundRigidBodyCI);
-								  dynamicsWorld->addRigidBody(object.rigidBody);
-								 }//can be an error here
-								}*/
-
+								object.ydr = iter2->second.get();
 								object.Loaded = true;
 							}
-							break;
 						}
-						case ASSET_TYPE_DRAWABLEDICTIONARY:
+						break;
+					}
+					case ASSET_TYPE_FRAGMENT:
+					{
+						if (!object.FoundModel)
 						{
-							if (!object.FoundModel)
-							{
-								object.ytd = resourceManager->GetYtd(object.archetype->BaseArchetypeDef.textureDictionary);
-								object.ydd = resourceManager->GetYdd(object.archetype->BaseArchetypeDef.drawableDictionary);
-								object.FoundModel = true;
-							}
-							if (object.ydd->Loaded)
-							{
-								auto iter2 = object.ydd->YdrFiles.find(object.CEntity.archetypeName);
-								if (iter2 != object.ydd->YdrFiles.end())
-								{
-									object.ydr = iter2->second;
-									object.Loaded = true;
-								}
-							}
-							break;
+							object.ytd = resourceManager->GetYtd(object.archetype->BaseArchetypeDef.textureDictionary);
+							object.yft = resourceManager->GetYft(object.CEntity.archetypeName);
+							object.FoundModel = true;
 						}
-						case ASSET_TYPE_FRAGMENT:
+						if (object.yft->Loaded)
 						{
-							if (!object.FoundModel)
-							{
-								object.ytd = resourceManager->GetYtd(object.archetype->BaseArchetypeDef.textureDictionary);
-								object.yft = resourceManager->GetYft(object.CEntity.archetypeName);
-								object.FoundModel = true;
-							}
-							if (object.yft->Loaded)
-							{
-								object.ydr = object.yft->ydr;
+							object.ydr = object.yft->ydr.get();
 
-								
-
-								object.Loaded = true;
-							}
-							break;
+							object.Loaded = true;
 						}
+						break;
+					}
 					}
 				}
 				else
@@ -309,7 +235,7 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 
 	//	NOTE::
 	//
-	//	RANDOM VEHICLE REALLY SPAWNS in RANDOM PLACE on the same CCarGens IN real game (spawns/despawns based on distance to player, checked on the same place)
+	//	RANDOM VEHICLE spawns in RANDOM PLACE on the same CCarGens IN real game (spawns/despawns based on distance to player, checked on the same place)
 	//
 	//
 	//
@@ -352,14 +278,24 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 void GameWorld::GetVisibleYmaps(Camera* camera)
 {
 	glm::vec3 PlayerPos = peds[currentPlayerID].getPosition();
-		//glm::vec3 PlayerPos = camera->position;
+	//glm::vec3 PlayerPos = camera->position;
 
 	auto cellID = spaceGrid.GetCellPos(PlayerPos);
 	auto NodeCell = nodeGrid.GetCellPos(PlayerPos);
+	auto NavCell = navGrid.GetCellPos(PlayerPos);
+
+	if (CurNavCell != NavCell)
+	{
+		CurNavCell = NavCell;
+
+		auto& cell = navGrid.GetCell(NavCell);
+	}
 
 	if (CurNodeCell != NodeCell)
 	{
 		CurNodeCell = NodeCell;
+
+		auto& cell = nodeGrid.GetCell(NodeCell);
 	}
 
 	if (CurCell != cellID)
@@ -493,60 +429,60 @@ void GameWorld::LoadQueuedResources()
 			stream.systemSize = res->SystemSize;
 			switch (res->type)
 			{
-				case ymap:
-				{
-					YmapLoader* iter = static_cast<YmapLoader*>(res->file);
-					iter->Init(stream);
+			case ymap:
+			{
+				YmapLoader* iter = static_cast<YmapLoader*>(res->file);
+				iter->Init(stream);
 
-					for (auto& object : iter->Objects)
+				for (auto& object : iter->Objects)
+				{
+					std::unordered_map<uint32_t, Archetype*>::iterator it = getGameData()->Archetypes.find(object.CEntity.archetypeName);
+					if (it != getGameData()->Archetypes.end())
 					{
-						std::unordered_map<uint32_t, Archetype*>::iterator it = getGameData()->Archetypes.find(object.CEntity.archetypeName);
-						if (it != getGameData()->Archetypes.end())
-						{
-							object.archetype = it->second;
+						object.archetype = it->second;
 
-							object.BoundPos = object.CEntity.position - object.archetype->BaseArchetypeDef.bsCentre;
-							object.BoundRadius = object.archetype->BaseArchetypeDef.bsRadius; //* std::max(object.CEntity.scaleXY, object.CEntity.scaleZ); TREES doesnt render with multiplying by scale
+						object.BoundPos = object.CEntity.position - object.archetype->BaseArchetypeDef.bsCentre;
+						object.BoundRadius = object.archetype->BaseArchetypeDef.bsRadius; //* std::max(object.CEntity.scaleXY, object.CEntity.scaleZ); TREES doesnt render with multiplying by scale
 
-							if (object.CEntity.lodDist <= 0)
-								object.CEntity.lodDist = it->second->BaseArchetypeDef.lodDist;
-							if (object.CEntity.childLodDist <= 0)
-								object.CEntity.childLodDist = it->second->BaseArchetypeDef.lodDist;
-						}
-						else
-						{
-							//printf("ERROR\n"); ACTUALLY IT CAN HAPPEN
-							object.archetype = nullptr;
-							object.CEntity.lodDist = 0.f; //HACK = DONT RENDER OBJECTS WITH UNKNOWN ARCHETYPE
-						}
-
-						object.CEntity.lodDist *= object.CEntity.lodDist;           // glm::length2
-						object.CEntity.childLodDist *= object.CEntity.childLodDist; // glm::length2
+						if (object.CEntity.lodDist <= 0)
+							object.CEntity.lodDist = it->second->BaseArchetypeDef.lodDist;
+						if (object.CEntity.childLodDist <= 0)
+							object.CEntity.childLodDist = it->second->BaseArchetypeDef.lodDist;
 					}
-					res->file->Loaded = true;
-					break;
+					else
+					{
+						//printf("ERROR\n"); ACTUALLY IT CAN HAPPEN
+						object.archetype = nullptr;
+						object.CEntity.lodDist = 0.f; //HACK = DONT RENDER OBJECTS WITH UNKNOWN ARCHETYPE
+					}
+
+					object.CEntity.lodDist *= object.CEntity.lodDist;           // glm::length2
+					object.CEntity.childLodDist *= object.CEntity.childLodDist; // glm::length2
 				}
-				case ydr:
-				case ydd:
-				case yft:
-				{
-					res->file->Init(stream);
-					resourceManager->GlobalGpuMemory += res->file->gpuMemory;
-					break;
-				}
-				case ytd:
-				{
-					res->file->Init(stream);
-					resourceManager->TextureMemory += res->file->gpuMemory;
-					break;
-				}
-				case ybn:
-				{
-					YbnLoader* ybn = static_cast<YbnLoader*>(res->file);
-					ybn->Init(stream);
-					ybn->Finalize(); //NOT THREAD SAFE!
-					break;
-				}
+				res->file->Loaded = true;
+				break;
+			}
+			case ydr:
+			case ydd:
+			case yft:
+			{
+				res->file->Init(stream);
+				resourceManager->GlobalGpuMemory += res->file->gpuMemory;
+				break;
+			}
+			case ytd:
+			{
+				res->file->Init(stream);
+				resourceManager->TextureMemory += res->file->gpuMemory;
+				break;
+			}
+			case ybn:
+			{
+				YbnLoader* ybn = static_cast<YbnLoader*>(res->file);
+				ybn->Init(stream);
+				ybn->Finalize(); //NOT THREAD SAFE!
+				break;
+			}
 			}
 		}
 
@@ -567,7 +503,7 @@ void GameWorld::createPedestrian()
 
 void GameWorld::createVehicle(glm::vec3 position)
 {
-	int vehicleID = rand() % vehiclesPool.size();
+	/*int vehicleID = rand() % vehiclesPool.size();
 
 	auto it = vehiclesPool.begin();
 	std::advance(it, vehicleID);
@@ -582,7 +518,7 @@ void GameWorld::createVehicle(glm::vec3 position)
 			CVehicle* veh = new CVehicle(position, it->second.mass, it->second.file);
 			vehicles.emplace_back(veh);
 		}
-	}
+	}*/
 }
 
 void GameWorld::UpdateDynamicObjects()
@@ -805,7 +741,7 @@ bool GameWorld::DetectInWater(glm::vec3 Position)
 	}
 	return false;
 }
-	
+
 void GameWorld::TestFunction(glm::vec3 Position)
 {
 	/*for (auto& ytd : data.GtxdEntries)

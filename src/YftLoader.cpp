@@ -9,10 +9,9 @@ void YftLoader::Init(memstream& file)
 	FragType* fragType = (FragType*)file.read(sizeof(FragType));
 
 	SYSTEM_BASE_PTR(fragType->DrawablePointer);
-
 	file.seekg(fragType->DrawablePointer);
 
-	ydr = new YdrLoader();
+	ydr = std::make_unique<YdrLoader>();
 	ydr->isYft = true;
 	ydr->Init(file);
 	gpuMemory += ydr->gpuMemory;
@@ -30,7 +29,7 @@ void YftLoader::Init(memstream& file)
 
 	file.seekg(fragPhysicsLOD->ChildrenPointer);
 
-	/*fragPhysicsLODs = new std::vector<YdrLoader*>();
+	/*fragPhysicsLODs = new std::vector<YdrLoader>();
 	fragPhysicsLODs->reserve(fragPhysicsLOD->ChildrenCount);
 
 	for (int i = 0; i < fragPhysicsLOD->ChildrenCount; i++)
@@ -58,7 +57,7 @@ void YftLoader::Init(memstream& file)
 	SYSTEM_BASE_PTR(fragPhysicsLOD->BoundPointer);
 	file.seekg(fragPhysicsLOD->BoundPointer);
 
-	ybn = new YbnLoader();
+	ybn = std::make_unique<YbnLoader>();
 	ybn->Init(file);
 }
 
@@ -70,13 +69,4 @@ YftLoader::~YftLoader()
 	}
 
 	delete fragPhysicsLODs;*/
-
-	if (ydr)
-	{
-		delete ydr;
-	}
-	if (ybn)
-	{
-		delete ybn;
-	}
 }

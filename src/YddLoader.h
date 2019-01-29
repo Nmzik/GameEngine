@@ -23,7 +23,7 @@ class YdrLoader;
 class YddLoader : public FileType
 {
 public:
-	std::unordered_map<uint32_t, YdrLoader*> YdrFiles;
+	std::unordered_map<uint32_t, std::unique_ptr<YdrLoader>> ydrFiles;
 
 	void Init(memstream& file) override;
 	~YddLoader();

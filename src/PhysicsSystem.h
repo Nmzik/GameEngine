@@ -4,14 +4,14 @@
 
 class PhysicsSystem
 {
-	btBroadphaseInterface* broadphase;
-	btDefaultCollisionConfiguration* collisionConfiguration;
-	btCollisionDispatcher* dispatcher;
-	btSequentialImpulseConstraintSolver* solver;
+	std::unique_ptr<btBroadphaseInterface> broadphase;
+	std::unique_ptr<btDefaultCollisionConfiguration> collisionConfiguration;
+	std::unique_ptr<btCollisionDispatcher> dispatcher;
+	std::unique_ptr<btSequentialImpulseConstraintSolver> solver;
 
 	PhysicsDebugDrawer debug;
 public:
-	static btDiscreteDynamicsWorld* dynamicsWorld;
+	static std::unique_ptr<btDiscreteDynamicsWorld> dynamicsWorld;
 
 	PhysicsSystem();
 	~PhysicsSystem();

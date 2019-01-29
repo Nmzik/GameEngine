@@ -19,12 +19,15 @@ public:
 
 	float throttle;
 	float steeringValue;
-	btRigidBody* m_carChassis;
-	btCollisionShape* chassisShape;
-	btCompoundShape* compound;
-	btVehicleRaycaster* m_vehicleRayCaster;
-	btRaycastVehicle* m_vehicle;
-	btCollisionShape* m_wheelShape;
+
+	std::unique_ptr<btRigidBody> m_carChassis;
+	std::unique_ptr<btCollisionShape> chassisShape;
+	std::unique_ptr<btCompoundShape> compound;
+	std::unique_ptr<btVehicleRaycaster> m_vehicleRayCaster;
+	std::unique_ptr<btRaycastVehicle> m_vehicle;
+	std::unique_ptr<btCollisionShape> m_wheelShape;
+	std::unique_ptr<btDefaultMotionState> myMotionState;
+
 	YftLoader* GetDrawable()
 	{
 		return vehicle;

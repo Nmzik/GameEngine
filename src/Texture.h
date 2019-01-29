@@ -7,10 +7,10 @@ class memstream;
 
 class Texture
 {
-	uint32_t TextureHash;
 	GLuint textureID;
+	uint32_t TextureHash;
 public:
-	Texture(uint32_t Hash, grcTexture* texture, memstream& file);
+	Texture(grcTexture* texture, memstream& file, uint32_t TextureHash);
 	~Texture();
 
 	Texture(const Texture&) = delete;

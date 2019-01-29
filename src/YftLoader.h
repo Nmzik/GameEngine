@@ -189,8 +189,8 @@ class YbnLoader;
 class YftLoader : public FileType
 {
 public:
-	YdrLoader* ydr = nullptr;
-	YbnLoader* ybn = nullptr;
+	std::unique_ptr<YdrLoader> ydr;
+	std::unique_ptr<YbnLoader> ybn;
 	std::vector<YdrLoader*> fragPhysicsLODs;
 
 	void Init(memstream& file) override;

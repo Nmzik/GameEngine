@@ -1,31 +1,27 @@
 #include "PhysicsSystem.h"
 
-btDiscreteDynamicsWorld* PhysicsSystem::dynamicsWorld = nullptr;
+std::unique_ptr<btDiscreteDynamicsWorld> PhysicsSystem::dynamicsWorld = nullptr;
 
 PhysicsSystem::PhysicsSystem()
 {
-	broadphase = new btDbvtBroadphase();
-	collisionConfiguration = new btDefaultCollisionConfiguration();
-	dispatcher = new btCollisionDispatcher(collisionConfiguration);
-	solver = new btSequentialImpulseConstraintSolver();
-	dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
+	broadphase = std::make_unique<btDbvtBroadphase>();
+	collisionConfiguration = std::make_unique<btDefaultCollisionConfiguration>();
+	dispatcher = std::make_unique<btCollisionDispatcher>(collisionConfiguration.get());
+	solver = std::make_unique<btSequentialImpulseConstraintSolver>();
+	dynamicsWorld = std::make_unique<btDiscreteDynamicsWorld>(dispatcher.get(), broadphase.get(), solver.get(), collisionConfiguration.get());
 
 	dynamicsWorld->setGravity(btVector3(0, 0, -9.8f));
 	//	UPDATE STATIC OBJECTS MANUALLY
 	dynamicsWorld->setForceUpdateAllAabbs(false);
 
-	//	debug.setDebugMode(btIDebugDraw::DBG_DrawWireframe);
-	//	dynamicsWorld->setDebugDrawer(&debug);
+	debug.setDebugMode(btIDebugDraw::DBG_DrawWireframe);
+	dynamicsWorld->setDebugDrawer(&debug);
 }
 
 
 PhysicsSystem::~PhysicsSystem()
 {
-	delete dynamicsWorld;
-	delete solver;
-	delete dispatcher;
-	delete collisionConfiguration;
-	delete broadphase;
+
 }
 
 void PhysicsSystem::Update(float delta_time)

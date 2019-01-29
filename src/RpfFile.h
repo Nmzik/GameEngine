@@ -10,6 +10,7 @@ class RpfFile
 {
 public:
 	std::ifstream* rpf;
+	bool IsAESEncrypted = false;
 
 	std::vector<RpfResourceFileEntry> ResourceEntries;
 	std::vector<RpfBinaryFileEntry> BinaryEntries;

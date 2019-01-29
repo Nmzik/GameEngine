@@ -46,8 +46,8 @@ class GameData
 {
 	uint8_t TempBuffer[30 * 1024 * 1024];
 
-	std::vector<RpfFile*> RpfFiles;
-	std::vector<std::ifstream*> Files;
+	std::vector<std::unique_ptr<RpfFile>> rpfFiles;
+	std::vector<std::unique_ptr<std::ifstream>> openedFiles;
 
 public:
 	std::vector<WaterQuad> WaterQuads;
@@ -57,8 +57,10 @@ public:
 	//	std::unordered_map<uint32_t, std::vector<fwEntityDef>> MloDictionary;
 	std::unordered_map<uint32_t, RpfResourceFileEntry*> Entries[9];
 
+	std::unordered_map<uint32_t, uint32_t> HDTextures;
+
 	std::unordered_map<uint32_t, uint32_t> GtxdEntries;
-	std::vector<CarHandling> Vehicles;
+	std::vector<CarHandling> VehiclesInfo;
 	std::vector<glm::vec3> Scenes;
 
 	GameData();

@@ -28,14 +28,14 @@ CVehicle::CVehicle(glm::vec3 position, float mass, YftLoader* yft)
 
 	m_tuning.m_frictionSlip = 3.f;
 
-	chassisShape = new btBoxShape(btVector3(1.f, 2.f, 0.5f));
-	compound = new btCompoundShape();
+	chassisShape = std::make_unique<btBoxShape>(btVector3(1.f, 2.f, 0.5f));
+	compound = std::make_unique<btCompoundShape>();
 	btTransform localTrans;
 	localTrans.setIdentity();
 	//	localTrans effectively shifts the center of mass with respect to the chassis
 	localTrans.setOrigin(btVector3(0.f, 0.f, 0.3f));
 
-	compound->addChildShape(localTrans, chassisShape);
+	compound->addChildShape(localTrans, chassisShape.get());
 
 	btVector3 localInertia(0, 0, 0);
 	compound->calculateLocalInertia(mass, localInertia);
@@ -44,20 +44,20 @@ CVehicle::CVehicle(glm::vec3 position, float mass, YftLoader* yft)
 	tr.setIdentity();
 	tr.setOrigin(btVector3(position.x, position.y, position.z));
 
-	btDefaultMotionState* myMotionState = new btDefaultMotionState(tr);
+	myMotionState = std::make_unique<btDefaultMotionState>(tr);
 
-	btRigidBody::btRigidBodyConstructionInfo cInfo(mass, myMotionState, compound, localInertia);
+	btRigidBody::btRigidBodyConstructionInfo cInfo(mass, myMotionState.get(), compound.get(), localInertia);
 
-	m_carChassis = new btRigidBody(cInfo);
+	m_carChassis = std::make_unique<btRigidBody>(cInfo);
 	m_carChassis->setContactProcessingThreshold(m_defaultContactProcessingThreshold);
 
 	m_carChassis->setWorldTransform(tr);
-	PhysicsSystem::dynamicsWorld->addRigidBody(m_carChassis, btBroadphaseProxy::KinematicFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::KinematicFilter);
+	PhysicsSystem::dynamicsWorld->addRigidBody(m_carChassis.get(), btBroadphaseProxy::KinematicFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::KinematicFilter);
 
-	m_wheelShape = new btCylinderShapeX(btVector3(wheelWidth, wheelRadius, wheelRadius));
+	m_wheelShape = std::make_unique<btCylinderShapeX>(btVector3(wheelWidth, wheelRadius, wheelRadius));
 
-	m_vehicleRayCaster = new btDefaultVehicleRaycaster(PhysicsSystem::dynamicsWorld);
-	m_vehicle = new btRaycastVehicle(m_tuning, m_carChassis, m_vehicleRayCaster);
+	m_vehicleRayCaster = std::make_unique<btDefaultVehicleRaycaster>(PhysicsSystem::dynamicsWorld.get());
+	m_vehicle = std::make_unique<btRaycastVehicle>(m_tuning, m_carChassis.get(), m_vehicleRayCaster.get());
 
 	///	never deactivate the vehicle
 	m_carChassis->setActivationState(DISABLE_DEACTIVATION);
@@ -65,7 +65,7 @@ CVehicle::CVehicle(glm::vec3 position, float mass, YftLoader* yft)
 	//	choose coordinate system
 	m_vehicle->setCoordinateSystem(0, 2, 1);
 
-	PhysicsSystem::dynamicsWorld->addAction(m_vehicle);
+	PhysicsSystem::dynamicsWorld->addAction(m_vehicle.get());
 
 	float connectionHeight = 0.5f;
 
@@ -98,18 +98,8 @@ CVehicle::CVehicle(glm::vec3 position, float mass, YftLoader* yft)
 
 CVehicle::~CVehicle()
 {
-	PhysicsSystem::dynamicsWorld->removeAction(m_vehicle);
-	PhysicsSystem::dynamicsWorld->removeRigidBody(m_carChassis);
-
-	delete m_carChassis->getMotionState();
-	delete m_carChassis;
-	delete chassisShape;
-	delete compound;
-	delete m_wheelShape;
-	delete m_vehicleRayCaster;
-	m_vehicleRayCaster = NULL;
-	delete m_vehicle;
-	m_vehicle = NULL;
+	PhysicsSystem::dynamicsWorld->removeAction(m_vehicle.get());
+	PhysicsSystem::dynamicsWorld->removeRigidBody(m_carChassis.get());
 }
 
 glm::mat4 CVehicle::GetMat4()

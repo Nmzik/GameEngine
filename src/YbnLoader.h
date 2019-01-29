@@ -149,12 +149,13 @@ class YbnLoader : public FileType
 	std::vector<glm::u16vec3*> IndicesArray;
 	std::vector<glm::vec3*> VerticesArray;
 
-	std::vector<btCollisionShape*> Shapes;
-	std::vector<btTriangleIndexVertexArray*> VertIndicesArray;
+	std::vector<std::unique_ptr<btCollisionShape>> Shapes;
+	std::vector<std::unique_ptr<btTriangleIndexVertexArray>> VertIndicesArray;
 
 public:
-	btCompoundShape* compound = nullptr;
-	btRigidBody* rigidBody = nullptr;
+	std::unique_ptr<btCompoundShape> compound;
+	std::unique_ptr<btRigidBody> rigidBody;
+	std::unique_ptr<btDefaultMotionState> MotionState;
 
 	void Init(memstream& file) override;
 	void ParseYbn(memstream& file);

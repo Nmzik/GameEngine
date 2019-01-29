@@ -1,6 +1,4 @@
 #include "YdrLoader.h"
-#include "YbnLoader.h"
-#include "YtdLoader.h"
 #include "GTAEncryption.h"
 #include <algorithm>
 
@@ -21,7 +19,7 @@ void YdrLoader::Init(memstream& file)
 			SYSTEM_BASE_PTR(fragDrawable->BoundPointer);
 			file.seekg(fragDrawable->BoundPointer);
 
-			ybn = new YbnLoader();
+			ybn = std::make_unique<YbnLoader>();
 			ybn->Init(file);
 		}
 	}
@@ -48,7 +46,7 @@ void YdrLoader::Init(memstream& file)
 			SYSTEM_BASE_PTR(drawable->BoundPointer);
 			file.seekg(drawable->BoundPointer);
 
-			ybn = new YbnLoader();
+			ybn = std::make_unique<YbnLoader>();
 			ybn->Init(file);
 			//	ybnfile->Finalize(world);
 		}
@@ -62,7 +60,7 @@ void YdrLoader::Init(memstream& file)
 		{
 			SYSTEM_BASE_PTR(drawBase->ShaderGroupPointer->TextureDictionaryPointer);
 			file.seekg(drawBase->ShaderGroupPointer->TextureDictionaryPointer);
-			ytd = new YtdLoader();
+			ytd = std::make_unique<YtdLoader>();
 			ytd->Init(file);
 		}
 
@@ -217,15 +215,5 @@ void YdrLoader::Init(memstream& file)
 				models[i].meshes.emplace_back(file.data, drawBase->DrawableModels[0]->Get(i)->m_geometries.Get(j), materials[(*drawBase->DrawableModels[0]->Get(i)->ShaderMappingPointer)[j]]);
 			}
 		}
-	}
-}
-
-YdrLoader::~YdrLoader()
-{
-	if (ybn) {
-		delete ybn;
-	}
-	if (ytd) {
-		delete ytd;
 	}
 }

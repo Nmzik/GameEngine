@@ -31,12 +31,12 @@ class ResourceManager
 	std::deque<Resource*> waitingList;
 	GameWorld* gameworld;
 
-	std::unordered_map<uint32_t, YdrLoader*> ydrLoader;
-	std::unordered_map<uint32_t, YddLoader*> yddLoader;
-	std::unordered_map<uint32_t, YftLoader*> yftLoader;
-	std::unordered_map<uint32_t, YtdLoader*> ytdLoader;
-	std::unordered_map<uint32_t, YbnLoader*> ybnLoader;
-	std::unordered_map<uint32_t, YmapLoader*> ymapLoader;
+	std::unordered_map<uint32_t, std::unique_ptr<YdrLoader>> ydrLoader;
+	std::unordered_map<uint32_t, std::unique_ptr<YddLoader>> yddLoader;
+	std::unordered_map<uint32_t, std::unique_ptr<YftLoader>> yftLoader;
+	std::unordered_map<uint32_t, std::unique_ptr<YtdLoader>> ytdLoader;
+	std::unordered_map<uint32_t, std::unique_ptr<YbnLoader>> ybnLoader;
+	std::unordered_map<uint32_t, std::unique_ptr<YmapLoader>> ymapLoader;
 public:
 	ResourceManager(GameWorld* world);
 	~ResourceManager();

@@ -321,21 +321,20 @@ struct rmcDrawable : rmcDrawableBase
 	}
 };
 
-class YtdLoader;
-class YbnLoader;
+#include "YtdLoader.h"
+#include "YbnLoader.h"
 
 // REMOVE DEFAULT INITIALIZATION IN CLASS
 // CAUSES CLASS IN ASSEMBLER
 
 class YdrLoader : public FileType
 {
-	YtdLoader* ytd = nullptr;
+	std::unique_ptr<YtdLoader> ytd;
 
 public:
 	std::vector<Model> models;
-	YbnLoader* ybn = nullptr;
+	std::unique_ptr<YbnLoader> ybn;
 	bool isYft = false;
 
 	void Init(memstream& file) override;
-	~YdrLoader();
 };

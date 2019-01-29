@@ -16,8 +16,9 @@ struct CharacterWeaponSlot
 
 class CPed : public Entity
 {
-	btCapsuleShapeZ* physShape;
-	btRigidBody* body;
+	std::unique_ptr<btCapsuleShapeZ> physShape;
+	std::unique_ptr<btRigidBody> body;
+	std::unique_ptr<btMotionState> myMotionState;
 
 	atArray<CharacterWeaponSlot> weapons;
 	uint16_t currentWeapon = 0;
@@ -29,6 +30,9 @@ class CPed : public Entity
 public:
 	CPed(glm::vec3 position, YddLoader* ydd);
 	~CPed();
+
+	CPed& operator=(CPed&& other) = default;
+	CPed(CPed&& other) = default;
 
 	std::vector<YdrLoader*> playerModel;
 	bool on_ground = false;

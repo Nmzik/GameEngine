@@ -39,7 +39,16 @@ RenderingSystem::RenderingSystem(SDL_Window* window_)
 
 	OpenGL_Init();
 
-	//	if (!GLEW_ARB_texture_compression_bptc) printf("NOT INITALIZED BPTC\n");
+	
+	if (SDL_GL_ExtensionSupported("GL_EXT_texture_filter_anisotropic")) {
+		float aniso = 0.0f;
+		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &aniso);
+		printf("ANISO SUPPORTED %f\n", aniso);
+	}
+	else {
+		printf("NOT SUPPORTED\n");
+	}
+	//if (!GLEW_ARB_texture_compression_bptc) printf("NOT INITALIZED BPTC\n");
 	//	if (!GLEW_EXT_texture_compression_s3tc) printf("NOT INITALIZED s3tc\n");
 	//	if (!GLEW_EXT_texture_compression_rgtc) printf("NOT INITALIZED rgtc\n");
 
@@ -63,7 +72,6 @@ RenderingSystem::RenderingSystem(SDL_Window* window_)
 	ShadowWidth = 1024;
 	ShadowHeight = 1024;
 
-	//	skybox = new Skybox();
 #ifdef USE_DX_REVERSE_Z
 	const float zNear = 0.01f;
 	const float viewAngleVertical = 45.0f;
@@ -381,7 +389,11 @@ void RenderingSystem::render(GameWorld* world)
 	if (RenderDebugWorld)
 	{
 		PhysicsSystem::dynamicsWorld->debugDrawWorld();
-		gbuffer->setMat4(0, glm::mat4(1.0));
+
+		glm::mat4 DefaultMatrix(1.0f);
+		glBindBuffer(GL_UNIFORM_BUFFER, uboModel);
+		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &DefaultMatrix[0]);
+		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 		world->getDebugDrawer().render();
 	}
 

@@ -11,11 +11,12 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtx/norm.hpp"
 
+#include "CPed.h"
+
 class ResourceManager;
 class YmapLoader;
 class Water;
 class Camera;
-class CPed;
 class CVehicle;
 class YdrLoader;
 class YbnLoader;
@@ -45,6 +46,8 @@ class GameWorld
 	GameData data;
 	SpaceGrid spaceGrid;
 	NodeGrid nodeGrid;
+	NavGrid navGrid;
+
 	std::unique_ptr<ResourceManager> resourceManager;
 	PhysicsSystem physicsSystem;
 	//	SoundManager sound;
@@ -69,6 +72,7 @@ public:
 
 	glm::i32vec2 CurCell;
 	glm::i32vec2 CurNodeCell;
+	glm::i32vec2 CurNavCell;
 	std::vector<YmapLoader*> CurYmaps;
 	std::vector<YbnLoader*> CurYbns;
 	bool EnableStreaming = true;
