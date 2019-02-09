@@ -4,6 +4,7 @@
 #include "RenderingSystem.h"
 #include "GameData.h"
 #include "CPed.h"
+#include "CVehicle.h"
 
 FreeListAllocator* myAllocator;
 
@@ -99,7 +100,7 @@ Game::~Game()
 	SDL_Quit();
 }
 
-void Game::updateFPS(float delta_time)
+void Game::updateFPS(float delta_time, float cpuThreadTime, float gpuThreadTime)
 {
 	static auto time_since_last_fps_output = 0.f;
 
@@ -108,8 +109,8 @@ void Game::updateFPS(float delta_time)
 	{
 		time_since_last_fps_output = 0.0f;
 		std::ostringstream osstr;
-		osstr << "Game window"
-			<< " (" << (1.0f / delta_time) << " FPS, " << (delta_time * 1000.0f) << " CPU time, " << rendering_system->gpuTime * 0.000001f << " GPU time) | " << gameWorld->renderList.size()
+		osstr << "Game "
+			<< " (" << (1.0f / delta_time) << " FPS, " << (delta_time * 1000.0f) << " CPU time, " << (cpuThreadTime * 1000.0f) << " CPU Thread time, " << (gpuThreadTime * 1000.0f) << " Render Thread time, " << rendering_system->gpuTime * 0.000001f << " GPU time) | " << gameWorld->renderList.size()
 			<< " Objects, " << rendering_system->DrawCalls << " Draw Calls, " << gameWorld->GetResourceManager()->GlobalGpuMemory / 1024 / 1024 << " MB GPU Mem, "
 			<< gameWorld->GetResourceManager()->TextureMemory / 1024 / 1024 << " MB Texture Mem, Bullet Free Mem " << (myAllocator->getSize() - myAllocator->getUsedMemory()) / 1024 / 1024;
 		SDL_SetWindowTitle(window, osstr.str().c_str());
@@ -126,6 +127,7 @@ void Game::run()
 
 	while (running)
 	{
+		auto cpuThreadStart = std::chrono::steady_clock::now();
 		input->Update();
 
 		if (input->IsKeyPressed(SDL_SCANCODE_ESCAPE))
@@ -143,11 +145,16 @@ void Game::run()
 			tick(delta_time);
 			gameWorld->update(delta_time, &rendering_system->getCamera());
 		}
+		auto cpuThreadEnd = std::chrono::steady_clock::now();
+		float cpuThreadTime = std::chrono::duration<float>(cpuThreadEnd - cpuThreadStart).count();
 
+		auto gpuThreadStart = std::chrono::steady_clock::now();
 		rendering_system->render(gameWorld.get());
+		auto gpuThreadEnd = std::chrono::steady_clock::now();
+		float gpuThreadTime = std::chrono::duration<float>(gpuThreadEnd - gpuThreadStart).count();
 		//SDL_GL_SwapWindow(window);
 
-		updateFPS(delta_time);
+		updateFPS(delta_time, cpuThreadTime, gpuThreadTime);
 	}
 
 	//	if (event.key.keysym.sym == SDLK_ESCAPE || event.type == SDL_QUIT) break;

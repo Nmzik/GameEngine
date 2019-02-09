@@ -1,11 +1,10 @@
 #pragma once
 #include <btBulletDynamicsCommon.h>
 #include "BulletCollision/CollisionDispatch/btGhostObject.h"
-#include "YftLoader.h"
 #include "Shader.h"
 #include "Entity.h"
-#include "YdrLoader.h"
-#include "PhysicsSystem.h"
+
+class YftLoader;
 
 class CVehicle : public Entity
 {

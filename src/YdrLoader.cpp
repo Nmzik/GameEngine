@@ -185,6 +185,7 @@ void YdrLoader::Init(memstream& file)
 
 		for (int i = 0; i < drawBase->DrawableModels[0]->getSize(); i++)
 		{
+			models[i].Unk_2Ch = drawBase->DrawableModels[0]->Get(i)->Unknown_2Ch;
 			//	Optimization
 			models[i].meshes.reserve(drawBase->DrawableModels[0]->Get(i)->m_geometries.getSize());
 

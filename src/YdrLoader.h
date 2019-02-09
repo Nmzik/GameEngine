@@ -2,7 +2,6 @@
 
 #include "FileType.h"
 #include "Model.h"
-#include "GlobalPool.h"
 
 struct grmShaderGroup : datBase
 {

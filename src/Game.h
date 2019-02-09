@@ -39,7 +39,7 @@ public:
 	~Game();
 	bool paused = false;
 
-	void updateFPS(float delta_time);
+	void updateFPS(float delta_time, float cpuThreadTime, float gpuThreadTime);
 	void run();
 
 	void tick(float delta_time);

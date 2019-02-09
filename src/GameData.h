@@ -44,7 +44,7 @@ struct CarHandling
 
 class GameData
 {
-	uint8_t TempBuffer[30 * 1024 * 1024];
+	uint8_t* TempBuffer;
 
 	std::vector<std::unique_ptr<RpfFile>> rpfFiles;
 	std::vector<std::unique_ptr<std::ifstream>> openedFiles;

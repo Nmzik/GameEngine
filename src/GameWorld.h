@@ -48,8 +48,8 @@ class GameWorld
 	NodeGrid nodeGrid;
 	NavGrid navGrid;
 
-	std::unique_ptr<ResourceManager> resourceManager;
 	PhysicsSystem physicsSystem;
+	std::unique_ptr<ResourceManager> resourceManager;
 	//	SoundManager sound;
 
 public:

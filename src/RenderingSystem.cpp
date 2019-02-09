@@ -56,7 +56,6 @@ RenderingSystem::RenderingSystem(SDL_Window* window_)
 	//glDebugMessageCallback(myDebugCallback, nullptr);
 
 	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
 	glDisable(GL_MULTISAMPLE);
 	glDisable(GL_DITHER);
 
@@ -267,20 +266,20 @@ void RenderingSystem::createSSAO()
 
 	// generate noise texture
 	// ----------------------
-	std::vector<glm::vec3> ssaoNoise;
-	for (unsigned int i = 0; i < 16; i++)
-	{
-		glm::vec3 noise(randomFloats(generator) * 2.0 - 1.0, randomFloats(generator) * 2.0 - 1.0, 0.0f); // rotate around z-axis (in tangent space)
-		ssaoNoise.push_back(noise);
-	}
+std::vector<glm::vec3> ssaoNoise;
+for (unsigned int i = 0; i < 16; i++)
+{
+	glm::vec3 noise(randomFloats(generator) * 2.0 - 1.0, randomFloats(generator) * 2.0 - 1.0, 0.0f); // rotate around z-axis (in tangent space)
+	ssaoNoise.push_back(noise);
+}
 
-	glGenTextures(1, &noiseTexture);
-	glBindTexture(GL_TEXTURE_2D, noiseTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, 4, 4, 0, GL_RGB, GL_FLOAT, &ssaoNoise[0]);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+glGenTextures(1, &noiseTexture);
+glBindTexture(GL_TEXTURE_2D, noiseTexture);
+glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, 4, 4, 0, GL_RGB, GL_FLOAT, &ssaoNoise[0]);
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 }
 
 void RenderingSystem::createHDRFBO()
@@ -322,12 +321,6 @@ void RenderingSystem::render(GameWorld* world)
 
 	camera->UpdateFrustum(ProjectionView);
 
-	if (world->EnableStreaming)
-	{
-		world->renderList.clear();
-		world->GetVisibleYmaps(camera.get());
-	}
-
 	glBindBuffer(GL_UNIFORM_BUFFER, uboGlobal);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &ProjectionView[0]);
 
@@ -362,7 +355,8 @@ void RenderingSystem::render(GameWorld* world)
 		}
 	}
 	glDepthMask(GL_TRUE);*/
-		
+
+	glEnable(GL_CULL_FACE);
 
 	for (auto& GameObject : world->renderList)
 	{
@@ -372,6 +366,9 @@ void RenderingSystem::render(GameWorld* world)
 
 		for (auto& model : GameObject->ydr->models)
 		{
+			if ((model.Unk_2Ch & 1) == 0) {
+				continue; //PROXIES
+			}
 			for (auto& mesh : model.meshes)
 			{
 				mesh.Draw(DefaultTexture);
@@ -381,10 +378,10 @@ void RenderingSystem::render(GameWorld* world)
 		}
 	}
 
+	glDisable(GL_CULL_FACE);
+
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, 0);
-
-	glDisable(GL_CULL_FACE);
 
 	if (RenderDebugWorld)
 	{
@@ -407,8 +404,6 @@ void RenderingSystem::render(GameWorld* world)
 			DrawCalls++;
 		}
 	}*/
-
-	glEnable(GL_CULL_FACE);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 #ifdef USE_DX_REVERSE_Z

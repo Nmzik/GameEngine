@@ -10,6 +10,7 @@
 
 GameData::GameData()
 {
+	TempBuffer = new uint8_t[40 * 1024 * 1024];
 	GTAEncryption::getInstance().LoadKeys();
 
 	std::vector<std::string> RpfsFiles = {
@@ -126,7 +127,7 @@ GameData::GameData()
 				//	YtypEntries[entry.FileNameHash] = &entry;
 				//	YtypEntries[entry.ShortNameHash] = &entry;
 
-				std::vector<uint8_t> outputBuffer(entry.SystemSize + entry.GraphicsSize);
+				std::vector<uint8_t> outputBuffer(entry.UncompressedFileSize);
 				ExtractFileResource(entry, outputBuffer.data(), outputBuffer.size());
 
 				memstream stream(outputBuffer.data(), outputBuffer.size());
@@ -367,7 +368,7 @@ void GameData::ExtractFileBinary(RpfBinaryFileEntry& entry, std::vector<uint8_t>
 
 	rpf->seekg(entry.FileOffset);
 
-	if (entry.FileSize > 30 * 1024 * 1024) {
+	if (entry.FileSize > 40 * 1024 * 1024) {
 		printf("ERROR BUFFER SIZE\n");
 	}
 
@@ -387,7 +388,7 @@ void GameData::ExtractFileResource(RpfResourceFileEntry& entry, uint8_t* Allocat
 
 	rpf->seekg(entry.FileOffset);
 
-	if (entry.FileSize > 30 * 1024 * 1024) {
+	if (entry.FileSize > 40 * 1024 * 1024) {
 		printf("ERROR BUFFER SIZE\n");
 	}
 

@@ -11,8 +11,6 @@
 #include "YtdLoader.h"
 #include "YtypLoader.h"
 
-#include "GlobalPool.h"
-
 //OVERALL
 //50MB for BULLET PHYSICS
 //50MB for ResourceLoader
@@ -273,12 +271,11 @@ void ResourceManager::update()
 		auto it = gameworld->getGameData()->Entries[res->type].find(res->Hash);
 		if (it != gameworld->getGameData()->Entries[res->type].end())
 		{
-			uint64_t FileSize = it->second->SystemSize + it->second->GraphicsSize;
-			uint8_t* allocMemory = (uint8_t*)resource_allocator->allocate(FileSize, 16);
+			uint8_t* allocatedMemory = (uint8_t*)resource_allocator->allocate(it->second->UncompressedFileSize, 16);
 
-			if (allocMemory != nullptr) {
-				res->Buffer = allocMemory;
-				res->BufferSize = FileSize;
+			if (allocatedMemory != nullptr) {
+				res->Buffer = allocatedMemory;
+				res->BufferSize = it->second->UncompressedFileSize;
 				gameworld->getGameData()->ExtractFileResource(*(it->second), res->Buffer, res->BufferSize);
 				res->SystemSize = (it->second->SystemSize);
 			}

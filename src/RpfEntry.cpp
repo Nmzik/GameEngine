@@ -55,7 +55,9 @@ RpfResourceFileEntry::RpfResourceFileEntry(memstream& stream, std::istream& orig
 	stream.read((char*)&GraphicsFlags, sizeof(uint32_t));
 
 	SystemSize = GetSizeFromFlags(SystemFlags);
-	GraphicsSize = GetSizeFromFlags(GraphicsFlags);
+	int32_t GraphicsSize = GetSizeFromFlags(GraphicsFlags);
+
+	UncompressedFileSize = SystemSize + GraphicsSize;
 	//
 
 	// there are sometimes resources with length=0xffffff which actually

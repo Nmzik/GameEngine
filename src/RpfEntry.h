@@ -46,6 +46,7 @@ public:
 	RpfFile* File;
 	uint64_t FileOffset;
 	uint32_t FileSize;
+
 	bool IsEncrypted;
 };
 
@@ -65,7 +66,7 @@ public:
 	uint32_t GraphicsFlags;
 
 	int32_t SystemSize;
-	int32_t GraphicsSize;
+	uint64_t UncompressedFileSize;
 
 	RpfResourceFileEntry(memstream& stream, std::istream& originalFile, uint64_t StartPos, memstream& NamesStream);
 };

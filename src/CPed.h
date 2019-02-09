@@ -1,10 +1,13 @@
 #pragma once
 
+#include <btBulletDynamicsCommon.h>
 #include "Entity.h"
-#include "CVehicle.h"
-#include "YddLoader.h"
-#include "PhysicsSystem.h"
 #include <array>
+#include <vector>
+
+class CVehicle;
+class YddLoader;
+class YdrLoader;
 
 struct CharacterWeaponSlot
 {
@@ -20,7 +23,7 @@ class CPed : public Entity
 	std::unique_ptr<btRigidBody> body;
 	std::unique_ptr<btMotionState> myMotionState;
 
-	atArray<CharacterWeaponSlot> weapons;
+	std::array<CharacterWeaponSlot, 13> weapons;
 	uint16_t currentWeapon = 0;
 	bool inWater = false;
 	glm::vec3 playerDirection;

@@ -19,8 +19,6 @@
 GameWorld::GameWorld() :
 	dirLight(glm::vec3(0.1f, 0.8f, 0.1f), glm::vec3(0.2f, 0.2f, 0.2f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1.0f, 1.0f, 1.0f), true)
 {
-	//////////////////////////////////////////////////////////////////////////////
-
 	resourceManager = std::make_unique<ResourceManager>(this);
 
 	for (int i = 0; i < data.cacheFile->AllMapNodes.size(); i++)
@@ -484,10 +482,10 @@ void GameWorld::LoadQueuedResources()
 				break;
 			}
 			}
+
+			resourceManager->resource_allocator->deallocate(res->Buffer);
 		}
 
-		if (res->BufferSize != 0)
-			resourceManager->resource_allocator->deallocate(res->Buffer);
 		delete res;
 
 		auto new_time = std::chrono::steady_clock::now();
@@ -726,6 +724,12 @@ void GameWorld::update(float delta_time, Camera* camera)
 	for (auto& vehicle : vehicles)
 	{
 		vehicle->PhysicsTick();
+	}
+
+	if (EnableStreaming)
+	{
+		renderList.clear();
+		GetVisibleYmaps(camera);
 	}
 }
 

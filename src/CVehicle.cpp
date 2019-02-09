@@ -1,5 +1,8 @@
 #include "CVehicle.h"
 
+#include "PhysicsSystem.h"
+#include "YftLoader.h"
+
 #define CUBE_HALF_EXTENTS 1
 btVector3 wheelDirectionCS0(0, 0, -1);
 btVector3 wheelAxleCS(1, 0, 0);
