@@ -1,9 +1,9 @@
 #pragma once
-#include <cstdint>
-#include "membuf.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/quaternion.hpp"
+#include "membuf.h"
 #include <array>
+#include <cstdint>
 
 #define SYSTEM_BASE 0x50000000
 #define GRAPHICS_BASE 0x60000000
@@ -97,24 +97,24 @@ struct ResourceFileBase
 };
 
 enum Unk_1264241711 // entity lodLevel
-	: int           // Key:1856311430
+    : int           // Key:1856311430
 {
-	LODTYPES_DEPTH_HD = 0,
-	LODTYPES_DEPTH_LOD = 1,
-	LODTYPES_DEPTH_SLOD1 = 2, // RARELY USED
-	LODTYPES_DEPTH_SLOD2 = 3, // RARELY USED
-	LODTYPES_DEPTH_SLOD3 = 4, // thanks Tadden :D //REAL SLOD
+	LODTYPES_DEPTH_HD       = 0,
+	LODTYPES_DEPTH_LOD      = 1,
+	LODTYPES_DEPTH_SLOD1    = 2, // RARELY USED
+	LODTYPES_DEPTH_SLOD2    = 3, // RARELY USED
+	LODTYPES_DEPTH_SLOD3    = 4, // thanks Tadden :D //REAL SLOD
 	LODTYPES_DEPTH_ORPHANHD = 5, //	NOT USED? || ACTUALLY USED FOR INTERIORS
-	LODTYPES_DEPTH_SLOD4 = 6, // USED ONLY FOR GRASS
+	LODTYPES_DEPTH_SLOD4    = 6, // USED ONLY FOR GRASS
 };
 
 enum Unk_648413703 // entity priorityLevel
-	: int          // Key:2200357711
+    : int          // Key:2200357711
 {
-	PRI_REQUIRED = 0, // 1943361227
-	PRI_OPTIONAL_HIGH = 1, // 3993616791
+	PRI_REQUIRED        = 0, // 1943361227
+	PRI_OPTIONAL_HIGH   = 1, // 3993616791
 	PRI_OPTIONAL_MEDIUM = 2, //	515598709
-	PRI_OPTIONAL_LOW = 3, // 329627604
+	PRI_OPTIONAL_LOW    = 3, // 329627604
 };
 
 struct fwEntityDef // 128 bytes, Key:1825799514
@@ -154,24 +154,24 @@ class datBase
 template <typename TValue>
 class atArray
 {
-public:
+	public:
 	TValue* m_offset;
 	uint16_t m_count;
 	uint16_t m_size;
 
-public:
+	public:
 	atArray()
 	{
 		m_offset = 0;
-		m_count = 0;
-		m_size = 0;
+		m_count  = 0;
+		m_size   = 0;
 	}
 
 	atArray(int capacity)
 	{
 		m_offset = new TValue[capacity];
-		m_count = 0;
-		m_size = capacity;
+		m_count  = 0;
+		m_size   = capacity;
 	}
 
 	~atArray()
@@ -182,8 +182,8 @@ public:
 	void reserve(uint16_t size)
 	{
 		m_offset = new TValue[size];
-		m_count = 0;
-		m_size = size;
+		m_count  = 0;
+		m_size   = size;
 	}
 
 	auto& operator[](uint16_t idx)
@@ -205,7 +205,7 @@ public:
 template <typename T>
 class pgPtr
 {
-public:
+	public:
 	T* pointer;
 
 	T* operator->() const
@@ -227,12 +227,12 @@ public:
 template <typename TValue>
 class pgObjectArray
 {
-private:
+	private:
 	pgPtr<pgPtr<TValue>> m_objects;
 	uint16_t m_count;
 	uint16_t m_size;
 
-public:
+	public:
 	inline uint16_t getSize()
 	{
 		return m_count;
@@ -258,24 +258,24 @@ public:
 template <typename TValue, typename TIndex = uint16_t>
 class pgArray
 {
-private:
+	private:
 	pgPtr<TValue> m_offset;
 	TIndex m_count;
 	TIndex m_size;
 
-public:
+	public:
 	pgArray()
 	{
 		m_offset = (TValue*)0;
-		m_count = 0;
-		m_size = 0;
+		m_count  = 0;
+		m_size   = 0;
 	}
 
 	pgArray(int capacity)
 	{
 		m_offset = new TValue[capacity];
-		m_count = 0;
-		m_size = capacity;
+		m_count  = 0;
+		m_size   = capacity;
 	}
 
 	TValue& Get(TIndex offset)
@@ -392,7 +392,7 @@ public:
   {
    if (m_hashes.Get(i) == keyHash)
    {
-	return m_values.Get(i);
+ return m_values.Get(i);
    }
   }
 
@@ -425,10 +425,10 @@ public:
 
 class FileType
 {
-public:
-	uint32_t RefCount = 0;
+	public:
+	uint32_t RefCount  = 0;
 	uint64_t gpuMemory = 0;
-	bool Loaded = false;
+	bool Loaded        = false;
 
 	FileType()
 	{
@@ -443,7 +443,7 @@ public:
 template <typename T, uint32_t num>
 class Pool
 {
-public:
+	public:
 	static Pool& getPool()
 	{
 		static Pool pool;
@@ -451,7 +451,7 @@ public:
 	}
 
 	Pool()
-		: objects(num)
+	    : objects(num)
 	{
 		firstAvailable_ = &objects[0];
 
@@ -469,7 +469,7 @@ public:
 		assert(firstAvailable_ != NULL);
 
 		// Remove it from the available list.
-		T* newFile = firstAvailable_;
+		T* newFile      = firstAvailable_;
 		firstAvailable_ = newFile->next;
 
 		return newFile;
@@ -479,13 +479,13 @@ public:
 	{
 		file->Remove();
 		file->gpuMemory = 0;
-		file->Loaded = false;
-		file->next = firstAvailable_;
+		file->Loaded    = false;
+		file->next      = firstAvailable_;
 		firstAvailable_ = file;
 	}
 
 	atArray<T> objects;
 	T* firstAvailable_;
 
-private:
+	private:
 };

@@ -2,13 +2,13 @@
 #include "Meta.h"
 
 enum Unk_1991964615 // archetype assetType
-	: int           // Key:1866031916
+    : int           // Key:1866031916
 {
-	ASSET_TYPE_UNINITIALIZED = 0, // 189734893
-	ASSET_TYPE_FRAGMENT = 1, // 571047911
-	ASSET_TYPE_DRAWABLE = 2, // 130075505
+	ASSET_TYPE_UNINITIALIZED      = 0, // 189734893
+	ASSET_TYPE_FRAGMENT           = 1, // 571047911
+	ASSET_TYPE_DRAWABLE           = 2, // 130075505
 	ASSET_TYPE_DRAWABLEDICTIONARY = 3, //	1580165652
-	ASSET_TYPE_ASSETLESS = 4, // 4161085041
+	ASSET_TYPE_ASSETLESS          = 4, // 4161085041
 };
 
 struct fwArchetypeDef // 144 bytes, Key:2411387556
@@ -89,7 +89,7 @@ struct CMapTypes // 80 bytes, Key:2608875220
 
 class Archetype
 {
-public:
+	public:
 	fwArchetypeDef BaseArchetypeDef;
 
 	virtual uint32_t GetType()
@@ -100,7 +100,7 @@ public:
 
 class TimeArchetype : public Archetype
 {
-public:
+	public:
 	CTimeArchetypeDefData TimeArchetypeDef;
 
 	virtual uint32_t GetType()
@@ -111,7 +111,7 @@ public:
 
 class MloArchetype : public Archetype
 {
-public:
+	public:
 	CMloArchetypeDefData MloArchetypeDef;
 
 	virtual uint32_t GetType()
@@ -122,7 +122,7 @@ public:
 
 class YtypLoader
 {
-public:
+	public:
 	std::vector<Archetype*> ArchetypeDefs;
 	//	std::vector<fwEntityDef> fwEntityDefs;
 	YtypLoader(memstream& file);

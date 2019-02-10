@@ -2,14 +2,14 @@
 
 #include "CVehicle.h"
 
+#include "PhysicsSystem.h"
 #include "YddLoader.h"
 #include "YdrLoader.h"
-#include "PhysicsSystem.h"
 
 CPed::CPed(glm::vec3 position, YddLoader* ydd)
-	: vehicle(nullptr)
-	, player(ydd)
-	, Entity(position, glm::quat(-1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(1.0f))
+    : vehicle(nullptr)
+    , player(ydd)
+    , Entity(position, glm::quat(-1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(1.0f))
 {
 	health = 200;
 	playerModel.push_back(ydd->ydrFiles[121241095].get());
@@ -29,7 +29,7 @@ CPed::CPed(glm::vec3 position, YddLoader* ydd)
 	myMotionState = std::make_unique<btDefaultMotionState>(transform);
 	btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState.get(), physShape.get(), localInertia);
 	rbInfo.m_restitution = 0.0f;
-	rbInfo.m_friction = 1.0;
+	rbInfo.m_friction    = 1.0;
 
 	body = std::make_unique<btRigidBody>(rbInfo);
 
@@ -39,7 +39,9 @@ CPed::CPed(glm::vec3 position, YddLoader* ydd)
 	body->setAngularFactor(0.0);
 	body->forceActivationState(DISABLE_DEACTIVATION);
 
-	PhysicsSystem::dynamicsWorld->addRigidBody(body.get(), btBroadphaseProxy::KinematicFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::KinematicFilter | btBroadphaseProxy::DefaultFilter);
+	PhysicsSystem::dynamicsWorld->addRigidBody(body.get(),
+	                                           btBroadphaseProxy::KinematicFilter,
+	                                           btBroadphaseProxy::StaticFilter | btBroadphaseProxy::KinematicFilter | btBroadphaseProxy::DefaultFilter);
 
 	playerDirection = glm::vec3(0.0f, 0.0f, 0.0f);
 }
@@ -85,7 +87,8 @@ glm::mat4& CPed::getMatrix()
 
 void CPed::PhysicsTick()
 {
-	position = glm::vec3(body->getWorldTransform().getOrigin().x(), body->getWorldTransform().getOrigin().y(), body->getWorldTransform().getOrigin().z());
+	position =
+	    glm::vec3(body->getWorldTransform().getOrigin().x(), body->getWorldTransform().getOrigin().y(), body->getWorldTransform().getOrigin().z());
 	//	body->setLinearVelocity(btVector3(playerDirection.x, playerDirection.y, playerDirection.z));
 }
 

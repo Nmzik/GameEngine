@@ -1,17 +1,12 @@
 #include "RpfFile.h"
 #include "GTAEncryption.h"
 
-RpfFile::RpfFile(std::ifstream& rpf, std::string& FullPath_, std::string& FileName_, uint32_t FileSize_, uint64_t FileOffset)
+RpfFile::RpfFile(std::ifstream& rpf, std::string& FullPath, std::string& FileName, uint32_t FileSize, uint64_t FileOffset)
 {
 	this->rpf = &rpf;
 
 	rpf.seekg(FileOffset);
 
-	LoadRpf(rpf, FileName_, FileSize_, FullPath_);
-}
-
-void RpfFile::LoadRpf(std::ifstream& rpf, std::string& FileName, uint32_t FileSize, std::string& FullPath)
-{
 	uint64_t startPos = rpf.tellg();
 
 	uint32_t Version;
@@ -31,25 +26,27 @@ void RpfFile::LoadRpf(std::ifstream& rpf, std::string& FileName, uint32_t FileSi
 	}
 
 	std::unique_ptr<uint8_t[]> entriesData = std::make_unique<uint8_t[]>(EntryCount * 16);
-	std::unique_ptr<uint8_t[]> namesData = std::make_unique<uint8_t[]>(NamesLength);
+	std::unique_ptr<uint8_t[]> namesData   = std::make_unique<uint8_t[]>(NamesLength);
 
 	rpf.read((char*)&entriesData[0], EntryCount * 16);
 	rpf.read((char*)&namesData[0], NamesLength);
 
 	switch (Encryption)
 	{
-		case 0x0FFFFFF9:
-			//	printf("AES\n");
-			GTAEncryption::getInstance().DecryptAES(entriesData.get(), EntryCount * 16);
-			GTAEncryption::getInstance().DecryptAES(namesData.get(), NamesLength);
-			IsAESEncrypted = true;
-			break;
-		case 0x0FEFFFFF:
-			//	printf("NG\n");
-			GTAEncryption::getInstance().DecryptNG(entriesData.get(), EntryCount * 16, FileName, FileSize);
-			GTAEncryption::getInstance().DecryptNG(namesData.get(), NamesLength, FileName, FileSize);
-			break;
-		default: printf("OPENIV FORMAR?\n"); break;
+	case 0x0FFFFFF9:
+		//	printf("AES\n");
+		GTAEncryption::getInstance().DecryptAES(entriesData.get(), EntryCount * 16);
+		GTAEncryption::getInstance().DecryptAES(namesData.get(), NamesLength);
+		IsAESEncrypted = true;
+		break;
+	case 0x0FEFFFFF:
+		//	printf("NG\n");
+		GTAEncryption::getInstance().DecryptNG(entriesData.get(), EntryCount * 16, FileName, FileSize);
+		GTAEncryption::getInstance().DecryptNG(namesData.get(), NamesLength, FileName, FileSize);
+		break;
+	default:
+		printf("OPENIV FORMAR?\n");
+		break;
 	}
 
 	memstream EntriesStream(entriesData.get(), EntryCount * 16);

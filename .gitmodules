@@ -19,3 +19,6 @@
 [submodule "3rdparty/tinyxml2"]
 	path = 3rdparty/tinyxml2
 	url = https://github.com/leethomason/tinyxml2.git
+[submodule "3rdparty/tiny-AES-c"]
+	path = 3rdparty/tiny-AES-c
+	url = https://github.com/kokke/tiny-AES-c.git

@@ -4,8 +4,8 @@
 class Model
 {
 
-public:
-	Model() = default;
+	public:
+	Model()  = default;
 	~Model() = default;
 
 	uint32_t Unk_2Ch;

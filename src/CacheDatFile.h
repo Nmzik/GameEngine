@@ -1,10 +1,10 @@
 #pragma once
 #include "fstream"
-#include <iostream>
-#include <vector>
-#include <string>
-#include "membuf.h"
 #include "glm/glm.hpp"
+#include "membuf.h"
+#include <iostream>
+#include <string>
+#include <vector>
 
 struct MapDataStoreNode
 {
@@ -51,7 +51,7 @@ struct BoundsStoreItem
 
 class CacheDatFile
 {
-public:
+	public:
 	std::vector<MapDataStoreNode> AllMapNodes;
 	std::vector<CInteriorProxy> AllCInteriorProxies;
 	std::vector<BoundsStoreItem> AllBoundsStoreItems;

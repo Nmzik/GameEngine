@@ -1,6 +1,6 @@
 #include "YmapLoader.h"
-#include <btBulletDynamicsCommon.h>
 #include "Object.h"
+#include <btBulletDynamicsCommon.h>
 
 void YmapLoader::Init(memstream& file)
 {
@@ -8,11 +8,12 @@ void YmapLoader::Init(memstream& file)
 
 	Meta meta(file);
 
-	//FIND CMAPDATA FIRST OF ALL
+	//	FIND CMAPDATA FIRST OF ALL
 
 	for (auto& Block : meta.MetaBlocks)
 	{
-		if (Block.MetaDataBlock_struct->StructureNameHash == 3545841574) {
+		if (Block.MetaDataBlock_struct->StructureNameHash == 3545841574)
+		{
 			std::memcpy(&_CMapData, &file.data[Block.MetaDataBlock_struct->DataPointer], sizeof(CMapData));
 
 			//	Optimization
@@ -58,7 +59,8 @@ void YmapLoader::Init(memstream& file)
 			}
 			break;
 		}
-		case 1860713439: { //CAR GENERATORS
+		case 1860713439:
+		{ //	CAR GENERATORS
 			for (int i = 0; i < Block.MetaDataBlock_struct->DataLength / sizeof(fwEntityDef); i++)
 			{
 				CCarGen CarGenerator;
@@ -68,7 +70,8 @@ void YmapLoader::Init(memstream& file)
 			}
 			break;
 		}
-		default: break;
+		default:
+			break;
 		}
 
 		/*else if (Block.MetaDataBlock_struct->StructureNameHash == 164374718) //CMloInstanceDef
@@ -80,36 +83,35 @@ void YmapLoader::Init(memstream& file)
 	}
 	/*for (int i = 0; i < Objects.size(); i++)
 	{
-	 Object d = Objects[i];
-	 int pind = Objects[i].CEntity.parentIndex;
+		Object d = Objects[i];
+		int pind = Objects[i].CEntity.parentIndex;
 
-	 bool isroot = false;
+		bool isroot = false;
 
-	 if ((pind < 0) || (pind >= Objects.size()) || (pind >= i)) //index check? might be a problem
-	 {
-	  isroot = true;
-	 }
-	 else
-	 {
-	  Object p = Objects[pind];
-	  if ((p.CEntity.lodLevel <= d.CEntity.lodLevel) ||
-	   ((p.CEntity.lodLevel == Unk_1264241711::LODTYPES_DEPTH_ORPHANHD) &&
-	   (d.CEntity.lodLevel != Unk_1264241711::LODTYPES_DEPTH_ORPHANHD)))
-	  {
-	   isroot = true;
-	  }
-	 }
+		if ((pind < 0) || (pind >= Objects.size()) || (pind >= i)) //index check? might be a problem
+		{
+		 isroot = true;
+		}
+		else
+		{
+		 Object p = Objects[pind];
+		 if ((p.CEntity.lodLevel <= d.CEntity.lodLevel) ||
+		  ((p.CEntity.lodLevel == Unk_1264241711::LODTYPES_DEPTH_ORPHANHD) &&
+		  (d.CEntity.lodLevel != Unk_1264241711::LODTYPES_DEPTH_ORPHANHD)))
+		 {
+		  isroot = true;
+		 }
+		}
 
-	 if (isroot) {
-	  RootObjects.push_back(Objects[i]);
-	 }
+		if (isroot) {
+		 RootObjects.push_back(Objects[i]);
+		}
 	}*/
 	}
 }
 
 YmapLoader::~YmapLoader()
 {
-
 }
 
 /*void YmapPool::RemoveBeta(YmapLoader* ymap, btDynamicsWorld* world)

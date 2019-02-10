@@ -2,18 +2,18 @@
 //#include "Game.h"
 
 #include "SDL.h"
-#include <random>
-#include <memory>
-#include <iostream>
-#include "opengl.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 #include "glm/gtx/rotate_vector.hpp"
+#include "opengl.h"
+#include <iostream>
+#include <memory>
+#include <random>
 
+#include "Camera.h"
 #include "Shader.h"
 #include "Skybox.h"
-#include "Camera.h"
 
 inline float lerp(float a, float b, float f)
 {
@@ -24,8 +24,7 @@ class GameWorld;
 
 class RenderingSystem
 {
-private:
-
+	private:
 	GLuint uboGlobal;
 	GLuint uboModel;
 
@@ -73,14 +72,14 @@ private:
 	SDL_Window* window;
 	SDL_GLContext glcontext;
 
-public:
+	public:
 	RenderingSystem(SDL_Window* window_);
 	~RenderingSystem();
 
 	bool ShowTexture = false;
-	bool gpuTimer = false;
-	bool mWaiting = false;
-	GLuint gpuTime = 0;
+	bool gpuTimer    = false;
+	bool mWaiting    = false;
+	GLuint gpuTime   = 0;
 	uint32_t DrawCalls;
 	glm::vec3 lightPos;
 	bool RenderDebugWorld = false;

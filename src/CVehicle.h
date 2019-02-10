@@ -1,8 +1,8 @@
 #pragma once
-#include <btBulletDynamicsCommon.h>
 #include "BulletCollision/CollisionDispatch/btGhostObject.h"
-#include "Shader.h"
 #include "Entity.h"
+#include "Shader.h"
+#include <btBulletDynamicsCommon.h>
 
 class YftLoader;
 
@@ -10,7 +10,7 @@ class CVehicle : public Entity
 {
 	YftLoader* vehicle;
 
-public:
+	public:
 	CVehicle(glm::vec3 position, float mass, YftLoader* yft);
 	~CVehicle();
 

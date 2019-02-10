@@ -32,12 +32,12 @@ void YdrLoader::Init(memstream& file)
 			SYSTEM_BASE_PTR(drawable->LightAttributesPointer);
 			file.seekg(drawable->LightAttributesPointer);
 
-			std::vector<CLightAttr > lightAttributes_s;
+			std::vector<CLightAttr> lightAttributes_s;
 			lightAttributes_s.resize(drawable->LightAttributesCount1);
 
 			for (int i = 0; i < drawable->LightAttributesCount1; i++)
 			{
-				CLightAttr * light = (CLightAttr *)file.read(sizeof(CLightAttr));
+				CLightAttr* light = (CLightAttr*)file.read(sizeof(CLightAttr));
 				//	lightAttributes_s.push_back(light);
 			}
 		}
@@ -73,7 +73,7 @@ void YdrLoader::Init(memstream& file)
 		for (int i = 0; i < drawBase->ShaderGroupPointer->ShadersCount1; i++)
 		{
 			uint64_t* data_pointer = (uint64_t*)file.read(sizeof(uint64_t));
-			uint64_t posOriginal = file.tellg();
+			uint64_t posOriginal   = file.tellg();
 
 			SYSTEM_BASE_PTR(data_pointer[0]);
 			file.seekg(data_pointer[0]);
@@ -93,47 +93,47 @@ void YdrLoader::Init(memstream& file)
 
 				switch (param->DataType)
 				{
-					case 0:
+				case 0:
 
-						if (param->DataPointer == 0)
-						{
-							TexturesHashes.push_back(0);
-						}
-						else
-						{
-
-							uint64_t Pos = file.tellg();
-
-							SYSTEM_BASE_PTR(param->DataPointer);
-
-							file.seekg(param->DataPointer);
-
-							TextureBase* texBase = (TextureBase*)file.read(sizeof(TextureBase));
-
-							SYSTEM_BASE_PTR(texBase->NamePointer);
-
-							file.seekg(texBase->NamePointer);
-
-							char* Namearray = (char*)&file.data[texBase->NamePointer];
-							std::string Name(&Namearray[0]);
-
-							std::transform(Name.begin(), Name.end(), Name.begin(), tolower);
-							uint32_t NameHash = GenHash(Name);
-
-							TexturesHashes.push_back(NameHash);
-
-							file.seekg(Pos);
-						}
-
-						break;
-					case 1: //	SOME OTHER SHIT OTHER THAN TEXTURE
-						offset += 16;
+					if (param->DataPointer == 0)
+					{
 						TexturesHashes.push_back(0);
-						break;
-					default:
-						offset += 16 * param->DataType;
-						TexturesHashes.push_back(0); //	NOT ERROR
-						break;
+					}
+					else
+					{
+
+						uint64_t Pos = file.tellg();
+
+						SYSTEM_BASE_PTR(param->DataPointer);
+
+						file.seekg(param->DataPointer);
+
+						TextureBase* texBase = (TextureBase*)file.read(sizeof(TextureBase));
+
+						SYSTEM_BASE_PTR(texBase->NamePointer);
+
+						file.seekg(texBase->NamePointer);
+
+						char* Namearray = (char*)&file.data[texBase->NamePointer];
+						std::string Name(&Namearray[0]);
+
+						std::transform(Name.begin(), Name.end(), Name.begin(), tolower);
+						uint32_t NameHash = GenHash(Name);
+
+						TexturesHashes.push_back(NameHash);
+
+						file.seekg(Pos);
+					}
+
+					break;
+				case 1: //	SOME OTHER SHIT OTHER THAN TEXTURE
+					offset += 16;
+					TexturesHashes.push_back(0);
+					break;
+				default:
+					offset += 16 * param->DataType;
+					TexturesHashes.push_back(0); //	NOT ERROR
+					break;
 				}
 			}
 
@@ -142,10 +142,10 @@ void YdrLoader::Init(memstream& file)
 			//	if (shaderFX->TextureParametersCount > 0)
 			//	file.read((char*)&ShaderHashes[0], sizeof(uint32_t) * shaderFX.TextureParametersCount);
 
-			uint32_t DiffuseSampler = 0;
-			uint32_t BumpSampler = 0;
+			uint32_t DiffuseSampler  = 0;
+			uint32_t BumpSampler     = 0;
 			uint32_t SpecularSampler = 0;
-			uint32_t DetailSampler = 0;
+			uint32_t DetailSampler   = 0;
 
 			if ((shaderFX->TextureParametersCount > 0))
 			{
@@ -193,27 +193,33 @@ void YdrLoader::Init(memstream& file)
 			{
 				switch (drawBase->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->InfoPointer->Types)
 				{
-					/*case 8598872888530528662: //YDR - 0x7755555555996996
-					break;*/
-					case 216172782140628998: //	YFT - 0x030000000199A006
-						switch (drawBase->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->InfoPointer->Flags)
-						{
-							case 16473: drawBase->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->InfoPointer->Flags = VertexType::PCCH2H4; break; //  PCCH2H4
-						}
-						break;
-					case 216172782140612614: //	YFT - 0x0300000001996006  PNCH2H4
-						switch (drawBase->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->InfoPointer->Flags)
-						{
-							case 89: drawBase->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->InfoPointer->Flags = VertexType::PNCH2; break; //  PNCH2
-						}
-						break;
+				/*case 8598872888530528662: //YDR - 0x7755555555996996
+				break;*/
+				case 216172782140628998: //	YFT - 0x030000000199A006
+					switch (drawBase->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->InfoPointer->Flags)
+					{
+					case 16473:
+						drawBase->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->InfoPointer->Flags = VertexType::PCCH2H4;
+						break; //  PCCH2H4
+					}
+					break;
+				case 216172782140612614: //	YFT - 0x0300000001996006  PNCH2H4
+					switch (drawBase->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->InfoPointer->Flags)
+					{
+					case 89:
+						drawBase->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->InfoPointer->Flags = VertexType::PNCH2;
+						break; //  PNCH2
+					}
+					break;
 				}
 
-				gpuMemory +=
-					drawBase->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->VertexCount * drawBase->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->VertexStride;
+				gpuMemory += drawBase->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->VertexCount *
+				             drawBase->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->VertexStride;
 				gpuMemory += drawBase->DrawableModels[0]->Get(i)->m_geometries.Get(j)->IndexBufferPointer->IndicesCount * sizeof(uint16_t);
 
-				models[i].meshes.emplace_back(file.data, drawBase->DrawableModels[0]->Get(i)->m_geometries.Get(j), materials[(*drawBase->DrawableModels[0]->Get(i)->ShaderMappingPointer)[j]]);
+				models[i].meshes.emplace_back(file.data,
+				                              drawBase->DrawableModels[0]->Get(i)->m_geometries.Get(j),
+				                              materials[(*drawBase->DrawableModels[0]->Get(i)->ShaderMappingPointer)[j]]);
 			}
 		}
 	}

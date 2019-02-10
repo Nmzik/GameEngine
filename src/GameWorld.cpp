@@ -1,23 +1,23 @@
 #include "GameWorld.h"
 
+#include "CPed.h"
+#include "CVehicle.h"
+#include "Camera.h"
 #include "GTAEncryption.h"
+#include "Object.h"
 #include "ResourceManager.h"
 #include "Water.h"
-#include "Camera.h"
-#include "YtdLoader.h"
+#include "YbnLoader.h"
 #include "YddLoader.h"
 #include "YftLoader.h"
 #include "YmapLoader.h"
-#include "YtypLoader.h"
 #include "YndLoader.h"
-#include "YbnLoader.h"
 #include "YnvLoader.h"
-#include "Object.h"
-#include "CPed.h"
-#include "CVehicle.h"
+#include "YtdLoader.h"
+#include "YtypLoader.h"
 
-GameWorld::GameWorld() :
-	dirLight(glm::vec3(0.1f, 0.8f, 0.1f), glm::vec3(0.2f, 0.2f, 0.2f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1.0f, 1.0f, 1.0f), true)
+GameWorld::GameWorld()
+    : dirLight(glm::vec3(0.1f, 0.8f, 0.1f), glm::vec3(0.2f, 0.2f, 0.2f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1.0f, 1.0f, 1.0f), true)
 {
 	resourceManager = std::make_unique<ResourceManager>(this);
 
@@ -56,10 +56,10 @@ GameWorld::GameWorld() :
 		WaterMeshes.push_back(water);
 	}
 
-	gameHour = 10;
+	gameHour   = 10;
 	gameMinute = 0;
 
-	resourceManager->GetYtd(4096714883); //PLAYER YTD
+	resourceManager->GetYtd(4096714883); //	PLAYER YTD
 	YddLoader* playerYDD = resourceManager->GetYdd(4096714883);
 
 	skydome = resourceManager->GetYdd(2640562617);
@@ -72,7 +72,7 @@ GameWorld::GameWorld() :
 
 	/*for (auto& ytd : data.GtxdEntries)
 	{
-		resourceManager->GetYtd(ytd.second);
+	 resourceManager->GetYtd(ytd.second);
 	}*/
 
 	for (auto& vehicle : vehiclesPool)
@@ -94,7 +94,6 @@ GameWorld::GameWorld() :
 
 GameWorld::~GameWorld()
 {
-
 }
 
 void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
@@ -103,8 +102,8 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 	{
 		for (auto& object : map->Objects)
 		{
-			float Dist = glm::length2(position - object.position);
-			bool IsVisible = Dist <= object.CEntity.lodDist * LODMultiplier;
+			float Dist           = glm::length2(position - object.position);
+			bool IsVisible       = Dist <= object.CEntity.lodDist * LODMultiplier;
 			bool childrenVisible = (Dist <= object.CEntity.childLodDist * LODMultiplier) && (object.CEntity.numChildren > 0);
 			if (IsVisible && !childrenVisible)
 			{
@@ -116,8 +115,8 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 					{
 						if (!object.FoundModel)
 						{
-							object.ytd = resourceManager->GetYtd(object.archetype->BaseArchetypeDef.textureDictionary);
-							object.ydr = resourceManager->GetYdr(object.CEntity.archetypeName);
+							object.ytd        = resourceManager->GetYtd(object.archetype->BaseArchetypeDef.textureDictionary);
+							object.ydr        = resourceManager->GetYdr(object.CEntity.archetypeName);
 							object.FoundModel = true;
 						}
 						if (object.ydr->Loaded)
@@ -136,10 +135,10 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 							  btVector3 localInertia(0, 0, 0);
 							  float mass = 0.0f;
 
-							  btDefaultMotionState* MotionState = new btDefaultMotionState(btTransform(btQuaternion(-object.rotation.x, object.rotation.y, object.rotation.z, object.rotation.w),
-							btVector3(object.position.x, object.position.y, object.position.z))); btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(mass, MotionState, object.ydr->ybnfile->compound, localInertia);
-							  object.rigidBody = new btRigidBody(groundRigidBodyCI);
-							  dynamicsWorld->addRigidBody(object.rigidBody);
+							  btDefaultMotionState* MotionState = new btDefaultMotionState(btTransform(btQuaternion(-object.rotation.x, object.rotation.y,
+							object.rotation.z, object.rotation.w), btVector3(object.position.x, object.position.y, object.position.z)));
+							btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(mass, MotionState, object.ydr->ybnfile->compound, localInertia); object.rigidBody =
+							new btRigidBody(groundRigidBodyCI); dynamicsWorld->addRigidBody(object.rigidBody);
 							 }//can be an error here
 							}*/
 
@@ -151,8 +150,8 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 					{
 						if (!object.FoundModel)
 						{
-							object.ytd = resourceManager->GetYtd(object.archetype->BaseArchetypeDef.textureDictionary);
-							object.ydd = resourceManager->GetYdd(object.archetype->BaseArchetypeDef.drawableDictionary);
+							object.ytd        = resourceManager->GetYtd(object.archetype->BaseArchetypeDef.textureDictionary);
+							object.ydd        = resourceManager->GetYdd(object.archetype->BaseArchetypeDef.drawableDictionary);
 							object.FoundModel = true;
 						}
 						if (object.ydd->Loaded)
@@ -160,7 +159,7 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 							auto iter2 = object.ydd->ydrFiles.find(object.CEntity.archetypeName);
 							if (iter2 != object.ydd->ydrFiles.end())
 							{
-								object.ydr = iter2->second.get();
+								object.ydr    = iter2->second.get();
 								object.Loaded = true;
 							}
 						}
@@ -170,8 +169,8 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 					{
 						if (!object.FoundModel)
 						{
-							object.ytd = resourceManager->GetYtd(object.archetype->BaseArchetypeDef.textureDictionary);
-							object.yft = resourceManager->GetYft(object.CEntity.archetypeName);
+							object.ytd        = resourceManager->GetYtd(object.archetype->BaseArchetypeDef.textureDictionary);
+							object.yft        = resourceManager->GetYft(object.CEntity.archetypeName);
 							object.FoundModel = true;
 						}
 						if (object.yft->Loaded)
@@ -217,15 +216,17 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 	  {
 	   for (auto& EntityDef : it->second)
 	   {
-		glm::vec4 rotmultiply = EntityDef.rotation * map->CMloInstanceDefs[i].fwEntityDef.rotation;
-		glm::mat4 matrix = glm::translate(glm::mat4(1.0f), map->CMloInstanceDefs[i].fwEntityDef.position + EntityDef.position) * glm::mat4_cast(glm::quat(-map->CMloInstanceDefs[i].fwEntityDef.rotation.w,
-	-map->CMloInstanceDefs[i].fwEntityDef.rotation.x, -map->CMloInstanceDefs[i].fwEntityDef.rotation.y, -map->CMloInstanceDefs[i].fwEntityDef.rotation.z)) * glm::scale(glm::mat4(1.0f),
+	 glm::vec4 rotmultiply = EntityDef.rotation * map->CMloInstanceDefs[i].fwEntityDef.rotation;
+	 glm::mat4 matrix = glm::translate(glm::mat4(1.0f), map->CMloInstanceDefs[i].fwEntityDef.position + EntityDef.position) *
+	glm::mat4_cast(glm::quat(-map->CMloInstanceDefs[i].fwEntityDef.rotation.w, -map->CMloInstanceDefs[i].fwEntityDef.rotation.x,
+	-map->CMloInstanceDefs[i].fwEntityDef.rotation.y, -map->CMloInstanceDefs[i].fwEntityDef.rotation.z)) * glm::scale(glm::mat4(1.0f),
 	glm::vec3(EntityDef.scaleXY, EntityDef.scaleXY, EntityDef.scaleZ));
 
-		LoadYDR(camera, EntityDef.archetypeName, 0, map->CMloInstanceDefs[i].fwEntityDef.position + EntityDef.position, 1.0f, matrix);
-		//LoadYDD(camera, map->CMloInstanceDefs[i].fwEntityDef.archetypeName, 0, it->second._BaseArchetypeDef.bsCentre + map->fwEntityDefs[i].position, it->second._BaseArchetypeDef.bsRadius *
-	std::max(map->fwEntityDefs[i].scaleXY, map->fwEntityDefs[i].scaleZ), it->second._BaseArchetypeDef.drawableDictionary, map->ModelMatrices[i]);
-		//LoadYFT(camera, EntityDef.archetypeName, 0, map->CMloInstanceDefs[i].fwEntityDef.position + EntityDef.position, 100.0f, matrix);
+	 LoadYDR(camera, EntityDef.archetypeName, 0, map->CMloInstanceDefs[i].fwEntityDef.position + EntityDef.position, 1.0f, matrix);
+	 //LoadYDD(camera, map->CMloInstanceDefs[i].fwEntityDef.archetypeName, 0, it->second._BaseArchetypeDef.bsCentre + map->fwEntityDefs[i].position,
+	it->second._BaseArchetypeDef.bsRadius * std::max(map->fwEntityDefs[i].scaleXY, map->fwEntityDefs[i].scaleZ),
+	it->second._BaseArchetypeDef.drawableDictionary, map->ModelMatrices[i]);
+	 //LoadYFT(camera, EntityDef.archetypeName, 0, map->CMloInstanceDefs[i].fwEntityDef.position + EntityDef.position, 100.0f, matrix);
 	   }
 	  }
 	 }
@@ -243,11 +244,11 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 	  int MaximumAvailableVehicles = 20 - vehicles.size(); //HARDCODED
 	  if (position.z < 100.0f) {
 	   for (int i = 0; i < MaximumAvailableVehicles; i++) {
-		float xRandom = RandomFloat(carGen.position.x - carGen.perpendicularLength, carGen.position.x + carGen.perpendicularLength);
-		float yRandom = RandomFloat(carGen.position.y - carGen.perpendicularLength, carGen.position.y + carGen.perpendicularLength);
-		//if (!camera->intersects(glm::vec3(xRandom, yRandom, carGen.position.z), 1.0f)) {
-		 createVehicle(glm::vec3(xRandom, yRandom, carGen.position.z));
-		//}
+	 float xRandom = RandomFloat(carGen.position.x - carGen.perpendicularLength, carGen.position.x + carGen.perpendicularLength);
+	 float yRandom = RandomFloat(carGen.position.y - carGen.perpendicularLength, carGen.position.y + carGen.perpendicularLength);
+	 //if (!camera->intersects(glm::vec3(xRandom, yRandom, carGen.position.z), 1.0f)) {
+	  createVehicle(glm::vec3(xRandom, yRandom, carGen.position.z));
+	 //}
 	   }
 	  }
 	 }
@@ -276,11 +277,11 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 void GameWorld::GetVisibleYmaps(Camera* camera)
 {
 	glm::vec3 PlayerPos = peds[currentPlayerID].getPosition();
-	//glm::vec3 PlayerPos = camera->position;
+	//	glm::vec3 PlayerPos = camera->position;
 
-	auto cellID = spaceGrid.GetCellPos(PlayerPos);
+	auto cellID   = spaceGrid.GetCellPos(PlayerPos);
 	auto NodeCell = nodeGrid.GetCellPos(PlayerPos);
-	auto NavCell = navGrid.GetCellPos(PlayerPos);
+	auto NavCell  = navGrid.GetCellPos(PlayerPos);
 
 	if (CurNavCell != NavCell)
 	{
@@ -404,13 +405,13 @@ void GameWorld::LoadQueuedResources()
 		resourcesThread.swap(resources);
 	resources_lock.unlock();
 
-	//HASH 38759883
+	//	HASH 38759883
 
 	auto old_time = std::chrono::steady_clock::now();
 
 	long long diffms = 0;
 
-	while (resourcesThread.size() > 0 && diffms < 2) //2ms
+	while (resourcesThread.size() > 0 && diffms < 2) //	2ms
 	{
 		Resource* res = resourcesThread.front();
 		resourcesThread.pop_front();
@@ -439,8 +440,9 @@ void GameWorld::LoadQueuedResources()
 					{
 						object.archetype = it->second;
 
-						object.BoundPos = object.CEntity.position - object.archetype->BaseArchetypeDef.bsCentre;
-						object.BoundRadius = object.archetype->BaseArchetypeDef.bsRadius; //* std::max(object.CEntity.scaleXY, object.CEntity.scaleZ); TREES doesnt render with multiplying by scale
+						object.BoundPos    = object.CEntity.position - object.archetype->BaseArchetypeDef.bsCentre;
+						object.BoundRadius = object.archetype->BaseArchetypeDef
+						                         .bsRadius; //* std::max(object.CEntity.scaleXY, object.CEntity.scaleZ); TREES doesnt render with multiplying by scale
 
 						if (object.CEntity.lodDist <= 0)
 							object.CEntity.lodDist = it->second->BaseArchetypeDef.lodDist;
@@ -449,9 +451,9 @@ void GameWorld::LoadQueuedResources()
 					}
 					else
 					{
-						//printf("ERROR\n"); ACTUALLY IT CAN HAPPEN
-						object.archetype = nullptr;
-						object.CEntity.lodDist = 0.f; //HACK = DONT RENDER OBJECTS WITH UNKNOWN ARCHETYPE
+						//	printf("ERROR\n"); ACTUALLY IT CAN HAPPEN
+						object.archetype       = nullptr;
+						object.CEntity.lodDist = 0.f; //	HACK = DONT RENDER OBJECTS WITH UNKNOWN ARCHETYPE
 					}
 
 					object.CEntity.lodDist *= object.CEntity.lodDist;           // glm::length2
@@ -478,7 +480,7 @@ void GameWorld::LoadQueuedResources()
 			{
 				YbnLoader* ybn = static_cast<YbnLoader*>(res->file);
 				ybn->Init(stream);
-				ybn->Finalize(); //NOT THREAD SAFE!
+				ybn->Finalize(); //	NOT THREAD SAFE!
 				break;
 			}
 			}
@@ -489,7 +491,7 @@ void GameWorld::LoadQueuedResources()
 		delete res;
 
 		auto new_time = std::chrono::steady_clock::now();
-		diffms = std::chrono::duration_cast<std::chrono::microseconds>(new_time - old_time).count();
+		diffms        = std::chrono::duration_cast<std::chrono::microseconds>(new_time - old_time).count();
 	}
 }
 
@@ -507,15 +509,15 @@ void GameWorld::createVehicle(glm::vec3 position)
 	std::advance(it, vehicleID);
 	if (it->second.file == nullptr)
 	{
-		it->second.file = resourceManager->GetYft(it->first);
-		//	YTD???
+	 it->second.file = resourceManager->GetYft(it->first);
+	 //	YTD???
 	}
 	else
 	{
-		if (it->second.file->Loaded) {
-			CVehicle* veh = new CVehicle(position, it->second.mass, it->second.file);
-			vehicles.emplace_back(veh);
-		}
+	 if (it->second.file->Loaded) {
+	  CVehicle* veh = new CVehicle(position, it->second.mass, it->second.file);
+	  vehicles.emplace_back(veh);
+	 }
 	}*/
 }
 
@@ -527,9 +529,9 @@ void GameWorld::UpdateDynamicObjects()
 	  for (auto & object : map->Objects)
 	  {
 	   if (object.Loaded) {
-		if (object.Archetype._BaseArchetypeDef.flags == 549584896 && object.rigidBody) {
-		 object.rigidBody->getWorldTransform().getOpenGLMatrix(&object.modelMatrix[0][0]);
-		}
+	 if (object.Archetype._BaseArchetypeDef.flags == 549584896 && object.rigidBody) {
+	  object.rigidBody->getWorldTransform().getOpenGLMatrix(&object.modelMatrix[0][0]);
+	 }
 	   }
 	  }
 	 }
@@ -543,8 +545,9 @@ void GameWorld::UpdateTraffic(Camera* camera, glm::vec3 pos)
 
 	for (int i = 0; i < vehicles.size(); i++)
 	{
-		glm::vec3 vehiclePosition(vehicles[i]->m_carChassis->getWorldTransform().getOrigin().getX(), vehicles[i]->m_carChassis->getWorldTransform().getOrigin().getY(),
-			vehicles[i]->m_carChassis->getWorldTransform().getOrigin().getZ());
+		glm::vec3 vehiclePosition(vehicles[i]->m_carChassis->getWorldTransform().getOrigin().getX(),
+		                          vehicles[i]->m_carChassis->getWorldTransform().getOrigin().getY(),
+		                          vehicles[i]->m_carChassis->getWorldTransform().getOrigin().getZ());
 		if (glm::distance(pos, vehiclePosition) >= 100.0f)
 		{
 			delete vehicles[i];
@@ -569,8 +572,9 @@ void GameWorld::UpdateTraffic(Camera* camera, glm::vec3 pos)
 	/*if (pedPool.firstAvailable_ == nullptr) {
 	 for (auto& ped : pedPool.peds)
 	 {
-	  if (glm::distance(camera->position, glm::vec3(ped.getPhysCharacter()->getWorldTransform().getOrigin().getX(), ped.getPhysCharacter()->getWorldTransform().getOrigin().getY(),
-	ped.getPhysCharacter()->getWorldTransform().getOrigin().getZ())) >= 100.0f) { pedPool.Remove(&ped);
+	  if (glm::distance(camera->position, glm::vec3(ped.getPhysCharacter()->getWorldTransform().getOrigin().getX(),
+	ped.getPhysCharacter()->getWorldTransform().getOrigin().getY(), ped.getPhysCharacter()->getWorldTransform().getOrigin().getZ())) >= 100.0f) {
+	pedPool.Remove(&ped);
 	  }
 	 }
 	}
@@ -587,35 +591,35 @@ void GameWorld::UpdateTraffic(Camera* camera, glm::vec3 pos)
 	/*if (nodeGrid.cells[CurNodeCell.x * 32 + CurNodeCell.y]->ynd)
 	{
 
-		for (auto& node : nodeGrid.cells[CurNodeCell.x * 32 + CurNodeCell.y]->ynd->nodes)
-		{
-			pos = glm::vec3(node.PositionX / 4.0f, node.PositionY / 4.0f, node.PositionZ / 32.0f);
+	 for (auto& node : nodeGrid.cells[CurNodeCell.x * 32 + CurNodeCell.y]->ynd->nodes)
+	 {
+	  pos = glm::vec3(node.PositionX / 4.0f, node.PositionY / 4.0f, node.PositionZ / 32.0f);
 
-			for (int i = 0; i < vehicles.size(); i++)
-			{
-				glm::vec3 vehiclePosition(vehicles[i].m_carChassis->getWorldTransform().getOrigin().getX(), vehicles[i].m_carChassis->getWorldTransform().getOrigin().getY(),
-					vehicles[i].m_carChassis->getWorldTransform().getOrigin().getZ());
-				if (glm::distance(camera->position, vehiclePosition) >= 100.0f)
-				{
-					dynamicsWorld->removeVehicle((vehicles[i].m_vehicle));
-					dynamicsWorld->removeRigidBody((vehicles[i].m_carChassis));
-					vehicles.erase(vehicles.begin() + i);
-				}
-			}
-			uint64_t MaximumAvailableVehicles = 30 - vehicles.size(); //	HARDCODED
-			if (camera->position.z < 100.0f)
-			{
-				for (uint32_t i = 0; i < MaximumAvailableVehicles; i++)
-				{
-					float xRandom = RandomFloat(pos.x - radiusTraffic, pos.x + radiusTraffic);
-					float yRandom = RandomFloat(pos.y - radiusTraffic, pos.y + radiusTraffic);
-					if (!camera->intersects(glm::vec3(xRandom, yRandom, pos.z), 1.0f))
-					{
-						createVehicle(glm::vec3(xRandom, yRandom, pos.z));
-					}
-				}
-			}
-		}
+	  for (int i = 0; i < vehicles.size(); i++)
+	  {
+	   glm::vec3 vehiclePosition(vehicles[i].m_carChassis->getWorldTransform().getOrigin().getX(),
+	vehicles[i].m_carChassis->getWorldTransform().getOrigin().getY(), vehicles[i].m_carChassis->getWorldTransform().getOrigin().getZ()); if
+	(glm::distance(camera->position, vehiclePosition) >= 100.0f)
+	   {
+	    dynamicsWorld->removeVehicle((vehicles[i].m_vehicle));
+	    dynamicsWorld->removeRigidBody((vehicles[i].m_carChassis));
+	    vehicles.erase(vehicles.begin() + i);
+	   }
+	  }
+	  uint64_t MaximumAvailableVehicles = 30 - vehicles.size(); //	HARDCODED
+	  if (camera->position.z < 100.0f)
+	  {
+	   for (uint32_t i = 0; i < MaximumAvailableVehicles; i++)
+	   {
+	    float xRandom = RandomFloat(pos.x - radiusTraffic, pos.x + radiusTraffic);
+	    float yRandom = RandomFloat(pos.y - radiusTraffic, pos.y + radiusTraffic);
+	    if (!camera->intersects(glm::vec3(xRandom, yRandom, pos.z), 1.0f))
+	    {
+	     createVehicle(glm::vec3(xRandom, yRandom, pos.z));
+	    }
+	   }
+	  }
+	 }
 	}*/
 }
 
@@ -627,13 +631,16 @@ CVehicle* GameWorld::FindNearestVehicle()
 
 	for (auto& vehicle : vehicles)
 	{
-		glm::vec3 PlayerPosition(peds[currentPlayerID].getPhysCharacter()->getWorldTransform().getOrigin().getX(), peds[currentPlayerID].getPhysCharacter()->getWorldTransform().getOrigin().getY(),
-			peds[currentPlayerID].getPhysCharacter()->getWorldTransform().getOrigin().getZ());
-		glm::vec3 VehiclePosition(vehicle->m_carChassis->getWorldTransform().getOrigin().getX(), vehicle->m_carChassis->getWorldTransform().getOrigin().getY(), vehicle->m_carChassis->getWorldTransform().getOrigin().getZ());
+		glm::vec3 PlayerPosition(peds[currentPlayerID].getPhysCharacter()->getWorldTransform().getOrigin().getX(),
+		                         peds[currentPlayerID].getPhysCharacter()->getWorldTransform().getOrigin().getY(),
+		                         peds[currentPlayerID].getPhysCharacter()->getWorldTransform().getOrigin().getZ());
+		glm::vec3 VehiclePosition(vehicle->m_carChassis->getWorldTransform().getOrigin().getX(),
+		                          vehicle->m_carChassis->getWorldTransform().getOrigin().getY(),
+		                          vehicle->m_carChassis->getWorldTransform().getOrigin().getZ());
 		float vd = glm::length(PlayerPosition - VehiclePosition);
 		if (vd < d)
 		{
-			d = vd;
+			d              = vd;
 			nearestVehicle = vehicle;
 		}
 	}
@@ -680,12 +687,15 @@ void GameWorld::update(float delta_time, Camera* camera)
 	static float clockAccumulator = 0.f;
 
 	clockAccumulator += delta_time;
-	while (clockAccumulator >= 1.f) {
+	while (clockAccumulator >= 1.f)
+	{
 		gameMinute++;
-		while (gameMinute >= 60) {
+		while (gameMinute >= 60)
+		{
 			gameMinute = 0;
 			gameHour++;
-			while (gameHour >= 24) {
+			while (gameHour >= 24)
+			{
 				gameHour = 0;
 			}
 		}
@@ -694,28 +704,27 @@ void GameWorld::update(float delta_time, Camera* camera)
 
 	//	printf("Time %d %d\n", getWorld()->gameHour, getWorld()->gameMinute);
 
-
-	double SUNRISE = 5.47f; // % of Day
-	double SUNSET = 19.35f;
+	double SUNRISE   = 5.47f; // % of Day
+	double SUNSET    = 19.35f;
 	uint8_t MOONRISE = 17; // % of Day
-	uint8_t MOONSET = 4;
-	float tod = gameHour + gameMinute / 60.f;
+	uint8_t MOONSET  = 4;
+	float tod        = gameHour + gameMinute / 60.f;
 	if (tod > SUNRISE && tod < SUNSET)
 	{
 		double sunT = ((double)tod - SUNRISE) / (SUNSET - SUNRISE);
-		float phi = glm::pi<float>() / 2.0f - (float)sunT * glm::pi<float>();
+		float phi   = glm::pi<float>() / 2.0f - (float)sunT * glm::pi<float>();
 		float theta = 0.0f;
 
 		dirLight.direction = glm::normalize(glm::vec3(-glm::sin(phi) * glm::cos(theta), glm::sin(phi) * glm::sin(theta), glm::cos(phi)));
 	}
 
-	//float now = (timeOfDay / 24) * glm::two_pi<float>() + glm::pi<float>();
+	//	float now = (timeOfDay / 24) * glm::two_pi<float>() + glm::pi<float>();
 
-	//glm::vec3 sunDirection(0, cos(now), sin(now));
-	//sunDirection = glm::normalize(sunDirection);
+	//	glm::vec3 sunDirection(0, cos(now), sin(now));
+	//	sunDirection = glm::normalize(sunDirection);
 
 	UpdateDynamicObjects();
-	//UpdateTraffic(camera, peds[currentPlayerID].getPosition());
+	//	UpdateTraffic(camera, peds[currentPlayerID].getPosition());
 	for (auto& pedestrian : peds)
 	{
 		pedestrian.PhysicsTick();
@@ -750,10 +759,10 @@ void GameWorld::TestFunction(glm::vec3 Position)
 {
 	/*for (auto& ytd : data.GtxdEntries)
 	{
-		while (!resourceManager->GetYtd(ytd.second))
-		{
-			LoadQueuedResources();
-		}
+	 while (!resourceManager->GetYtd(ytd.second))
+	 {
+	  LoadQueuedResources();
+	 }
 	}
 	printf("DONE\n");*/
 }

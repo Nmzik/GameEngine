@@ -2,24 +2,24 @@
 
 #define OPENGL_NAME_CACHE_SIZE 1024
 
-#include <iostream>
 #include "glm/glm.hpp"
 #include "opengl.h"
-#include <unordered_map>
+#include <iostream>
 #include <string>
+#include <unordered_map>
 #include <vector>
-
 
 class TextureManager
 {
-public:
-
-	struct Texture {
+	public:
+	struct Texture
+	{
 		GLuint TextureID;
 		uint32_t referenceCount;
 	};
 
-	static TextureManager& GetTextureManager() {
+	static TextureManager& GetTextureManager()
+	{
 		return texManager;
 	}
 
@@ -31,12 +31,14 @@ public:
 	void LoadTexture(uint32_t Hash, GLuint TextureID);
 	void RemoveTexture(uint32_t Hash);
 
-	GLuint GetTextureID() {
-		if (TexturesID.size() == 0) {
+	GLuint GetTextureID()
+	{
+		if (TexturesID.size() == 0)
+		{
 			TexturesID.resize(OPENGL_NAME_CACHE_SIZE);
 			glGenTextures(OPENGL_NAME_CACHE_SIZE, &TexturesID[0]);
 		}
-		
+
 		GLuint TextureID = TexturesID.back();
 		TexturesID.pop_back();
 
@@ -44,6 +46,4 @@ public:
 	}
 
 	static TextureManager texManager;
-
 };
-

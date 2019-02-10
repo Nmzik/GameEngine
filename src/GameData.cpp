@@ -2,9 +2,9 @@
 
 #include "YmfLoader.h"
 
-#include "YtypLoader.h"
 #include "CacheDatFile.h"
 #include "GTAEncryption.h"
+#include "YtypLoader.h"
 
 #include "tinyxml2.h"
 
@@ -14,30 +14,8 @@ GameData::GameData()
 	GTAEncryption::getInstance().LoadKeys();
 
 	std::vector<std::string> RpfsFiles = {
-		"common.rpf",
-		"x64a.rpf",
-		"x64b.rpf",
-		"x64c.rpf",
-		"x64d.rpf",
-		"x64e.rpf",
-		"x64f.rpf",
-		"x64g.rpf",
-		"x64h.rpf",
-		"x64i.rpf",
-		"x64j.rpf",
-		"x64k.rpf",
-		"x64l.rpf",
-		"x64m.rpf",
-		"x64n.rpf",
-		"x64o.rpf",
-		"x64p.rpf",
-		"x64q.rpf",
-		"x64r.rpf",
-		"x64s.rpf",
-		"x64t.rpf",
-		"x64u.rpf",
-		"x64v.rpf",
-		"x64w.rpf",
+	    "common.rpf", "x64a.rpf", "x64b.rpf", "x64c.rpf", "x64d.rpf", "x64e.rpf", "x64f.rpf", "x64g.rpf", "x64h.rpf", "x64i.rpf", "x64j.rpf", "x64k.rpf",
+	    "x64l.rpf",   "x64m.rpf", "x64n.rpf", "x64o.rpf", "x64p.rpf", "x64q.rpf", "x64r.rpf", "x64s.rpf", "x64t.rpf", "x64u.rpf", "x64v.rpf", "x64w.rpf",
 	};
 
 	for (std::string& rpfFile : RpfsFiles)
@@ -82,9 +60,9 @@ GameData::GameData()
 			//	std::transform(entry.FileName.begin(), entry.FileName.end(), entry.FileName.begin(), tolower);
 			//	entry.FileNameHash = GenHash(entry.FileName);
 
-			size_t index = entry.FileName.find_last_of('.');
+			size_t index          = entry.FileName.find_last_of('.');
 			std::string extension = entry.FileName.substr(index);
-			entry.ShortNameHash = GenHash(entry.FileName.substr(0, index));
+			entry.ShortNameHash   = GenHash(entry.FileName.substr(0, index));
 
 			if (extension == ".ydr")
 			{
@@ -156,7 +134,7 @@ GameData::GameData()
 		}
 		for (auto& entry : rpfFile->BinaryEntries)
 		{
-			size_t index = entry.FileName.find_last_of('.');
+			size_t index          = entry.FileName.find_last_of('.');
 			std::string extension = entry.FileName.substr(index);
 
 			if (extension == ".ymf")
@@ -205,17 +183,15 @@ GameData::GameData()
 	size_t countBuvket = Entries[ydd].bucket_count();
 	for (size_t bucket = 0; bucket < Entries[ydd].bucket_count(); bucket++) {
 
-		if (Entries[ydd].bucket_size(bucket) > 1) {
-			has_collision = true;
-			break;
-		}
+	 if (Entries[ydd].bucket_size(bucket) > 1) {
+	  has_collision = true;
+	  break;
+	 }
 	}*/
-
 }
 
 GameData::~GameData()
 {
-
 }
 
 void GameData::LoadHandlingData(std::vector<uint8_t>& Buffer)
@@ -232,7 +208,7 @@ void GameData::LoadHandlingData(std::vector<uint8_t>& Buffer)
 		CarHandling car;
 
 		tinyxml2::XMLElement* element = e->FirstChildElement("handlingName");
-		std::string CarName = element->FirstChild()->Value();
+		std::string CarName           = element->FirstChild()->Value();
 
 		std::transform(CarName.begin(), CarName.end(), CarName.begin(), tolower);
 		car.Hash = GenHash(CarName);
@@ -258,11 +234,11 @@ void GameData::LoadGtxd()
 	for (tinyxml2::XMLElement* e = element->FirstChildElement("item"); e != NULL; e = e->NextSiblingElement("item"))
 	{
 		tinyxml2::XMLElement* element = e->FirstChildElement("parent");
-		std::string ParentName = element->FirstChild()->Value();
+		std::string ParentName        = element->FirstChild()->Value();
 		std::transform(ParentName.begin(), ParentName.end(), ParentName.begin(), tolower);
 
-		element = e->FirstChildElement("child");
-		std::string childName = element->FirstChild()->Value();
+		element                         = e->FirstChildElement("child");
+		std::string childName           = element->FirstChild()->Value();
 		GtxdEntries[GenHash(childName)] = GenHash(ParentName);
 	}
 }
@@ -278,7 +254,8 @@ void GameData::LoadWaterQuads(std::vector<uint8_t>& Buffer)
 
 	for (tinyxml2::XMLElement* e = element->FirstChildElement("Item"); e != NULL; e = e->NextSiblingElement("Item"))
 	{
-		if (e->FirstChild() != nullptr) { // water.xml DLC
+		if (e->FirstChild() != nullptr)
+		{ // water.xml DLC
 			WaterQuad waterQuad;
 			tinyxml2::XMLElement* element = e->FirstChildElement("minX");
 			element->QueryFloatAttribute("value", &waterQuad.minX);
@@ -336,7 +313,7 @@ void GameData::LoadScenesSwitch(std::vector<uint8_t>& Buffer)
 	for (tinyxml2::XMLElement* e = element->FirstChildElement("Item"); e != NULL; e = e->NextSiblingElement("Item"))
 	{
 		tinyxml2::XMLElement* element = e->FirstChildElement("Name");
-		std::string Name = element->FirstChild()->Value();
+		std::string Name              = element->FirstChild()->Value();
 		///
 		element = element->NextSiblingElement("Position");
 		glm::vec3 Position;
@@ -368,13 +345,14 @@ void GameData::ExtractFileBinary(RpfBinaryFileEntry& entry, std::vector<uint8_t>
 
 	rpf->seekg(entry.FileOffset);
 
-	if (entry.FileSize > 40 * 1024 * 1024) {
+	if (entry.FileSize > 40 * 1024 * 1024)
+	{
 		printf("ERROR BUFFER SIZE\n");
 	}
 
 	rpf->read((char*)&TempBuffer[0], entry.FileSize);
 
-	if (entry.File->IsAESEncrypted) //HAPPENS WITH SOME YMF FILES
+	if (entry.File->IsAESEncrypted) //	HAPPENS WITH SOME YMF FILES
 		GTAEncryption::getInstance().DecryptAES(&TempBuffer[0], entry.FileSize);
 	else
 		GTAEncryption::getInstance().DecryptNG(TempBuffer, entry.FileSize, entry.FileName, entry.FileUncompressedSize);
@@ -388,7 +366,8 @@ void GameData::ExtractFileResource(RpfResourceFileEntry& entry, uint8_t* Allocat
 
 	rpf->seekg(entry.FileOffset);
 
-	if (entry.FileSize > 40 * 1024 * 1024) {
+	if (entry.FileSize > 40 * 1024 * 1024)
+	{
 		printf("ERROR BUFFER SIZE\n");
 	}
 

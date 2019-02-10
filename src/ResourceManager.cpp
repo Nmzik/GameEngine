@@ -1,5 +1,5 @@
-#include "GameWorld.h"
 #include "ResourceManager.h"
+#include "GameWorld.h"
 #include "RpfEntry.h"
 
 #include "Object.h"
@@ -11,13 +11,13 @@
 #include "YtdLoader.h"
 #include "YtypLoader.h"
 
-//OVERALL
-//50MB for BULLET PHYSICS
-//50MB for ResourceLoader
+// OVERALL
+// 50MB for BULLET PHYSICS
+// 50MB for ResourceLoader
 
 ResourceManager::ResourceManager(GameWorld* world)
-	: gameworld{ world }
-	, running(true)
+    : gameworld{world}
+    , running(true)
 {
 	// printf("RESOURCE MANAGER LOADED!\n");
 
@@ -30,11 +30,11 @@ ResourceManager::ResourceManager(GameWorld* world)
 	ybnLoader.reserve(50);
 	ymapLoader.reserve(500);
 
-	uint8_t* _memory = new uint8_t[50 * 1024 *1024];//50MB
+	uint8_t* _memory   = new uint8_t[50 * 1024 * 1024]; // 50MB
 	resource_allocator = new ThreadSafeAllocator(50 * 1024 * 1024, _memory);
 
 	ResourcesThread = std::thread(&ResourceManager::update, this);
-	ResourcesThread.detach();
+	//ResourcesThread.detach();
 }
 
 ResourceManager::~ResourceManager()
@@ -72,7 +72,7 @@ YmapLoader* ResourceManager::GetYmap(uint32_t hash)
 		YmapLoader* loader = new YmapLoader();
 		AddToWaitingList(new Resource(ymap, hash, loader));
 		loader->RefCount++;
-		ymapLoader.insert({ hash, std::unique_ptr<YmapLoader>(loader) });
+		ymapLoader.insert({hash, std::unique_ptr<YmapLoader>(loader)});
 
 		return loader;
 	}
@@ -91,7 +91,7 @@ YdrLoader* ResourceManager::GetYdr(uint32_t hash)
 		YdrLoader* loader = new YdrLoader();
 		AddToWaitingList(new Resource(ydr, hash, loader));
 		loader->RefCount++;
-		ydrLoader.insert({ hash, std::unique_ptr<YdrLoader>(loader) });
+		ydrLoader.insert({hash, std::unique_ptr<YdrLoader>(loader)});
 
 		return loader;
 	}
@@ -110,13 +110,15 @@ YtdLoader* ResourceManager::GetYtd(uint32_t hash)
 		/*auto iter = gameworld->getGameData()->GtxdEntries.find(hash);
 		if (iter != gameworld->getGameData()->GtxdEntries.end())
 		{
-			GetYtd(iter->second);
+		 GetYtd(iter->second);
 		}*/
 
 		bool HDTextures = false;
-		if (HDTextures) {
+		if (HDTextures)
+		{
 			auto iter = gameworld->getGameData()->HDTextures.find(hash);
-			if (iter != gameworld->getGameData()->HDTextures.end()) {
+			if (iter != gameworld->getGameData()->HDTextures.end())
+			{
 				auto it = ytdLoader.find(iter->second);
 				if (it != ytdLoader.end())
 				{
@@ -128,12 +130,13 @@ YtdLoader* ResourceManager::GetYtd(uint32_t hash)
 					YtdLoader* loader = new YtdLoader();
 					AddToWaitingList(new Resource(ytd, iter->second, loader));
 					loader->RefCount++;
-					ytdLoader.insert({ iter->second, std::unique_ptr<YtdLoader>(loader) });
+					ytdLoader.insert({iter->second, std::unique_ptr<YtdLoader>(loader)});
 
 					return loader;
 				}
 			}
-			else {
+			else
+			{
 				printf("HD Texture not found\n");
 			}
 		}
@@ -141,7 +144,7 @@ YtdLoader* ResourceManager::GetYtd(uint32_t hash)
 		YtdLoader* loader = new YtdLoader();
 		AddToWaitingList(new Resource(ytd, hash, loader));
 		loader->RefCount++;
-		ytdLoader.insert({ hash, std::unique_ptr<YtdLoader>(loader) });
+		ytdLoader.insert({hash, std::unique_ptr<YtdLoader>(loader)});
 
 		return loader;
 	}
@@ -160,7 +163,7 @@ YddLoader* ResourceManager::GetYdd(uint32_t hash)
 		YddLoader* loader = new YddLoader();
 		AddToWaitingList(new Resource(ydd, hash, loader));
 		loader->RefCount++;
-		yddLoader.insert({ hash, std::unique_ptr<YddLoader>(loader) });
+		yddLoader.insert({hash, std::unique_ptr<YddLoader>(loader)});
 
 		return loader;
 	}
@@ -179,7 +182,7 @@ YftLoader* ResourceManager::GetYft(uint32_t hash)
 		YftLoader* loader = new YftLoader();
 		AddToWaitingList(new Resource(yft, hash, loader));
 		loader->RefCount++;
-		yftLoader.insert({ hash, std::unique_ptr<YftLoader>(loader) });
+		yftLoader.insert({hash, std::unique_ptr<YftLoader>(loader)});
 
 		return loader;
 	}
@@ -198,7 +201,7 @@ YbnLoader* ResourceManager::GetYbn(uint32_t hash)
 		YbnLoader* loader = new YbnLoader();
 		AddToWaitingList(new Resource(ybn, hash, loader));
 		loader->RefCount++;
-		ybnLoader.insert({ hash, std::unique_ptr<YbnLoader>(loader) });
+		ybnLoader.insert({hash, std::unique_ptr<YbnLoader>(loader)});
 		return loader;
 	}
 }
@@ -217,26 +220,26 @@ FileType* ResourceManager::loadSync(Type type, uint32_t Hash)
 		switch (type)
 		{
 		case ydr:
-			break;
+		 break;
 		case ydd:
-			break;
+		 break;
 		case yft:
-			break;
+		 break;
 		case ytd:
-			break;
+		 break;
 		case ybn: {
-			YbnLoader* loader = new YbnLoader();
-			loader->Init(stream);
-			return loader;
+		 YbnLoader* loader = new YbnLoader();
+		 loader->Init(stream);
+		 return loader;
 		}
 		case ymap:
-			break;
+		 break;
 		case ynd:
-			break;
+		 break;
 		case ynv:
-			break;
+		 break;
 		default:
-			break;
+		 break;
 		}*/
 	}
 	return nullptr;
@@ -273,14 +276,16 @@ void ResourceManager::update()
 		{
 			uint8_t* allocatedMemory = (uint8_t*)resource_allocator->allocate(it->second->UncompressedFileSize, 16);
 
-			if (allocatedMemory != nullptr) {
-				res->Buffer = allocatedMemory;
+			if (allocatedMemory != nullptr)
+			{
+				res->Buffer     = allocatedMemory;
 				res->BufferSize = it->second->UncompressedFileSize;
 				gameworld->getGameData()->ExtractFileResource(*(it->second), res->Buffer, res->BufferSize);
 				res->SystemSize = (it->second->SystemSize);
 			}
-			else {
-				//printf("NOT ENOUGHT MEMORY IN POOL - WILL TRY NEXT TIME\n");
+			else
+			{
+				//	printf("NOT ENOUGHT MEMORY IN POOL - WILL TRY NEXT TIME\n");
 
 				lock.lock();
 				waitingList.push_front(res);
@@ -297,14 +302,14 @@ void ResourceManager::RemoveAll()
 {
 	for (auto it = ytdLoader.begin(); it != ytdLoader.end();)
 	{
-			TextureMemory -= it->second->gpuMemory;
-			it = ytdLoader.erase(it);
+		TextureMemory -= it->second->gpuMemory;
+		it = ytdLoader.erase(it);
 	}
 }
 
 void ResourceManager::UpdateResourceCache()
 {
-	//printf("FREE SPACE %zd\n", _main_allocator->getSize() - _main_allocator->getUsedMemory());
+	//	printf("FREE SPACE %zd\n", _main_allocator->getSize() - _main_allocator->getUsedMemory());
 	// REMOVE OBJECTS WHEN WE ARE IN ANOTHER CELL????  RUN GARBAGE COLLECTOR WHEN IN ANOTHER CEL
 	for (auto it = ybnLoader.begin(); it != ybnLoader.end();)
 	{

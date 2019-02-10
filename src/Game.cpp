@@ -1,10 +1,10 @@
 ﻿#include "Game.h"
 
-#include "GameWorld.h"
-#include "RenderingSystem.h"
-#include "GameData.h"
 #include "CPed.h"
 #include "CVehicle.h"
+#include "GameData.h"
+#include "GameWorld.h"
+#include "RenderingSystem.h"
 
 FreeListAllocator* myAllocator;
 
@@ -12,7 +12,7 @@ void* allocate(size_t size, int alignment)
 {
 	return myAllocator->allocate(size, (uint8_t)alignment);
 }
-void deallocate(void * memblock)
+void deallocate(void* memblock)
 {
 	myAllocator->deallocate(memblock);
 }
@@ -22,12 +22,12 @@ Game::Game()
 
 	SDL_Init(SDL_INIT_VIDEO); // Initialize SDL2
 
-	window = SDL_CreateWindow("SDL2 window", // window title
-		SDL_WINDOWPOS_UNDEFINED,             // initial x position
-		SDL_WINDOWPOS_UNDEFINED,             // initial y position
-		1280,                                // width, in pixels
-		720,                                 // height, in pixels
-		SDL_WINDOW_OPENGL                    //| SDL_WINDOW_FULLSCREEN                 // flags - see below
+	window = SDL_CreateWindow("SDL2 window",           // window title
+	                          SDL_WINDOWPOS_UNDEFINED, // initial x position
+	                          SDL_WINDOWPOS_UNDEFINED, // initial y position
+	                          1280,                    // width, in pixels
+	                          720,                     // height, in pixels
+	                          SDL_WINDOW_OPENGL        //| SDL_WINDOW_FULLSCREEN                 // flags - see below
 	);
 
 	// Check that the window was successfully created
@@ -40,14 +40,14 @@ Game::Game()
 
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 
-	uint8_t* physicsMemory = new uint8_t[50 * 1024 * 1024]; //50mb
-	myAllocator = new FreeListAllocator(50 * 1024 * 1024, physicsMemory);
+	uint8_t* physicsMemory = new uint8_t[50 * 1024 * 1024]; //	50mb
+	myAllocator            = new FreeListAllocator(50 * 1024 * 1024, physicsMemory);
 
 	btAlignedAllocSetCustomAligned(allocate, deallocate);
 
 	rendering_system = std::make_unique<RenderingSystem>(window);
-	gameWorld = std::make_unique<GameWorld>();
-	input = std::make_unique<InputManager>();
+	gameWorld        = std::make_unique<GameWorld>();
+	input            = std::make_unique<InputManager>();
 
 	//	FT_Library library;
 	//	FT_Init_FreeType(&library);
@@ -110,9 +110,12 @@ void Game::updateFPS(float delta_time, float cpuThreadTime, float gpuThreadTime)
 		time_since_last_fps_output = 0.0f;
 		std::ostringstream osstr;
 		osstr << "Game "
-			<< " (" << (1.0f / delta_time) << " FPS, " << (delta_time * 1000.0f) << " CPU time, " << (cpuThreadTime * 1000.0f) << " CPU Thread time, " << (gpuThreadTime * 1000.0f) << " Render Thread time, " << rendering_system->gpuTime * 0.000001f << " GPU time) | " << gameWorld->renderList.size()
-			<< " Objects, " << rendering_system->DrawCalls << " Draw Calls, " << gameWorld->GetResourceManager()->GlobalGpuMemory / 1024 / 1024 << " MB GPU Mem, "
-			<< gameWorld->GetResourceManager()->TextureMemory / 1024 / 1024 << " MB Texture Mem, Bullet Free Mem " << (myAllocator->getSize() - myAllocator->getUsedMemory()) / 1024 / 1024;
+		      << " (" << (1.0f / delta_time) << " FPS, " << (delta_time * 1000.0f) << " CPU time, " << (cpuThreadTime * 1000.0f) << " CPU Thread time, "
+		      << (gpuThreadTime * 1000.0f) << " Render Thread time, " << rendering_system->gpuTime * 0.000001f << " GPU time) | "
+		      << gameWorld->renderList.size() << " Objects, " << rendering_system->DrawCalls << " Draw Calls, "
+		      << gameWorld->GetResourceManager()->GlobalGpuMemory / 1024 / 1024 << " MB GPU Mem, "
+		      << gameWorld->GetResourceManager()->TextureMemory / 1024 / 1024 << " MB Texture Mem, Bullet Free Mem "
+		      << (myAllocator->getSize() - myAllocator->getUsedMemory()) / 1024 / 1024;
 		SDL_SetWindowTitle(window, osstr.str().c_str());
 	}
 }
@@ -122,7 +125,7 @@ void Game::run()
 
 	//	SDL_Event event;
 
-	bool running = true;
+	bool running      = true;
 	auto current_time = std::chrono::steady_clock::now();
 
 	while (running)
@@ -136,8 +139,8 @@ void Game::run()
 		 StateManager::get().currentState()->handleEvent(event);
 		 //if (event.type == SDL_QUIT) running = false;
 		}*/
-		auto old_time = current_time;
-		current_time = std::chrono::steady_clock::now();
+		auto old_time    = current_time;
+		current_time     = std::chrono::steady_clock::now();
 		float delta_time = std::chrono::duration<float>(current_time - old_time).count();
 
 		if (!paused)
@@ -145,14 +148,14 @@ void Game::run()
 			tick(delta_time);
 			gameWorld->update(delta_time, &rendering_system->getCamera());
 		}
-		auto cpuThreadEnd = std::chrono::steady_clock::now();
+		auto cpuThreadEnd   = std::chrono::steady_clock::now();
 		float cpuThreadTime = std::chrono::duration<float>(cpuThreadEnd - cpuThreadStart).count();
 
 		auto gpuThreadStart = std::chrono::steady_clock::now();
 		rendering_system->render(gameWorld.get());
-		auto gpuThreadEnd = std::chrono::steady_clock::now();
+		auto gpuThreadEnd   = std::chrono::steady_clock::now();
 		float gpuThreadTime = std::chrono::duration<float>(gpuThreadEnd - gpuThreadStart).count();
-		//SDL_GL_SwapWindow(window);
+		//	SDL_GL_SwapWindow(window);
 
 		updateFPS(delta_time, cpuThreadTime, gpuThreadTime);
 	}
@@ -202,7 +205,7 @@ void Game::tick(float delta_time)
 		getWorld()->ClearTestFunction();
 	}
 
-	//getWorld()->peds[getWorld()->currentPlayerID].SetPosition(glm::vec3(-205.28, 6432.15, 36.87));
+	//	getWorld()->peds[getWorld()->currentPlayerID].SetPosition(glm::vec3(-205.28, 6432.15, 36.87));
 	if (getInput()->IsKeyTriggered(SDL_SCANCODE_B))
 	{
 		getWorld()->currentPlayerID = 0;
@@ -275,11 +278,12 @@ void Game::tick(float delta_time)
 		if (player->GetCurrentVehicle()->m_carChassis->getWorldTransform().getOrigin().getZ() <= -150)
 		{
 			player->GetCurrentVehicle()->m_carChassis->setWorldTransform(
-				btTransform(btQuaternion(0, 0, 0, 1), player->GetCurrentVehicle()->m_carChassis->getWorldTransform().getOrigin() + btVector3(0, 0, 300)));
+			    btTransform(btQuaternion(0, 0, 0, 1), player->GetCurrentVehicle()->m_carChassis->getWorldTransform().getOrigin() + btVector3(0, 0, 300)));
 		}
 
 		getRenderer()->getCamera().position = glm::vec3(player->GetCurrentVehicle()->m_carChassis->getWorldTransform().getOrigin().getX(),
-			player->GetCurrentVehicle()->m_carChassis->getWorldTransform().getOrigin().getY() - 5.f, player->GetCurrentVehicle()->m_carChassis->getWorldTransform().getOrigin().getZ() + 5.0f);
+		                                                player->GetCurrentVehicle()->m_carChassis->getWorldTransform().getOrigin().getY() - 5.f,
+		                                                player->GetCurrentVehicle()->m_carChassis->getWorldTransform().getOrigin().getZ() + 5.0f);
 		if (getInput()->IsKeyPressed(SDL_SCANCODE_W))
 		{
 			player->GetCurrentVehicle()->SetThrottle(1.0);
@@ -340,7 +344,8 @@ void Game::tick(float delta_time)
 
 			/*bool inWater = false;
 			if (getWorld()->DetectInWater(glm::vec3(player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getX(),
-			player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getY(), player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getZ())))
+			player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getY(),
+			player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getZ())))
 			{
 			if (player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getZ() < 0 && !inWater) {
 			player->getPhysCharacter()->setGravity(btVector3(0.0f, 0.0f, 0.0f));
@@ -357,18 +362,19 @@ void Game::tick(float delta_time)
 			 auto move = speed * glm::normalize(movement);
 			 //move *= delta_time;*/
 
-			 /*if (player->getPhysCharacter()->getLinearVelocity().z() < -40.f) {
-			  player->getPhysCharacter()->setLinearVelocity(btVector3(movement.x * 30.0f, movement.y * 30.0f, -40.0f));
-			 }
-			 else*/
-			player->getPhysCharacter()->setLinearVelocity(btVector3(movement.x * 30.0f * speed, movement.y * 30.0f * speed, player->getPhysCharacter()->getLinearVelocity().z()));
+			/*if (player->getPhysCharacter()->getLinearVelocity().z() < -40.f) {
+			 player->getPhysCharacter()->setLinearVelocity(btVector3(movement.x * 30.0f, movement.y * 30.0f, -40.0f));
+			}
+			else*/
+			player->getPhysCharacter()->setLinearVelocity(
+			    btVector3(movement.x * 30.0f * speed, movement.y * 30.0f * speed, player->getPhysCharacter()->getLinearVelocity().z()));
 
 			if (getInput()->IsKeyTriggered(SDL_SCANCODE_SPACE))
 			{
 				//	player->Jump();
 
 				btVector3 m_rayStart = player->getPhysCharacter()->getCenterOfMassPosition();
-				btVector3 m_rayEnd = m_rayStart - btVector3(0.0, 0.0, 1.5);
+				btVector3 m_rayEnd   = m_rayStart - btVector3(0.0, 0.0, 1.5);
 
 				// rayCallback
 				btCollisionWorld::ClosestRayResultCallback rayCallback(m_rayStart, m_rayEnd);
@@ -382,7 +388,6 @@ void Game::tick(float delta_time)
 		}
 	}
 
-
 	//	MOUSE
 	int x;
 	int y;
@@ -392,9 +397,9 @@ void Game::tick(float delta_time)
 
 	auto look = glm::vec2(x * 0.01f, y * 0.01f);
 	// Determine the "ideal" camera position for the current view angles
-	auto yaw = glm::angleAxis(-look.x - glm::half_pi<float>(), glm::vec3(0.f, 0.f, 1.f));
-	auto pitch = glm::angleAxis(look.y, glm::vec3(0.f, 1.f, 0.f));
-	auto cameraOffset = yaw * pitch * glm::vec3(0.f, 0.f, 5.0f);
+	auto yaw                 = glm::angleAxis(-look.x - glm::half_pi<float>(), glm::vec3(0.f, 0.f, 1.f));
+	auto pitch               = glm::angleAxis(look.y, glm::vec3(0.f, 1.f, 0.f));
+	auto cameraOffset        = yaw * pitch * glm::vec3(0.f, 0.f, 5.0f);
 	glm::vec3 cameraPosition = targetPosition + cameraOffset;
 
 	glm::vec3 lookTargetPosition(targetPosition);
@@ -403,9 +408,9 @@ void Game::tick(float delta_time)
 
 	auto lookdir = glm::normalize(lookTargetPosition - cameraPosition);
 	// Calculate the angles to look at the target position
-	float len2d = glm::length(glm::vec2(lookdir));
+	float len2d      = glm::length(glm::vec2(lookdir));
 	float anglePitch = glm::atan(lookdir.z, len2d);
-	float angleYaw = glm::atan(lookdir.y, lookdir.x);
+	float angleYaw   = glm::atan(lookdir.y, lookdir.x);
 	glm::quat angle(glm::vec3(0.f, -anglePitch, angleYaw));
 
 	if (!DebugPressed)
@@ -413,9 +418,10 @@ void Game::tick(float delta_time)
 	getRenderer()->getCamera().rotation = angle;
 
 	/*auto rayEnd = getRenderer()->getCamera().Position;
-	auto rayStart = glm::vec3(player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getX(), player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getY() -
-	5, player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getZ()); auto to = btVector3(rayEnd.x, rayEnd.y, rayEnd.z); auto from = btVector3(rayStart.x, rayStart.y, rayStart.z);
-	btCollisionWorld::ClosestRayResultCallback cb(from, to);
+	auto rayStart = glm::vec3(player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getX(),
+	player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getY() - 5,
+	player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getZ()); auto to = btVector3(rayEnd.x, rayEnd.y, rayEnd.z); auto from =
+	btVector3(rayStart.x, rayStart.y, rayStart.z); btCollisionWorld::ClosestRayResultCallback cb(from, to);
 
 	getWorld()->GetDynamicsWorld()->rayTest(from, to, cb);
 	if (cb.hasHit() && cb.m_closestHitFraction < 1.f) {

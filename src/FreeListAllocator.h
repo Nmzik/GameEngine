@@ -1,7 +1,7 @@
 #pragma once
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-///////////////// Tiago Costa, 2014             
+///////////////// Tiago Costa, 2014
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "Allocator.h"
@@ -9,7 +9,7 @@
 
 class FreeListAllocator : public Allocator
 {
-public:
+	public:
 	FreeListAllocator(size_t size, void* start);
 	~FreeListAllocator();
 
@@ -17,17 +17,16 @@ public:
 
 	void deallocate(void* p) override;
 
-private:
-
+	private:
 	struct AllocationHeader
 	{
 		size_t size;
-		uint8_t     adjustment;
+		uint8_t adjustment;
 	};
 
 	struct FreeBlock
 	{
-		size_t     size;
+		size_t size;
 		FreeBlock* next;
 	};
 

@@ -8,12 +8,6 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-add_compile_definitions(ECB=1)
-add_compile_definitions(AES256=1)
-add_compile_definitions(GLM_FORCE_XYZW_ONLY)
-add_compile_definitions(GLM_FORCE_DEPTH_ZERO_TO_ONE)
-add_compile_definitions(GLM_ENABLE_EXPERIMENTAL)
-
 set(CMAKE_CONFIGURATION_TYPES Debug Release)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
@@ -62,13 +56,23 @@ add_subdirectory(3rdparty/tinyxml2)
 
 include_directories(3rdparty/sdl/include)
 include_directories(3rdparty/recastnavigation/Recast/Include)
-include_directories(3rdparty/freetype/include)
 include_directories(3rdparty/recastnavigation/Detour/Include)
+include_directories(3rdparty/freetype/include)
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/3rdparty/zlib)
 include_directories(3rdparty/zlib)
 include_directories(3rdparty/glm)
 include_directories(3rdparty/tinyxml2)
 include_directories(3rdparty/bullet/src)
+include_directories(3rdparty/tiny-AES-c)
+
+add_compile_definitions(ECB=1)
+add_compile_definitions(AES256=1)
+
+add_subdirectory(3rdparty/tiny-AES-c)
+
+add_compile_definitions(GLM_FORCE_XYZW_ONLY)
+add_compile_definitions(GLM_FORCE_DEPTH_ZERO_TO_ONE)
+add_compile_definitions(GLM_ENABLE_EXPERIMENTAL)
 
 file(GLOB SOURCES
 src/*.h
@@ -91,5 +95,6 @@ target_link_libraries(MyGameEngine tinyxml2)
 target_link_libraries(MyGameEngine Detour)
 target_link_libraries(MyGameEngine Recast)
 target_link_libraries(MyGameEngine freetype)
+target_link_libraries(MyGameEngine tiny-aes)
 
 #set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT MyGameEngine)

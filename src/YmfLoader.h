@@ -3,9 +3,9 @@
 #include <unordered_map>
 
 template <class T>
-void endSwap(T *objp)
+void endSwap(T* objp)
 {
-	unsigned char *memp = reinterpret_cast<unsigned char*>(objp);
+	unsigned char* memp = reinterpret_cast<unsigned char*>(objp);
 	std::reverse(memp, memp + sizeof(T));
 }
 
@@ -21,24 +21,25 @@ enum PsoSection
 	CHKS = 0x43484B53,
 };
 
-struct CHDTxdAssetBinding //132 bytes, Type:0
+struct CHDTxdAssetBinding // 132 bytes, Type:0
 {
-	uint8_t assetType; //0   assetType: BYTE_ENUM_VALUE: 0: 3387532954
-	uint8_t Unused01;//1
-	uint16_t Unused02;//2
-	char targetAsset[64]; //4   targetAsset: INT_0Bh: 4: 4194304
+	uint8_t assetType;    //	0   assetType: BYTE_ENUM_VALUE: 0: 3387532954
+	uint8_t Unused01;     //	1
+	uint16_t Unused02;    //	2
+	char targetAsset[64]; //	4   targetAsset: INT_0Bh: 4: 4194304
 	char HDTxd[64];
 };
 
 class PsoDataMappingEntry
 {
-public:
+	public:
 	uint32_t NameHash;
 	int Offset;
 	int Unknown_8h;
 	int Length;
 
-	void Read(memstream& stream) {
+	void Read(memstream& stream)
+	{
 		NameHash = *(uint32_t*)stream.read(sizeof(uint32_t));
 		endSwap(&NameHash);
 		Offset = *(int*)stream.read(sizeof(int));
@@ -56,9 +57,10 @@ class PsoDataSection
 	int Length;
 	uint8_t* Data;
 
-public:
-	void Read(memstream& stream) {
-		Ident = *(uint32_t*)stream.read(sizeof(uint32_t));
+	public:
+	void Read(memstream& stream)
+	{
+		Ident  = *(uint32_t*)stream.read(sizeof(uint32_t));
 		Length = *(int*)stream.read(sizeof(int));
 		endSwap(&Length);
 
@@ -71,7 +73,7 @@ public:
 
 class PsoDataMapSection
 {
-public:
+	public:
 	int Ident;
 	int Length;
 	int RootId;
@@ -79,7 +81,8 @@ public:
 	short Unknown_Eh;
 	std::unique_ptr<PsoDataMappingEntry[]> Entries;
 
-	void Read(memstream& stream) {
+	void Read(memstream& stream)
+	{
 		Ident = *(int*)stream.read(sizeof(int));
 		endSwap(&Ident);
 		Length = *(int*)stream.read(sizeof(int));
@@ -101,7 +104,7 @@ public:
 
 class YmfLoader
 {
-public:
+	public:
 	std::vector<CHDTxdAssetBinding*> HDtextures;
 
 	PsoDataSection _PsoDataSection;
@@ -112,4 +115,3 @@ public:
 
 	uint8_t DetectType(memstream& stream);
 };
-

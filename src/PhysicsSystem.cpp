@@ -4,11 +4,11 @@ std::unique_ptr<btDiscreteDynamicsWorld> PhysicsSystem::dynamicsWorld = nullptr;
 
 PhysicsSystem::PhysicsSystem()
 {
-	broadphase = std::make_unique<btDbvtBroadphase>();
+	broadphase             = std::make_unique<btDbvtBroadphase>();
 	collisionConfiguration = std::make_unique<btDefaultCollisionConfiguration>();
-	dispatcher = std::make_unique<btCollisionDispatcher>(collisionConfiguration.get());
-	solver = std::make_unique<btSequentialImpulseConstraintSolver>();
-	dynamicsWorld = std::make_unique<btDiscreteDynamicsWorld>(dispatcher.get(), broadphase.get(), solver.get(), collisionConfiguration.get());
+	dispatcher             = std::make_unique<btCollisionDispatcher>(collisionConfiguration.get());
+	solver                 = std::make_unique<btSequentialImpulseConstraintSolver>();
+	dynamicsWorld          = std::make_unique<btDiscreteDynamicsWorld>(dispatcher.get(), broadphase.get(), solver.get(), collisionConfiguration.get());
 
 	dynamicsWorld->setGravity(btVector3(0, 0, -9.8f));
 	//	UPDATE STATIC OBJECTS MANUALLY
@@ -18,10 +18,8 @@ PhysicsSystem::PhysicsSystem()
 	dynamicsWorld->setDebugDrawer(&debug);
 }
 
-
 PhysicsSystem::~PhysicsSystem()
 {
-
 }
 
 void PhysicsSystem::Update(float delta_time)
@@ -51,21 +49,21 @@ void PhysicsSystem::Update(float delta_time)
 	   btManifoldPoint& pt = contactManifold->getContactPoint(j);
 	   if (pt.getAppliedImpulse() > 1) {
 
-		Player* player1 = static_cast<Player*>(obA->getUserPointer());
-		Player* player2 = static_cast<Player*>(obB->getUserPointer());
+	 Player* player1 = static_cast<Player*>(obA->getUserPointer());
+	 Player* player2 = static_cast<Player*>(obB->getUserPointer());
 
-		if (player1 != nullptr) {
-		 player1->TakeDamage(pt.getAppliedImpulse());
-		}
-		else if (player2 != nullptr) {
-		 player2->TakeDamage(pt.getAppliedImpulse());
-		}
+	 if (player1 != nullptr) {
+	  player1->TakeDamage(pt.getAppliedImpulse());
+	 }
+	 else if (player2 != nullptr) {
+	  player2->TakeDamage(pt.getAppliedImpulse());
+	 }
 	   }
 	   /*if (pt.getDistance()<0.f)
 	   {
-		if (pt.getAppliedImpulse() != 0) {
-		 printf("");
-		}
+	 if (pt.getAppliedImpulse() != 0) {
+	  printf("");
+	 }
 
 	   }
 	  }

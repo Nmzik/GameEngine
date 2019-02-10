@@ -1,15 +1,15 @@
 #pragma once
 #include "FileType.h"
-#include <unordered_map>
 #include "Texture.h"
+#include <unordered_map>
 
 enum TextureFormat
 {
 	D3DFMT_A8R8G8B8 = 21,
 	D3DFMT_A1R5G5B5 = 25,
-	D3DFMT_A8 = 28,
+	D3DFMT_A8       = 28,
 	D3DFMT_A8B8G8R8 = 32,
-	D3DFMT_L8 = 50,
+	D3DFMT_L8       = 50,
 
 	// fourCC
 	D3DFMT_DXT1 = 0x31545844, //
@@ -17,7 +17,7 @@ enum TextureFormat
 	D3DFMT_DXT5 = 0x35545844, //
 	D3DFMT_ATI1 = 0x31495441,
 	D3DFMT_ATI2 = 0x32495441,
-	D3DFMT_BC7 = 0x20374342,
+	D3DFMT_BC7  = 0x20374342,
 
 	//	UNKNOWN
 };
@@ -88,7 +88,7 @@ struct TextureDictionary : ResourceFileBase
 
 class YtdLoader : public FileType
 {
-public:
+	public:
 	std::unordered_map<uint32_t, Texture> Textures;
 
 	void Init(memstream& file) override;

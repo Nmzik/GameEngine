@@ -1,7 +1,7 @@
 #pragma once
 #include "LinearMath/btIDebugDraw.h"
-#include "opengl.h"
 #include "glm/glm.hpp"
+#include "opengl.h"
 #include <vector>
 
 class PhysicsDebugDrawer : public btIDebugDraw
@@ -13,7 +13,7 @@ class PhysicsDebugDrawer : public btIDebugDraw
 	std::vector<glm::vec3> m_points;
 	std::vector<glm::vec3> m_colors;
 
-public:
+	public:
 	PhysicsDebugDrawer();
 	~PhysicsDebugDrawer();
 
@@ -26,6 +26,6 @@ public:
 
 	void render();
 
-protected:
+	protected:
 	int debugMode;
 };

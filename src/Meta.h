@@ -20,7 +20,7 @@ struct MetaEnumEntryInfo_s
 
 class MetaStructureInfo
 {
-public:
+	public:
 	struct MetaStructureInfoStruct
 	{
 		uint32_t StructureNameHash;
@@ -31,7 +31,7 @@ public:
 		int32_t StructureSize;
 		int16_t Unknown_1Ch; //	0x0000;
 		int16_t EntriesCount;
-	} *MetaStructureInfo_struct;
+	} * MetaStructureInfo_struct;
 
 	std::vector<MetaStructureEntryInfo_s*> entryInfos;
 
@@ -57,7 +57,7 @@ public:
 
 class MetaEnumInfo
 {
-public:
+	public:
 	struct MetaEnumInfoStruct
 	{
 		uint32_t EnumNameHash;
@@ -65,7 +65,7 @@ public:
 		uint64_t EntriesPointer;
 		int32_t EntriesCount;
 		int32_t Unknown_14h; //	0x00000000;
-	} *MetaEnumInfo_struct;
+	} * MetaEnumInfo_struct;
 
 	std::vector<MetaEnumEntryInfo_s*> infos;
 
@@ -91,13 +91,13 @@ public:
 
 class MetaDataBlock
 {
-public:
+	public:
 	struct MetaDataBlockStruct
 	{
 		uint32_t StructureNameHash;
 		int32_t DataLength;
 		uint64_t DataPointer;
-	} *MetaDataBlock_struct;
+	} * MetaDataBlock_struct;
 
 	MetaDataBlock(memstream& file)
 	{
@@ -109,7 +109,7 @@ public:
 
 class Meta
 {
-public:
+	public:
 	struct MetaStruct : ResourceFileBase
 	{
 		int32_t Unknown_10h;
@@ -135,7 +135,7 @@ public:
 		uint32_t Unknown_64h;
 		uint32_t Unknown_68h;
 		uint32_t Unknown_6Ch;
-	} *Meta_struct;
+	} * Meta_struct;
 
 	std::vector<MetaStructureInfo> MetaInfos;
 	std::vector<MetaEnumInfo> EnumInfos;

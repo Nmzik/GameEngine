@@ -103,8 +103,9 @@ void YbnLoader::ParseYbn(memstream& file)
 
 				btTransform localTrans;
 				localTrans.setIdentity();
-				localTrans.setOrigin(btVector3(
-					geom->CenterGeom.x + Vertices[PolygonSphere->sphereIndex].x, geom->CenterGeom.y + Vertices[PolygonSphere->sphereIndex].y, geom->CenterGeom.z + Vertices[PolygonSphere->sphereIndex].z));
+				localTrans.setOrigin(btVector3(geom->CenterGeom.x + Vertices[PolygonSphere->sphereIndex].x,
+				                               geom->CenterGeom.y + Vertices[PolygonSphere->sphereIndex].y,
+				                               geom->CenterGeom.z + Vertices[PolygonSphere->sphereIndex].z));
 				compound->addChildShape(localTrans, sphere.get());
 
 				Shapes.push_back(std::move(sphere));
@@ -137,14 +138,14 @@ void YbnLoader::ParseYbn(memstream& file)
 
 				glm::vec3 p1p2max = glm::max(p1, p2);
 				glm::vec3 p3p4max = glm::max(p3, p4);
-				glm::vec3 max = glm::max(p1p2max, p3p4max);
+				glm::vec3 max     = glm::max(p1p2max, p3p4max);
 
 				glm::vec3 p1p2min = glm::min(p1, p2);
 				glm::vec3 p3p4min = glm::min(p3, p4);
-				glm::vec3 min = glm::min(p1p2min, p3p4min);
+				glm::vec3 min     = glm::min(p1p2min, p3p4min);
 
-				glm::vec3 size = ((p3 + p4) - (p1 + p2)) * 0.5f;//Half extents
-				auto mid = (min + max) / 2.f;
+				glm::vec3 size = ((p3 + p4) - (p1 + p2)) * 0.5f; //	Half extents
+				auto mid       = (min + max) / 2.f;
 
 				std::unique_ptr<btBoxShape> shape = std::make_unique<btBoxShape>(btVector3(size.x, size.y, size.z));
 
@@ -164,8 +165,9 @@ void YbnLoader::ParseYbn(memstream& file)
 
 				btTransform localTrans;
 				localTrans.setIdentity();
-				localTrans.setOrigin(btVector3(geom->CenterGeom.x + Vertices[PolygonCylinder->cylinderIndex1].x, geom->CenterGeom.y + Vertices[PolygonCylinder->cylinderIndex1].y,
-					geom->CenterGeom.z + Vertices[PolygonCylinder->cylinderIndex1].z));
+				localTrans.setOrigin(btVector3(geom->CenterGeom.x + Vertices[PolygonCylinder->cylinderIndex1].x,
+				                               geom->CenterGeom.y + Vertices[PolygonCylinder->cylinderIndex1].y,
+				                               geom->CenterGeom.z + Vertices[PolygonCylinder->cylinderIndex1].z));
 				compound->addChildShape(localTrans, shape.get());
 
 				Shapes.push_back(std::move(shape));
@@ -186,25 +188,27 @@ void YbnLoader::ParseYbn(memstream& file)
 
 			for (int i = 0; i < PolygonTriangles.size(); i++)
 			{
-				Indices[i] = glm::u16vec3(PolygonTriangles[i]->triIndex1 & 0x7FFF, PolygonTriangles[i]->triIndex2 & 0x7FFF, PolygonTriangles[i]->triIndex3 & 0x7FFF);
+				Indices[i] =
+				    glm::u16vec3(PolygonTriangles[i]->triIndex1 & 0x7FFF, PolygonTriangles[i]->triIndex2 & 0x7FFF, PolygonTriangles[i]->triIndex3 & 0x7FFF);
 			}
 
 			std::unique_ptr<btTriangleIndexVertexArray> VertIndices = std::make_unique<btTriangleIndexVertexArray>();
 
 			/*btQuantizedBvh* quantizedBvh = std::make_unique<btQuantizedBvh();
-			quantizedBvh->setQuantizationValues(btVector3(Bounds.BoundingBoxMin.x, Bounds.BoundingBoxMin.y, Bounds.BoundingBoxMin.z), btVector3(Bounds.BoundingBoxMax.x, Bounds.BoundingBoxMax.y,
-			Bounds.BoundingBoxMax.z)); QuantizedNodeArray&	nodes = quantizedBvh->getLeafNodeArray(); btOptimizedBvh *bvh = std::make_unique<btOptimizedBvh();
+			quantizedBvh->setQuantizationValues(btVector3(Bounds.BoundingBoxMin.x, Bounds.BoundingBoxMin.y, Bounds.BoundingBoxMin.z),
+			btVector3(Bounds.BoundingBoxMax.x, Bounds.BoundingBoxMax.y, Bounds.BoundingBoxMax.z)); QuantizedNodeArray&	nodes =
+			quantizedBvh->getLeafNodeArray(); btOptimizedBvh *bvh = std::make_unique<btOptimizedBvh();
 			//bvh->build(VertIndicesArray, true, );
 			trishape->setOptimizedBvh(bvh);
 			btQuantizedBvhNode node;*/
 
 			btIndexedMesh mesh;
-			mesh.m_numTriangles = PolygonTriangles.size();
-			mesh.m_triangleIndexBase = (uint8_t*)&Indices[0];
+			mesh.m_numTriangles        = PolygonTriangles.size();
+			mesh.m_triangleIndexBase   = (uint8_t*)&Indices[0];
 			mesh.m_triangleIndexStride = 3 * sizeof(uint16_t);
-			mesh.m_numVertices = geom->VerticesCount;
-			mesh.m_vertexBase = (uint8_t*)&Vertices[0];
-			mesh.m_vertexStride = sizeof(glm::vec3);
+			mesh.m_numVertices         = geom->VerticesCount;
+			mesh.m_vertexBase          = (uint8_t*)&Vertices[0];
+			mesh.m_vertexStride        = sizeof(glm::vec3);
 
 			VertIndices->addIndexedMesh(mesh, PHY_SHORT);
 
@@ -258,7 +262,7 @@ void YbnLoader::ParseYbn(memstream& file)
 	}
 	default:
 		break;
-		//12 ???
+		//	12 ???
 	}
 }
 
@@ -271,16 +275,16 @@ void YbnLoader::Finalize()
 
 YbnLoader::~YbnLoader()
 {
-	for (auto &Vertices : VerticesArray)
+	for (auto& Vertices : VerticesArray)
 	{
 		btAlignedFreeInternal(Vertices);
 	}
 
-	for (auto &Indices : IndicesArray)
+	for (auto& Indices : IndicesArray)
 	{
 		btAlignedFreeInternal(Indices);
 	}
-	//CHECK???
+	//	CHECK???
 	if (Loaded)
 		PhysicsSystem::dynamicsWorld->removeRigidBody(rigidBody.get());
 }

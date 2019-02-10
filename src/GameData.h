@@ -1,10 +1,10 @@
 #pragma once
 #include "RpfFile.h"
+#include "glm/glm.hpp"
+#include "includes.h"
 #include <algorithm>
 #include <memory>
 #include <unordered_map>
-#include "glm/glm.hpp"
-#include "includes.h"
 
 class RpfFile;
 class YtypLoader;
@@ -49,7 +49,7 @@ class GameData
 	std::vector<std::unique_ptr<RpfFile>> rpfFiles;
 	std::vector<std::unique_ptr<std::ifstream>> openedFiles;
 
-public:
+	public:
 	std::vector<WaterQuad> WaterQuads;
 	std::unique_ptr<CacheDatFile> cacheFile;
 

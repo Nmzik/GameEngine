@@ -1,8 +1,8 @@
 #pragma once
 #include "Shader.h"
-#include <vector>
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
+#include <vector>
 
 class Skybox
 {
@@ -11,7 +11,7 @@ class Skybox
 	int num_indices;
 	unsigned int cubemapTexture;
 
-public:
+	public:
 	Skybox();
 	~Skybox();
 

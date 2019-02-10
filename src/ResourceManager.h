@@ -1,13 +1,13 @@
 #pragma once
 
+#include "FileType.h"
+#include "ThreadSafeAllocator.h"
+#include "includes.h"
+#include <condition_variable>
+#include <deque>
 #include <mutex>
 #include <thread>
 #include <unordered_map>
-#include <condition_variable>
-#include "includes.h"
-#include "FileType.h"
-#include <deque>
-#include "ThreadSafeAllocator.h"
 
 class GameWorld;
 
@@ -37,14 +37,15 @@ class ResourceManager
 	std::unordered_map<uint32_t, std::unique_ptr<YtdLoader>> ytdLoader;
 	std::unordered_map<uint32_t, std::unique_ptr<YbnLoader>> ybnLoader;
 	std::unordered_map<uint32_t, std::unique_ptr<YmapLoader>> ymapLoader;
-public:
+
+	public:
 	ResourceManager(GameWorld* world);
 	~ResourceManager();
 
 	uint64_t GlobalGpuMemory = 0;
-	uint64_t TextureMemory = 0;
+	uint64_t TextureMemory   = 0;
 
-	//std::mutex allocatorMutex;
+	//	std::mutex allocatorMutex;
 	ThreadSafeAllocator* resource_allocator;
 	void GetGtxd(uint32_t hash);
 	// GetFile<YdrLoader, Type::ydr>(uint32_t hash, uint32_t TextureDictionaryHash);

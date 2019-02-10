@@ -1,10 +1,10 @@
 #pragma once
-#include <unordered_map>
 #include "opengl.h"
+#include <unordered_map>
 
 class ShaderManager
 {
-public:
+	public:
 	ShaderManager();
 	~ShaderManager();
 

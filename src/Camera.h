@@ -10,12 +10,12 @@ class Camera
 {
 	class ViewPlane
 	{
-	public:
+		public:
 		glm::vec3 normal{};
 		float distance{};
 	};
 
-public:
+	public:
 	ViewPlane planes[6];
 	// Camera Attributes
 	glm::vec3 position;
@@ -23,8 +23,8 @@ public:
 
 	// Constructor with vectors
 	Camera(glm::vec3 pos)
-		: position(pos)
-		, rotation(1.0f, 0.0f, 0.0f, 0.0f)
+	    : position(pos)
+	    , rotation(1.0f, 0.0f, 0.0f, 0.0f)
 	{
 	}
 

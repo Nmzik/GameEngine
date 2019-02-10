@@ -2,9 +2,9 @@
 //#define GLM_FORCE_LEFT_HANDED
 //#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 
-#include <sstream>
 #include "SDL.h"
 #include "ft2build.h"
+#include <sstream>
 #include FT_FREETYPE_H
 
 #include "FreeListAllocator.h"
@@ -34,7 +34,7 @@ class Game
 	std::unique_ptr<RenderingSystem> rendering_system;
 	std::unique_ptr<InputManager> input;
 
-public:
+	public:
 	Game();
 	~Game();
 	bool paused = false;

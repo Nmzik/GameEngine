@@ -8,7 +8,7 @@ class Water
 	uint32_t num_indices;
 	GLuint diffuseTextureID;
 
-public:
+	public:
 	glm::vec3 BSCenter;
 	float BSRadius;
 

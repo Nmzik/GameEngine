@@ -29,7 +29,7 @@ void YddLoader::Init(memstream& file)
 		std::unique_ptr<YdrLoader> ydr = std::make_unique<YdrLoader>();
 		ydr->Init(file);
 		gpuMemory += ydr->gpuMemory;
-		ydrFiles.insert({ YdrHashes[i], std::move(ydr) });
+		ydrFiles.insert({YdrHashes[i], std::move(ydr)});
 
 		file.seekg(DrawablePointer);
 	}
@@ -37,5 +37,4 @@ void YddLoader::Init(memstream& file)
 
 YddLoader::~YddLoader()
 {
-	
 }

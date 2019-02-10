@@ -1,16 +1,15 @@
 #pragma once
+#include "zlib.h"
+#include <cstring>
 #include <fstream>
 #include <iostream>
 #include <vector>
-#include "zlib.h"
-#include "aes.h"
-#include <cstring>
 
 uint32_t GenHash(std::string Name);
 
 class GTAEncryption
 {
-private:
+	private:
 	z_stream strm;
 
 	uint8_t PC_AES_KEY[32];
@@ -18,7 +17,7 @@ private:
 	uint8_t PC_NG_KEYS[101][272];
 	uint32_t PC_NG_DECRYPT_TABLES[17][16][256];
 
-public:
+	public:
 	static GTAEncryption& getInstance()
 	{
 		return gtaEncryption;

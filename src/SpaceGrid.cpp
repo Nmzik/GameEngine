@@ -4,7 +4,6 @@
 
 SpaceGrid::SpaceGrid()
 {
-	
 }
 
 SpaceGrid::~SpaceGrid()
@@ -74,10 +73,10 @@ SpaceGridCell& SpaceGrid::GetCell(glm::i32vec2 g)
 glm::i32vec2 SpaceGrid::GetCellPos(glm::vec3 p)
 {
 	glm::i32vec2 ind = (p + WorldSize) * CellSizeInv;
-	int x = (int)ind.x;
-	int y = (int)ind.y;
-	x = (x < 0) ? 0 : (x > LastCell) ? LastCell : x;
-	y = (y < 0) ? 0 : (y > LastCell) ? LastCell : y;
+	int x            = (int)ind.x;
+	int y            = (int)ind.y;
+	x                = (x < 0) ? 0 : (x > LastCell) ? LastCell : x;
+	y                = (y < 0) ? 0 : (y > LastCell) ? LastCell : y;
 	return glm::i32vec2(x, y);
 }
 

@@ -3,7 +3,7 @@
 
 class PointLight
 {
-public:
+	public:
 	PointLight()
 	{
 	}
@@ -14,7 +14,7 @@ public:
 
 class DirectionalLight
 {
-public:
+	public:
 	glm::vec3 direction;
 	glm::vec3 ambient;
 	glm::vec3 diffuse;

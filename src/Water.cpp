@@ -6,26 +6,8 @@ Water::Water(WaterQuad waterQuad)
 	float sy = waterQuad.maxY - waterQuad.minY;
 
 	std::vector<float> vertices = {
-		waterQuad.minX,
-		waterQuad.minY,
-		waterQuad.z,
-		0.0f,
-		0.0f,
-		waterQuad.maxX,
-		waterQuad.minY,
-		waterQuad.z,
-		sx,
-		0.0f,
-		waterQuad.minX,
-		waterQuad.maxY,
-		waterQuad.z,
-		0.0f,
-		sy,
-		waterQuad.maxX,
-		waterQuad.maxY,
-		waterQuad.z,
-		sx,
-		sy,
+	    waterQuad.minX, waterQuad.minY, waterQuad.z, 0.0f, 0.0f, waterQuad.maxX, waterQuad.minY, waterQuad.z, sx, 0.0f,
+	    waterQuad.minX, waterQuad.maxY, waterQuad.z, 0.0f, sy,   waterQuad.maxX, waterQuad.maxY, waterQuad.z, sx, sy,
 	};
 
 	std::vector<uint16_t> indices;
@@ -51,27 +33,28 @@ Water::Water(WaterQuad waterQuad)
 
 		switch (waterQuad.Type)
 		{
-			case 1:
-				indices[0] = 0;
-				indices[1] = 1;
-				indices[2] = 2;
-				break;
-			case 2:
-				indices[0] = 0;
-				indices[1] = 3;
-				indices[2] = 2;
-				break;
-			case 3:
-				indices[0] = 1;
-				indices[1] = 3;
-				indices[2] = 2;
-				break;
-			case 4:
-				indices[0] = 0;
-				indices[1] = 1;
-				indices[2] = 3;
-				break;
-			default: break;
+		case 1:
+			indices[0] = 0;
+			indices[1] = 1;
+			indices[2] = 2;
+			break;
+		case 2:
+			indices[0] = 0;
+			indices[1] = 3;
+			indices[2] = 2;
+			break;
+		case 3:
+			indices[0] = 1;
+			indices[1] = 3;
+			indices[2] = 2;
+			break;
+		case 4:
+			indices[0] = 0;
+			indices[1] = 1;
+			indices[2] = 3;
+			break;
+		default:
+			break;
 		}
 	}
 

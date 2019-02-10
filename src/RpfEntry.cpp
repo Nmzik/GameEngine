@@ -25,7 +25,7 @@ RpfBinaryFileEntry::RpfBinaryFileEntry(memstream& stream, uint64_t StartPos, mem
 	NamesStream.seekg(NameOffset);
 	FileName = NamesStream.getString();
 
-	FileSize = (uint32_t)(buf >> 16) & 0xFFFFFF;
+	FileSize   = (uint32_t)(buf >> 16) & 0xFFFFFF;
 	FileOffset = (uint32_t)(buf >> 40) & 0xFFFFFF;
 	stream.read((char*)&FileUncompressedSize, sizeof(uint32_t));
 
@@ -54,7 +54,7 @@ RpfResourceFileEntry::RpfResourceFileEntry(memstream& stream, std::istream& orig
 	stream.read((char*)&SystemFlags, sizeof(uint32_t));
 	stream.read((char*)&GraphicsFlags, sizeof(uint32_t));
 
-	SystemSize = GetSizeFromFlags(SystemFlags);
+	SystemSize           = GetSizeFromFlags(SystemFlags);
 	int32_t GraphicsSize = GetSizeFromFlags(GraphicsFlags);
 
 	UncompressedFileSize = SystemSize + GraphicsSize;
@@ -72,6 +72,6 @@ RpfResourceFileEntry::RpfResourceFileEntry(memstream& stream, std::istream& orig
 		originalFile.seekg(pos);
 	}
 
-	FileSize = FileSize - 0x10;
+	FileSize   = FileSize - 0x10;
 	FileOffset = StartPos + ((long)FileOffset * 512) + 0x10;
 }

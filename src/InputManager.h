@@ -1,14 +1,14 @@
 #pragma once
 #include "SDL.h"
-#include <memory>
 #include <cstring>
+#include <memory>
 
 class InputManager
 {
 	uint8_t PreviousInput[SDL_NUM_SCANCODES];
 	uint8_t CurrentInput[SDL_NUM_SCANCODES];
 
-public:
+	public:
 	InputManager();
 	~InputManager();
 

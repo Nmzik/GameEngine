@@ -188,7 +188,7 @@ class YbnLoader;
 
 class YftLoader : public FileType
 {
-public:
+	public:
 	std::unique_ptr<YdrLoader> ydr;
 	std::unique_ptr<YbnLoader> ybn;
 	std::vector<YdrLoader*> fragPhysicsLODs;

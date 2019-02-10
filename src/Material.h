@@ -1,12 +1,12 @@
 #pragma once
 
-#include "opengl.h"
 #include "Shader.h"
 #include "TextureManager.h"
+#include "opengl.h"
 
 class Material
 {
-public:
+	public:
 	Material(uint32_t DiffuseHash, uint32_t BumpHash, uint32_t SpecularHash, uint32_t DetailHash);
 	~Material();
 

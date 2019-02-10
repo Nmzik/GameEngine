@@ -1,6 +1,6 @@
 #pragma once
-#include "YtypLoader.h"
 #include "Entity.h"
+#include "YtypLoader.h"
 
 class YdrLoader;
 class YddLoader;
@@ -10,14 +10,14 @@ class btRigidBody;
 
 class Object : public Entity
 {
-public:
-	YdrLoader* ydr = nullptr;
-	YddLoader* ydd = nullptr;
-	YftLoader* yft = nullptr;
-	YtdLoader* ytd = nullptr;
+	public:
+	YdrLoader* ydr         = nullptr;
+	YddLoader* ydd         = nullptr;
+	YftLoader* yft         = nullptr;
+	YtdLoader* ytd         = nullptr;
 	btRigidBody* rigidBody = nullptr;
-	bool Loaded = false;
-	bool FoundModel = false;
+	bool Loaded            = false;
+	bool FoundModel        = false;
 	//	uint8_t type = 0;
 
 	glm::vec3 BoundPos;
@@ -28,5 +28,5 @@ public:
 	Object(fwEntityDef def);
 	~Object();
 
-private:
+	private:
 };

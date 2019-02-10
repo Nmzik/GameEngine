@@ -78,7 +78,7 @@ class YndLoader
 		uint16_t Unk0;
 	};
 
-public:
+	public:
 	std::vector<Node> nodes;
 	std::vector<NodeLink> nodeLinks;
 	std::vector<NodeJunction> nodeJunctions;

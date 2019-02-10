@@ -1,8 +1,8 @@
 #pragma once
 
-#include <btBulletDynamicsCommon.h>
 #include "Entity.h"
 #include <array>
+#include <btBulletDynamicsCommon.h>
 #include <vector>
 
 class CVehicle;
@@ -25,17 +25,17 @@ class CPed : public Entity
 
 	std::array<CharacterWeaponSlot, 13> weapons;
 	uint16_t currentWeapon = 0;
-	bool inWater = false;
+	bool inWater           = false;
 	glm::vec3 playerDirection;
 	CVehicle* vehicle;
 	YddLoader* player;
 
-public:
+	public:
 	CPed(glm::vec3 position, YddLoader* ydd);
 	~CPed();
 
 	CPed& operator=(CPed&& other) = default;
-	CPed(CPed&& other) = default;
+	CPed(CPed&& other)            = default;
 
 	std::vector<YdrLoader*> playerModel;
 	bool on_ground = false;

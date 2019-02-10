@@ -1,12 +1,12 @@
 #pragma once
 
-#include "includes.h"
-#include "SoundManager.h"
-#include "ResourceManager.h"
 #include "GameData.h"
-#include "SpaceGrid.h"
 #include "Light.h"
 #include "PhysicsSystem.h"
+#include "ResourceManager.h"
+#include "SoundManager.h"
+#include "SpaceGrid.h"
+#include "includes.h"
 //////////
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtx/norm.hpp"
@@ -35,8 +35,8 @@ class GameWorld
 		glm::mat4 modelMatrix;
 
 		RenderInstruction(YdrLoader* modelYdr, glm::mat4 Matrix)
-			: ydr(modelYdr)
-			, modelMatrix(Matrix)
+		    : ydr(modelYdr)
+		    , modelMatrix(Matrix)
 		{
 		}
 	};
@@ -52,9 +52,9 @@ class GameWorld
 	std::unique_ptr<ResourceManager> resourceManager;
 	//	SoundManager sound;
 
-public:
+	public:
 	YddLoader* skydome;
-	uint32_t culled = 0;
+	uint32_t culled     = 0;
 	float LODMultiplier = 1.0f;
 	std::vector<Water> WaterMeshes;
 	std::unordered_map<uint32_t, CarHandling> vehiclesPool;

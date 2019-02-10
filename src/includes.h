@@ -1,6 +1,6 @@
 #pragma once
-#include <vector>
 #include <cstdint>
+#include <vector>
 
 enum Type
 {
@@ -19,7 +19,7 @@ class FileType;
 
 class Resource
 {
-public:
+	public:
 	Type type;
 	uint32_t Hash;
 	int32_t SystemSize;
@@ -28,10 +28,10 @@ public:
 	uint64_t BufferSize;
 
 	Resource(Type t, uint32_t hash, FileType* _file)
-		: type(t)
-		, Hash(hash)
-		, file(_file)
-		, BufferSize(0)
+	    : type(t)
+	    , Hash(hash)
+	    , file(_file)
+	    , BufferSize(0)
 	{
 	}
 
@@ -39,5 +39,5 @@ public:
 	{
 	}
 
-private:
+	private:
 };

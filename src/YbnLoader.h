@@ -1,6 +1,6 @@
 #pragma once
-#include <btBulletDynamicsCommon.h>
 #include "FileType.h"
+#include <btBulletDynamicsCommon.h>
 #include <vector>
 
 struct Bounds : ResourceFileBase
@@ -19,7 +19,7 @@ struct Bounds : ResourceFileBase
 	uint8_t MaterialIndex;
 	uint8_t ProceduralId;
 	uint8_t RoomId_and_PedDensity; //	5bits for RoomID and then 3bits for PedDensity
-	uint8_t Unknown_4Fh;           //	flags? (bit5 related to Unknown_5Ch, should be a flag called "Has PolyFlags")<-- i don't remember why i wrote this lol
+	uint8_t Unknown_4Fh; //	flags? (bit5 related to Unknown_5Ch, should be a flag called "Has PolyFlags")<-- i don't remember why i wrote this lol
 	glm::vec3 Center;
 	uint8_t PolyFlags;
 	uint8_t MaterialColorIndex;
@@ -74,9 +74,9 @@ struct BoundGeometry
 enum BoundPolygonType
 {
 	Triangle = 0,
-	Sphere = 1,
-	Capsule = 2,
-	Box = 3,
+	Sphere   = 1,
+	Capsule  = 2,
+	Box      = 3,
 	Cylinder = 4,
 };
 
@@ -152,7 +152,7 @@ class YbnLoader : public FileType
 	std::vector<std::unique_ptr<btCollisionShape>> Shapes;
 	std::vector<std::unique_ptr<btTriangleIndexVertexArray>> VertIndicesArray;
 
-public:
+	public:
 	std::unique_ptr<btCompoundShape> compound;
 	std::unique_ptr<btRigidBody> rigidBody;
 	std::unique_ptr<btDefaultMotionState> MotionState;

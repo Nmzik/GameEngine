@@ -2,8 +2,8 @@
 #if _MSC_VER
 #define _CRTDBG_MAP_ALLOC
 #define _CRTDBG_MAP_ALLOC_NEW
-#include <stdlib.h>
 #include <crtdbg.h>
+#include <stdlib.h>
 #endif
 #include "Game.h"
 

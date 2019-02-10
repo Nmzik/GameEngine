@@ -1,6 +1,6 @@
 #include "YftLoader.h"
-#include "YdrLoader.h"
 #include "YbnLoader.h"
+#include "YdrLoader.h"
 
 void YftLoader::Init(memstream& file)
 {
@@ -11,7 +11,7 @@ void YftLoader::Init(memstream& file)
 	SYSTEM_BASE_PTR(fragType->DrawablePointer);
 	file.seekg(fragType->DrawablePointer);
 
-	ydr = std::make_unique<YdrLoader>();
+	ydr        = std::make_unique<YdrLoader>();
 	ydr->isYft = true;
 	ydr->Init(file);
 	gpuMemory += ydr->gpuMemory;

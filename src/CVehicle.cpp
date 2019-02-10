@@ -7,32 +7,32 @@
 btVector3 wheelDirectionCS0(0, 0, -1);
 btVector3 wheelAxleCS(1, 0, 0);
 
-float gVehicleSteering = 0.f;
-float steeringIncrement = 0.04f;
-float steeringClamp = 0.3f;
-float wheelRadius = 0.5f;
-float wheelWidth = 0.4f;
-float wheelFriction = 1000; // BT_LARGE_FLOAT;
-float suspensionStiffness = 50.f;
-float suspensionDamping = 2.3f;
+float gVehicleSteering      = 0.f;
+float steeringIncrement     = 0.04f;
+float steeringClamp         = 0.3f;
+float wheelRadius           = 0.5f;
+float wheelWidth            = 0.4f;
+float wheelFriction         = 1000; // BT_LARGE_FLOAT;
+float suspensionStiffness   = 50.f;
+float suspensionDamping     = 2.3f;
 float suspensionCompression = 4.4f;
-float rollInfluence = 0.1f; // 1.0f;
+float rollInfluence         = 0.1f; // 1.0f;
 
 btScalar suspensionRestLength(0.6f);
 btScalar m_defaultContactProcessingThreshold(BT_LARGE_FLOAT);
 
 CVehicle::CVehicle(glm::vec3 position, float mass, YftLoader* yft)
-	: throttle(0)
-	, steeringValue(0)
-	, vehicle(yft)
-	, Entity(position, glm::quat(-1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(1.0f))
+    : throttle(0)
+    , steeringValue(0)
+    , vehicle(yft)
+    , Entity(position, glm::quat(-1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(1.0f))
 {
 	btRaycastVehicle::btVehicleTuning m_tuning;
 
 	m_tuning.m_frictionSlip = 3.f;
 
 	chassisShape = std::make_unique<btBoxShape>(btVector3(1.f, 2.f, 0.5f));
-	compound = std::make_unique<btCompoundShape>();
+	compound     = std::make_unique<btCompoundShape>();
 	btTransform localTrans;
 	localTrans.setIdentity();
 	//	localTrans effectively shifts the center of mass with respect to the chassis
@@ -55,12 +55,13 @@ CVehicle::CVehicle(glm::vec3 position, float mass, YftLoader* yft)
 	m_carChassis->setContactProcessingThreshold(m_defaultContactProcessingThreshold);
 
 	m_carChassis->setWorldTransform(tr);
-	PhysicsSystem::dynamicsWorld->addRigidBody(m_carChassis.get(), btBroadphaseProxy::KinematicFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::KinematicFilter);
+	PhysicsSystem::dynamicsWorld->addRigidBody(
+	    m_carChassis.get(), btBroadphaseProxy::KinematicFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::KinematicFilter);
 
 	m_wheelShape = std::make_unique<btCylinderShapeX>(btVector3(wheelWidth, wheelRadius, wheelRadius));
 
 	m_vehicleRayCaster = std::make_unique<btDefaultVehicleRaycaster>(PhysicsSystem::dynamicsWorld.get());
-	m_vehicle = std::make_unique<btRaycastVehicle>(m_tuning, m_carChassis.get(), m_vehicleRayCaster.get());
+	m_vehicle          = std::make_unique<btRaycastVehicle>(m_tuning, m_carChassis.get(), m_vehicleRayCaster.get());
 
 	///	never deactivate the vehicle
 	m_carChassis->setActivationState(DISABLE_DEACTIVATION);
@@ -90,12 +91,12 @@ CVehicle::CVehicle(glm::vec3 position, float mass, YftLoader* yft)
 
 	for (int i = 0; i < m_vehicle->getNumWheels(); i++)
 	{
-		btWheelInfo& wheel = m_vehicle->getWheelInfo(i);
-		wheel.m_suspensionStiffness = suspensionStiffness;
-		wheel.m_wheelsDampingRelaxation = suspensionDamping;
+		btWheelInfo& wheel               = m_vehicle->getWheelInfo(i);
+		wheel.m_suspensionStiffness      = suspensionStiffness;
+		wheel.m_wheelsDampingRelaxation  = suspensionDamping;
 		wheel.m_wheelsDampingCompression = suspensionCompression;
-		wheel.m_frictionSlip = wheelFriction;
-		wheel.m_rollInfluence = rollInfluence;
+		wheel.m_frictionSlip             = wheelFriction;
+		wheel.m_rollInfluence            = rollInfluence;
 	}
 }
 

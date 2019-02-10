@@ -1,14 +1,14 @@
 #pragma once
-#include "opengl.h"
-#include <glm/glm.hpp>
-#include <fstream>
-#include <sstream>
 #include "iostream"
+#include "opengl.h"
+#include <fstream>
+#include <glm/glm.hpp>
+#include <sstream>
 
 class Shader
 {
 
-public:
+	public:
 	GLuint ID;
 
 	Shader(std::string ShaderPath)
@@ -43,8 +43,8 @@ public:
 		ShaderFile.close();
 
 		// convert stream into string
-		vertexCode = ss[0].str();
-		fragmentCode = ss[1].str();
+		vertexCode              = ss[0].str();
+		fragmentCode            = ss[1].str();
 		const char* vShaderCode = vertexCode.c_str();
 		const char* fShaderCode = fragmentCode.c_str();
 		// 2. compile shaders
@@ -120,7 +120,7 @@ public:
 		glUniformMatrix4fv(UniformValue, 1, GL_FALSE, &mat[0][0]);
 	}
 
-private:
+	private:
 	void checkCompileErrors(unsigned int shader, std::string type)
 	{
 		int success;
@@ -131,7 +131,8 @@ private:
 			if (!success)
 			{
 				glGetShaderInfoLog(shader, 1024, NULL, infoLog);
-				std::cout << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+				std::cout << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "\n"
+				          << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
 			}
 		}
 		else
@@ -140,7 +141,8 @@ private:
 			if (!success)
 			{
 				glGetProgramInfoLog(shader, 1024, NULL, infoLog);
-				std::cout << "ERROR::PROGRAM_LINKING_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+				std::cout << "ERROR::PROGRAM_LINKING_ERROR of type: " << type << "\n"
+				          << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
 			}
 		}
 	}

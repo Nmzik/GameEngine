@@ -1,6 +1,6 @@
 #pragma once
-#include <btBulletDynamicsCommon.h>
 #include "PhysicsDebugDrawer.h"
+#include <btBulletDynamicsCommon.h>
 
 class PhysicsSystem
 {
@@ -10,7 +10,8 @@ class PhysicsSystem
 	std::unique_ptr<btSequentialImpulseConstraintSolver> solver;
 
 	PhysicsDebugDrawer debug;
-public:
+
+	public:
 	static std::unique_ptr<btDiscreteDynamicsWorld> dynamicsWorld;
 
 	PhysicsSystem();
@@ -18,8 +19,8 @@ public:
 
 	void Update(float delta_time);
 
-	PhysicsDebugDrawer& getDebugDrawer() {
+	PhysicsDebugDrawer& getDebugDrawer()
+	{
 		return debug;
 	}
 };
-
