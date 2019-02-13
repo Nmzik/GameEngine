@@ -400,10 +400,15 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 
 void GameWorld::LoadQueuedResources()
 {
-	resources_lock.lock();
-	if (resources.size() > 0)
-		resourcesThread.swap(resources);
-	resources_lock.unlock();
+
+	//If we still didn't finish loading our queue, do not swap! Swap only if we dont have any job.
+	if (resourcesThread.size() == 0)
+	{
+		resources_lock.lock();
+		if (resources.size() > 0)
+			resourcesThread.swap(resources);
+		resources_lock.unlock();
+	}
 
 	//	HASH 38759883
 

@@ -340,7 +340,7 @@ void Game::tick(float delta_time)
 		else
 		{
 
-			float speed = getInput()->IsKeyPressed(SDL_SCANCODE_LSHIFT) ? 10.0f : 1.0f;
+			float speed = getInput()->IsKeyPressed(SDL_SCANCODE_LSHIFT) ? 30.0f : 1.0f;
 
 			/*bool inWater = false;
 			if (getWorld()->DetectInWater(glm::vec3(player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getX(),
@@ -367,7 +367,7 @@ void Game::tick(float delta_time)
 			}
 			else*/
 			player->getPhysCharacter()->setLinearVelocity(
-			    btVector3(movement.x * 30.0f * speed, movement.y * 30.0f * speed, player->getPhysCharacter()->getLinearVelocity().z()));
+			    btVector3(movement.x * 10.0f * speed, movement.y * 10.0f * speed, player->getPhysCharacter()->getLinearVelocity().z()));
 
 			if (getInput()->IsKeyTriggered(SDL_SCANCODE_SPACE))
 			{

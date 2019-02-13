@@ -34,7 +34,7 @@ ResourceManager::ResourceManager(GameWorld* world)
 	resource_allocator = new ThreadSafeAllocator(50 * 1024 * 1024, _memory);
 
 	ResourcesThread = std::thread(&ResourceManager::update, this);
-	//ResourcesThread.detach();
+	ResourcesThread.detach();
 }
 
 ResourceManager::~ResourceManager()
@@ -274,25 +274,22 @@ void ResourceManager::update()
 		auto it = gameworld->getGameData()->Entries[res->type].find(res->Hash);
 		if (it != gameworld->getGameData()->Entries[res->type].end())
 		{
-			uint8_t* allocatedMemory = (uint8_t*)resource_allocator->allocate(it->second->UncompressedFileSize, 16);
+			uint8_t* allocatedMemory = nullptr;
 
-			if (allocatedMemory != nullptr)
+			while (!allocatedMemory)
 			{
-				res->Buffer     = allocatedMemory;
-				res->BufferSize = it->second->UncompressedFileSize;
-				gameworld->getGameData()->ExtractFileResource(*(it->second), res->Buffer, res->BufferSize);
-				res->SystemSize = (it->second->SystemSize);
-			}
-			else
-			{
-				//	printf("NOT ENOUGHT MEMORY IN POOL - WILL TRY NEXT TIME\n");
+				allocatedMemory = (uint8_t*)resource_allocator->allocate(it->second->UncompressedFileSize, 16);
 
-				lock.lock();
-				waitingList.push_front(res);
-				lock.unlock();
-
-				continue;
+				//if (!allocatedMemory)
+				//	printf("TRYING AGAIN\n");
 			}
+
+			//printf("DONE\n");
+
+			res->Buffer     = allocatedMemory;
+			res->BufferSize = it->second->UncompressedFileSize;
+			gameworld->getGameData()->ExtractFileResource(*(it->second), res->Buffer, res->BufferSize);
+			res->SystemSize = (it->second->SystemSize);
 		}
 		AddToMainQueue(res);
 	}
