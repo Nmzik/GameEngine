@@ -27,7 +27,7 @@ GameData::GameData()
 		if (!rpf->is_open())
 		{
 			printf("NOT FOUND RPF!\n");
-			return;
+			continue;
 		}
 
 		rpf->seekg(0, std::ios::end);

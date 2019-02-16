@@ -7,12 +7,9 @@
 #include <sstream>
 #include FT_FREETYPE_H
 
-#include "FreeListAllocator.h"
-
 #include "InputManager.h"
 
-#include <btBulletDynamicsCommon.h>
-
+#include "FreeListAllocator.h"
 #include <LinearMath/btAlignedAllocator.h>
 
 class GameData;

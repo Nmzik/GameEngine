@@ -5,12 +5,8 @@
 void YdrLoader::Init(memstream& file)
 {
 	Loaded = true;
-
-	rmcDrawable* drawBase = (rmcDrawable*)file.read(sizeof(rmcDrawable));
-	drawBase->Resolve(file);
-
 	//	READ COLLISION DATA FROM YDR
-	if (isYft)
+	/*if (isYft)
 	{
 		FragDrawable* fragDrawable = (FragDrawable*)file.read(sizeof(FragDrawable));
 
@@ -25,69 +21,37 @@ void YdrLoader::Init(memstream& file)
 	}
 	else
 	{
-		gtaDrawable* drawable = (gtaDrawable*)file.read(sizeof(gtaDrawable));
+		
+	}*/
 
-		if (drawable->LightAttributesPointer != 0)
-		{
-			SYSTEM_BASE_PTR(drawable->LightAttributesPointer);
-			file.seekg(drawable->LightAttributesPointer);
-
-			std::vector<CLightAttr> lightAttributes_s;
-			lightAttributes_s.resize(drawable->LightAttributesCount1);
-
-			for (int i = 0; i < drawable->LightAttributesCount1; i++)
-			{
-				CLightAttr* light = (CLightAttr*)file.read(sizeof(CLightAttr));
-				//	lightAttributes_s.push_back(light);
-			}
-		}
-		if (drawable->BoundPointer != 0)
-		{
-			SYSTEM_BASE_PTR(drawable->BoundPointer);
-			file.seekg(drawable->BoundPointer);
-
-			ybn = std::make_unique<YbnLoader>();
-			ybn->Init(file);
-			//	ybnfile->Finalize(world);
-		}
-	}
+	gtaDrawable* drawable = (gtaDrawable*)file.read(sizeof(gtaDrawable));
+	drawable->Resolve(file);
 
 	//	Shader stuff
-	if (drawBase->ShaderGroupPointer.pointer)
+	if (drawable->ShaderGroupPointer.pointer)
 	{ //	IF POINTER = 0 NO OBJECTS???
 
-		if (drawBase->ShaderGroupPointer->TextureDictionaryPointer != 0)
+		if (drawable->ShaderGroupPointer->TextureDictionaryPointer != 0)
 		{
-			SYSTEM_BASE_PTR(drawBase->ShaderGroupPointer->TextureDictionaryPointer);
-			file.seekg(drawBase->ShaderGroupPointer->TextureDictionaryPointer);
+			SYSTEM_BASE_PTR(drawable->ShaderGroupPointer->TextureDictionaryPointer);
+			file.seekg(drawable->ShaderGroupPointer->TextureDictionaryPointer);
 			ytd = std::make_unique<YtdLoader>();
 			ytd->Init(file);
 		}
 
-		SYSTEM_BASE_PTR(drawBase->ShaderGroupPointer->ShadersPointer);
-		file.seekg(drawBase->ShaderGroupPointer->ShadersPointer);
-
 		std::vector<Material> materials;
-		materials.reserve(drawBase->ShaderGroupPointer->ShadersCount1);
+		materials.reserve(drawable->ShaderGroupPointer->Shaders.getSize());
 
-		for (int i = 0; i < drawBase->ShaderGroupPointer->ShadersCount1; i++)
+		for (int is = 0; is < drawable->ShaderGroupPointer->Shaders.getSize(); is++)
 		{
-			uint64_t* data_pointer = (uint64_t*)file.read(sizeof(uint64_t));
-			uint64_t posOriginal   = file.tellg();
-
-			SYSTEM_BASE_PTR(data_pointer[0]);
-			file.seekg(data_pointer[0]);
-
-			grmShaderFx* shaderFX = (grmShaderFx*)file.read(sizeof(grmShaderFx));
-
-			SYSTEM_BASE_PTR(shaderFX->ParametersPointer);
-			file.seekg(shaderFX->ParametersPointer);
+			SYSTEM_BASE_PTR(drawable->ShaderGroupPointer->Shaders.Get(is)->ParametersPointer);
+			file.seekg(drawable->ShaderGroupPointer->Shaders.Get(is)->ParametersPointer);
 
 			std::vector<uint32_t> TexturesHashes;
 
 			int offset = 0;
 
-			for (int i = 0; i < shaderFX->ParameterCount; i++)
+			for (int j = 0; j < drawable->ShaderGroupPointer->Shaders.Get(is)->ParameterCount; j++)
 			{
 				ShaderParameter* param = (ShaderParameter*)file.read(sizeof(ShaderParameter));
 
@@ -147,10 +111,10 @@ void YdrLoader::Init(memstream& file)
 			uint32_t SpecularSampler = 0;
 			uint32_t DetailSampler   = 0;
 
-			if ((shaderFX->TextureParametersCount > 0))
+			if ((drawable->ShaderGroupPointer->Shaders.Get(is)->TextureParametersCount > 0))
 			{
 
-				for (int i = 0; i < shaderFX->TextureParametersCount; i++)
+				for (int i = 0; i < drawable->ShaderGroupPointer->Shaders.Get(is)->TextureParametersCount; i++)
 				{
 					uint32_t* ShaderName = (uint32_t*)file.read(sizeof(uint32_t));
 
@@ -175,51 +139,49 @@ void YdrLoader::Init(memstream& file)
 
 			Material newMat(DiffuseSampler, BumpSampler, SpecularSampler, DetailSampler);
 			materials.push_back(newMat);
-
-			file.seekg(posOriginal);
 		}
 
 		//////////
 
-		models.resize(drawBase->DrawableModels[0]->getSize());
+		models.resize(drawable->DrawableModels[0]->getSize());
 
-		for (int i = 0; i < drawBase->DrawableModels[0]->getSize(); i++)
+		for (int i = 0; i < drawable->DrawableModels[0]->getSize(); i++)
 		{
-			models[i].Unk_2Ch = drawBase->DrawableModels[0]->Get(i)->Unknown_2Ch;
+			models[i].Unk_2Ch = drawable->DrawableModels[0]->Get(i)->Unknown_2Ch;
 			//	Optimization
-			models[i].meshes.reserve(drawBase->DrawableModels[0]->Get(i)->m_geometries.getSize());
+			models[i].meshes.reserve(drawable->DrawableModels[0]->Get(i)->m_geometries.getSize());
 
-			for (int j = 0; j < drawBase->DrawableModels[0]->Get(i)->m_geometries.getSize(); j++)
+			for (int j = 0; j < drawable->DrawableModels[0]->Get(i)->m_geometries.getSize(); j++)
 			{
-				switch (drawBase->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->InfoPointer->Types)
+				switch (drawable->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->InfoPointer->Types)
 				{
-				/*case 8598872888530528662: //YDR - 0x7755555555996996
-				break;*/
+				case 8598872888530528662: //YDR - 0x7755555555996996
+				break;
 				case 216172782140628998: //	YFT - 0x030000000199A006
-					switch (drawBase->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->InfoPointer->Flags)
+					switch (drawable->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->InfoPointer->Flags)
 					{
 					case 16473:
-						drawBase->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->InfoPointer->Flags = VertexType::PCCH2H4;
+						drawable->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->InfoPointer->Flags = VertexType::PCCH2H4;
 						break; //  PCCH2H4
 					}
 					break;
 				case 216172782140612614: //	YFT - 0x0300000001996006  PNCH2H4
-					switch (drawBase->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->InfoPointer->Flags)
+					switch (drawable->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->InfoPointer->Flags)
 					{
 					case 89:
-						drawBase->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->InfoPointer->Flags = VertexType::PNCH2;
+						drawable->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->InfoPointer->Flags = VertexType::PNCH2;
 						break; //  PNCH2
 					}
 					break;
 				}
 
-				gpuMemory += drawBase->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->VertexCount *
-				             drawBase->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->VertexStride;
-				gpuMemory += drawBase->DrawableModels[0]->Get(i)->m_geometries.Get(j)->IndexBufferPointer->IndicesCount * sizeof(uint16_t);
+				gpuMemory += drawable->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->VertexCount *
+				             drawable->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->VertexStride;
+				gpuMemory += drawable->DrawableModels[0]->Get(i)->m_geometries.Get(j)->IndexBufferPointer->IndicesCount * sizeof(uint16_t);
 
 				models[i].meshes.emplace_back(file.data,
-				                              drawBase->DrawableModels[0]->Get(i)->m_geometries.Get(j),
-				                              materials[(*drawBase->DrawableModels[0]->Get(i)->ShaderMappingPointer)[j]]);
+				                           drawable->DrawableModels[0]->Get(i)->m_geometries.Get(j),
+				                           materials[(*drawable->DrawableModels[0]->Get(i)->ShaderMappingPointer)[j]]);
 			}
 		}
 	}

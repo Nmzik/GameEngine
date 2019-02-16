@@ -17,7 +17,6 @@ class Object : public Entity
 	YtdLoader* ytd         = nullptr;
 	btRigidBody* rigidBody = nullptr;
 	bool Loaded            = false;
-	bool FoundModel        = false;
 	//	uint8_t type = 0;
 
 	glm::vec3 BoundPos;

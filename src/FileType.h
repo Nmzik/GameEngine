@@ -218,6 +218,12 @@ class pgPtr
 		return (T*)pointer;
 	}
 
+	pgPtr operator=(T* other)
+	{
+		pointer = other;
+		return *this;
+	}
+
 	void Resolve(memstream& file)
 	{
 		pointer = (T*)&file.data[(uint64_t)pointer & ~0x50000000];
@@ -255,13 +261,14 @@ class pgObjectArray
 	}
 };
 
-template <typename TValue, typename TIndex = uint16_t>
+template <typename TValue>
 class pgArray
 {
 	private:
 	pgPtr<TValue> m_offset;
-	TIndex m_count;
-	TIndex m_size;
+	uint16_t m_count;
+	uint16_t m_size;
+	uint32_t padding;
 
 	public:
 	pgArray()
@@ -278,17 +285,17 @@ class pgArray
 		m_size   = capacity;
 	}
 
-	TValue& Get(TIndex offset)
+	TValue& Get(uint16_t offset)
 	{
 		return (*m_offset)[offset];
 	}
 
-	inline TIndex GetSize() const
+	inline uint16_t GetSize() const
 	{
 		return m_size;
 	}
 
-	inline TIndex GetCount() const
+	inline uint16_t GetCount() const
 	{
 		return m_count;
 	}
@@ -296,6 +303,32 @@ class pgArray
 	inline void Resolve(memstream& file)
 	{
 		m_offset.Resolve(file);
+	}
+};
+
+template <typename TValue>
+class pgDictionary : datBase
+{
+	private:
+	uint32_t m_usageCount;
+	pgArray<uint32_t> m_hashes;
+	pgObjectArray<TValue> m_values;
+
+	public:
+	inline uint16_t getSize()
+	{
+		return m_count;
+	}
+
+	TValue* Get(uint16_t offset)
+	{
+		return *((*m_objects)[offset]);
+	}
+
+	inline void Resolve(memstream& file)
+	{
+		m_hashes.Resolve(file);
+		m_values.Resolve(file);
 	}
 };
 

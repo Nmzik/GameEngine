@@ -3,27 +3,6 @@
 #include "FileType.h"
 #include "Model.h"
 
-struct grmShaderGroup : datBase
-{
-	uint64_t TextureDictionaryPointer;
-	uint64_t ShadersPointer;
-	uint16_t ShadersCount1;
-	uint16_t ShadersCount2;
-	uint32_t Unknown_1Ch; // 0x00000000
-	uint32_t Unknown_20h; // 0x00000000
-	uint32_t Unknown_24h; // 0x00000000
-	uint32_t Unknown_28h; // 0x00000000
-	uint32_t Unknown_2Ch; // 0x00000000
-	uint32_t Unknown_30h;
-	uint32_t Unknown_34h; // 0x00000000
-	uint32_t Unknown_38h; // 0x00000000
-	uint32_t Unknown_3Ch; // 0x00000000
-
-	void Resolve(memstream& file)
-	{
-	}
-};
-
 struct grmShaderFx
 {
 	uint64_t ParametersPointer;
@@ -41,6 +20,94 @@ struct grmShaderFx
 	uint8_t TextureParametersCount;
 	uint32_t Unknown_28h; // 0x00000000
 	uint32_t Unknown_2Ch; // 0x00000000
+
+	void Resolve(memstream& file)
+	{
+		
+	}
+};
+
+struct grmShaderGroup : datBase
+{
+	uint64_t TextureDictionaryPointer;
+	pgObjectArray<grmShaderFx> Shaders;
+	uint32_t Unknown_1Ch; // 0x00000000
+	uint32_t Unknown_20h; // 0x00000000
+	uint32_t Unknown_24h; // 0x00000000
+	uint32_t Unknown_28h; // 0x00000000
+	uint32_t Unknown_2Ch; // 0x00000000
+	uint32_t Unknown_30h;
+	uint32_t Unknown_34h; // 0x00000000
+	uint32_t Unknown_38h; // 0x00000000
+	uint32_t Unknown_3Ch; // 0x00000000
+
+	void Resolve(memstream& file)
+	{
+		Shaders.Resolve(file);
+	}
+};
+
+struct rmcDrawableBase : ResourceFileBase
+{
+	pgPtr<grmShaderGroup> ShaderGroupPointer;
+
+	inline void Resolve(memstream& file)
+	{
+		ShaderGroupPointer.Resolve(file);
+		ShaderGroupPointer->Resolve(file);
+	};
+};
+
+struct grmModel : datBase
+{
+	pgObjectArray<grmGeometry> m_geometries;
+	uint64_t BoundsPointer;
+	pgPtr<uint16_t> ShaderMappingPointer;
+	uint32_t Unknown_28h;
+	uint32_t Unknown_2Ch;
+
+	void Resolve(memstream& file)
+	{
+		m_geometries.Resolve(file);
+
+		ShaderMappingPointer.Resolve(file);
+	}
+};
+
+struct rmcDrawable : rmcDrawableBase
+{
+	uint64_t SkeletonPointer;
+	glm::vec3 BoundingCenter;
+	float BoundingSphereRadius;
+	glm::vec4 BoundingBoxMin;
+	glm::vec4 BoundingBoxMax;
+	pgPtr<pgObjectArray<grmModel>> DrawableModels[4];
+	float LodGroupHigh;
+	float LodGroupMed;
+	float LodGroupLow;
+	float LodGroupVlow;
+	uint32_t Unknown_80h;
+	uint32_t Unknown_84h;
+	uint32_t Unknown_88h;
+	uint32_t Unknown_8Ch;
+	uint64_t JointsPointer;
+	uint32_t Unknown_98h;
+	uint32_t Unknown_9Ch;
+	uint64_t DrawableModelsX;
+
+	inline void Resolve(memstream& file)
+	{
+		rmcDrawableBase::Resolve(file);
+
+		for (int i = 0; i < 4; i++)
+		{
+			if (DrawableModels[i].pointer)
+			{
+				DrawableModels[i].Resolve(file);
+				DrawableModels[i]->Resolve(file);
+			}
+		}
+	}
 };
 
 struct ShaderParameter
@@ -110,18 +177,33 @@ struct CLightAttr
 	float ExtentZ;
 	uint32_t ProjectedTextureHash;
 	uint32_t Unknown_A4h; // 0x00000000
+
+	inline void Resolve(memstream& file){
+	
+	}
 };
 
-struct gtaDrawable
+struct gtaDrawable : rmcDrawable
 {
 	uint64_t NamePointer;
-	uint64_t LightAttributesPointer;
-	uint16_t LightAttributesCount1;
-	uint16_t LightAttributesCount2;
+	pgObjectArray<CLightAttr> LightAttributes;
 	uint32_t Unknown_BCh; // 0x00000000
 	uint32_t Unknown_C0h; // 0x00000000
 	uint32_t Unknown_C4h; // 0x00000000
 	uint64_t BoundPointer;
+
+	inline void Resolve(memstream& file)
+	{
+		rmcDrawable::Resolve(file);
+
+		LightAttributes.Resolve(file);
+
+		if (BoundPointer != 0)
+		{
+			SYSTEM_BASE_PTR(BoundPointer);
+			file.seekg(BoundPointer);
+		}
+	}
 };
 
 struct FragDrawable
@@ -259,64 +341,6 @@ struct grmGeometry : datBase
 
 		VertexBufferPointer->Resolve(file);
 		IndexBufferPointer->Resolve(file);
-	}
-};
-
-struct grmModel : datBase
-{
-	pgObjectArray<grmGeometry> m_geometries;
-	uint64_t BoundsPointer;
-	pgPtr<uint16_t> ShaderMappingPointer;
-	uint32_t Unknown_28h;
-	uint32_t Unknown_2Ch;
-
-	void Resolve(memstream& file)
-	{
-		m_geometries.Resolve(file);
-
-		ShaderMappingPointer.Resolve(file);
-	}
-};
-
-struct rmcDrawableBase : ResourceFileBase
-{
-	pgPtr<grmShaderGroup> ShaderGroupPointer;
-};
-
-struct rmcDrawable : rmcDrawableBase
-{
-	uint64_t SkeletonPointer;
-	glm::vec3 BoundingCenter;
-	float BoundingSphereRadius;
-	glm::vec4 BoundingBoxMin;
-	glm::vec4 BoundingBoxMax;
-	pgPtr<pgObjectArray<grmModel>> DrawableModels[4];
-	float LodGroupHigh;
-	float LodGroupMed;
-	float LodGroupLow;
-	float LodGroupVlow;
-	uint32_t Unknown_80h;
-	uint32_t Unknown_84h;
-	uint32_t Unknown_88h;
-	uint32_t Unknown_8Ch;
-	uint64_t JointsPointer;
-	uint32_t Unknown_98h;
-	uint32_t Unknown_9Ch;
-	uint64_t DrawableModelsX;
-
-	inline void Resolve(memstream& file)
-	{
-		ShaderGroupPointer.Resolve(file);
-		ShaderGroupPointer->Resolve(file);
-
-		for (int i = 0; i < 4; i++)
-		{
-			if (DrawableModels[i].pointer)
-			{
-				DrawableModels[i].Resolve(file);
-				DrawableModels[i]->Resolve(file);
-			}
-		}
 	}
 };
 

@@ -113,11 +113,10 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 					{
 					case ASSET_TYPE_DRAWABLE:
 					{
-						if (!object.FoundModel)
+						if (!object.ydr)
 						{
-							object.ytd        = resourceManager->GetYtd(object.archetype->BaseArchetypeDef.textureDictionary);
-							object.ydr        = resourceManager->GetYdr(object.CEntity.archetypeName);
-							object.FoundModel = true;
+							object.ytd = resourceManager->GetYtd(object.archetype->BaseArchetypeDef.textureDictionary);
+							object.ydr = resourceManager->GetYdr(object.CEntity.archetypeName);
 						}
 						if (object.ydr->Loaded)
 						{
@@ -148,11 +147,10 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 					}
 					case ASSET_TYPE_DRAWABLEDICTIONARY:
 					{
-						if (!object.FoundModel)
+						if (!object.ydd)
 						{
-							object.ytd        = resourceManager->GetYtd(object.archetype->BaseArchetypeDef.textureDictionary);
-							object.ydd        = resourceManager->GetYdd(object.archetype->BaseArchetypeDef.drawableDictionary);
-							object.FoundModel = true;
+							object.ytd = resourceManager->GetYtd(object.archetype->BaseArchetypeDef.textureDictionary);
+							object.ydd = resourceManager->GetYdd(object.archetype->BaseArchetypeDef.drawableDictionary);
 						}
 						if (object.ydd->Loaded)
 						{
@@ -167,16 +165,14 @@ void GameWorld::LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 					}
 					case ASSET_TYPE_FRAGMENT:
 					{
-						if (!object.FoundModel)
+						if (!object.yft)
 						{
-							object.ytd        = resourceManager->GetYtd(object.archetype->BaseArchetypeDef.textureDictionary);
-							object.yft        = resourceManager->GetYft(object.CEntity.archetypeName);
-							object.FoundModel = true;
+							object.ytd = resourceManager->GetYtd(object.archetype->BaseArchetypeDef.textureDictionary);
+							object.yft = resourceManager->GetYft(object.CEntity.archetypeName);
 						}
 						if (object.yft->Loaded)
 						{
-							object.ydr = object.yft->ydr.get();
-
+							object.ydr    = object.yft->ydr.get();
 							object.Loaded = true;
 						}
 						break;
@@ -401,7 +397,7 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 void GameWorld::LoadQueuedResources()
 {
 
-	//If we still didn't finish loading our queue, do not swap! Swap only if we dont have any job.
+	//	If we still didn't finish loading our queue, do not swap! Swap only if we dont have any job.
 	if (resourcesThread.size() == 0)
 	{
 		resources_lock.lock();
