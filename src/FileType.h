@@ -4,6 +4,7 @@
 #include "membuf.h"
 #include <array>
 #include <cstdint>
+#include <memory>
 
 #define SYSTEM_BASE 0x50000000
 #define GRAPHICS_BASE 0x60000000
@@ -303,32 +304,6 @@ class pgArray
 	inline void Resolve(memstream& file)
 	{
 		m_offset.Resolve(file);
-	}
-};
-
-template <typename TValue>
-class pgDictionary : datBase
-{
-	private:
-	uint32_t m_usageCount;
-	pgArray<uint32_t> m_hashes;
-	pgObjectArray<TValue> m_values;
-
-	public:
-	inline uint16_t getSize()
-	{
-		return m_count;
-	}
-
-	TValue* Get(uint16_t offset)
-	{
-		return *((*m_objects)[offset]);
-	}
-
-	inline void Resolve(memstream& file)
-	{
-		m_hashes.Resolve(file);
-		m_values.Resolve(file);
 	}
 };
 

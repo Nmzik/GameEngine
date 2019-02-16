@@ -1,6 +1,7 @@
 #pragma once
 #include "PhysicsDebugDrawer.h"
 #include <btBulletDynamicsCommon.h>
+#include <memory>
 
 class PhysicsSystem
 {

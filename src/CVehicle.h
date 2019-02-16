@@ -3,6 +3,7 @@
 #include "Entity.h"
 #include "Shader.h"
 #include <btBulletDynamicsCommon.h>
+#include <memory>
 
 class YftLoader;
 

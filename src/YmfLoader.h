@@ -1,6 +1,8 @@
 #pragma once
 #include "FileType.h"
 #include <unordered_map>
+#include <vector>
+#include <algorithm>
 
 template <class T>
 void endSwap(T* objp)

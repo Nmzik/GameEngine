@@ -4,6 +4,7 @@
 #include <array>
 #include <btBulletDynamicsCommon.h>
 #include <vector>
+#include <memory>
 
 class CVehicle;
 class YddLoader;

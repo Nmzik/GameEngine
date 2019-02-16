@@ -20,13 +20,13 @@ GameData::GameData()
 
 	for (std::string& rpfFile : RpfsFiles)
 	{
-		std::string Path("C:\\Program Files\\Rockstar Games\\Grand Theft Auto V\\");
+		std::string Path("/home/nmzik/Desktop/GameEngine/build/assets/");
 
 		std::unique_ptr<std::ifstream> rpf = std::make_unique<std::ifstream>(Path + rpfFile, std::ios::binary);
 
 		if (!rpf->is_open())
 		{
-			printf("NOT FOUND RPF!\n");
+			printf("NOT FOUND RPF %s!\n", (Path + rpfFile).c_str());
 			continue;
 		}
 
