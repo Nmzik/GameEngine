@@ -10,22 +10,22 @@ class btRigidBody;
 
 class Object : public Entity
 {
-	public:
-	YdrLoader* ydr         = nullptr;
-	YddLoader* ydd         = nullptr;
-	YftLoader* yft         = nullptr;
-	YtdLoader* ytd         = nullptr;
-	btRigidBody* rigidBody = nullptr;
-	bool Loaded            = false;
-	//	uint8_t type = 0;
+public:
+    YdrLoader* ydr = nullptr;
+    YddLoader* ydd = nullptr;
+    YftLoader* yft = nullptr;
+    YtdLoader* ytd = nullptr;
+    btRigidBody* rigidBody = nullptr;
+    bool Loaded = false;
+    //	uint8_t type = 0;
 
-	glm::vec3 BoundPos;
-	float BoundRadius;
-	fwEntityDef CEntity;
-	Archetype* archetype;
+    glm::vec3 BoundPos;
+    float BoundRadius;
+    fwEntityDef CEntity;
+    Archetype* archetype;
 
-	Object(fwEntityDef def);
-	~Object();
+    Object(fwEntityDef def);
+    ~Object();
 
-	private:
+private:
 };

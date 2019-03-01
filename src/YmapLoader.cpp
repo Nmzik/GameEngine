@@ -4,77 +4,77 @@
 
 void YmapLoader::Init(memstream& file)
 {
-	//	Could be an additional extraction code here
+    //	Could be an additional extraction code here
 
-	Meta meta(file);
+    Meta meta(file);
 
-	//	FIND CMAPDATA FIRST OF ALL
+    //	FIND CMAPDATA FIRST OF ALL
 
-	for (auto& Block : meta.MetaBlocks)
-	{
-		if (Block.MetaDataBlock_struct->StructureNameHash == 3545841574)
-		{
-			std::memcpy(&_CMapData, &file.data[Block.MetaDataBlock_struct->DataPointer], sizeof(CMapData));
+    for (auto& Block : meta.MetaBlocks)
+    {
+        if (Block.MetaDataBlock_struct->StructureNameHash == 3545841574)
+        {
+            std::memcpy(&_CMapData, &file.data[Block.MetaDataBlock_struct->DataPointer], sizeof(CMapData));
 
-			//	Optimization
-			Objects.reserve(_CMapData.entities.Count1);
-			CarGenerators.reserve(_CMapData.carGenerators.Count1);
-		}
-	}
+            //	Optimization
+            Objects.reserve(_CMapData.entities.Count1);
+            CarGenerators.reserve(_CMapData.carGenerators.Count1);
+        }
+    }
 
-	for (auto& Block : meta.MetaBlocks)
-	{
-		switch (Block.MetaDataBlock_struct->StructureNameHash)
-		{
-		case 3461354627:
-		{
-			for (int i = 0; i < Block.MetaDataBlock_struct->DataLength / sizeof(fwEntityDef); i++)
-			{
-				fwEntityDef def;
-				std::memcpy(&def, &file.data[Block.MetaDataBlock_struct->DataPointer + i * sizeof(fwEntityDef)], sizeof(fwEntityDef));
+    for (auto& Block : meta.MetaBlocks)
+    {
+        switch (Block.MetaDataBlock_struct->StructureNameHash)
+        {
+            case 3461354627:
+            {
+                for (int i = 0; i < Block.MetaDataBlock_struct->DataLength / sizeof(fwEntityDef); i++)
+                {
+                    fwEntityDef def;
+                    std::memcpy(&def, &file.data[Block.MetaDataBlock_struct->DataPointer + i * sizeof(fwEntityDef)], sizeof(fwEntityDef));
 
-				bool isreflproxy = false;
-				switch (def.flags)
-				{
-				case 135790592: //	001000000110000000000000000000    prewater proxy (golf course)
-				case 135790593: //	001000000110000000000000000001    water refl proxy? (mike house)
-				case 672661504: //	101000000110000000000000000000    vb_ca_prop_tree_reflprox_2
-				case 536870912: //	100000000000000000000000000000    vb_05_emissive_mirroronly
-				case 35127296:  //	000010000110000000000000000000    tunnel refl proxy?
-				case 39321602:  //	000010010110000000000000000010    mlo reflection?
-					isreflproxy = true;
-					break;
-				}
-				if (isreflproxy)
-				{
-					continue;
-				}
+                    bool isreflproxy = false;
+                    switch (def.flags)
+                    {
+                        case 135790592:  //	001000000110000000000000000000    prewater proxy (golf course)
+                        case 135790593:  //	001000000110000000000000000001    water refl proxy? (mike house)
+                        case 672661504:  //	101000000110000000000000000000    vb_ca_prop_tree_reflprox_2
+                        case 536870912:  //	100000000000000000000000000000    vb_05_emissive_mirroronly
+                        case 35127296:   //	000010000110000000000000000000    tunnel refl proxy?
+                        case 39321602:   //	000010010110000000000000000010    mlo reflection?
+                            isreflproxy = true;
+                            break;
+                    }
+                    if (isreflproxy)
+                    {
+                        continue;
+                    }
 
-				//	FIX OPENGL
-				def.rotation.w = -def.rotation.w;
+                    //	FIX OPENGL
+                    def.rotation.w = -def.rotation.w;
 
-				//	if (def.lodLevel == Unk_1264241711::LODTYPES_DEPTH_ORPHANHD) def.lodDist *= 1.5f;
+                    //	if (def.lodLevel == Unk_1264241711::LODTYPES_DEPTH_ORPHANHD) def.lodDist *= 1.5f;
 
-				Objects.emplace_back(def);
-			}
-			break;
-		}
-		case 1860713439:
-		{ //	CAR GENERATORS
-			for (int i = 0; i < Block.MetaDataBlock_struct->DataLength / sizeof(fwEntityDef); i++)
-			{
-				CCarGen CarGenerator;
-				memcpy(&CarGenerator, &file.data[Block.MetaDataBlock_struct->DataPointer + i * sizeof(CCarGen)], sizeof(CCarGen));
+                    Objects.emplace_back(def);
+                }
+                break;
+            }
+            case 1860713439:
+            {  //	CAR GENERATORS
+                for (int i = 0; i < Block.MetaDataBlock_struct->DataLength / sizeof(fwEntityDef); i++)
+                {
+                    CCarGen CarGenerator;
+                    memcpy(&CarGenerator, &file.data[Block.MetaDataBlock_struct->DataPointer + i * sizeof(CCarGen)], sizeof(CCarGen));
 
-				CarGenerators.push_back(CarGenerator);
-			}
-			break;
-		}
-		default:
-			break;
-		}
+                    CarGenerators.push_back(CarGenerator);
+                }
+                break;
+            }
+            default:
+                break;
+        }
 
-		/*else if (Block.MetaDataBlock_struct->StructureNameHash == 164374718) //CMloInstanceDef
+        /*else if (Block.MetaDataBlock_struct->StructureNameHash == 164374718) //CMloInstanceDef
 		{
 		 size_t curLength = CMloInstanceDefs.size();
 		 CMloInstanceDefs.resize(curLength + Block.MetaDataBlock_struct->DataLength / sizeof(CMloInstanceDef));
@@ -107,7 +107,7 @@ void YmapLoader::Init(memstream& file)
 		 RootObjects.push_back(Objects[i]);
 		}
 	}*/
-	}
+    }
 }
 
 YmapLoader::~YmapLoader()

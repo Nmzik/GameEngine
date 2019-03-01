@@ -3,120 +3,120 @@
 
 void YbnLoader::Init(memstream& file)
 {
-	compound = std::make_unique<btCompoundShape>();
+    compound = std::make_unique<btCompoundShape>();
 
-	ParseYbn(file);
+    ParseYbn(file);
 
-	MotionState = std::make_unique<btDefaultMotionState>(btTransform(btQuaternion(0.f, 0.f, 0.f, 1.f), btVector3(0, 0, 0)));
-	btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(0, MotionState.get(), compound.get(), btVector3(0, 0, 0));
-	rigidBody = std::make_unique<btRigidBody>(groundRigidBodyCI);
+    MotionState = std::make_unique<btDefaultMotionState>(btTransform(btQuaternion(0.f, 0.f, 0.f, 1.f), btVector3(0, 0, 0)));
+    btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(0, MotionState.get(), compound.get(), btVector3(0, 0, 0));
+    rigidBody = std::make_unique<btRigidBody>(groundRigidBodyCI);
 }
 
 void YbnLoader::ParseYbn(memstream& file)
 {
-	Bounds* bounds = (Bounds*)file.read(sizeof(Bounds));
+    Bounds* bounds = (Bounds*)file.read(sizeof(Bounds));
 
-	compound->setMargin(bounds->Margin);
+    compound->setMargin(bounds->Margin);
 
-	switch (bounds->Type)
-	{
-	case 0:
-	{
-		std::unique_ptr<btSphereShape> sphere = std::make_unique<btSphereShape>(0.5f);
+    switch (bounds->Type)
+    {
+        case 0:
+        {
+            std::unique_ptr<btSphereShape> sphere = std::make_unique<btSphereShape>(0.5f);
 
-		btTransform localTrans;
-		localTrans.setIdentity();
-		compound->addChildShape(localTrans, sphere.get());
+            btTransform localTrans;
+            localTrans.setIdentity();
+            compound->addChildShape(localTrans, sphere.get());
 
-		Shapes.push_back(std::move(sphere));
-		break;
-	}
-	case 1:
-	{
-		std::unique_ptr<btCapsuleShapeZ> capsule = std::make_unique<btCapsuleShapeZ>(0.5f, 0.5f);
+            Shapes.push_back(std::move(sphere));
+            break;
+        }
+        case 1:
+        {
+            std::unique_ptr<btCapsuleShapeZ> capsule = std::make_unique<btCapsuleShapeZ>(0.5f, 0.5f);
 
-		btTransform localTrans;
-		localTrans.setIdentity();
-		compound->addChildShape(localTrans, capsule.get());
+            btTransform localTrans;
+            localTrans.setIdentity();
+            compound->addChildShape(localTrans, capsule.get());
 
-		Shapes.push_back(std::move(capsule));
-		break;
-	}
-	case 3:
-	{
-		std::unique_ptr<btBoxShape> box = std::make_unique<btBoxShape>(btVector3(0.5f, 0.5f, 0.5f));
+            Shapes.push_back(std::move(capsule));
+            break;
+        }
+        case 3:
+        {
+            std::unique_ptr<btBoxShape> box = std::make_unique<btBoxShape>(btVector3(0.5f, 0.5f, 0.5f));
 
-		btTransform localTrans;
-		localTrans.setIdentity();
+            btTransform localTrans;
+            localTrans.setIdentity();
 
-		compound->addChildShape(localTrans, box.get());
+            compound->addChildShape(localTrans, box.get());
 
-		Shapes.push_back(std::move(box));
-		break;
-	}
-	case 4:
-	case 8:
-	{
-		BoundGeometry* geom = (BoundGeometry*)file.read(sizeof(BoundGeometry));
+            Shapes.push_back(std::move(box));
+            break;
+        }
+        case 4:
+        case 8:
+        {
+            BoundGeometry* geom = (BoundGeometry*)file.read(sizeof(BoundGeometry));
 
-		///////////////////
-		SYSTEM_BASE_PTR(geom->VerticesPointer);
-		file.seekg(geom->VerticesPointer);
+            ///////////////////
+            SYSTEM_BASE_PTR(geom->VerticesPointer);
+            file.seekg(geom->VerticesPointer);
 
-		glm::i16vec3* CompressedVertices = (glm::i16vec3*)file.read(sizeof(glm::i16vec3));
+            glm::i16vec3* CompressedVertices = (glm::i16vec3*)file.read(sizeof(glm::i16vec3));
 
-		glm::vec3* Vertices = (glm::vec3*)btAlignedAllocInternal(geom->VerticesCount * sizeof(glm::vec3), 16);
-		VerticesArray.push_back(Vertices);
+            glm::vec3* Vertices = (glm::vec3*)btAlignedAllocInternal(geom->VerticesCount * sizeof(glm::vec3), 16);
+            VerticesArray.push_back(Vertices);
 
-		for (uint32_t i = 0; i < geom->VerticesCount; i++)
-		{
-			Vertices[i] = glm::vec3(CompressedVertices[i].x, CompressedVertices[i].y, CompressedVertices[i].z) * geom->Quantum;
-		}
+            for (uint32_t i = 0; i < geom->VerticesCount; i++)
+            {
+                Vertices[i] = glm::vec3(CompressedVertices[i].x, CompressedVertices[i].y, CompressedVertices[i].z) * geom->Quantum;
+            }
 
-		///////////////////
+            ///////////////////
 
-		std::vector<BoundPolygonTriangle*> PolygonTriangles;
+            std::vector<BoundPolygonTriangle*> PolygonTriangles;
 
-		SYSTEM_BASE_PTR(geom->PolygonsPointer);
-		file.seekg(geom->PolygonsPointer);
+            SYSTEM_BASE_PTR(geom->PolygonsPointer);
+            file.seekg(geom->PolygonsPointer);
 
-		Shapes.reserve(geom->PolygonsCount);
+            Shapes.reserve(geom->PolygonsCount);
 
-		for (uint32_t i = 0; i < geom->PolygonsCount; i++) //	PERFORMANCE IMPROVEMENT???
-		{
-			uint8_t type = *(uint8_t*)file.read(sizeof(uint8_t));
-			file.seekCur(-1);
+            for (uint32_t i = 0; i < geom->PolygonsCount; i++)  //	PERFORMANCE IMPROVEMENT???
+            {
+                uint8_t type = *(uint8_t*)file.read(sizeof(uint8_t));
+                file.seekCur(-1);
 
-			switch (type & 7)
-			{
-			case 0:
-			{
-				BoundPolygonTriangle* PolygonTriangle = (BoundPolygonTriangle*)file.read(sizeof(BoundPolygonTriangle));
-				PolygonTriangles.push_back(PolygonTriangle);
-				break;
-			}
-			case 1:
-			{
-				BoundPolygonSphere* PolygonSphere = (BoundPolygonSphere*)file.read(sizeof(BoundPolygonSphere));
+                switch (type & 7)
+                {
+                    case 0:
+                    {
+                        BoundPolygonTriangle* PolygonTriangle = (BoundPolygonTriangle*)file.read(sizeof(BoundPolygonTriangle));
+                        PolygonTriangles.push_back(PolygonTriangle);
+                        break;
+                    }
+                    case 1:
+                    {
+                        BoundPolygonSphere* PolygonSphere = (BoundPolygonSphere*)file.read(sizeof(BoundPolygonSphere));
 
-				std::unique_ptr<btSphereShape> sphere = std::make_unique<btSphereShape>(PolygonSphere->sphereRadius);
+                        std::unique_ptr<btSphereShape> sphere = std::make_unique<btSphereShape>(PolygonSphere->sphereRadius);
 
-				btTransform localTrans;
-				localTrans.setIdentity();
-				localTrans.setOrigin(btVector3(geom->CenterGeom.x + Vertices[PolygonSphere->sphereIndex].x,
-				                               geom->CenterGeom.y + Vertices[PolygonSphere->sphereIndex].y,
-				                               geom->CenterGeom.z + Vertices[PolygonSphere->sphereIndex].z));
-				compound->addChildShape(localTrans, sphere.get());
+                        btTransform localTrans;
+                        localTrans.setIdentity();
+                        localTrans.setOrigin(btVector3(geom->CenterGeom.x + Vertices[PolygonSphere->sphereIndex].x,
+                                                       geom->CenterGeom.y + Vertices[PolygonSphere->sphereIndex].y,
+                                                       geom->CenterGeom.z + Vertices[PolygonSphere->sphereIndex].z));
+                        compound->addChildShape(localTrans, sphere.get());
 
-				Shapes.push_back(std::move(sphere));
-				break;
-			}
-			case 2:
-			{
-				BoundPolygonCapsule* PolygonCapsule = (BoundPolygonCapsule*)file.read(sizeof(BoundPolygonCapsule));
+                        Shapes.push_back(std::move(sphere));
+                        break;
+                    }
+                    case 2:
+                    {
+                        BoundPolygonCapsule* PolygonCapsule = (BoundPolygonCapsule*)file.read(sizeof(BoundPolygonCapsule));
 
-				//	USED FOR BUSHES - NOT FOR ACTUAL COLLISION DETECTION!
-				/*auto mid = (Vertices[PolygonCapsule->capsuleIndex1] + Vertices[PolygonCapsule->capsuleIndex2]) / 2.f;
+                        //	USED FOR BUSHES - NOT FOR ACTUAL COLLISION DETECTION!
+                        /*auto mid = (Vertices[PolygonCapsule->capsuleIndex1] + Vertices[PolygonCapsule->capsuleIndex2]) / 2.f;
 
 				btCapsuleShapeZ* capsule = std::make_unique<btCapsuleShapeZ(PolygonCapsule->capsuleRadius, 0.5f);
 				Shapes.push_back(capsule);
@@ -125,76 +125,76 @@ void YbnLoader::ParseYbn(memstream& file)
 				localTrans.setIdentity();
 				localTrans.setOrigin(btVector3(geom->CenterGeom.x + mid.x, geom->CenterGeom.y + mid.y, geom->CenterGeom.z + mid.z));
 				compound->addChildShape(localTrans, capsule);*/
-				break;
-			}
-			case 3:
-			{
-				BoundPolygonBox* PolygonBox = (BoundPolygonBox*)file.read(sizeof(BoundPolygonBox));
+                        break;
+                    }
+                    case 3:
+                    {
+                        BoundPolygonBox* PolygonBox = (BoundPolygonBox*)file.read(sizeof(BoundPolygonBox));
 
-				glm::vec3 p1 = Vertices[PolygonBox->boxIndex1];
-				glm::vec3 p2 = Vertices[PolygonBox->boxIndex2];
-				glm::vec3 p3 = Vertices[PolygonBox->boxIndex3];
-				glm::vec3 p4 = Vertices[PolygonBox->boxIndex4];
+                        glm::vec3 p1 = Vertices[PolygonBox->boxIndex1];
+                        glm::vec3 p2 = Vertices[PolygonBox->boxIndex2];
+                        glm::vec3 p3 = Vertices[PolygonBox->boxIndex3];
+                        glm::vec3 p4 = Vertices[PolygonBox->boxIndex4];
 
-				glm::vec3 p1p2max = glm::max(p1, p2);
-				glm::vec3 p3p4max = glm::max(p3, p4);
-				glm::vec3 max     = glm::max(p1p2max, p3p4max);
+                        glm::vec3 p1p2max = glm::max(p1, p2);
+                        glm::vec3 p3p4max = glm::max(p3, p4);
+                        glm::vec3 max = glm::max(p1p2max, p3p4max);
 
-				glm::vec3 p1p2min = glm::min(p1, p2);
-				glm::vec3 p3p4min = glm::min(p3, p4);
-				glm::vec3 min     = glm::min(p1p2min, p3p4min);
+                        glm::vec3 p1p2min = glm::min(p1, p2);
+                        glm::vec3 p3p4min = glm::min(p3, p4);
+                        glm::vec3 min = glm::min(p1p2min, p3p4min);
 
-				glm::vec3 size = ((p3 + p4) - (p1 + p2)) * 0.5f; //	Half extents
-				auto mid       = (min + max) / 2.f;
+                        glm::vec3 size = ((p3 + p4) - (p1 + p2)) * 0.5f;  //	Half extents
+                        auto mid = (min + max) / 2.f;
 
-				std::unique_ptr<btBoxShape> shape = std::make_unique<btBoxShape>(btVector3(size.x, size.y, size.z));
+                        std::unique_ptr<btBoxShape> shape = std::make_unique<btBoxShape>(btVector3(size.x, size.y, size.z));
 
-				btTransform localTrans;
-				localTrans.setIdentity();
-				localTrans.setOrigin(btVector3(geom->CenterGeom.x + mid.x, geom->CenterGeom.y + mid.y, geom->CenterGeom.z + mid.z));
-				compound->addChildShape(localTrans, shape.get());
+                        btTransform localTrans;
+                        localTrans.setIdentity();
+                        localTrans.setOrigin(btVector3(geom->CenterGeom.x + mid.x, geom->CenterGeom.y + mid.y, geom->CenterGeom.z + mid.z));
+                        compound->addChildShape(localTrans, shape.get());
 
-				Shapes.push_back(std::move(shape));
-				break;
-			}
-			case 4:
-			{
-				BoundPolygonCylinder* PolygonCylinder = (BoundPolygonCylinder*)file.read(sizeof(BoundPolygonCylinder));
+                        Shapes.push_back(std::move(shape));
+                        break;
+                    }
+                    case 4:
+                    {
+                        BoundPolygonCylinder* PolygonCylinder = (BoundPolygonCylinder*)file.read(sizeof(BoundPolygonCylinder));
 
-				std::unique_ptr<btCylinderShapeZ> shape = std::make_unique<btCylinderShapeZ>(btVector3(0.5, 0.5, 0.5));
+                        std::unique_ptr<btCylinderShapeZ> shape = std::make_unique<btCylinderShapeZ>(btVector3(0.5, 0.5, 0.5));
 
-				btTransform localTrans;
-				localTrans.setIdentity();
-				localTrans.setOrigin(btVector3(geom->CenterGeom.x + Vertices[PolygonCylinder->cylinderIndex1].x,
-				                               geom->CenterGeom.y + Vertices[PolygonCylinder->cylinderIndex1].y,
-				                               geom->CenterGeom.z + Vertices[PolygonCylinder->cylinderIndex1].z));
-				compound->addChildShape(localTrans, shape.get());
+                        btTransform localTrans;
+                        localTrans.setIdentity();
+                        localTrans.setOrigin(btVector3(geom->CenterGeom.x + Vertices[PolygonCylinder->cylinderIndex1].x,
+                                                       geom->CenterGeom.y + Vertices[PolygonCylinder->cylinderIndex1].y,
+                                                       geom->CenterGeom.z + Vertices[PolygonCylinder->cylinderIndex1].z));
+                        compound->addChildShape(localTrans, shape.get());
 
-				Shapes.push_back(std::move(shape));
-				break;
-			}
-			default:
-				assert("UNIMPLEMENTED COL SHAPE");
-				file.seekCur(16);
-				//	printf("ERROR NOT IMPLEMENTED!");
-				break;
-			}
-		}
+                        Shapes.push_back(std::move(shape));
+                        break;
+                    }
+                    default:
+                        assert("UNIMPLEMENTED COL SHAPE");
+                        file.seekCur(16);
+                        //	printf("ERROR NOT IMPLEMENTED!");
+                        break;
+                }
+            }
 
-		if (PolygonTriangles.size() != 0)
-		{
-			glm::u16vec3* Indices = (glm::u16vec3*)btAlignedAllocInternal(PolygonTriangles.size() * sizeof(glm::u16vec3), 16);
-			IndicesArray.push_back(Indices);
+            if (PolygonTriangles.size() != 0)
+            {
+                glm::u16vec3* Indices = (glm::u16vec3*)btAlignedAllocInternal(PolygonTriangles.size() * sizeof(glm::u16vec3), 16);
+                IndicesArray.push_back(Indices);
 
-			for (int i = 0; i < PolygonTriangles.size(); i++)
-			{
-				Indices[i] =
-				    glm::u16vec3(PolygonTriangles[i]->triIndex1 & 0x7FFF, PolygonTriangles[i]->triIndex2 & 0x7FFF, PolygonTriangles[i]->triIndex3 & 0x7FFF);
-			}
+                for (int i = 0; i < PolygonTriangles.size(); i++)
+                {
+                    Indices[i] =
+                        glm::u16vec3(PolygonTriangles[i]->triIndex1 & 0x7FFF, PolygonTriangles[i]->triIndex2 & 0x7FFF, PolygonTriangles[i]->triIndex3 & 0x7FFF);
+                }
 
-			std::unique_ptr<btTriangleIndexVertexArray> VertIndices = std::make_unique<btTriangleIndexVertexArray>();
+                std::unique_ptr<btTriangleIndexVertexArray> VertIndices = std::make_unique<btTriangleIndexVertexArray>();
 
-			/*btQuantizedBvh* quantizedBvh = std::make_unique<btQuantizedBvh();
+                /*btQuantizedBvh* quantizedBvh = std::make_unique<btQuantizedBvh();
 			quantizedBvh->setQuantizationValues(btVector3(Bounds.BoundingBoxMin.x, Bounds.BoundingBoxMin.y, Bounds.BoundingBoxMin.z),
 			btVector3(Bounds.BoundingBoxMax.x, Bounds.BoundingBoxMax.y, Bounds.BoundingBoxMax.z)); QuantizedNodeArray&	nodes =
 			quantizedBvh->getLeafNodeArray(); btOptimizedBvh *bvh = std::make_unique<btOptimizedBvh();
@@ -202,89 +202,89 @@ void YbnLoader::ParseYbn(memstream& file)
 			trishape->setOptimizedBvh(bvh);
 			btQuantizedBvhNode node;*/
 
-			btIndexedMesh mesh;
-			mesh.m_numTriangles        = PolygonTriangles.size();
-			mesh.m_triangleIndexBase   = (uint8_t*)&Indices[0];
-			mesh.m_triangleIndexStride = 3 * sizeof(uint16_t);
-			mesh.m_numVertices         = geom->VerticesCount;
-			mesh.m_vertexBase          = (uint8_t*)&Vertices[0];
-			mesh.m_vertexStride        = sizeof(glm::vec3);
+                btIndexedMesh mesh;
+                mesh.m_numTriangles = PolygonTriangles.size();
+                mesh.m_triangleIndexBase = (uint8_t*)&Indices[0];
+                mesh.m_triangleIndexStride = 3 * sizeof(uint16_t);
+                mesh.m_numVertices = geom->VerticesCount;
+                mesh.m_vertexBase = (uint8_t*)&Vertices[0];
+                mesh.m_vertexStride = sizeof(glm::vec3);
 
-			VertIndices->addIndexedMesh(mesh, PHY_SHORT);
+                VertIndices->addIndexedMesh(mesh, PHY_SHORT);
 
-			std::unique_ptr<btBvhTriangleMeshShape> trishape = std::make_unique<btBvhTriangleMeshShape>(VertIndices.get(), false);
+                std::unique_ptr<btBvhTriangleMeshShape> trishape = std::make_unique<btBvhTriangleMeshShape>(VertIndices.get(), false);
 
-			VertIndicesArray.push_back(std::move(VertIndices));
+                VertIndicesArray.push_back(std::move(VertIndices));
 
-			btTransform localTrans;
-			localTrans.setIdentity();
-			localTrans.setOrigin(btVector3(geom->CenterGeom.x, geom->CenterGeom.y, geom->CenterGeom.z));
-			compound->addChildShape(localTrans, trishape.get());
+                btTransform localTrans;
+                localTrans.setIdentity();
+                localTrans.setOrigin(btVector3(geom->CenterGeom.x, geom->CenterGeom.y, geom->CenterGeom.z));
+                compound->addChildShape(localTrans, trishape.get());
 
-			Shapes.push_back(std::move(trishape));
-		}
+                Shapes.push_back(std::move(trishape));
+            }
 
-		break;
-	}
-	case 10:
-	{
-		BoundComposite* boundComposite = (BoundComposite*)file.read(sizeof(BoundComposite));
+            break;
+        }
+        case 10:
+        {
+            BoundComposite* boundComposite = (BoundComposite*)file.read(sizeof(BoundComposite));
 
-		SYSTEM_BASE_PTR(boundComposite->ChildrenPointer);
-		file.seekg(boundComposite->ChildrenPointer);
+            SYSTEM_BASE_PTR(boundComposite->ChildrenPointer);
+            file.seekg(boundComposite->ChildrenPointer);
 
-		for (int i = 0; i < boundComposite->ChildrenCount1; i++)
-		{
-			uint64_t DataPointer = *(uint64_t*)file.read(sizeof(uint64_t));
+            for (int i = 0; i < boundComposite->ChildrenCount1; i++)
+            {
+                uint64_t DataPointer = *(uint64_t*)file.read(sizeof(uint64_t));
 
-			uint64_t BoundsPointer = file.tellg();
+                uint64_t BoundsPointer = file.tellg();
 
-			SYSTEM_BASE_PTR(DataPointer);
-			file.seekg(DataPointer);
+                SYSTEM_BASE_PTR(DataPointer);
+                file.seekg(DataPointer);
 
-			ParseYbn(file);
+                ParseYbn(file);
 
-			file.seekg(BoundsPointer);
-		}
+                file.seekg(BoundsPointer);
+            }
 
-		break;
-	}
-	case 13:
-	{
-		std::unique_ptr<btCylinderShapeZ> shape = std::make_unique<btCylinderShapeZ>(btVector3(0.5, 0.5, 0.5));
+            break;
+        }
+        case 13:
+        {
+            std::unique_ptr<btCylinderShapeZ> shape = std::make_unique<btCylinderShapeZ>(btVector3(0.5, 0.5, 0.5));
 
-		btTransform localTrans;
-		localTrans.setIdentity();
-		compound->addChildShape(localTrans, shape.get());
+            btTransform localTrans;
+            localTrans.setIdentity();
+            compound->addChildShape(localTrans, shape.get());
 
-		Shapes.push_back(std::move(shape));
-		break;
-	}
-	default:
-		break;
-		//	12 ???
-	}
+            Shapes.push_back(std::move(shape));
+            break;
+        }
+        default:
+            break;
+            //	12 ???
+    }
 }
 
 void YbnLoader::Finalize()
 {
-	PhysicsSystem::dynamicsWorld->addRigidBody(rigidBody.get());
+    PhysicsSystem::dynamicsWorld->addRigidBody(rigidBody.get());
 
-	Loaded = true;
+    Loaded = true;
 }
 
 YbnLoader::~YbnLoader()
 {
-	for (auto& Vertices : VerticesArray)
-	{
-		btAlignedFreeInternal(Vertices);
-	}
+    for (auto& Vertices : VerticesArray)
+    {
+        btAlignedFreeInternal(Vertices);
+    }
 
-	for (auto& Indices : IndicesArray)
-	{
-		btAlignedFreeInternal(Indices);
-	}
-	//	CHECK???
-	if (Loaded)
-		PhysicsSystem::dynamicsWorld->removeRigidBody(rigidBody.get());
+    for (auto& Indices : IndicesArray)
+    {
+        btAlignedFreeInternal(Indices);
+    }
+    //	CHECK???
+    if (Loaded)
+        PhysicsSystem::dynamicsWorld->removeRigidBody(rigidBody.get());
 }

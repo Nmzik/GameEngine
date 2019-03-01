@@ -2,7 +2,7 @@
 
 YnvLoader::YnvLoader(memstream& file)
 {
-	/*dtNavMeshCreateParams params;
+    /*dtNavMeshCreateParams params;
 
 	memset(&params, 0, sizeof(params));
 
@@ -14,7 +14,7 @@ YnvLoader::YnvLoader(memstream& file)
 	 printf("DONE");
 	}*/
 
-	/*enum NavMeshFlags
+    /*enum NavMeshFlags
 	{
 	 None = 0,
 	 Vertices = 1,

@@ -3,11 +3,10 @@
 
 class Model
 {
+public:
+    Model() = default;
+    ~Model() = default;
 
-	public:
-	Model()  = default;
-	~Model() = default;
-
-	uint32_t Unk_2Ch;
-	std::vector<Mesh> meshes;
+    uint32_t Unk_2Ch;
+    std::vector<Mesh> meshes;
 };

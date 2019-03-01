@@ -4,32 +4,32 @@
 
 void YftLoader::Init(memstream& file)
 {
-	Loaded = true;
+    Loaded = true;
 
-	FragType* fragType = (FragType*)file.read(sizeof(FragType));
+    FragType* fragType = (FragType*)file.read(sizeof(FragType));
 
-	SYSTEM_BASE_PTR(fragType->DrawablePointer);
-	file.seekg(fragType->DrawablePointer);
+    SYSTEM_BASE_PTR(fragType->DrawablePointer);
+    file.seekg(fragType->DrawablePointer);
 
-	ydr        = std::make_unique<YdrLoader>();
-	ydr->isYft = true;
-	ydr->Init(file);
-	gpuMemory += ydr->gpuMemory;
+    ydr = std::make_unique<YdrLoader>();
+    ydr->isYft = true;
+    ydr->Init(file);
+    gpuMemory += ydr->gpuMemory;
 
-	SYSTEM_BASE_PTR(fragType->PhysicsLODGroupPointer);
-	file.seekg(fragType->PhysicsLODGroupPointer);
+    SYSTEM_BASE_PTR(fragType->PhysicsLODGroupPointer);
+    file.seekg(fragType->PhysicsLODGroupPointer);
 
-	FragPhysicsLODGroup* fragPhysicsLODGroup = (FragPhysicsLODGroup*)file.read(sizeof(FragPhysicsLODGroup));
+    FragPhysicsLODGroup* fragPhysicsLODGroup = (FragPhysicsLODGroup*)file.read(sizeof(FragPhysicsLODGroup));
 
-	SYSTEM_BASE_PTR(fragPhysicsLODGroup->PhysicsLOD1Pointer);
-	file.seekg(fragPhysicsLODGroup->PhysicsLOD1Pointer);
+    SYSTEM_BASE_PTR(fragPhysicsLODGroup->PhysicsLOD1Pointer);
+    file.seekg(fragPhysicsLODGroup->PhysicsLOD1Pointer);
 
-	FragPhysicsLOD* fragPhysicsLOD = (FragPhysicsLOD*)file.read(sizeof(FragPhysicsLOD));
-	SYSTEM_BASE_PTR(fragPhysicsLOD->ChildrenPointer);
+    FragPhysicsLOD* fragPhysicsLOD = (FragPhysicsLOD*)file.read(sizeof(FragPhysicsLOD));
+    SYSTEM_BASE_PTR(fragPhysicsLOD->ChildrenPointer);
 
-	file.seekg(fragPhysicsLOD->ChildrenPointer);
+    file.seekg(fragPhysicsLOD->ChildrenPointer);
 
-	/*fragPhysicsLODs = new std::vector<YdrLoader>();
+    /*fragPhysicsLODs = new std::vector<YdrLoader>();
 	fragPhysicsLODs->reserve(fragPhysicsLOD->ChildrenCount);
 
 	for (int i = 0; i < fragPhysicsLOD->ChildrenCount; i++)
@@ -54,16 +54,16 @@ void YftLoader::Init(memstream& file)
 	 file.seekg(ChildrenPointer);
 	}*/
 
-	SYSTEM_BASE_PTR(fragPhysicsLOD->BoundPointer);
-	file.seekg(fragPhysicsLOD->BoundPointer);
+    SYSTEM_BASE_PTR(fragPhysicsLOD->BoundPointer);
+    file.seekg(fragPhysicsLOD->BoundPointer);
 
-	ybn = std::make_unique<YbnLoader>();
-	ybn->Init(file);
+    ybn = std::make_unique<YbnLoader>();
+    ybn->Init(file);
 }
 
 YftLoader::~YftLoader()
 {
-	/*for (auto& ydr : *fragPhysicsLODs)
+    /*for (auto& ydr : *fragPhysicsLODs)
 	{
 	 YdrPool.getPool().Remove(ydr);
 	}

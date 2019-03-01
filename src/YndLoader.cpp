@@ -2,7 +2,7 @@
 
 YndLoader::YndLoader(memstream& file)
 {
-	/*file.read((char*)&NodeDictionary, sizeof(NodeDictionary));
+    /*file.read((char*)&NodeDictionary, sizeof(NodeDictionary));
 
 	TranslatePTR(NodeDictionary.NodesPointer);
 

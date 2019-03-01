@@ -2,9 +2,9 @@
 //#define GLM_FORCE_LEFT_HANDED
 //#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 
+#include <sstream>
 #include "SDL.h"
 #include "ft2build.h"
-#include <sstream>
 #include FT_FREETYPE_H
 
 #include "InputManager.h"
@@ -25,41 +25,41 @@ class RenderingSystem;
 
 class Game
 {
-	SDL_Window* window;
+    SDL_Window* window;
 
-	std::unique_ptr<GameData> gameData;
-	std::unique_ptr<GameWorld> gameWorld;
-	std::unique_ptr<RenderingSystem> rendering_system;
-	std::unique_ptr<InputManager> input;
+    std::unique_ptr<GameData> gameData;
+    std::unique_ptr<GameWorld> gameWorld;
+    std::unique_ptr<RenderingSystem> rendering_system;
+    std::unique_ptr<InputManager> input;
 
-	public:
-	Game(const char* GamePath);
-	~Game();
-	bool paused = false;
+public:
+    Game(const char* GamePath);
+    ~Game();
+    bool paused = false;
 
-	void updateFPS(float delta_time, float cpuThreadTime, float gpuThreadTime);
-	void run();
+    void updateFPS(float delta_time, float cpuThreadTime, float gpuThreadTime);
+    void run();
 
-	void tick(float delta_time);
-	void ChangePlayer();
+    void tick(float delta_time);
+    void ChangePlayer();
 
-	InputManager* getInput()
-	{
-		return input.get();
-	}
+    InputManager* getInput()
+    {
+        return input.get();
+    }
 
-	GameWorld* getWorld()
-	{
-		return gameWorld.get();
-	}
+    GameWorld* getWorld()
+    {
+        return gameWorld.get();
+    }
 
-	SDL_Window* getWindow()
-	{
-		return window;
-	}
+    SDL_Window* getWindow()
+    {
+        return window;
+    }
 
-	RenderingSystem* getRenderer()
-	{
-		return rendering_system.get();
-	}
+    RenderingSystem* getRenderer()
+    {
+        return rendering_system.get();
+    }
 };

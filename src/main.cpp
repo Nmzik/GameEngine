@@ -10,18 +10,18 @@
 int main(int argc, char* argv[])
 {
 #if _MSC_VER
-	_CrtSetDbgFlag(_CRTDBG_LEAK_CHECK_DF | _CRTDBG_ALLOC_MEM_DF);
-	_CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_DEBUG);
+    _CrtSetDbgFlag(_CRTDBG_LEAK_CHECK_DF | _CRTDBG_ALLOC_MEM_DF);
+    _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_DEBUG);
 #endif
-	//No arguments - Exit
-	if (argc != 2)
-		return 1;
+    //No arguments - Exit
+    if (argc != 2)
+        return 1;
 
-	Game game(argv[1]);
+    Game game(argv[1]);
 
-	game.run();
+    game.run();
 
-	//_CrtDumpMemoryLeaks(); IT WILL BE CALLED AUTOMATICALLY AT THE END OF PROGRAM
+    //_CrtDumpMemoryLeaks(); IT WILL BE CALLED AUTOMATICALLY AT THE END OF PROGRAM
 
-	return 0;
+    return 0;
 }

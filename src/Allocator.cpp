@@ -9,21 +9,20 @@ Allocator::Allocator(size_t size)
 
 Allocator::~Allocator()
 {
-
-	//_size = 0;
+    //_size = 0;
 }
 
 size_t Allocator::getSize() const
 {
-	return _size;
+    return _size;
 }
 
 size_t Allocator::getUsedMemory() const
 {
-	return _used_memory;
+    return _used_memory;
 }
 
 size_t Allocator::getNumAllocations() const
 {
-	return _num_allocations;
+    return _num_allocations;
 }

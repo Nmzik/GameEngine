@@ -14,29 +14,29 @@ Object::Object(fwEntityDef def)
 
 Object::~Object()
 {
-	/*if (rigidBody)
+    /*if (rigidBody)
 	{
 	 delete rigidBody->getMotionState();
 	 delete rigidBody;
 	}*/
-	if (archetype)
-	{
-		switch (archetype->BaseArchetypeDef.assetType)
-		{
-		case ASSET_TYPE_DRAWABLE:
-			if (ydr)
-				ydr->RefCount--;
-			break;
-		case ASSET_TYPE_DRAWABLEDICTIONARY:
-			if (ydd)
-				ydd->RefCount--;
-			break;
-		case ASSET_TYPE_FRAGMENT:
-			if (yft)
-				yft->RefCount--;
-			break;
-		}
-	}
-	if (ytd)
-		ytd->RefCount--;
+    if (archetype)
+    {
+        switch (archetype->BaseArchetypeDef.assetType)
+        {
+            case ASSET_TYPE_DRAWABLE:
+                if (ydr)
+                    ydr->RefCount--;
+                break;
+            case ASSET_TYPE_DRAWABLEDICTIONARY:
+                if (ydd)
+                    ydd->RefCount--;
+                break;
+            case ASSET_TYPE_FRAGMENT:
+                if (yft)
+                    yft->RefCount--;
+                break;
+        }
+    }
+    if (ytd)
+        ytd->RefCount--;
 }

@@ -3879,20 +3879,20 @@ extern void(GLAPIENTRYP glTexPageCommitmentARB)(
 // According to glDrawElementsIndirect documentation
 typedef struct GLDrawElementsIndirectCommand
 {
-	GLuint count;
-	GLuint primCount;
-	GLuint firstIndex;
-	GLint baseVertex;
-	GLuint baseInstance;
+    GLuint count;
+    GLuint primCount;
+    GLuint firstIndex;
+    GLint baseVertex;
+    GLuint baseInstance;
 } GLDrawElementsIndirectCommand;
 
 // According to glDrawArraysIndirect documentation
 typedef struct GLDrawArraysIndirectCommand
 {
-	GLuint count;
-	GLuint primCount;
-	GLuint first;
-	GLuint baseInstance;
+    GLuint count;
+    GLuint primCount;
+    GLuint first;
+    GLuint baseInstance;
 } GLDrawArraysIndirectCommand;
 
 // "Ubiquitous Extensions": https://www.opengl.org/wiki/Ubiquitous_Extension

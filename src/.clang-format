@@ -1,32 +1,23 @@
-Standard: Cpp11
-UseTab: ForIndentation
-TabWidth: 1
-IndentWidth: 1
+Language: Cpp
+BasedOnStyle: Google
+IndentWidth: 4
+# don't indent public, private and protected
 AccessModifierOffset: -4
+BreakBeforeBraces: Allman
+# respect user choice for line breaking
+ColumnLimit: 0
+BreakConstructorInitializersBeforeComma: true
+ConstructorInitializerAllOnOneLineOrOnePerLine: false
+SortIncludes: false
+DerivePointerAlignment: false
 PointerAlignment: Left
 NamespaceIndentation: All
-ColumnLimit: 150
-BreakBeforeBraces: Allman
-BreakConstructorInitializersBeforeComma: true
-BreakBeforeBinaryOperators: false
-BreakBeforeTernaryOperators: false
-AlwaysBreakTemplateDeclarations: true
-AllowShortIfStatementsOnASingleLine: false
-AllowShortBlocksOnASingleLine: false
-AllowShortFunctionsOnASingleLine: false
-AllowShortLoopsOnASingleLine: false
-Cpp11BracedListStyle: true
-IndentCaseLabels: false
-SortIncludes: false
-ReflowComments: true
-AlignConsecutiveAssignments: true
-AlignTrailingComments: true
-AlignAfterOpenBracket: Align
-ConstructorInitializerAllOnOneLineOrOnePerLine: false
-BinPackArguments: false
-BinPackParameters: false
-AlwaysBreakAfterReturnType: None
-KeepEmptyLinesAtTheStartOfBlocks: true
-IndentWrappedFunctionNames: false
-ReflowComments:  true
-SortIncludes:    true
+SortIncludes: true
+
+IncludeCategories:
+  - Regex:           '<[^./]+>' # c++ stl includes
+    Priority:        1
+  - Regex:           '(<|")[^/]+(>|")' # includes without path
+    Priority:        2
+  - Regex:           '(<|").+(>|")' # includes with path
+    Priority:        3

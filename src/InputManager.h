@@ -1,20 +1,20 @@
 #pragma once
-#include "SDL.h"
 #include <cstring>
 #include <memory>
+#include "SDL.h"
 
 class InputManager
 {
-	uint8_t PreviousInput[SDL_NUM_SCANCODES];
-	uint8_t CurrentInput[SDL_NUM_SCANCODES];
+    uint8_t PreviousInput[SDL_NUM_SCANCODES];
+    uint8_t CurrentInput[SDL_NUM_SCANCODES];
 
-	public:
-	InputManager();
-	~InputManager();
+public:
+    InputManager();
+    ~InputManager();
 
-	void Update();
+    void Update();
 
-	bool IsKeyTriggered(const SDL_Scancode iKeyCode) const;
-	bool IsKeyPressed(const SDL_Scancode iKeyCode) const;
-	bool IsKeyReleased(const SDL_Scancode iKeyCode) const;
+    bool IsKeyTriggered(const SDL_Scancode iKeyCode) const;
+    bool IsKeyPressed(const SDL_Scancode iKeyCode) const;
+    bool IsKeyReleased(const SDL_Scancode iKeyCode) const;
 };

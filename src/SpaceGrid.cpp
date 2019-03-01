@@ -59,5 +59,5 @@ SpaceGridCell& SpaceGrid::GetCell(glm::i32vec2 g)
 	 printf("ERROR HERE\n");
 	 return Grid[0];
 	}*/
-	/*return Grid[g.x * 500 + g.y];
+/*return Grid[g.x * 500 + g.y];
 }*/

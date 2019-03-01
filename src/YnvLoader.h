@@ -6,7 +6,7 @@
 
 class YnvLoader
 {
-	public:
-	YnvLoader(memstream& file);
-	~YnvLoader();
+public:
+    YnvLoader(memstream& file);
+    ~YnvLoader();
 };
