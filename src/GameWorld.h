@@ -43,7 +43,7 @@ class GameWorld
 
 	typedef std::vector<RenderInstruction> RenderList;
 
-	GameData data;
+	GameData& data;
 	SpaceGrid spaceGrid;
 	NodeGrid nodeGrid;
 	NavGrid navGrid;
@@ -82,7 +82,7 @@ class GameWorld
 	uint8_t gameHour;
 	uint8_t currentPlayerID = 0;
 
-	GameWorld();
+	GameWorld(GameData* _gameData);
 	~GameWorld();
 
 	void LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position);

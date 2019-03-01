@@ -27,12 +27,13 @@ class Game
 {
 	SDL_Window* window;
 
+	std::unique_ptr<GameData> gameData;
 	std::unique_ptr<GameWorld> gameWorld;
 	std::unique_ptr<RenderingSystem> rendering_system;
 	std::unique_ptr<InputManager> input;
 
 	public:
-	Game();
+	Game(const char* GamePath);
 	~Game();
 	bool paused = false;
 

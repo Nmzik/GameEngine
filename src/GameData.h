@@ -63,7 +63,7 @@ class GameData
 	std::vector<CarHandling> VehiclesInfo;
 	std::vector<glm::vec3> Scenes;
 
-	GameData();
+	GameData(std::string Path);
 	~GameData();
 
 	void LoadHandlingData(std::vector<uint8_t>& Buffer);

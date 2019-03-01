@@ -16,26 +16,11 @@
 #include "YtdLoader.h"
 #include "YtypLoader.h"
 
-GameWorld::GameWorld()
+GameWorld::GameWorld(GameData* _gameData)
     : dirLight(glm::vec3(0.1f, 0.8f, 0.1f), glm::vec3(0.2f, 0.2f, 0.2f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1.0f, 1.0f, 1.0f), true)
+    , data(*_gameData)
 {
 	resourceManager = std::make_unique<ResourceManager>(this);
-
-	for (int i = 0; i < data.cacheFile->AllMapNodes.size(); i++)
-	{
-		if (data.cacheFile->AllMapNodes[i].Unk1 == 1) //	NOT SURE
-			spaceGrid.AddMapNode(&data.cacheFile->AllMapNodes[i], i);
-	}
-
-	for (int i = 0; i < data.cacheFile->AllBoundsStoreItems.size(); i++)
-	{
-		spaceGrid.AddBoundsItem(&data.cacheFile->AllBoundsStoreItems[i], i);
-	}
-
-	for (int i = 0; i < data.cacheFile->AllCInteriorProxies.size(); i++)
-	{
-		spaceGrid.AddCInteriorProxy(&data.cacheFile->AllCInteriorProxies[i], i);
-	}
 
 	for (auto& vehicle : data.VehiclesInfo)
 	{
@@ -283,14 +268,14 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 	{
 		CurNavCell = NavCell;
 
-		auto& cell = navGrid.GetCell(NavCell);
+		//auto& cell = navGrid.GetCell(NavCell);
 	}
 
 	if (CurNodeCell != NodeCell)
 	{
 		CurNodeCell = NodeCell;
 
-		auto& cell = nodeGrid.GetCell(NodeCell);
+		//auto& cell = nodeGrid.GetCell(NodeCell);
 	}
 
 	if (CurCell != cellID)
@@ -312,16 +297,31 @@ void GameWorld::GetVisibleYmaps(Camera* camera)
 		CurYmaps.clear();
 		//	Clear previous Ybns
 
-		SpaceGridCell& cell = spaceGrid.GetCell(cellID);
+		//SpaceGridCell& cell = spaceGrid.GetCell(cellID);
 
-		for (auto& BoundsItem : cell.BoundsStoreItems)
+		//	Bounds
+		for (int i = 0; i < data.cacheFile->AllBoundsStoreItems.size(); i++)
 		{
-			CurYbns.emplace_back(resourceManager->GetYbn(data.cacheFile->AllBoundsStoreItems[BoundsItem].Name));
+			glm::i32vec2 min = spaceGrid.GetCellPos(data.cacheFile->AllBoundsStoreItems[i].Min);
+			glm::i32vec2 max = spaceGrid.GetCellPos(data.cacheFile->AllBoundsStoreItems[i].Max);
+
+			if (cellID.x <= max.x && cellID.x >= min.x && cellID.y <= max.y && cellID.y >= min.y)
+			{
+				//	BoundsStoreItems.push_back(data.cacheFile->AllBoundsStoreItems[i]);
+				CurYbns.emplace_back(resourceManager->GetYbn(data.cacheFile->AllBoundsStoreItems[i].Name));
+			}
 		}
 
-		for (auto& mapNode : cell.MapNodes)
+		for (int i = 0; i < data.cacheFile->AllMapNodes.size(); i++)
 		{
-			CurYmaps.emplace_back(resourceManager->GetYmap(data.cacheFile->AllMapNodes[mapNode].Name));
+			glm::i32vec2 min = spaceGrid.GetCellPos(data.cacheFile->AllMapNodes[i].streamingExtentsMin); //	NOT entitiesExtents !!!! GIVES WEIRD RESULTS
+			glm::i32vec2 max = spaceGrid.GetCellPos(data.cacheFile->AllMapNodes[i].streamingExtentsMax);
+
+			if (cellID.x <= max.x && cellID.x >= min.x && cellID.y <= max.y && cellID.y >= min.y)
+			{
+				//	MapNodes.push_back(data.cacheFile->AllBoundsStoreItems[i]);
+				CurYmaps.emplace_back(resourceManager->GetYmap(data.cacheFile->AllMapNodes[i].Name));
+			}
 		}
 	}
 

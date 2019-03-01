@@ -2,15 +2,7 @@
 
 #include "CacheDatFile.h"
 
-SpaceGrid::SpaceGrid()
-{
-}
-
-SpaceGrid::~SpaceGrid()
-{
-}
-
-void SpaceGrid::AddBoundsItem(BoundsStoreItem* item, uint16_t id)
+/*void SpaceGrid::AddBoundsItem(BoundsStoreItem* item, uint16_t id)
 {
 	glm::i32vec2 min = GetCellPos(item->Min);
 	glm::i32vec2 max = GetCellPos(item->Max);
@@ -53,9 +45,9 @@ void SpaceGrid::AddCInteriorProxy(CInteriorProxy* proxy, uint16_t id)
 				Grid[x * 500 + y].AddCInteriorProxy(id);
 		}
 	}
-}
+}*/
 
-SpaceGridCell& SpaceGrid::GetCell(glm::vec3 P)
+/*SpaceGridCell& SpaceGrid::GetCell(glm::vec3 P)
 {
 	return GetCell(GetCellPos(P));
 }
@@ -67,23 +59,5 @@ SpaceGridCell& SpaceGrid::GetCell(glm::i32vec2 g)
 	 printf("ERROR HERE\n");
 	 return Grid[0];
 	}*/
-	return Grid[g.x * 500 + g.y];
-}
-
-glm::i32vec2 SpaceGrid::GetCellPos(glm::vec3 p)
-{
-	glm::i32vec2 ind = (p + WorldSize) * CellSizeInv;
-	int x            = (int)ind.x;
-	int y            = (int)ind.y;
-	x                = (x < 0) ? 0 : (x > LastCell) ? LastCell : x;
-	y                = (y < 0) ? 0 : (y > LastCell) ? LastCell : y;
-	return glm::i32vec2(x, y);
-}
-
-SpaceGridCell::SpaceGridCell()
-{
-}
-
-SpaceGridCell::~SpaceGridCell()
-{
-}
+	/*return Grid[g.x * 500 + g.y];
+}*/

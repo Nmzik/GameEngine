@@ -8,20 +8,18 @@
 
 #include "tinyxml2.h"
 
-GameData::GameData()
+GameData::GameData(std::string Path)
 {
 	TempBuffer = new uint8_t[40 * 1024 * 1024];
 	GTAEncryption::getInstance().LoadKeys();
 
-	std::vector<std::string> RpfsFiles = {
+	std::array<std::string, 24> RpfsFiles = {
 	    "common.rpf", "x64a.rpf", "x64b.rpf", "x64c.rpf", "x64d.rpf", "x64e.rpf", "x64f.rpf", "x64g.rpf", "x64h.rpf", "x64i.rpf", "x64j.rpf", "x64k.rpf",
 	    "x64l.rpf",   "x64m.rpf", "x64n.rpf", "x64o.rpf", "x64p.rpf", "x64q.rpf", "x64r.rpf", "x64s.rpf", "x64t.rpf", "x64u.rpf", "x64v.rpf", "x64w.rpf",
 	};
 
 	for (std::string& rpfFile : RpfsFiles)
 	{
-		std::string Path("/home/nmzik/Desktop/GameEngine/build/assets/");
-
 		std::unique_ptr<std::ifstream> rpf = std::make_unique<std::ifstream>(Path + rpfFile, std::ios::binary);
 
 		if (!rpf->is_open())

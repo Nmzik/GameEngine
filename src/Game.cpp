@@ -17,7 +17,7 @@ void deallocate(void* memblock)
 	myAllocator->deallocate(memblock);
 }
 
-Game::Game()
+Game::Game(const char* GamePath)
 {
 
 	SDL_Init(SDL_INIT_VIDEO); // Initialize SDL2
@@ -45,8 +45,9 @@ Game::Game()
 
 	btAlignedAllocSetCustomAligned(allocate, deallocate);
 
+	gameData         = std::make_unique<GameData>(GamePath);
 	rendering_system = std::make_unique<RenderingSystem>(window);
-	gameWorld        = std::make_unique<GameWorld>();
+	gameWorld        = std::make_unique<GameWorld>(gameData.get());
 	input            = std::make_unique<InputManager>();
 
 	//	FT_Library library;

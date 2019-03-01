@@ -13,8 +13,11 @@ int main(int argc, char* argv[])
 	_CrtSetDbgFlag(_CRTDBG_LEAK_CHECK_DF | _CRTDBG_ALLOC_MEM_DF);
 	_CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_DEBUG);
 #endif
+	//No arguments - Exit
+	if (argc != 2)
+		return 1;
 
-	Game game;
+	Game game(argv[1]);
 
 	game.run();
 
