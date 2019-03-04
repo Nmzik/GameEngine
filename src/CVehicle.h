@@ -36,6 +36,11 @@ public:
                          m_carChassis->getWorldTransform().getOrigin().getZ());
     }
 
+	void setPosition(glm::vec3 position)
+	{
+         m_carChassis->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), btVector3(position.x, position.y, position.z)));
+	}
+
     YftLoader* getDrawable() const
     {
         return vehicle;

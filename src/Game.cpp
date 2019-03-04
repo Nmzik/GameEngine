@@ -161,7 +161,6 @@ void Game::tick(float delta_time)
         getWorld()->TestFunction(getRenderer()->getCamera().position);
     }*/
 
-    //	getWorld()->peds[getWorld()->currentPlayerID].SetPosition(glm::vec3(-205.28, 6432.15, 36.87));
     if (getInput()->IsKeyTriggered(Actions::button_player1))
     {
         getWorld()->currentPlayerID = 0;
@@ -204,11 +203,8 @@ void Game::tick(float delta_time)
         if (player->getCurrentVehicle())
         {
             //	in Vehicle
-            printf("EXITING");
-            btTransform transform;
-            transform.setIdentity();
-            transform.setOrigin(player->getCurrentVehicle()->m_carChassis->getWorldTransform().getOrigin() + btVector3(0.0f, 0.0f, 3.0f));
-            player->getPhysCharacter()->setWorldTransform(transform);
+            printf("EXITING\n");
+            player->setPosition(player->getCurrentVehicle()->getPosition());
 
             player->exitVehicle();
             player->getPhysCharacter()->getBroadphaseHandle()->m_collisionFilterMask = btBroadphaseProxy::StaticFilter | btBroadphaseProxy::KinematicFilter;
@@ -217,7 +213,7 @@ void Game::tick(float delta_time)
         }
         else
         {
-            printf("ENTERING");
+            printf("ENTERING\n");
             player->enterVehicle(getWorld()->findNearestVehicle());
             if (player->getCurrentVehicle())
             {
@@ -249,12 +245,13 @@ void Game::tick(float delta_time)
         camera->setPosition(camPos + movement);
     }
 
-    else if (player->getCurrentVehicle())
+    if (player->getCurrentVehicle())
     {
-        if (player->getCurrentVehicle()->m_carChassis->getWorldTransform().getOrigin().getZ() <= -150)
+        glm::vec3 vehiclePosition = player->getCurrentVehicle()->getPosition();
+
+        if (vehiclePosition.z <= -150)
         {
-            player->getCurrentVehicle()->m_carChassis->setWorldTransform(
-                btTransform(btQuaternion(0, 0, 0, 1), player->getCurrentVehicle()->m_carChassis->getWorldTransform().getOrigin() + btVector3(0, 0, 300)));
+            player->getCurrentVehicle()->setPosition(glm::vec3(vehiclePosition.x, vehiclePosition.y, vehiclePosition.z + 300.f));
         }
 
         if (getInput()->IsKeyPressed(Actions::button_Forward))
@@ -271,17 +268,17 @@ void Game::tick(float delta_time)
         }
 
         float steering = getInput()->IsKeyPressed(Actions::button_TurnLeft) ? 0.3f : getInput()->IsKeyPressed(Actions::button_TurnRight) ? -0.3f : 0.0;
-
         player->getCurrentVehicle()->setSteeringValue(steering);
 
         player->getPhysCharacter()->setWorldTransform(player->getCurrentVehicle()->m_carChassis->getWorldTransform());
     }
     else
     {
-        if (player->position.z <= -50)
+        glm::vec3 playerPosition = player->getPosition();
+        if (playerPosition.z <= -50)
         {
-            btVector3 rayFrom(player->position.x, player->position.y, 300.f);
-            btVector3 rayTo(player->position.x, player->position.y, 0.f);
+            btVector3 rayFrom(playerPosition.x, playerPosition.y, 300.f);
+            btVector3 rayTo(playerPosition.x, playerPosition.y, 0.f);
 
             btDynamicsWorld::ClosestRayResultCallback rr(rayFrom, rayTo);
 
@@ -290,7 +287,7 @@ void Game::tick(float delta_time)
             if (rr.hasHit())
             {
                 auto& ws = rr.m_hitPointWorld;
-                player->getPhysCharacter()->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), btVector3(ws.x(), ws.y(), ws.z() + 10.0f)));
+                player->setPosition(glm::vec3(ws.x(), ws.y(), ws.z() + 10.0f));
             }
         }
 

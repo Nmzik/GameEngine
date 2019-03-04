@@ -6,11 +6,13 @@
 class Entity
 {
     bool visible;
+protected:
+    glm::quat rotation;
+    glm::vec3 scale;
 
 public:
     glm::vec3 position;
-    glm::quat rotation;
-    glm::vec3 scale;
+
     glm::mat4 modelMatrix;
 
     float health = 100.0f;

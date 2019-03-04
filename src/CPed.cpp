@@ -88,7 +88,7 @@ void CPed::physicsTick()
 
 void CPed::exitVehicle()
 {
-    vehicle->setThrottle(1.0f);
+    vehicle->setThrottle(0.0f);
     vehicle->setSteeringValue(0.0f);
     vehicle = NULL;
 }
