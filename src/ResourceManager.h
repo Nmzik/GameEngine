@@ -45,7 +45,7 @@ public:
     uint64_t GlobalGpuMemory = 0;
     uint64_t TextureMemory = 0;
 
-	void Initialize();
+    void Initialize();
 
     ThreadSafeAllocator* resource_allocator;
     void GetGtxd(uint32_t hash);

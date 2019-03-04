@@ -46,10 +46,10 @@ ResourceManager::~ResourceManager()
 
 void ResourceManager::Initialize()
 {
-    std::unique_ptr<uint8_t[]> _memory = std::make_unique<uint8_t[]>(50 * 1024 * 1024); // 50MB
+    std::unique_ptr<uint8_t[]> _memory = std::make_unique<uint8_t[]>(50 * 1024 * 1024);  // 50MB
     resource_allocator = new ThreadSafeAllocator(50 * 1024 * 1024, _memory.get());
 
-	update();
+    update();
 }
 
 void ResourceManager::GetGtxd(uint32_t hash)

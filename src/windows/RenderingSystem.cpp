@@ -84,7 +84,7 @@ RenderingSystem::RenderingSystem(NativeWindow* window_)
     const float aspect = (float)ScreenResWidth / ScreenResHeight;
     projection = {f / aspect, 0.0f, 0.0f, 0.0f, 0.0f, f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, zNear, 0.0f};
 #else
-   // projection = glm::perspective(glm::radians(45.0f), (float)ScreenResWidth / (float)ScreenResHeight, 0.1f, 10000.0f);
+    // projection = glm::perspective(glm::radians(45.0f), (float)ScreenResWidth / (float)ScreenResHeight, 0.1f, 10000.0f);
 #endif  // USE_DX_REVERSE_Z
 
     glGenBuffers(1, &uboGlobal);
@@ -120,8 +120,8 @@ RenderingSystem::RenderingSystem(NativeWindow* window_)
 	shaderSSAO->setMat4(0, projection);
 	shaderSSAO->setMat4(1, InverseProjMatrix);*/
 
-   // gbufferLighting->use();
-   // gbufferLighting->setMat4(0, InverseProjMatrix);
+    // gbufferLighting->use();
+    // gbufferLighting->setMat4(0, InverseProjMatrix);
 
     /*hdrShader->use();
 	hdrShader->setVec2(3, glm::vec2(1.0f / (float)ScreenResWidth, 1.0f / (float)ScreenResHeight));*/
@@ -850,5 +850,4 @@ renderQuad();
 void RenderingSystem::skyboxPass()
 {
     //	FORWARD RENDERING
-    
 }

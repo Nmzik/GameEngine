@@ -44,7 +44,7 @@ public:
     {
     }
 
-	glm::i32vec2 lookcamera;
+    glm::i32vec2 lookcamera;
 
     CameraMode getCameraMode() const
     {

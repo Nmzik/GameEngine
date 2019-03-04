@@ -1,16 +1,15 @@
 #pragma once
-#include "SDL.h"
 #include <iostream>
 #include <sstream>
+#include "SDL.h"
 
 class NativeWindow
 {
 public:
     SDL_Window* window;
 
-	NativeWindow();
-	~NativeWindow();
+    NativeWindow();
+    ~NativeWindow();
 
-	void setTitle(std::ostringstream& osstr);
+    void setTitle(std::ostringstream& osstr);
 };
-

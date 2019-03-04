@@ -52,20 +52,20 @@ public:
     }
 
     void setPosition(glm::vec3 pos);
-	glm::vec3 getPosition() const
-	{
-            return position;
-	}
+    glm::vec3 getPosition() const
+    {
+        return position;
+    }
     glm::mat4& getMatrix();
 
     void takeDamage(float dmg);
     void physicsTick();
     void exitVehicle();
     void enterVehicle(CVehicle* nearestVehicle);
-	CVehicle* getCurrentVehicle() const
-	{
-            return vehicle;
-	}
+    CVehicle* getCurrentVehicle() const
+    {
+        return vehicle;
+    }
     void addToInventory(uint32_t slot, uint32_t ammo);
     void setActiveWeapon(uint32_t slot);
     void jump();
