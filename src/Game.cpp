@@ -16,7 +16,7 @@ Game::Game(const char* GamePath)
     gameWorld = std::make_unique<GameWorld>(gameData.get());
     input = std::make_unique<InputManager>();
 
-	camera = std::make_unique<Camera>(glm::vec3(0.0, 0.0, 50.0), gameWorld.get());
+    camera = std::make_unique<Camera>(glm::vec3(0.0, 0.0, 50.0), gameWorld.get());
 
     //	FT_Library library;
     //	FT_Init_FreeType(&library);
@@ -64,7 +64,6 @@ Game::Game(const char* GamePath)
 
 Game::~Game()
 {
-    
 }
 
 void Game::updateFPS(float delta_time, float cpuThreadTime, float gpuThreadTime)
@@ -90,8 +89,6 @@ void Game::updateFPS(float delta_time, float cpuThreadTime, float gpuThreadTime)
 
 void Game::run()
 {
-    //	SDL_Event event;
-
     bool running = true;
     auto current_time = std::chrono::steady_clock::now();
 
@@ -101,11 +98,9 @@ void Game::run()
         input->Update();
 
         if (input->IsKeyPressed(Actions::button_ESCAPE))
-            running = false;
-        /*while (SDL_PollEvent(&event)) {
-		 StateManager::get().currentState()->handleEvent(event);
-		 //if (event.type == SDL_QUIT) running = false;
-		}*/
+            break;
+        //running = false;
+
         auto old_time = current_time;
         current_time = std::chrono::steady_clock::now();
         float delta_time = std::chrono::duration<float>(current_time - old_time).count();
@@ -123,18 +118,14 @@ void Game::run()
         rendering_system->render(gameWorld.get(), camera.get());
         auto gpuThreadEnd = std::chrono::steady_clock::now();
         float gpuThreadTime = std::chrono::duration<float>(gpuThreadEnd - gpuThreadStart).count();
-        //	SDL_GL_SwapWindow(window);
 
         updateFPS(delta_time, cpuThreadTime, gpuThreadTime);
     }
-
-    //	if (event.key.keysym.sym == SDLK_ESCAPE || event.type == SDL_QUIT) break;
 }
 
 void Game::tick(float delta_time)
 {
     camera->lookcamera = getInput()->getMouseMovement();
-
 
     if (getInput()->IsKeyTriggered(Actions::button_E))
     {
@@ -227,7 +218,7 @@ void Game::tick(float delta_time)
     movement.x = (float)getInput()->IsKeyPressed(Actions::button_Forward) - getInput()->IsKeyPressed(Actions::button_Backward);
     movement.y = (float)getInput()->IsKeyPressed(Actions::button_TurnLeft) - getInput()->IsKeyPressed(Actions::button_TurnRight);
 
-	movement *= 5;
+    movement *= 5;
 
     if (camera->getCameraMode() == CameraMode::FreeCamera)
     {
@@ -290,12 +281,6 @@ void Game::tick(float delta_time)
                 player->setPosition(glm::vec3(ws.x(), ws.y(), ws.z() + 10.0f));
             }
         }
-
-        /*if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT))
-		 getRenderer()->getCamera().Position = glm::vec3(player->position.getX(), player->position.getY() - 5.0f, player->position.getZ());
-		else
-		 getRenderer()->getCamera().Position = glm::vec3(player->position.getX(), player->position.getY(), player->position.getZ());
-*/
 
         float speed = getInput()->IsKeyPressed(Actions::button_LSHIFT) ? 30.0f : 1.0f;
 

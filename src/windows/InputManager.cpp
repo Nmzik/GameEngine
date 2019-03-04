@@ -1,6 +1,5 @@
 #include "InputManager.h"
 
-
 InputManager::InputManager()
 {
     keyMapping.push_back(std::make_pair(SDL_SCANCODE_ESCAPE, button_ESCAPE));
@@ -33,14 +32,14 @@ void InputManager::Update()
     SDL_PumpEvents();
     memcpy(PreviousInput, CurrentInput, sizeof(Uint8) * ActionsKeySize);
 
-	const Uint8* state = SDL_GetKeyboardState(NULL);
+    const Uint8* state = SDL_GetKeyboardState(NULL);
 
-	for (int i = 0; i < keyMapping.size(); i++)
+    for (int i = 0; i < keyMapping.size(); i++)
     {
-            if (state[keyMapping[i].first])
-                CurrentInput[keyMapping[i].second] = 1;
-            else
-                CurrentInput[keyMapping[i].second] = 0;
+        if (state[keyMapping[i].first])
+            CurrentInput[keyMapping[i].second] = 1;
+        else
+            CurrentInput[keyMapping[i].second] = 0;
     }
 }
 

@@ -1,16 +1,13 @@
 #pragma once
-//#include "Game.h"
-
 #include <iostream>
 #include <memory>
 #include <random>
 
-#include "windows/NativeWindow.h"
+#include "NativeWindow.h"
 #include "SDL.h"
 #include "opengl.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
-#include "glm/gtc/type_ptr.hpp"
 #include "glm/gtx/rotate_vector.hpp"
 
 #include "Camera.h"

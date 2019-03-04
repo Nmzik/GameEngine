@@ -9,12 +9,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-  # using Clang
+	# using Clang
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC") # MSVC
-set(CMAKE_C_FLAGS_DEBUG "-DDEBUG=1 /MTd /Od")
-set(CMAKE_C_FLAGS_RELEASE "/MT")
-set(CMAKE_CXX_FLAGS_DEBUG "-DDEBUG=1 /MTd /Od")
-set(CMAKE_CXX_FLAGS_RELEASE "/MT")
+	set(CMAKE_C_FLAGS_DEBUG "-DDEBUG=1 /MTd /Od")
+	set(CMAKE_C_FLAGS_RELEASE "/MT")
+	set(CMAKE_CXX_FLAGS_DEBUG "-DDEBUG=1 /MTd /Od")
+	set(CMAKE_CXX_FLAGS_RELEASE "/MT")
 endif()
 
 #Recast
@@ -54,6 +54,7 @@ set(BUILD_TESTS OFF CACHE BOOL "" FORCE)
 
 add_subdirectory(3rdparty/tinyxml2)
 
+include_directories(src/)
 include_directories(3rdparty/sdl/include)
 include_directories(3rdparty/recastnavigation/Recast/Include)
 include_directories(3rdparty/recastnavigation/Detour/Include)
@@ -79,6 +80,16 @@ src/*.h
 src/*.cpp
 )
 
+if(WIN32)
+	file(GLOB WINSOURCES
+	src/windows/*.h
+	src/windows/*.cpp
+	)
+
+	list (APPEND SOURCES ${WINSOURCES})
+
+endif()
+
 add_executable(MyGameEngine ${SOURCES})
 #set_target_properties(MyGameEngine PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${PROJECT_BINARY_DIR}/Release")
 
@@ -88,7 +99,7 @@ target_link_libraries(MyGameEngine BulletDynamics)
 target_link_libraries(MyGameEngine BulletCollision)
 target_link_libraries(MyGameEngine LinearMath)
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-target_link_libraries(MyGameEngine opengl32.lib)
+	target_link_libraries(MyGameEngine opengl32.lib)
 endif()
 target_link_libraries(MyGameEngine zlibstatic)
 target_link_libraries(MyGameEngine tinyxml2)
