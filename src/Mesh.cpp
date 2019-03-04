@@ -153,19 +153,3 @@ Mesh::~Mesh()
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(2, VBO);
 }
-
-void Mesh::Draw(GLuint tex)
-{
-    glBindVertexArray(VAO);
-
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, material.diffuseTextureID);
-
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, tex);
-
-    glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, tex);
-
-    glDrawElements(GL_TRIANGLES, num_indices, GL_UNSIGNED_SHORT, 0);
-}

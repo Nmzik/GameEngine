@@ -56,7 +56,7 @@ btRigidBody* CPed::getPhysCharacter()
     return body.get();
 }
 
-void CPed::SetPosition(glm::vec3 pos)
+void CPed::setPosition(glm::vec3 pos)
 {
     btTransform transform;
     transform.setIdentity();
@@ -65,17 +65,12 @@ void CPed::SetPosition(glm::vec3 pos)
     body->setWorldTransform(transform);
 }
 
-void CPed::TakeDamage(float dmg)
+void CPed::takeDamage(float dmg)
 {
     if (dmg > health)
         health = 0;
     else
         health -= dmg;
-}
-
-glm::vec3& CPed::getPosition()
-{
-    return position;
 }
 
 glm::mat4& CPed::getMatrix()
@@ -85,32 +80,26 @@ glm::mat4& CPed::getMatrix()
     return modelMatrix;
 }
 
-void CPed::PhysicsTick()
+void CPed::physicsTick()
 {
-    position =
-        glm::vec3(body->getWorldTransform().getOrigin().x(), body->getWorldTransform().getOrigin().y(), body->getWorldTransform().getOrigin().z());
+    position = glm::vec3(body->getWorldTransform().getOrigin().x(), body->getWorldTransform().getOrigin().y(), body->getWorldTransform().getOrigin().z());
     //	body->setLinearVelocity(btVector3(playerDirection.x, playerDirection.y, playerDirection.z));
 }
 
-void CPed::ExitVehicle()
+void CPed::exitVehicle()
 {
-    vehicle->SetThrottle(1.0f);
-    vehicle->SetSteeringValue(0.0f);
+    vehicle->setThrottle(1.0f);
+    vehicle->setSteeringValue(0.0f);
     vehicle = NULL;
 }
 
-void CPed::EnterVehicle(CVehicle* nearestVehicle)
+void CPed::enterVehicle(CVehicle* nearestVehicle)
 {
     if (nearestVehicle != nullptr)
     {
         printf("WE ARE IN VEHICLE\n");
         vehicle = nearestVehicle;
     }
-}
-
-CVehicle* CPed::GetCurrentVehicle()
-{
-    return vehicle;
 }
 
 void CPed::addToInventory(uint32_t slot, uint32_t ammo)
@@ -124,7 +113,7 @@ void CPed::setActiveWeapon(uint32_t slot)
     currentWeapon = slot;
 }
 
-void CPed::Jump()
+void CPed::jump()
 {
     /*btVector3 m_rayStart = body->getCenterOfMassPosition();
 	btVector3 m_rayEnd = m_rayStart - btVector3(0.0, 0.0, 1.5);

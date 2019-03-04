@@ -3,14 +3,18 @@
 //#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 
 #include <sstream>
-#include "SDL.h"
 #include "ft2build.h"
 #include FT_FREETYPE_H
 
-#include "InputManager.h"
+#include "Camera.h"
 
-#include "FreeListAllocator.h"
-#include <LinearMath/btAlignedAllocator.h>
+#ifdef _WIN32
+#include "windows/InputManager.h"
+#include "windows/NativeWindow.h"
+#include "windows/RenderingSystem.h"
+#else
+
+#endif
 
 class GameData;
 class GameWorld;
@@ -25,12 +29,13 @@ class RenderingSystem;
 
 class Game
 {
-    SDL_Window* window;
+    std::unique_ptr<NativeWindow> window;
 
     std::unique_ptr<GameData> gameData;
     std::unique_ptr<GameWorld> gameWorld;
     std::unique_ptr<RenderingSystem> rendering_system;
     std::unique_ptr<InputManager> input;
+    std::unique_ptr<Camera> camera;
 
 public:
     Game(const char* GamePath);
@@ -41,7 +46,7 @@ public:
     void run();
 
     void tick(float delta_time);
-    void ChangePlayer();
+    void changePlayer();
 
     InputManager* getInput()
     {
@@ -51,11 +56,6 @@ public:
     GameWorld* getWorld()
     {
         return gameWorld.get();
-    }
-
-    SDL_Window* getWindow()
-    {
-        return window;
     }
 
     RenderingSystem* getRenderer()

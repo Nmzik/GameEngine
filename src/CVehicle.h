@@ -5,20 +5,19 @@
 #include <btBulletDynamicsCommon.h>
 #include "BulletCollision/CollisionDispatch/btGhostObject.h"
 
-class YftLoader;
+#include "PhysicsSystem.h"
+#include "YftLoader.h"
 
 class CVehicle : public Entity
 {
     YftLoader* vehicle;
 
+    float throttle;
+    float steeringValue;
+
 public:
     CVehicle(glm::vec3 position, float mass, YftLoader* yft);
     ~CVehicle();
-
-    glm::mat4 GetMat4();
-
-    float throttle;
-    float steeringValue;
 
     std::unique_ptr<btRigidBody> m_carChassis;
     std::unique_ptr<btCollisionShape> chassisShape;
@@ -28,20 +27,29 @@ public:
     std::unique_ptr<btCollisionShape> m_wheelShape;
     std::unique_ptr<btDefaultMotionState> myMotionState;
 
-    YftLoader* GetDrawable()
+    glm::mat4 getMat4();
+
+    glm::vec3 getPosition() const
+    {
+        return glm::vec3(m_carChassis->getWorldTransform().getOrigin().getX(),
+                         m_carChassis->getWorldTransform().getOrigin().getY(),
+                         m_carChassis->getWorldTransform().getOrigin().getZ());
+    }
+
+    YftLoader* getDrawable() const
     {
         return vehicle;
     }
 
-    void SetThrottle(float throttle)
+    void setThrottle(float throttle)
     {
         this->throttle = throttle;
     }
 
-    void SetSteeringValue(float steeringValue)
+    void setSteeringValue(float steeringValue)
     {
         this->steeringValue = steeringValue;
     }
 
-    void PhysicsTick();
+    void physicsTick();
 };

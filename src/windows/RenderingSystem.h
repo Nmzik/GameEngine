@@ -4,6 +4,8 @@
 #include <iostream>
 #include <memory>
 #include <random>
+
+#include "windows/NativeWindow.h"
 #include "SDL.h"
 #include "opengl.h"
 #include "glm/glm.hpp"
@@ -38,7 +40,7 @@ private:
     std::unique_ptr<Shader> DepthTexture;
     std::unique_ptr<Shader> hdrShader;
     std::unique_ptr<Shader> debugDepthQuad;
-    std::unique_ptr<Camera> camera;
+    //std::unique_ptr<Camera> camera;
     Skybox* skybox;
 
     unsigned int quadVAO;
@@ -50,8 +52,6 @@ private:
     int ShadowWidth;
     int ShadowHeight;
 
-    glm::mat4 projection;
-    glm::mat4 InverseProjMatrix;
     unsigned int depthMapFBO;
     unsigned int depthMap;
     unsigned int ssaoFBO, ssaoBlurFBO;
@@ -73,7 +73,7 @@ private:
     SDL_GLContext glcontext;
 
 public:
-    RenderingSystem(SDL_Window* window_);
+    RenderingSystem(NativeWindow* window_);
     ~RenderingSystem();
 
     bool ShowTexture = false;
@@ -83,16 +83,13 @@ public:
     uint32_t DrawCalls;
     glm::vec3 lightPos;
     bool RenderDebugWorld = false;
-    Camera& getCamera()
-    {
-        return *camera;
-    }
+
     void createGBuffer();
     void createDepthFBO();
     void createSSAO();
     void createHDRFBO();
     void renderQuad();
-    void render(GameWorld* world);
+    void render(GameWorld* world, Camera* camera);
 
     void beginFrame();
     void endFrame();

@@ -35,14 +35,14 @@ RpfFile::RpfFile(std::ifstream& rpf, std::string& FullPath, std::string& FileNam
     {
         case 0x0FFFFFF9:
             //	printf("AES\n");
-            GTAEncryption::getInstance().DecryptAES(entriesData.get(), EntryCount * 16);
-            GTAEncryption::getInstance().DecryptAES(namesData.get(), NamesLength);
+            GTAEncryption::getInstance().decryptAES(entriesData.get(), EntryCount * 16);
+            GTAEncryption::getInstance().decryptAES(namesData.get(), NamesLength);
             IsAESEncrypted = true;
             break;
         case 0x0FEFFFFF:
             //	printf("NG\n");
-            GTAEncryption::getInstance().DecryptNG(entriesData.get(), EntryCount * 16, FileName, FileSize);
-            GTAEncryption::getInstance().DecryptNG(namesData.get(), NamesLength, FileName, FileSize);
+            GTAEncryption::getInstance().decryptNG(entriesData.get(), EntryCount * 16, FileName, FileSize);
+            GTAEncryption::getInstance().decryptNG(namesData.get(), NamesLength, FileName, FileSize);
             break;
         default:
             printf("OPENIV FORMAR?\n");

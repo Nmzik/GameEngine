@@ -30,10 +30,7 @@ ResourceManager::ResourceManager(GameWorld* world)
     ybnLoader.reserve(50);
     ymapLoader.reserve(500);
 
-    uint8_t* _memory = new uint8_t[50 * 1024 * 1024];  // 50MB
-    resource_allocator = new ThreadSafeAllocator(50 * 1024 * 1024, _memory);
-
-    ResourcesThread = std::thread(&ResourceManager::update, this);
+    ResourcesThread = std::thread(&ResourceManager::Initialize, this);
     ResourcesThread.detach();
 }
 
@@ -45,6 +42,14 @@ ResourceManager::~ResourceManager()
 	 loadCondition.notify_one();
 	}
 	ResourcesThread.join();*/
+}
+
+void ResourceManager::Initialize()
+{
+    std::unique_ptr<uint8_t[]> _memory = std::make_unique<uint8_t[]>(50 * 1024 * 1024); // 50MB
+    resource_allocator = new ThreadSafeAllocator(50 * 1024 * 1024, _memory.get());
+
+	update();
 }
 
 void ResourceManager::GetGtxd(uint32_t hash)
@@ -70,7 +75,7 @@ YmapLoader* ResourceManager::GetYmap(uint32_t hash)
     else
     {
         YmapLoader* loader = new YmapLoader();
-        AddToWaitingList(new Resource(ymap, hash, loader));
+        addToWaitingList(new Resource(ymap, hash, loader));
         loader->RefCount++;
         ymapLoader.insert({hash, std::unique_ptr<YmapLoader>(loader)});
 
@@ -89,7 +94,7 @@ YdrLoader* ResourceManager::GetYdr(uint32_t hash)
     else
     {
         YdrLoader* loader = new YdrLoader();
-        AddToWaitingList(new Resource(ydr, hash, loader));
+        addToWaitingList(new Resource(ydr, hash, loader));
         loader->RefCount++;
         ydrLoader.insert({hash, std::unique_ptr<YdrLoader>(loader)});
 
@@ -128,7 +133,7 @@ YtdLoader* ResourceManager::GetYtd(uint32_t hash)
                 else
                 {
                     YtdLoader* loader = new YtdLoader();
-                    AddToWaitingList(new Resource(ytd, iter->second, loader));
+                    addToWaitingList(new Resource(ytd, iter->second, loader));
                     loader->RefCount++;
                     ytdLoader.insert({iter->second, std::unique_ptr<YtdLoader>(loader)});
 
@@ -142,7 +147,7 @@ YtdLoader* ResourceManager::GetYtd(uint32_t hash)
         }
 
         YtdLoader* loader = new YtdLoader();
-        AddToWaitingList(new Resource(ytd, hash, loader));
+        addToWaitingList(new Resource(ytd, hash, loader));
         loader->RefCount++;
         ytdLoader.insert({hash, std::unique_ptr<YtdLoader>(loader)});
 
@@ -161,7 +166,7 @@ YddLoader* ResourceManager::GetYdd(uint32_t hash)
     else
     {
         YddLoader* loader = new YddLoader();
-        AddToWaitingList(new Resource(ydd, hash, loader));
+        addToWaitingList(new Resource(ydd, hash, loader));
         loader->RefCount++;
         yddLoader.insert({hash, std::unique_ptr<YddLoader>(loader)});
 
@@ -180,7 +185,7 @@ YftLoader* ResourceManager::GetYft(uint32_t hash)
     else
     {
         YftLoader* loader = new YftLoader();
-        AddToWaitingList(new Resource(yft, hash, loader));
+        addToWaitingList(new Resource(yft, hash, loader));
         loader->RefCount++;
         yftLoader.insert({hash, std::unique_ptr<YftLoader>(loader)});
 
@@ -199,7 +204,7 @@ YbnLoader* ResourceManager::GetYbn(uint32_t hash)
     else
     {
         YbnLoader* loader = new YbnLoader();
-        AddToWaitingList(new Resource(ybn, hash, loader));
+        addToWaitingList(new Resource(ybn, hash, loader));
         loader->RefCount++;
         ybnLoader.insert({hash, std::unique_ptr<YbnLoader>(loader)});
         return loader;
@@ -245,14 +250,14 @@ FileType* ResourceManager::loadSync(Type type, uint32_t Hash)
     return nullptr;
 }
 
-void ResourceManager::AddToWaitingList(Resource* res)
+void ResourceManager::addToWaitingList(Resource* res)
 {
     std::lock_guard<std::mutex> lock(mylock);
     waitingList.push_back(res);
     loadCondition.notify_one();
 }
 
-inline void ResourceManager::AddToMainQueue(Resource* res)
+inline void ResourceManager::addToMainQueue(Resource* res)
 {
     gameworld->resources_lock.lock();
     gameworld->resources.push_back(res);
@@ -288,10 +293,10 @@ void ResourceManager::update()
 
             res->Buffer = allocatedMemory;
             res->BufferSize = it->second->UncompressedFileSize;
-            gameworld->getGameData()->ExtractFileResource(*(it->second), res->Buffer, res->BufferSize);
+            gameworld->getGameData()->extractFileResource(*(it->second), res->Buffer, res->BufferSize);
             res->SystemSize = (it->second->SystemSize);
         }
-        AddToMainQueue(res);
+        addToMainQueue(res);
     }
 }
 

@@ -158,6 +158,4 @@ public:
 
     Mesh(const uint8_t* meshData, grmGeometry* drawGeom, Material mat);
     ~Mesh();
-
-    void Draw(GLuint tex);
 };

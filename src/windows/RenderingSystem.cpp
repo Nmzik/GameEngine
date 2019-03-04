@@ -6,7 +6,7 @@
 #include "Water.h"
 #include "YdrLoader.h"
 
-#define USE_DX_REVERSE_Z
+//#define USE_DX_REVERSE_Z
 // GLM_FORCE_LEFT_HANDED
 // GLM_FORCE_DEPTH_ZERO_TO_ONE
 
@@ -27,8 +27,8 @@ void myDebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLs
         message);
 }
 
-RenderingSystem::RenderingSystem(SDL_Window* window_)
-    : window{window_}
+RenderingSystem::RenderingSystem(NativeWindow* window_)
+    : window{window_->window}
 {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
@@ -84,7 +84,7 @@ RenderingSystem::RenderingSystem(SDL_Window* window_)
     const float aspect = (float)ScreenResWidth / ScreenResHeight;
     projection = {f / aspect, 0.0f, 0.0f, 0.0f, 0.0f, f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, zNear, 0.0f};
 #else
-    projection = glm::perspective(glm::radians(45.0f), (float)ScreenResWidth / (float)ScreenResHeight, 0.1f, 10000.0f);
+   // projection = glm::perspective(glm::radians(45.0f), (float)ScreenResWidth / (float)ScreenResHeight, 0.1f, 10000.0f);
 #endif  // USE_DX_REVERSE_Z
 
     glGenBuffers(1, &uboGlobal);
@@ -97,21 +97,19 @@ RenderingSystem::RenderingSystem(SDL_Window* window_)
     glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), NULL, GL_DYNAMIC_DRAW);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-    InverseProjMatrix = glm::inverse(projection);
+    //InverseProjMatrix = glm::inverse(projection);
 
     //	SkyboxShader = std::make_unique<Shader>("assets/shaders/skybox");
     gbuffer = std::make_unique<Shader>("assets/shaders/gbuffer");
     //	shaderSSAO = std::make_unique<Shader>("assets/shaders/ssao");
     //	shaderSSAOBlur = std::make_unique<Shader>("assets/shaders/ssao_blur");
-    gbufferLighting = std::make_unique<Shader>("assets/shaders/gbufferLighting");
+    //gbufferLighting = std::make_unique<Shader>("assets/shaders/gbufferLighting");
     //	DepthTexture = std::make_unique<Shader>("assets/shaders/DepthTexture");
     //	debugDepthQuad = std::make_unique<Shader>("assets/shaders/debug_quad");
     //	hdrShader = std::make_unique<Shader>("assets/shaders/hdrShader");
 
-    camera = std::make_unique<Camera>(glm::vec3(0.0, 0.0, 50.0));
-
-    createDepthFBO();
-    createGBuffer();
+    //createDepthFBO();
+    //createGBuffer();
     /*createSSAO();
 	createHDRFBO();
 
@@ -122,8 +120,8 @@ RenderingSystem::RenderingSystem(SDL_Window* window_)
 	shaderSSAO->setMat4(0, projection);
 	shaderSSAO->setMat4(1, InverseProjMatrix);*/
 
-    gbufferLighting->use();
-    gbufferLighting->setMat4(0, InverseProjMatrix);
+   // gbufferLighting->use();
+   // gbufferLighting->setMat4(0, InverseProjMatrix);
 
     /*hdrShader->use();
 	hdrShader->setVec2(3, glm::vec2(1.0f / (float)ScreenResWidth, 1.0f / (float)ScreenResHeight));*/
@@ -314,22 +312,24 @@ inline void RenderingSystem::renderQuad()
     glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
-void RenderingSystem::render(GameWorld* world)
+void RenderingSystem::render(GameWorld* world, Camera* camera)
 {
     beginFrame();
 
-    glm::mat4 view = camera->GetViewMatrix();
+    glm::mat4 view = camera->getViewMatrix();
+    glm::mat4 projection = camera->getProjection();
 
     glm::mat4 ProjectionView = projection * view;
 
-    camera->UpdateFrustum(ProjectionView);
+    camera->updateFrustum(ProjectionView);
 
     glBindBuffer(GL_UNIFORM_BUFFER, uboGlobal);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &ProjectionView[0]);
 
     ///	geometry to gbuffer->shadowmaps(directional light)->shadowmaps(point light)->ssao->lighting(Final)->skybox
     // --------------------------------GeometryPass Deferred Rendering----------------------------------
-    glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
+    //glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 #ifdef USE_DX_REVERSE_Z
     glClearDepth(0.0);
 #endif  // USE_DX_REVERSE_Z
@@ -376,7 +376,18 @@ void RenderingSystem::render(GameWorld* world)
             }
             for (auto& mesh : model.meshes)
             {
-                mesh.Draw(DefaultTexture);
+                glBindVertexArray(mesh.VAO);
+
+                glActiveTexture(GL_TEXTURE0);
+                glBindTexture(GL_TEXTURE_2D, mesh.material.diffuseTextureID);
+
+                glActiveTexture(GL_TEXTURE1);
+                glBindTexture(GL_TEXTURE_2D, DefaultTexture);
+
+                glActiveTexture(GL_TEXTURE2);
+                glBindTexture(GL_TEXTURE_2D, DefaultTexture);
+
+                glDrawElements(GL_TRIANGLES, mesh.num_indices, GL_UNSIGNED_SHORT, 0);
 
                 DrawCalls++;
             }
@@ -404,13 +415,19 @@ void RenderingSystem::render(GameWorld* world)
 	 if (camera->intersects(waterMesh.BSCenter, waterMesh.BSRadius))
 	 {
 	  gbuffer->setMat4(0, glm::mat4(1.0));
-	  waterMesh.Draw();
+	  
+	  glBindVertexArray(VAO);
+
+    //	glActiveTexture(GL_TEXTURE0);
+    //	glBindTexture(GL_TEXTURE_2D, diffuseTextureID);
+
+    glDrawElements(GL_TRIANGLES, num_indices, GL_UNSIGNED_SHORT, 0);
 
 	  DrawCalls++;
 	 }
 	}*/
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    /*glBindFramebuffer(GL_FRAMEBUFFER, 0);
 #ifdef USE_DX_REVERSE_Z
     glClearDepth(0.0);
 #endif  // USE_DX_REVERSE_Z
@@ -428,12 +445,12 @@ void RenderingSystem::render(GameWorld* world)
 	glActiveTexture(GL_TEXTURE4);
 	glBindTexture(GL_TEXTURE_2D, ssaoColorBufferBlur);*/
 
-    gbufferLighting->setVec3(4, world->dirLight.direction);
+    /*gbufferLighting->setVec3(4, world->dirLight.direction);
     gbufferLighting->setVec3(5, world->dirLight.ambient);
     gbufferLighting->setVec3(6, world->dirLight.diffuse);
     gbufferLighting->setVec3(7, world->dirLight.specular);
 
-    gbufferLighting->setVec3(2, camera->position);
+    gbufferLighting->setVec3(2, camera->getPosition());
 
     renderQuad();
 
@@ -697,17 +714,6 @@ if (RenderDebugWorld)
  world->getDebugDrawer()->render();
 }
 
-for (auto& waterMesh : world->WaterMeshes)
-{
- if (camera->intersects(waterMesh.BSCenter, waterMesh.BSRadius))
- {
-  gbuffer->setMat4(0, glm::mat4(1.0));
-  waterMesh.Draw();
-
-  DrawCalls++;
- }
-}
-
 glEnable(GL_CULL_FACE);
 
 //	RENDER SCENE FOR EVERY LIGHT THAT is able CREATE SHADOW
@@ -844,5 +850,5 @@ renderQuad();
 void RenderingSystem::skyboxPass()
 {
     //	FORWARD RENDERING
-    //	skybox->Draw();
+    
 }

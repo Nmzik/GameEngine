@@ -30,16 +30,16 @@ public:
 
     void LoadKeys();
 
-    uint32_t CalculateHash(std::string& text);
+    uint32_t calculateHash(std::string& text);
 
-    uint8_t* GetNGKey(std::string& name, uint32_t length);
+    uint8_t* getNGKey(std::string& name, uint32_t length);
 
-    void DecryptAES(uint8_t* data, uint32_t DataLength);
-    void DecryptNG(uint8_t* data, uint32_t dataLength, std::string& name, uint32_t length);
-    void DecryptNG(uint8_t* data, uint32_t dataLength, uint8_t* key);
-    void DecryptNGBlock(uint8_t* data, uint32_t dataLength, uint32_t* key);
-    uint8_t* DecryptNGRoundA(uint8_t* data, uint32_t* key, uint32_t table[][256]);
-    uint8_t* DecryptNGRoundB(uint8_t* data, uint32_t* key, uint32_t table[][256]);
+    void decryptAES(uint8_t* data, uint32_t DataLength);
+    void decryptNG(uint8_t* data, uint32_t dataLength, std::string& name, uint32_t length);
+    void decryptNG(uint8_t* data, uint32_t dataLength, uint8_t* key);
+    void decryptNGBlock(uint8_t* data, uint32_t dataLength, uint32_t* key);
+    uint8_t* decryptNGRoundA(uint8_t* data, uint32_t* key, uint32_t table[][256]);
+    uint8_t* decryptNGRoundB(uint8_t* data, uint32_t* key, uint32_t table[][256]);
 
-    void DecompressBytes(uint8_t* data, uint32_t dataLength, uint8_t* AllocatedMem, uint64_t AllocatedSize);
+    void decompressBytes(uint8_t* data, uint32_t dataLength, uint8_t* AllocatedMem, uint64_t AllocatedSize);
 };

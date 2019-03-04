@@ -1,8 +1,5 @@
 #include "CVehicle.h"
 
-#include "PhysicsSystem.h"
-#include "YftLoader.h"
-
 #define CUBE_HALF_EXTENTS 1
 btVector3 wheelDirectionCS0(0, 0, -1);
 btVector3 wheelAxleCS(1, 0, 0);
@@ -106,14 +103,14 @@ CVehicle::~CVehicle()
     PhysicsSystem::dynamicsWorld->removeRigidBody(m_carChassis.get());
 }
 
-glm::mat4 CVehicle::GetMat4()
+glm::mat4 CVehicle::getMat4()
 {
     m_carChassis->getWorldTransform().getOpenGLMatrix(&modelMatrix[0][0]);
 
     return modelMatrix;
 }
 
-void CVehicle::PhysicsTick()
+void CVehicle::physicsTick()
 {
     float engineForce = throttle * 5000.0f;
 

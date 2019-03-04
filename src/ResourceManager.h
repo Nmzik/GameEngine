@@ -45,7 +45,8 @@ public:
     uint64_t GlobalGpuMemory = 0;
     uint64_t TextureMemory = 0;
 
-    //	std::mutex allocatorMutex;
+	void Initialize();
+
     ThreadSafeAllocator* resource_allocator;
     void GetGtxd(uint32_t hash);
     // GetFile<YdrLoader, Type::ydr>(uint32_t hash, uint32_t TextureDictionaryHash);
@@ -58,8 +59,8 @@ public:
 
     FileType* loadSync(Type type, uint32_t Hash);
 
-    inline void AddToMainQueue(Resource* res);
-    void AddToWaitingList(Resource* res);
+    inline void addToMainQueue(Resource* res);
+    void addToWaitingList(Resource* res);
 
     void update();
 

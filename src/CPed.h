@@ -30,6 +30,9 @@ class CPed : public Entity
     glm::vec3 playerDirection;
     CVehicle* vehicle;
     YddLoader* player;
+    bool on_ground = false;
+
+    std::vector<YdrLoader*> playerModel;
 
 public:
     CPed(glm::vec3 position, YddLoader* ydd);
@@ -38,29 +41,33 @@ public:
     CPed& operator=(CPed&& other) = default;
     CPed(CPed&& other) = default;
 
-    std::vector<YdrLoader*> playerModel;
-    bool on_ground = false;
-    bool isAlive()
+    bool isAlive() const
     {
         return health > 0;
     }
 
-    float getCurrentHealth()
+    float getCurrentHealth() const
     {
         return health;
     }
 
-    void SetPosition(glm::vec3 pos);
-    glm::vec3& getPosition();
+    void setPosition(glm::vec3 pos);
+	glm::vec3 getPosition() const
+	{
+            return position;
+	}
     glm::mat4& getMatrix();
 
-    void TakeDamage(float dmg);
-    void PhysicsTick();
-    void ExitVehicle();
-    void EnterVehicle(CVehicle* nearestVehicle);
-    CVehicle* GetCurrentVehicle();
+    void takeDamage(float dmg);
+    void physicsTick();
+    void exitVehicle();
+    void enterVehicle(CVehicle* nearestVehicle);
+	CVehicle* getCurrentVehicle() const
+	{
+            return vehicle;
+	}
     void addToInventory(uint32_t slot, uint32_t ammo);
     void setActiveWeapon(uint32_t slot);
-    void Jump();
+    void jump();
     btRigidBody* getPhysCharacter();
 };

@@ -11,12 +11,11 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtx/norm.hpp"
 
-#include "CPed.h"
-
 class ResourceManager;
 class YmapLoader;
 class Water;
 class Camera;
+class CPed;
 class CVehicle;
 class YdrLoader;
 class YbnLoader;
@@ -57,8 +56,8 @@ public:
     uint32_t culled = 0;
     float LODMultiplier = 1.0f;
     std::vector<Water> WaterMeshes;
-    std::unordered_map<uint32_t, CarHandling> vehiclesPool;
-    std::vector<CPed> peds;
+    //std::unordered_map<uint32_t, CarHandling> vehiclesPool;
+    std::vector<CPed*> peds;
     std::vector<CVehicle*> vehicles;
 
     std::mutex resources_lock;
@@ -85,18 +84,16 @@ public:
     GameWorld(GameData* _gameData);
     ~GameWorld();
 
-    void LoadYmap(YmapLoader* map, Camera* camera, glm::vec3& position);
-
-    void GetVisibleYmaps(Camera* camera);
-
-    void LoadQueuedResources();
+    void loadYmap(YmapLoader* map, Camera* camera, glm::vec3& position);
+    void getVisibleYmaps(Camera* camera);
+    void loadQueuedResources();
 
     GameData* getGameData()
     {
         return &data;
     }
 
-    ResourceManager* GetResourceManager()
+    ResourceManager* getResourceManager()
     {
         return resourceManager.get();
     }
@@ -108,13 +105,14 @@ public:
 
     void createPedestrian();
     void createVehicle(glm::vec3 position);
-    void UpdateDynamicObjects();
-    void UpdateTraffic(Camera* camera, glm::vec3 pos);
-    CVehicle* FindNearestVehicle();
-    void DetectWeaponHit(glm::vec3 CameraPosition, glm::vec3 lookDirection);
-    void update(float delta_time, Camera* camera);
+    void updateDynamicObjects();
+    void cleanupTraffic(Camera* camera);
+    void createTraffic(Camera* camera);
 
-    void TestFunction(glm::vec3 Position);
-    bool DetectInWater(glm::vec3 Position);
-    void ClearTestFunction();
+    CVehicle* findNearestVehicle();
+    void detectWeaponHit(glm::vec3 CameraPosition, glm::vec3 lookDirection);
+    void updateWorld(float delta_time, Camera* camera);
+
+    void testFunction(glm::vec3 Position);
+    bool detectInWater(glm::vec3 Position);
 };

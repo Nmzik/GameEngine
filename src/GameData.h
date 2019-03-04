@@ -66,13 +66,13 @@ public:
     GameData(std::string Path);
     ~GameData();
 
-    void LoadHandlingData(std::vector<uint8_t>& Buffer);
-    void LoadGtxd();
-    void LoadWaterQuads(std::vector<uint8_t>& Buffer);
-    void LoadScenesSwitch(std::vector<uint8_t>& Buffer);
+    void loadHandlingData(std::vector<uint8_t>& Buffer);
+    void loadGtxd();
+    void loadWaterQuads(std::vector<uint8_t>& Buffer);
+    void loadScenesSwitch(std::vector<uint8_t>& Buffer);
 
-    void LoadRpf(std::ifstream& rpf, std::string& FullPath_, std::string& FileName_, uint32_t FileSize_, uint64_t FileOffset);
+    void loadRpf(std::ifstream& rpf, std::string& FullPath_, std::string& FileName_, uint32_t FileSize_, uint64_t FileOffset);
 
-    void ExtractFileBinary(RpfBinaryFileEntry& entry, std::vector<uint8_t>& output);
-    void ExtractFileResource(RpfResourceFileEntry& entry, uint8_t* AllocatedMem, uint64_t AllocatedSize);
+    void extractFileBinary(RpfBinaryFileEntry& entry, std::vector<uint8_t>& output);
+    void extractFileResource(RpfResourceFileEntry& entry, uint8_t* AllocatedMem, uint64_t AllocatedSize);
 };

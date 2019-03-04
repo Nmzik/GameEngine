@@ -76,7 +76,7 @@ void GTAEncryption::LoadKeys()
     ngtables.close();
 }
 
-uint32_t GTAEncryption::CalculateHash(std::string& text)
+uint32_t GTAEncryption::calculateHash(std::string& text)
 {
     uint32_t result = 0;
     for (int index = 0; index < text.size(); index++)
@@ -88,14 +88,14 @@ uint32_t GTAEncryption::CalculateHash(std::string& text)
     return 32769 * ((9 * result >> 11) ^ (9 * result));
 }
 
-uint8_t* GTAEncryption::GetNGKey(std::string& name, uint32_t length)
+uint8_t* GTAEncryption::getNGKey(std::string& name, uint32_t length)
 {
-    uint32_t hash = CalculateHash(name);
+    uint32_t hash = calculateHash(name);
     uint32_t keyidx = (hash + length + (101 - 40)) % 0x65;
     return PC_NG_KEYS[keyidx];
 }
 
-void GTAEncryption::DecryptAES(uint8_t* data, uint32_t DataLength)
+void GTAEncryption::decryptAES(uint8_t* data, uint32_t DataLength)
 {
     struct AES_ctx ctx;
     AES_init_ctx(&ctx, PC_AES_KEY);
@@ -105,33 +105,33 @@ void GTAEncryption::DecryptAES(uint8_t* data, uint32_t DataLength)
     }
 }
 
-void GTAEncryption::DecryptNG(uint8_t* data, uint32_t dataLength, std::string& name, uint32_t length)
+void GTAEncryption::decryptNG(uint8_t* data, uint32_t dataLength, std::string& name, uint32_t length)
 {
-    uint8_t* key = GetNGKey(name, length);
-    DecryptNG(data, dataLength, key);
+    uint8_t* key = getNGKey(name, length);
+    decryptNG(data, dataLength, key);
 }
 
-void GTAEncryption::DecryptNG(uint8_t* data, uint32_t dataLength, uint8_t* key)
+void GTAEncryption::decryptNG(uint8_t* data, uint32_t dataLength, uint8_t* key)
 {
     for (uint32_t blockIndex = 0; blockIndex < dataLength / 16; blockIndex++)
     {
         uint8_t encryptedBlock[16];
         memcpy(encryptedBlock, data + 16 * blockIndex, 16);
-        DecryptNGBlock(encryptedBlock, 16, (uint32_t*)&key[0]);
+        decryptNGBlock(encryptedBlock, 16, (uint32_t*)&key[0]);
         memcpy(data + 16 * blockIndex, encryptedBlock, 16);
     }
 }
 
-void GTAEncryption::DecryptNGBlock(uint8_t* data, uint32_t dataLength, uint32_t* key)
+void GTAEncryption::decryptNGBlock(uint8_t* data, uint32_t dataLength, uint32_t* key)
 {
-    data = DecryptNGRoundA(data, &key[0], PC_NG_DECRYPT_TABLES[0]);
-    data = DecryptNGRoundA(data, &key[4], PC_NG_DECRYPT_TABLES[1]);
+    data = decryptNGRoundA(data, &key[0], PC_NG_DECRYPT_TABLES[0]);
+    data = decryptNGRoundA(data, &key[4], PC_NG_DECRYPT_TABLES[1]);
     for (int k = 2; k <= 15; k++)
-        data = DecryptNGRoundB(data, &key[4 * k], PC_NG_DECRYPT_TABLES[k]);
-    data = DecryptNGRoundA(data, &key[4 * 16], PC_NG_DECRYPT_TABLES[16]);
+        data = decryptNGRoundB(data, &key[4 * k], PC_NG_DECRYPT_TABLES[k]);
+    data = decryptNGRoundA(data, &key[4 * 16], PC_NG_DECRYPT_TABLES[16]);
 }
 
-uint8_t* GTAEncryption::DecryptNGRoundA(uint8_t* data, uint32_t* key, uint32_t table[][256])
+uint8_t* GTAEncryption::decryptNGRoundA(uint8_t* data, uint32_t* key, uint32_t table[][256])
 {
     uint32_t x1 = table[0][data[0]] ^ table[1][data[1]] ^ table[2][data[2]] ^ table[3][data[3]] ^ key[0];
     uint32_t x2 = table[4][data[4]] ^ table[5][data[5]] ^ table[6][data[6]] ^ table[7][data[7]] ^ key[1];
@@ -159,7 +159,7 @@ uint8_t* GTAEncryption::DecryptNGRoundA(uint8_t* data, uint32_t* key, uint32_t t
 }
 
 // round 3-15
-uint8_t* GTAEncryption::DecryptNGRoundB(uint8_t* data, uint32_t* key, uint32_t table[][256])
+uint8_t* GTAEncryption::decryptNGRoundB(uint8_t* data, uint32_t* key, uint32_t table[][256])
 {
     uint32_t x1 = table[0][data[0]] ^ table[7][data[7]] ^ table[10][data[10]] ^ table[13][data[13]] ^ key[0];
     uint32_t x2 = table[1][data[1]] ^ table[4][data[4]] ^ table[11][data[11]] ^ table[14][data[14]] ^ key[1];
@@ -186,7 +186,7 @@ uint8_t* GTAEncryption::DecryptNGRoundB(uint8_t* data, uint32_t* key, uint32_t t
     return data;
 }
 
-void GTAEncryption::DecompressBytes(uint8_t* data, uint32_t dataLength, uint8_t* AllocatedMem, uint64_t AllocatedSize)
+void GTAEncryption::decompressBytes(uint8_t* data, uint32_t dataLength, uint8_t* AllocatedMem, uint64_t AllocatedSize)
 {
     strm.avail_in = dataLength;
     strm.next_in = data;

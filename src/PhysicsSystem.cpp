@@ -2,8 +2,24 @@
 
 std::unique_ptr<btDiscreteDynamicsWorld> PhysicsSystem::dynamicsWorld = nullptr;
 
+/*FreeListAllocator* myAllocator;
+
+void* allocate(size_t size, int alignment)
+{
+    return myAllocator->allocate(size, (uint8_t)alignment);
+}
+void deallocate(void* memblock)
+{
+    myAllocator->deallocate(memblock);
+}*/
+
 PhysicsSystem::PhysicsSystem()
 {
+    physicsMemory = std::make_unique<uint8_t[]>(50 * 1024 * 1024);  //	50mb
+   // myAllocator = new FreeListAllocator(50 * 1024 * 1024, physicsMemory.get());
+
+    //btAlignedAllocSetCustomAligned(allocate, deallocate);
+
     broadphase = std::make_unique<btDbvtBroadphase>();
     collisionConfiguration = std::make_unique<btDefaultCollisionConfiguration>();
     dispatcher = std::make_unique<btCollisionDispatcher>(collisionConfiguration.get());
@@ -20,9 +36,10 @@ PhysicsSystem::PhysicsSystem()
 
 PhysicsSystem::~PhysicsSystem()
 {
+    dynamicsWorld.reset();
 }
 
-void PhysicsSystem::Update(float delta_time)
+void PhysicsSystem::update(float delta_time)
 {
     dynamicsWorld->stepSimulation(delta_time, 10);
 

@@ -14,5 +14,4 @@ public:
 
     Water(WaterQuad waterQuad);
     ~Water();
-    void Draw();
 };
