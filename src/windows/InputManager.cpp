@@ -2,12 +2,13 @@
 
 InputManager::InputManager()
 {
+    keyMapping.push_back(std::make_pair(SDL_SCANCODE_F1, button_GPU_TIME));
     keyMapping.push_back(std::make_pair(SDL_SCANCODE_ESCAPE, button_ESCAPE));
     keyMapping.push_back(std::make_pair(SDL_SCANCODE_E, Actions::button_E));
     keyMapping.push_back(std::make_pair(SDL_SCANCODE_B, Actions::button_player1));
     keyMapping.push_back(std::make_pair(SDL_SCANCODE_N, Actions::button_player2));
     keyMapping.push_back(std::make_pair(SDL_SCANCODE_M, Actions::button_player3));
-    keyMapping.push_back(std::make_pair(SDL_SCANCODE_I, Actions::button_ShowCollision));
+    keyMapping.push_back(std::make_pair(SDL_SCANCODE_F2, Actions::button_ShowCollision));
     keyMapping.push_back(std::make_pair(SDL_SCANCODE_F, Actions::button_CameraMode));
     keyMapping.push_back(std::make_pair(SDL_SCANCODE_U, Actions::button_EnterExitVehicle));
     keyMapping.push_back(std::make_pair(SDL_SCANCODE_W, Actions::button_Forward));

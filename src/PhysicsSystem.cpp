@@ -2,21 +2,21 @@
 
 std::unique_ptr<btDiscreteDynamicsWorld> PhysicsSystem::dynamicsWorld = nullptr;
 
-FreeListAllocator* myAllocator;
+FreeListAllocator* physicsAllocator;
 
 void* allocate(size_t size, int alignment)
 {
-    return myAllocator->allocate(size, (uint8_t)alignment);
+    return physicsAllocator->allocate(size, (uint8_t)alignment);
 }
 void deallocate(void* memblock)
 {
-    myAllocator->deallocate(memblock);
+    physicsAllocator->deallocate(memblock);
 }
 
 PhysicsSystem::PhysicsSystem()
 {
     physicsMemory = std::make_unique<uint8_t[]>(50 * 1024 * 1024);  //	50mb
-    myAllocator = new FreeListAllocator(50 * 1024 * 1024, physicsMemory.get());
+    physicsAllocator = new FreeListAllocator(50 * 1024 * 1024, physicsMemory.get());
 
     btAlignedAllocSetCustomAligned(allocate, deallocate);
 
@@ -36,6 +36,7 @@ PhysicsSystem::PhysicsSystem()
 
 PhysicsSystem::~PhysicsSystem()
 {
+    //delete physicsAllocator;
     dynamicsWorld.reset();
 }
 

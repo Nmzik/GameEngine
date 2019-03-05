@@ -7,6 +7,8 @@
 
 #include "InputActions.h"
 
+extern FreeListAllocator* physicsAllocator;
+
 Game::Game(const char* GamePath)
 {
     window = std::make_unique<NativeWindow>();
@@ -74,15 +76,22 @@ void Game::updateFPS(float delta_time, float cpuThreadTime, float gpuThreadTime)
     if (time_since_last_fps_output >= 1.0f)
     {
         time_since_last_fps_output = 0.0f;
-        std::ostringstream osstr;
+
+        static std::ostringstream osstr;
+        osstr.str("");
+        osstr.clear();
+
         osstr << "Game "
-              << " (" << (1.0f / delta_time) << " FPS, " << (delta_time * 1000.0f) << " CPU time, " << (cpuThreadTime * 1000.0f) << " CPU Thread time, "
-              << (gpuThreadTime * 1000.0f) << " Render Thread time, " << rendering_system->gpuTime * 0.000001f << " GPU time) | "
-              << gameWorld->renderList.size() << " Objects, " << rendering_system->DrawCalls << " Draw Calls, "
+              << (1.0f / delta_time) << " FPS, "
+              << (delta_time * 1000.0f) << " CPU time, "
+              << (cpuThreadTime * 1000.0f) << " CPU Thread time, "
+              << (gpuThreadTime * 1000.0f) << " Render Thread time, "
+              << rendering_system->gpuTime * 0.000001f << " GPU time, "
+              << gameWorld->renderList.size() << " Objects, "
+              << rendering_system->DrawCalls << " Draw Calls, "
               << gameWorld->getResourceManager()->GlobalGpuMemory / 1024 / 1024 << " MB GPU Mem, "
-              << gameWorld->getResourceManager()->TextureMemory / 1024 / 1024 << " MB Texture Mem, Bullet Free Mem ";
-        //<< gameWorld->objects.size();
-        //<< (myAllocator->getSize() - myAllocator->getUsedMemory()) / 1024 / 1024;
+              << gameWorld->getResourceManager()->TextureMemory / 1024 / 1024 << " MB Texture Mem, "
+              << (physicsAllocator->getSize() - physicsAllocator->getUsedMemory()) / 1024 / 1024 << " MB Bullet Free Mem ";
         window->setTitle(osstr);
     }
 }
@@ -133,6 +142,13 @@ void Game::tick(float delta_time)
         getWorld()->EnableStreaming = !getWorld()->EnableStreaming;
     }
 
+    if (getInput()->IsKeyTriggered(Actions::button_GPU_TIME))
+    {
+        getRenderer()->gpuTimer = !getRenderer()->gpuTimer;
+        //clear variable
+        getRenderer()->gpuTime = 0;
+    }
+
     /*if (getInput()->IsKeyTriggered(Actions::button_Z))
     {
         if (getWorld()->gameHour > 23)
@@ -146,10 +162,6 @@ void Game::tick(float delta_time)
             getWorld()->gameHour = 23;
         getWorld()->gameHour--;
         //	getRenderer()->ShowTexture = !getRenderer()->ShowTexture;
-    }*/
-    /*if (getInput()->IsKeyTriggered(Actions::button_C))
-    {
-        getWorld()->TestFunction(getRenderer()->getCamera().position);
     }*/
 
     if (getInput()->IsKeyTriggered(Actions::button_player1))
@@ -177,8 +189,6 @@ void Game::tick(float delta_time)
 
     CPed* player = getWorld()->peds[getWorld()->currentPlayerID];
 
-    //	printf("CURRENT HEALTH %f\n", player->getCurrentHealth());
-
     if (getInput()->IsKeyTriggered(Actions::button_CameraMode))
     {
         if (camera->getCameraMode() != CameraMode::FreeCamera)
@@ -186,8 +196,6 @@ void Game::tick(float delta_time)
         else
             camera->setCameraMode(CameraMode::ThirdPerson);
     }
-
-    //	NEED PROPER FIX
 
     if (getInput()->IsKeyTriggered(Actions::button_EnterExitVehicle))
     {

@@ -1,9 +1,10 @@
 #pragma once
 
-#define ActionsKeySize 16
+#define ActionsKeySize 17
 
 enum Actions
 {
+    button_GPU_TIME,
     button_ESCAPE,
     button_E,
     button_player1,

@@ -88,12 +88,17 @@ public:
     void getVisibleYmaps(Camera* camera);
     void loadQueuedResources();
 
-    GameData* getGameData()
+    PhysicsSystem* getPhysicsSystem()
+    {
+        return &physicsSystem;
+    }
+
+    GameData* getGameData() const
     {
         return &data;
     }
 
-    ResourceManager* getResourceManager()
+    ResourceManager* getResourceManager() const
     {
         return resourceManager.get();
     }
