@@ -30,6 +30,7 @@ private:
     std::unique_ptr<Shader> SkyboxShader;
 
     std::unique_ptr<Shader> gbuffer;
+    std::unique_ptr<Shader> Transparentgbuffer;
 
     std::unique_ptr<Shader> shaderSSAO;
     std::unique_ptr<Shader> shaderSSAOBlur;

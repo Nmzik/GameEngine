@@ -110,7 +110,7 @@ void main()
 	//float fogStart = 450.f;
 	//float fogEnd = 10000.f;
 
-    FragColor = vec4((diffuse + ambient), 1.0);
+    FragColor = vec4((Diffuse), 1.0);
 
 
 }

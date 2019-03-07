@@ -42,6 +42,8 @@ void YdrLoader::Init(memstream& file)
         std::vector<Material> materials;
         materials.reserve(drawable->ShaderGroupPointer->Shaders.size());
 
+
+
         for (int is = 0; is < drawable->ShaderGroupPointer->Shaders.size(); is++)
         {
             SYSTEM_BASE_PTR(drawable->ShaderGroupPointer->Shaders.Get(is)->ParametersPointer);
@@ -179,7 +181,7 @@ void YdrLoader::Init(memstream& file)
 
                 models[i].meshes.emplace_back(file.data,
                                               drawable->DrawableModels[0]->Get(i)->m_geometries.Get(j),
-                                              materials[(*drawable->DrawableModels[0]->Get(i)->ShaderMappingPointer)[j]]);
+                                              materials[(*drawable->DrawableModels[0]->Get(i)->ShaderMappingPointer)[j]], drawable->ShaderGroupPointer->Shaders[(*drawable->DrawableModels[0]->Get(i)->ShaderMappingPointer)[j]]->FileName);
             }
         }
     }

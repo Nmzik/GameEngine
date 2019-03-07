@@ -155,7 +155,8 @@ public:
 
     Material material;
     uint32_t num_indices;
+    uint32_t ShaderName;
 
-    Mesh(const uint8_t* meshData, grmGeometry* drawGeom, Material mat);
+    Mesh(const uint8_t* meshData, grmGeometry* drawGeom, Material mat, uint32_t Shader);
     ~Mesh();
 };

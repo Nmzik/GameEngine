@@ -14,4 +14,6 @@ uniform int useBump;
 void main()
 {   
 	FragColor = texture(DiffuseSampler, TexCoords);
+	if (FragColor.a < 0.75)
+		discard;
 }

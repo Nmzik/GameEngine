@@ -1,10 +1,42 @@
 #include "Mesh.h"
 #include "YdrLoader.h"
 
-Mesh::Mesh(const uint8_t* meshData, grmGeometry* drawGeom, Material mat)
+Mesh::Mesh(const uint8_t* meshData, grmGeometry* drawGeom, Material mat, uint32_t Shader)
     : material(mat)
     , num_indices(drawGeom->IndexBufferPointer->IndicesCount)
 {
+    switch (Shader)
+    {
+        case 1530399584:  //{cutout.sps}
+        case 3190732435:  //{cutout_um.sps}
+        case 3959636627:  //{cutout_tnt.sps}
+        case 2219447268:  //{cutout_fence.sps}
+        case 3091995132:  //{cutout_fence_normal.sps}
+        case 3187789425:  //{cutout_hard.sps}
+        case 3339370144:  //{cutout_spec_tnt.sps}
+        case 1264076685:  //{normal_cutout.sps}
+        case 46387092:    //{normal_cutout_tnt.sps}
+        case 748520668:   //{normal_cutout_um.sps}
+        case 807996366:   //{normal_spec_cutout.sps}
+        case 3300978494:  //{normal_spec_cutout_tnt.sps}
+        case 582493193:   //{trees_lod.sps} //not billboarded..
+        case 2322653400:  //{trees.sps}
+        case 3334613197:  //{trees_tnt.sps}
+        case 3192134330:  //{trees_normal.sps}
+        case 1224713457:  //{trees_normal_spec.sps}
+        case 1229591973:  //{trees_normal_spec_tnt.sps}
+        case 4265705004:  //{trees_normal_diffspec.sps}
+        case 2245870123:  //{trees_normal_diffspec_tnt.sps}
+            Shader = 1; //Transparency
+			break;
+        default:
+            Shader = 2; //OBJECT
+            break;
+    }
+
+	ShaderName = Shader;
+
+
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
 

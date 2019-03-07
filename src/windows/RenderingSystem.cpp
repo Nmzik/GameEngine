@@ -101,6 +101,7 @@ RenderingSystem::RenderingSystem(NativeWindow* window_)
 
     //	SkyboxShader = std::make_unique<Shader>("assets/shaders/skybox");
     gbuffer = std::make_unique<Shader>("assets/shaders/gbuffer");
+    Transparentgbuffer = std::make_unique<Shader>("assets/shaders/gbuffer2");
     //	shaderSSAO = std::make_unique<Shader>("assets/shaders/ssao");
     //	shaderSSAOBlur = std::make_unique<Shader>("assets/shaders/ssao_blur");
     //gbufferLighting = std::make_unique<Shader>("assets/shaders/gbufferLighting");
@@ -335,11 +336,6 @@ void RenderingSystem::render(GameWorld* world, Camera* camera)
 #endif  // USE_DX_REVERSE_Z
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    gbuffer->use();
-
-    glBindBufferBase(GL_UNIFORM_BUFFER, 0, uboGlobal);
-    glBindBufferBase(GL_UNIFORM_BUFFER, 1, uboModel);
-
     /*glDepthMask(GL_FALSE); //SKYDOME IS STATIONARY - SHOULD BE RENDERED LAST - PLAYER CAN GO OUT OF SKYDOME IF HE IS TOO FAR FROM IT
 	glm::mat4 SkydomeMatrix = glm::translate(glm::mat4(1.0f), world->peds[world->currentPlayerID].getPosition()) * glm::mat4_cast(glm::quat(-1, 0, 0, 0))
 	* glm::scale(glm::mat4(1.0f), glm::vec3(10.f, 10.f, 10.f));
@@ -362,6 +358,11 @@ void RenderingSystem::render(GameWorld* world, Camera* camera)
 
     glEnable(GL_CULL_FACE);
 
+    uint32_t curShader = 0;
+
+	glBindBufferBase(GL_UNIFORM_BUFFER, 0, uboGlobal);
+    glBindBufferBase(GL_UNIFORM_BUFFER, 1, uboModel);
+
     for (auto& GameObject : world->renderList)
     {
         glBindBuffer(GL_UNIFORM_BUFFER, uboModel);
@@ -376,6 +377,22 @@ void RenderingSystem::render(GameWorld* world, Camera* camera)
             }
             for (auto& mesh : model.meshes)
             {
+                if (curShader != mesh.ShaderName)
+                {
+                    curShader = mesh.ShaderName;
+
+                    switch (mesh.ShaderName)
+                    {
+                        case 1:
+                            Transparentgbuffer->use();
+                            break;
+
+                        default:
+                            gbuffer->use();
+                            break;
+                    }
+
+                }
                 glBindVertexArray(mesh.VAO);
 
                 glActiveTexture(GL_TEXTURE0);
