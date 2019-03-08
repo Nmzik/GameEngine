@@ -254,9 +254,9 @@ YbnLoader::~YbnLoader()
         btAlignedFreeInternal(Indices);
     }
     //	CHECK???
-   // if (Loaded)
+    // if (Loaded)
     PhysicsSystem::dynamicsWorld->removeRigidBody(rigidBody.get());
 
-	delete rigidBody->getMotionState();
-	delete compound;
+    delete rigidBody->getMotionState();
+    delete compound;
 }

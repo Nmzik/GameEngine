@@ -40,7 +40,7 @@ class GameWorld
         }
     };
 
-    typedef std::vector<RenderInstruction> RenderList;
+    using RenderList = std::vector<RenderInstruction>;
 
     GameData& data;
     SpaceGrid spaceGrid;

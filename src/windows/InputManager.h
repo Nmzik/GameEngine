@@ -19,9 +19,9 @@ public:
 
     void Update();
 
-    bool IsKeyTriggered(const Actions iKeyCode) const;
-    bool IsKeyPressed(const Actions iKeyCode) const;
-    bool IsKeyReleased(const Actions iKeyCode) const;
+    bool IsKeyTriggered(Actions iKeyCode) const;
+    bool IsKeyPressed(Actions iKeyCode) const;
+    bool IsKeyReleased(Actions iKeyCode) const;
 
     glm::i32vec2 getMouseMovement() const;
 };

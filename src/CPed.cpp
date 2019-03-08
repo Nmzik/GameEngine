@@ -91,7 +91,7 @@ void CPed::exitVehicle()
 {
     vehicle->setThrottle(0.0f);
     vehicle->setSteeringValue(0.0f);
-    vehicle = NULL;
+    vehicle = nullptr;
 }
 
 void CPed::enterVehicle(CVehicle* nearestVehicle)

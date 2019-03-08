@@ -7,7 +7,7 @@
 #include <functional>
 #include <new>
 
-typedef uintptr_t uptr;
+using uptr = uintptr_t;
 
 namespace pointer_math
 {

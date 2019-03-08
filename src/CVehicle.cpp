@@ -101,7 +101,7 @@ CVehicle::~CVehicle()
     PhysicsSystem::dynamicsWorld->removeAction(m_vehicle.get());
     PhysicsSystem::dynamicsWorld->removeRigidBody(m_carChassis.get());
 
-	delete m_carChassis->getMotionState();
+    delete m_carChassis->getMotionState();
 }
 
 glm::mat4 CVehicle::getMat4()

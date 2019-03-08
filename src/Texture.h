@@ -1,6 +1,6 @@
 #pragma once
+#include <cstdint>
 #include "opengl.h"
-#include "stdint.h"
 
 struct grcTexture;
 class memstream;

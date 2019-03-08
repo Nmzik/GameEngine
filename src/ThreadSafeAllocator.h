@@ -11,7 +11,7 @@ class ThreadSafeAllocator : public Allocator
 {
 public:
     ThreadSafeAllocator(size_t size, void* start);
-    ~ThreadSafeAllocator();
+    ~ThreadSafeAllocator() override;
 
     void* allocate(size_t size, uint8_t alignment) override;
 
@@ -34,8 +34,8 @@ private:
 
     static_assert(sizeof(AllocationHeader) >= sizeof(FreeBlock), "sizeof(AllocationHeader) < sizeof(FreeBlock)");
 
-    ThreadSafeAllocator(const ThreadSafeAllocator&);
-    ThreadSafeAllocator& operator=(const ThreadSafeAllocator&);
+    ThreadSafeAllocator(const ThreadSafeAllocator&) = delete;
+    ThreadSafeAllocator& operator=(const ThreadSafeAllocator&) = delete;
 
     FreeBlock* _free_blocks;
 };

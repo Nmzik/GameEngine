@@ -143,7 +143,7 @@ const std::vector<VertexAttributes> PCCNCTTTAttrib = {
 };
 
 const std::vector<VertexAttributes> WaterAttrib = {{0, 3, GL_FLOAT, 5 * sizeof(float), nullptr},
-                                                   {1, 3, GL_FLOAT, 5 * sizeof(float), (GLvoid*)0},
+                                                   {1, 3, GL_FLOAT, 5 * sizeof(float), (GLvoid*)nullptr},
                                                    {2, 2, GL_FLOAT, 5 * sizeof(float), (GLvoid*)(3 * sizeof(float))}};
 
 struct grmGeometry;

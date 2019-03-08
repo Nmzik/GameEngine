@@ -11,7 +11,7 @@ class FreeListAllocator : public Allocator
 {
 public:
     FreeListAllocator(size_t size, void* start);
-    ~FreeListAllocator();
+    ~FreeListAllocator() override;
 
     void* allocate(size_t size, uint8_t alignment) override;
 
@@ -32,8 +32,8 @@ private:
 
     static_assert(sizeof(AllocationHeader) >= sizeof(FreeBlock), "sizeof(AllocationHeader) < sizeof(FreeBlock)");
 
-    FreeListAllocator(const FreeListAllocator&);
-    FreeListAllocator& operator=(const FreeListAllocator&);
+    FreeListAllocator(const FreeListAllocator&) = delete;
+    FreeListAllocator& operator=(const FreeListAllocator&) = delete;
 
     FreeBlock* _free_blocks;
 };

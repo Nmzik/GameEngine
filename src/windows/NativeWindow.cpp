@@ -13,7 +13,7 @@ NativeWindow::NativeWindow()
     );
 
     // Check that the window was successfully created
-    if (window == NULL)
+    if (window == nullptr)
     {
         // In the case that the window could not be made...
         printf("Could not create window: %s\n", SDL_GetError());
