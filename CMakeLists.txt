@@ -26,6 +26,7 @@ add_subdirectory(3rdparty/recastnavigation)
 
 #Bullet
 #add_definitions(=BT_NO_PROFILE=1)
+set(USE_MSVC_DISABLE_RTTI OFF CACHE BOOL "" FORCE)
 set(BUILD_CLSOCKET OFF CACHE BOOL "" FORCE)
 set(BUILD_ENET OFF CACHE BOOL "" FORCE)
 set(BUILD_EXTRAS OFF CACHE BOOL "" FORCE)

@@ -226,7 +226,7 @@ void Game::tick(float delta_time)
     movement.x = (float)getInput()->IsKeyPressed(Actions::button_Forward) - getInput()->IsKeyPressed(Actions::button_Backward);
     movement.y = (float)getInput()->IsKeyPressed(Actions::button_TurnLeft) - getInput()->IsKeyPressed(Actions::button_TurnRight);
 
-    movement *= 5;
+    movement *= 3;
 
     if (camera->getCameraMode() == CameraMode::FreeCamera)
     {
@@ -266,7 +266,7 @@ void Game::tick(float delta_time)
             player->getCurrentVehicle()->setThrottle(0.0);
         }
 
-        float steering = getInput()->IsKeyPressed(Actions::button_TurnLeft) ? 0.3f : getInput()->IsKeyPressed(Actions::button_TurnRight) ? -0.3f : 0.0;
+        float steering = getInput()->IsKeyPressed(Actions::button_TurnLeft) ? 0.3f : getInput()->IsKeyPressed(Actions::button_TurnRight) ? -0.3f : 0.0f;
         player->getCurrentVehicle()->setSteeringValue(steering);
 
         player->getPhysCharacter()->setWorldTransform(player->getCurrentVehicle()->m_carChassis->getWorldTransform());
@@ -317,7 +317,7 @@ void Game::tick(float delta_time)
 			}
 			else*/
         player->getPhysCharacter()->setLinearVelocity(
-            btVector3(movement.x * 10.0f * speed, movement.y * 10.0f * speed, player->getPhysCharacter()->getLinearVelocity().z()));
+            btVector3(movement.x * 400.0f * speed * delta_time, movement.y * 400.0f * speed * delta_time, player->getPhysCharacter()->getLinearVelocity().z()));
 
         if (getInput()->IsKeyTriggered(Actions::button_SPACE))
         {

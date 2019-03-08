@@ -360,7 +360,7 @@ void RenderingSystem::render(GameWorld* world, Camera* camera)
 
     uint32_t curShader = 0;
 
-	glBindBufferBase(GL_UNIFORM_BUFFER, 0, uboGlobal);
+    glBindBufferBase(GL_UNIFORM_BUFFER, 0, uboGlobal);
     glBindBufferBase(GL_UNIFORM_BUFFER, 1, uboModel);
 
     for (auto& GameObject : world->renderList)
@@ -391,7 +391,6 @@ void RenderingSystem::render(GameWorld* world, Camera* camera)
                             gbuffer->use();
                             break;
                     }
-
                 }
                 glBindVertexArray(mesh.VAO);
 
@@ -414,7 +413,7 @@ void RenderingSystem::render(GameWorld* world, Camera* camera)
     glDisable(GL_CULL_FACE);
 
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    glBindTexture(GL_TEXTURE_2D, DefaultTexture);
 
     if (RenderDebugWorld)
     {

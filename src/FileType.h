@@ -245,10 +245,10 @@ public:
         return m_count;
     }
 
-	TValue* operator[](uint16_t offset)
-	{
+    TValue* operator[](uint16_t offset)
+    {
         return *((*m_objects)[offset]);
-	}
+    }
 
     TValue* Get(uint16_t offset)
     {

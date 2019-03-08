@@ -22,7 +22,6 @@ class CPed : public Entity
 {
     std::unique_ptr<btCapsuleShapeZ> physShape;
     std::unique_ptr<btRigidBody> body;
-    std::unique_ptr<btMotionState> myMotionState;
 
     std::array<CharacterWeaponSlot, 13> weapons;
     uint16_t currentWeapon = 0;

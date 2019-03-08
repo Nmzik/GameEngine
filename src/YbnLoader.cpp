@@ -3,16 +3,16 @@
 
 void YbnLoader::Init(memstream& file)
 {
-    compound = std::make_unique<btCompoundShape>();
+    btCompoundShape* compound = new btCompoundShape();
 
-    ParseYbn(file);
+    ParseYbn(file, compound);
 
-    MotionState = std::make_unique<btDefaultMotionState>(btTransform(btQuaternion(0.f, 0.f, 0.f, 1.f), btVector3(0, 0, 0)));
-    btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(0, MotionState.get(), compound.get(), btVector3(0, 0, 0));
+    btDefaultMotionState* MotionState = new btDefaultMotionState(btTransform(btQuaternion(0.f, 0.f, 0.f, 1.f), btVector3(0, 0, 0)));
+    btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(0, MotionState, compound, btVector3(0, 0, 0));
     rigidBody = std::make_unique<btRigidBody>(groundRigidBodyCI);
 }
 
-void YbnLoader::ParseYbn(memstream& file)
+void YbnLoader::ParseYbn(memstream& file, btCompoundShape* compound)
 {
     Bounds* bounds = (Bounds*)file.read(sizeof(Bounds));
 
@@ -22,36 +22,26 @@ void YbnLoader::ParseYbn(memstream& file)
     {
         case 0:
         {
-            std::unique_ptr<btSphereShape> sphere = std::make_unique<btSphereShape>(0.5f);
-
             btTransform localTrans;
             localTrans.setIdentity();
-            compound->addChildShape(localTrans, sphere.get());
 
-            Shapes.push_back(std::move(sphere));
+            compound->addChildShape(localTrans, new btSphereShape(0.5f));
             break;
         }
         case 1:
         {
-            std::unique_ptr<btCapsuleShapeZ> capsule = std::make_unique<btCapsuleShapeZ>(0.5f, 0.5f);
-
             btTransform localTrans;
             localTrans.setIdentity();
-            compound->addChildShape(localTrans, capsule.get());
 
-            Shapes.push_back(std::move(capsule));
+            compound->addChildShape(localTrans, new btCapsuleShapeZ(0.5f, 0.5f));
             break;
         }
         case 3:
         {
-            std::unique_ptr<btBoxShape> box = std::make_unique<btBoxShape>(btVector3(0.5f, 0.5f, 0.5f));
-
             btTransform localTrans;
             localTrans.setIdentity();
 
-            compound->addChildShape(localTrans, box.get());
-
-            Shapes.push_back(std::move(box));
+            compound->addChildShape(localTrans, new btBoxShape(btVector3(0.5f, 0.5f, 0.5f)));
             break;
         }
         case 4:
@@ -80,8 +70,6 @@ void YbnLoader::ParseYbn(memstream& file)
             SYSTEM_BASE_PTR(geom->PolygonsPointer);
             file.seekg(geom->PolygonsPointer);
 
-            Shapes.reserve(geom->PolygonsCount);
-
             for (uint32_t i = 0; i < geom->PolygonsCount; i++)  //	PERFORMANCE IMPROVEMENT???
             {
                 uint8_t type = *(uint8_t*)file.read(sizeof(uint8_t));
@@ -99,16 +87,12 @@ void YbnLoader::ParseYbn(memstream& file)
                     {
                         BoundPolygonSphere* PolygonSphere = (BoundPolygonSphere*)file.read(sizeof(BoundPolygonSphere));
 
-                        std::unique_ptr<btSphereShape> sphere = std::make_unique<btSphereShape>(PolygonSphere->sphereRadius);
-
                         btTransform localTrans;
                         localTrans.setIdentity();
                         localTrans.setOrigin(btVector3(geom->CenterGeom.x + Vertices[PolygonSphere->sphereIndex].x,
                                                        geom->CenterGeom.y + Vertices[PolygonSphere->sphereIndex].y,
                                                        geom->CenterGeom.z + Vertices[PolygonSphere->sphereIndex].z));
-                        compound->addChildShape(localTrans, sphere.get());
-
-                        Shapes.push_back(std::move(sphere));
+                        compound->addChildShape(localTrans, new btSphereShape(PolygonSphere->sphereRadius));
                         break;
                     }
                     case 2:
@@ -147,30 +131,22 @@ void YbnLoader::ParseYbn(memstream& file)
                         glm::vec3 size = ((p3 + p4) - (p1 + p2)) * 0.5f;  //	Half extents
                         auto mid = (min + max) / 2.f;
 
-                        std::unique_ptr<btBoxShape> shape = std::make_unique<btBoxShape>(btVector3(size.x, size.y, size.z));
-
                         btTransform localTrans;
                         localTrans.setIdentity();
                         localTrans.setOrigin(btVector3(geom->CenterGeom.x + mid.x, geom->CenterGeom.y + mid.y, geom->CenterGeom.z + mid.z));
-                        compound->addChildShape(localTrans, shape.get());
-
-                        Shapes.push_back(std::move(shape));
+                        compound->addChildShape(localTrans, new btBoxShape(btVector3(size.x, size.y, size.z)));
                         break;
                     }
                     case 4:
                     {
                         BoundPolygonCylinder* PolygonCylinder = (BoundPolygonCylinder*)file.read(sizeof(BoundPolygonCylinder));
 
-                        std::unique_ptr<btCylinderShapeZ> shape = std::make_unique<btCylinderShapeZ>(btVector3(0.5, 0.5, 0.5));
-
                         btTransform localTrans;
                         localTrans.setIdentity();
                         localTrans.setOrigin(btVector3(geom->CenterGeom.x + Vertices[PolygonCylinder->cylinderIndex1].x,
                                                        geom->CenterGeom.y + Vertices[PolygonCylinder->cylinderIndex1].y,
                                                        geom->CenterGeom.z + Vertices[PolygonCylinder->cylinderIndex1].z));
-                        compound->addChildShape(localTrans, shape.get());
-
-                        Shapes.push_back(std::move(shape));
+                        compound->addChildShape(localTrans, new btCylinderShapeZ(btVector3(0.5, 0.5, 0.5)));
                         break;
                     }
                     default:
@@ -192,36 +168,21 @@ void YbnLoader::ParseYbn(memstream& file)
                         glm::u16vec3(PolygonTriangles[i]->triIndex1 & 0x7FFF, PolygonTriangles[i]->triIndex2 & 0x7FFF, PolygonTriangles[i]->triIndex3 & 0x7FFF);
                 }
 
-                std::unique_ptr<btTriangleIndexVertexArray> VertIndices = std::make_unique<btTriangleIndexVertexArray>();
-
-                /*btQuantizedBvh* quantizedBvh = std::make_unique<btQuantizedBvh();
-			quantizedBvh->setQuantizationValues(btVector3(Bounds.BoundingBoxMin.x, Bounds.BoundingBoxMin.y, Bounds.BoundingBoxMin.z),
-			btVector3(Bounds.BoundingBoxMax.x, Bounds.BoundingBoxMax.y, Bounds.BoundingBoxMax.z)); QuantizedNodeArray&	nodes =
-			quantizedBvh->getLeafNodeArray(); btOptimizedBvh *bvh = std::make_unique<btOptimizedBvh();
-			//bvh->build(VertIndicesArray, true, );
-			trishape->setOptimizedBvh(bvh);
-			btQuantizedBvhNode node;*/
-
                 btIndexedMesh mesh;
-                mesh.m_numTriangles = PolygonTriangles.size();
+                mesh.m_numTriangles = (int)PolygonTriangles.size();
                 mesh.m_triangleIndexBase = (uint8_t*)&Indices[0];
                 mesh.m_triangleIndexStride = 3 * sizeof(uint16_t);
                 mesh.m_numVertices = geom->VerticesCount;
                 mesh.m_vertexBase = (uint8_t*)&Vertices[0];
                 mesh.m_vertexStride = sizeof(glm::vec3);
 
+                btTriangleIndexVertexArray* VertIndices = new btTriangleIndexVertexArray();
                 VertIndices->addIndexedMesh(mesh, PHY_SHORT);
-
-                std::unique_ptr<btBvhTriangleMeshShape> trishape = std::make_unique<btBvhTriangleMeshShape>(VertIndices.get(), false);
-
-                VertIndicesArray.push_back(std::move(VertIndices));
 
                 btTransform localTrans;
                 localTrans.setIdentity();
                 localTrans.setOrigin(btVector3(geom->CenterGeom.x, geom->CenterGeom.y, geom->CenterGeom.z));
-                compound->addChildShape(localTrans, trishape.get());
-
-                Shapes.push_back(std::move(trishape));
+                compound->addChildShape(localTrans, new btBvhTriangleMeshShape(VertIndices, false));
             }
 
             break;
@@ -242,7 +203,7 @@ void YbnLoader::ParseYbn(memstream& file)
                 SYSTEM_BASE_PTR(DataPointer);
                 file.seekg(DataPointer);
 
-                ParseYbn(file);
+                ParseYbn(file, compound);
 
                 file.seekg(BoundsPointer);
             }
@@ -251,13 +212,10 @@ void YbnLoader::ParseYbn(memstream& file)
         }
         case 13:
         {
-            std::unique_ptr<btCylinderShapeZ> shape = std::make_unique<btCylinderShapeZ>(btVector3(0.5, 0.5, 0.5));
-
             btTransform localTrans;
             localTrans.setIdentity();
-            compound->addChildShape(localTrans, shape.get());
 
-            Shapes.push_back(std::move(shape));
+            compound->addChildShape(localTrans, new btCylinderShapeZ(btVector3(0.5, 0.5, 0.5)));
             break;
         }
         default:
@@ -275,6 +233,17 @@ void YbnLoader::Finalize()
 
 YbnLoader::~YbnLoader()
 {
+    btCompoundShape* compound = static_cast<btCompoundShape*>(rigidBody->getCollisionShape());
+
+    int numChild = compound->getNumChildShapes();
+    for (int i = 0; i < numChild; i++)
+    {
+        btCollisionShape* shape = compound->getChildShape(i);
+        if (shape->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE)
+            delete static_cast<btBvhTriangleMeshShape*>(shape)->getMeshInterface();
+        delete compound->getChildShape(i);
+    }
+
     for (auto& Vertices : VerticesArray)
     {
         btAlignedFreeInternal(Vertices);
@@ -285,6 +254,9 @@ YbnLoader::~YbnLoader()
         btAlignedFreeInternal(Indices);
     }
     //	CHECK???
-    if (Loaded)
-        PhysicsSystem::dynamicsWorld->removeRigidBody(rigidBody.get());
+   // if (Loaded)
+    PhysicsSystem::dynamicsWorld->removeRigidBody(rigidBody.get());
+
+	delete rigidBody->getMotionState();
+	delete compound;
 }

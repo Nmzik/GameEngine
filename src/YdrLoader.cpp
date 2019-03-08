@@ -42,14 +42,13 @@ void YdrLoader::Init(memstream& file)
         std::vector<Material> materials;
         materials.reserve(drawable->ShaderGroupPointer->Shaders.size());
 
-
-
         for (int is = 0; is < drawable->ShaderGroupPointer->Shaders.size(); is++)
         {
             SYSTEM_BASE_PTR(drawable->ShaderGroupPointer->Shaders.Get(is)->ParametersPointer);
             file.seekg(drawable->ShaderGroupPointer->Shaders.Get(is)->ParametersPointer);
 
             std::vector<uint32_t> TexturesHashes;
+            TexturesHashes.reserve(drawable->ShaderGroupPointer->Shaders.Get(is)->ParameterCount);
 
             int offset = 0;
 

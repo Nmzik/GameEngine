@@ -27,15 +27,14 @@ Mesh::Mesh(const uint8_t* meshData, grmGeometry* drawGeom, Material mat, uint32_
         case 1229591973:  //{trees_normal_spec_tnt.sps}
         case 4265705004:  //{trees_normal_diffspec.sps}
         case 2245870123:  //{trees_normal_diffspec_tnt.sps}
-            Shader = 1; //Transparency
-			break;
+            Shader = 1;   //Transparency
+            break;
         default:
-            Shader = 2; //OBJECT
+            Shader = 2;  //OBJECT
             break;
     }
 
-	ShaderName = Shader;
-
+    ShaderName = Shader;
 
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);

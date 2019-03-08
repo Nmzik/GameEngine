@@ -26,8 +26,8 @@ CPed::CPed(glm::vec3 position, YddLoader* ydd)
     transform.setIdentity();
     transform.setOrigin(btVector3(position.x, position.y, position.z));
 
-    myMotionState = std::make_unique<btDefaultMotionState>(transform);
-    btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState.get(), physShape.get(), localInertia);
+    btDefaultMotionState* myMotionState = new btDefaultMotionState(transform);
+    btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, physShape.get(), localInertia);
     rbInfo.m_restitution = 0.0f;
     rbInfo.m_friction = 1.0;
 
@@ -49,6 +49,7 @@ CPed::CPed(glm::vec3 position, YddLoader* ydd)
 CPed::~CPed()
 {
     PhysicsSystem::dynamicsWorld->removeRigidBody(body.get());
+    delete body->getMotionState();
 }
 
 btRigidBody* CPed::getPhysCharacter()

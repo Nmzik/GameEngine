@@ -23,7 +23,7 @@ YtypLoader::YtypLoader(memstream& file)
                     fwArchetypeDef def;
                     std::memcpy(&def, &file.data[Block.MetaDataBlock_struct->DataPointer + i * sizeof(fwArchetypeDef)], sizeof(fwArchetypeDef));
 
-                    Archetype* arch = new Archetype();
+                    fwArchetype* arch = new fwArchetype();
                     arch->BaseArchetypeDef = def;
                     ArchetypeDefs.push_back(arch);
                 }

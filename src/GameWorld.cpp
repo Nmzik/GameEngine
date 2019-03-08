@@ -27,6 +27,9 @@ GameWorld::GameWorld(GameData* _gameData)
         vehiclesPool[vehicle.Hash] = vehicle;
     }*/
 
+    CurYbns.reserve(50);
+    CurYmaps.reserve(200);  //> 100
+    vehicles.reserve(50);
     peds.reserve(20);
 
     //	RenderList
@@ -35,6 +38,7 @@ GameWorld::GameWorld(GameData* _gameData)
     resourceManager->GetYdr(2096445108);
     resourceManager->GetYtd(3403519606);
 
+    WaterMeshes.reserve(data.WaterQuads.size());
     for (auto& WaterQuad : data.WaterQuads)
     {
         Water water(WaterQuad);
@@ -68,8 +72,6 @@ GameWorld::GameWorld(GameData* _gameData)
     peds.emplace_back(new CPed(glm::vec3(-178.16, 6258.31, 47.23), playerYDD));
     peds.emplace_back(new CPed(glm::vec3(9.66, -1184.98, 75.74), playerYDD));
     peds.emplace_back(new CPed(glm::vec3(2250.18f, 3471.40f, 56.50f), playerYDD));
-
-    vehicles.reserve(50);
 }
 
 GameWorld::~GameWorld()
@@ -301,7 +303,6 @@ void GameWorld::getVisibleYmaps(Camera* camera)
 
             if (cellID.x <= max.x && cellID.x >= min.x && cellID.y <= max.y && cellID.y >= min.y)
             {
-                //	BoundsStoreItems.push_back(data.cacheFile->AllBoundsStoreItems[i]);
                 CurYbns.emplace_back(resourceManager->GetYbn(data.cacheFile->AllBoundsStoreItems[i].Name));
             }
         }
@@ -313,7 +314,6 @@ void GameWorld::getVisibleYmaps(Camera* camera)
 
             if (cellID.x <= max.x && cellID.x >= min.x && cellID.y <= max.y && cellID.y >= min.y)
             {
-                //	MapNodes.push_back(data.cacheFile->AllBoundsStoreItems[i]);
                 CurYmaps.emplace_back(resourceManager->GetYmap(data.cacheFile->AllMapNodes[i].Name));
             }
         }
@@ -431,7 +431,7 @@ void GameWorld::loadQueuedResources()
 
                     for (auto& object : iter->Objects)
                     {
-                        std::unordered_map<uint32_t, Archetype*>::iterator it = getGameData()->Archetypes.find(object.CEntity.archetypeName);
+                        std::unordered_map<uint32_t, fwArchetype*>::iterator it = getGameData()->Archetypes.find(object.CEntity.archetypeName);
                         if (it != getGameData()->Archetypes.end())
                         {
                             object.archetype = it->second;
