@@ -3,14 +3,18 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
+#include "aes.hpp"
 #include "zlib.h"
 
-uint32_t GenHash(std::string Name);
+uint32_t GenHash(std::string_view Name);
 
 class GTAEncryption
 {
 private:
+    //zlib
     z_stream strm;
+    //aes
+    struct AES_ctx ctx;
 
     uint8_t PC_AES_KEY[32];
     uint8_t LUT[256];
@@ -38,8 +42,8 @@ public:
     void decryptNG(uint8_t* data, uint32_t dataLength, std::string& name, uint32_t length);
     void decryptNG(uint8_t* data, uint32_t dataLength, uint8_t* key);
     void decryptNGBlock(uint8_t* data, uint32_t dataLength, uint32_t* key);
-    uint8_t* decryptNGRoundA(uint8_t* data, uint32_t* key, uint32_t table[][256]);
-    uint8_t* decryptNGRoundB(uint8_t* data, uint32_t* key, uint32_t table[][256]);
+    void decryptNGRoundA(uint8_t* data, uint32_t* key, uint32_t table[][256]);
+    void decryptNGRoundB(uint8_t* data, uint32_t* key, uint32_t table[][256]);
 
     void decompressBytes(uint8_t* data, uint32_t dataLength, uint8_t* AllocatedMem, uint64_t AllocatedSize);
 };

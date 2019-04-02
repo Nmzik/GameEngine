@@ -20,6 +20,7 @@ class YftLoader;
 class YtdLoader;
 class YbnLoader;
 class YmapLoader;
+class YscLoader;
 
 class ResourceManager
 {
@@ -37,6 +38,7 @@ class ResourceManager
     std::unordered_map<uint32_t, std::unique_ptr<YtdLoader>> ytdLoader;
     std::unordered_map<uint32_t, std::unique_ptr<YbnLoader>> ybnLoader;
     std::unordered_map<uint32_t, std::unique_ptr<YmapLoader>> ymapLoader;
+    std::unordered_map<uint32_t, std::unique_ptr<YscLoader>> yscLoader;
 
 public:
     ResourceManager(GameWorld* world);
@@ -45,9 +47,7 @@ public:
     uint64_t GlobalGpuMemory = 0;
     uint64_t TextureMemory = 0;
 
-    void Initialize();
-
-    ThreadSafeAllocator* resource_allocator;
+    std::unique_ptr<ThreadSafeAllocator> resource_allocator;
     void GetGtxd(uint32_t hash);
     // GetFile<YdrLoader, Type::ydr>(uint32_t hash, uint32_t TextureDictionaryHash);
     YmapLoader* GetYmap(uint32_t hash);
@@ -56,8 +56,7 @@ public:
     YddLoader* GetYdd(uint32_t hash);
     YftLoader* GetYft(uint32_t hash);
     YbnLoader* GetYbn(uint32_t hash);
-
-    FileType* loadSync(Type type, uint32_t Hash);
+    YscLoader* GetYsc(uint32_t hash);
 
     inline void addToMainQueue(Resource* res);
     void addToWaitingList(Resource* res);

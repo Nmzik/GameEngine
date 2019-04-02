@@ -2,6 +2,7 @@
 
 #include "CPed.h"
 #include "CVehicle.h"
+#include "GTAEncryption.h"
 #include "GameData.h"
 #include "GameWorld.h"
 
@@ -10,6 +11,8 @@
 extern FreeListAllocator* physicsAllocator;
 
 Game::Game(const char* GamePath)
+    : paused(false)
+    , gameTime(0)
 {
     window = std::make_unique<NativeWindow>();
 
@@ -17,6 +20,9 @@ Game::Game(const char* GamePath)
     rendering_system = std::make_unique<RenderingSystem>(window.get());
     gameWorld = std::make_unique<GameWorld>(gameData.get());
     input = std::make_unique<InputManager>();
+    scriptMachine = std::make_unique<ScriptInterpreter>(gameData.get(), this);
+
+    scriptMachine->startThread(GenHash("startup_install"));
 
     camera = std::make_unique<Camera>(glm::vec3(0.0, 0.0, 50.0), gameWorld.get());
 
@@ -113,9 +119,11 @@ void Game::run()
         auto old_time = current_time;
         current_time = std::chrono::steady_clock::now();
         float delta_time = std::chrono::duration<float>(current_time - old_time).count();
+        gameTime += delta_time;
 
         if (!paused)
         {
+            scriptMachine->execute();
             gameWorld->updateWorld(delta_time, camera.get());
             tick(delta_time);
             camera->onUpdate();
@@ -168,19 +176,19 @@ void Game::tick(float delta_time)
     {
         getWorld()->currentPlayerID = 0;
 
-        changePlayer();
+        //changePlayer();
     }
     if (getInput()->IsKeyTriggered(Actions::button_player2))
     {
         getWorld()->currentPlayerID = 1;
 
-        changePlayer();
+        //changePlayer();
     }
     if (getInput()->IsKeyTriggered(Actions::button_player3))
     {
         getWorld()->currentPlayerID = 2;
 
-        changePlayer();
+        //changePlayer();
     }
     if (getInput()->IsKeyTriggered(Actions::button_ShowCollision))
     {

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "CPed.h"
+#include "CVehicle.h"
 #include "GameData.h"
 #include "Light.h"
 #include "PhysicsSystem.h"
@@ -15,8 +17,6 @@ class ResourceManager;
 class YmapLoader;
 class Water;
 class Camera;
-class CPed;
-class CVehicle;
 class YdrLoader;
 class YbnLoader;
 class Object;
@@ -55,7 +55,7 @@ public:
     YddLoader* skydome;
     uint32_t culled = 0;
     float LODMultiplier = 1.0f;
-    std::vector<Water> WaterMeshes;
+    //std::vector<Water> WaterMeshes;
     //std::unordered_map<uint32_t, CarHandling> vehiclesPool;
     std::vector<CPed*> peds;
     std::vector<CVehicle*> vehicles;

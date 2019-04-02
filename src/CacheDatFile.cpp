@@ -19,13 +19,11 @@ CacheDatFile::CacheDatFile(std::vector<uint8_t>& Data)
         //	if (b == 0) break;
         if (b == 0xA)
         {
-            std::string LocalLine(line.c_str());
-
             if (line[0] == 0x66 && line[1] == 0x77)
             {  //	LocalLine == "fwMapDataStore"
                 //	stream.seekg(1);
                 stream.read((char*)&modlen, sizeof(uint32_t));
-                structcount = modlen / 64;
+                structcount = modlen / sizeof(MapDataStoreNode);
 
                 AllMapNodes.reserve(structcount);
 
@@ -41,7 +39,7 @@ CacheDatFile::CacheDatFile(std::vector<uint8_t>& Data)
             else if (line[0] == 0x43 && line[1] == 0x49)
             {  //	LocalLine == "CInteriorProxy"
                 stream.read((char*)&modlen, sizeof(uint32_t));
-                structcount = modlen / 104;
+                structcount = modlen / sizeof(CInteriorProxy);
 
                 AllCInteriorProxies.reserve(structcount);
 
@@ -57,7 +55,7 @@ CacheDatFile::CacheDatFile(std::vector<uint8_t>& Data)
             else if (line[0] == 0x42 && line[1] == 0x6f)
             {  //	LocalLine == "BoundsStore"
                 stream.read((char*)&modlen, sizeof(uint32_t));
-                structcount = modlen / 32;
+                structcount = modlen / sizeof(BoundsStoreItem);
 
                 AllBoundsStoreItems.reserve(structcount);
 

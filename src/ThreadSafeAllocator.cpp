@@ -1,16 +1,16 @@
 #include "ThreadSafeAllocator.h"
 
-ThreadSafeAllocator::ThreadSafeAllocator(size_t size, void* start)
+ThreadSafeAllocator::ThreadSafeAllocator(size_t size)
     : Allocator(size)
-    , _free_blocks((FreeBlock*)start)
 {
+    _free_blocks = ((FreeBlock*)getMemoryPointer());
+
     _free_blocks->size = size - sizeof(FreeBlock);
     _free_blocks->next = nullptr;
 }
 
 ThreadSafeAllocator::~ThreadSafeAllocator()
 {
-    //_free_blocks = nullptr;
 }
 
 void* ThreadSafeAllocator::allocate(size_t size, uint8_t alignment)

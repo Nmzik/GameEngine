@@ -10,7 +10,7 @@
 class FreeListAllocator : public Allocator
 {
 public:
-    FreeListAllocator(size_t size, void* start);
+    FreeListAllocator(size_t size);
     ~FreeListAllocator() override;
 
     void* allocate(size_t size, uint8_t alignment) override;

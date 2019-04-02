@@ -1,16 +1,16 @@
 #include "FreeListAllocator.h"
 
-FreeListAllocator::FreeListAllocator(size_t size, void* start)
+FreeListAllocator::FreeListAllocator(size_t size)
     : Allocator(size)
-    , _free_blocks((FreeBlock*)start)
 {
+    _free_blocks = ((FreeBlock*)getMemoryPointer());
+
     _free_blocks->size = size - sizeof(FreeBlock);
     _free_blocks->next = nullptr;
 }
 
 FreeListAllocator::~FreeListAllocator()
 {
-    //_free_blocks = nullptr;
 }
 
 void* FreeListAllocator::allocate(size_t size, uint8_t alignment)

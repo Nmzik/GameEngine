@@ -142,6 +142,8 @@ static const uint8_t DEFAULT_ALIGNMENT = 8;
 
 class Allocator
 {
+    uint8_t* allocMemory;
+
 public:
     Allocator(size_t size);
     virtual ~Allocator();
@@ -155,6 +157,7 @@ public:
     size_t getSize() const;
     size_t getUsedMemory() const;
     size_t getNumAllocations() const;
+    uint8_t* getMemoryPointer() const;
 
 protected:
     Allocator(const Allocator&);

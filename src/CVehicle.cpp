@@ -1,22 +1,6 @@
 #include "CVehicle.h"
 
 #define CUBE_HALF_EXTENTS 1
-btVector3 wheelDirectionCS0(0, 0, -1);
-btVector3 wheelAxleCS(1, 0, 0);
-
-float gVehicleSteering = 0.f;
-float steeringIncrement = 0.04f;
-float steeringClamp = 0.3f;
-float wheelRadius = 0.5f;
-float wheelWidth = 0.4f;
-float wheelFriction = 1000;  // BT_LARGE_FLOAT;
-float suspensionStiffness = 50.f;
-float suspensionDamping = 2.3f;
-float suspensionCompression = 4.4f;
-float rollInfluence = 0.1f;  // 1.0f;
-
-btScalar suspensionRestLength(0.6f);
-btScalar m_defaultContactProcessingThreshold(BT_LARGE_FLOAT);
 
 CVehicle::CVehicle(glm::vec3 position, float mass, YftLoader* yft)
     : throttle(0)
@@ -49,7 +33,7 @@ CVehicle::CVehicle(glm::vec3 position, float mass, YftLoader* yft)
     btRigidBody::btRigidBodyConstructionInfo cInfo(mass, myMotionState, compound.get(), localInertia);
 
     m_carChassis = std::make_unique<btRigidBody>(cInfo);
-    m_carChassis->setContactProcessingThreshold(m_defaultContactProcessingThreshold);
+    m_carChassis->setContactProcessingThreshold(BT_LARGE_FLOAT);
 
     PhysicsSystem::dynamicsWorld->addRigidBody(
         m_carChassis.get(), btBroadphaseProxy::KinematicFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::KinematicFilter);
@@ -70,6 +54,11 @@ CVehicle::CVehicle(glm::vec3 position, float mass, YftLoader* yft)
     float connectionHeight = 0.5f;
 
     bool isFrontWheel = true;
+    float wheelRadius = 0.5f;
+    float wheelWidth = 0.4f;
+    btScalar suspensionRestLength(0.6f);
+    btVector3 wheelDirectionCS0(0, 0, -1);
+    btVector3 wheelAxleCS(1, 0, 0);
 
     btVector3 connectionPointCS0(CUBE_HALF_EXTENTS - (0.3f * wheelWidth), 2 * CUBE_HALF_EXTENTS - wheelRadius, connectionHeight);
     m_vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, m_tuning, isFrontWheel);
@@ -84,6 +73,15 @@ CVehicle::CVehicle(glm::vec3 position, float mass, YftLoader* yft)
 
     connectionPointCS0 = btVector3(CUBE_HALF_EXTENTS - (0.3f * wheelWidth), -2 * CUBE_HALF_EXTENTS + wheelRadius, connectionHeight);
     m_vehicle->addWheel(connectionPointCS0, wheelDirectionCS0, wheelAxleCS, suspensionRestLength, wheelRadius, m_tuning, isFrontWheel);
+
+    float gVehicleSteering = 0.f;
+    float steeringIncrement = 0.04f;
+    float steeringClamp = 0.3f;
+    float wheelFriction = 1000;  // BT_LARGE_FLOAT;
+    float suspensionStiffness = 50.f;
+    float suspensionDamping = 2.3f;
+    float suspensionCompression = 4.4f;
+    float rollInfluence = 0.1f;  // 1.0f;
 
     for (int i = 0; i < m_vehicle->getNumWheels(); i++)
     {

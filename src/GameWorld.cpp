@@ -1,7 +1,5 @@
 #include "GameWorld.h"
 
-#include "CPed.h"
-#include "CVehicle.h"
 #include "Camera.h"
 #include "GTAEncryption.h"
 #include "Object.h"
@@ -19,9 +17,8 @@
 GameWorld::GameWorld(GameData* _gameData)
     : dirLight(glm::vec3(0.1f, 0.8f, 0.1f), glm::vec3(0.2f, 0.2f, 0.2f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1.0f, 1.0f, 1.0f), true)
     , data(*_gameData)
+    , resourceManager(std::make_unique<ResourceManager>(this))
 {
-    resourceManager = std::make_unique<ResourceManager>(this);
-
     /*for (auto& vehicle : data.VehiclesInfo)
     {
         vehiclesPool[vehicle.Hash] = vehicle;
@@ -31,43 +28,40 @@ GameWorld::GameWorld(GameData* _gameData)
     CurYmaps.reserve(200);  //> 100
     vehicles.reserve(50);
     peds.reserve(20);
-
     //	RenderList
     renderList.reserve(2000);
 
-    resourceManager->GetYdr(2096445108);
-    resourceManager->GetYtd(3403519606);
-
-    WaterMeshes.reserve(data.WaterQuads.size());
+    /*WaterMeshes.reserve(data.WaterQuads.size());
     for (auto& WaterQuad : data.WaterQuads)
     {
         Water water(WaterQuad);
         WaterMeshes.push_back(water);
-    }
+    }*/
 
     gameHour = 10;
     gameMinute = 0;
 
-    resourceManager->GetYtd(4096714883);  //	PLAYER YTD
+    resourceManager->GetYtd(3403519606);  //water
+    resourceManager->GetYtd(4096714883);  //PLAYER YTD
+
     YddLoader* playerYDD = resourceManager->GetYdd(4096714883);
-
     skydome = resourceManager->GetYdd(2640562617);
-
-    resourceManager->GetYtd(GenHash(std::string("mapdetail")));
-    resourceManager->GetYtd(GenHash(std::string("vehshare")));
-    resourceManager->GetYtd(GenHash(std::string("vehshare_worn")));
-    resourceManager->GetYtd(GenHash(std::string("vehshare_army")));
-    resourceManager->GetYtd(GenHash(std::string("vehshare_truck")));
-
-    /*for (auto& ytd : data.GtxdEntries)
-	{
-	 resourceManager->GetYtd(ytd.second);
-	}*/
 
     while (!skydome->Loaded || !playerYDD->Loaded)
     {
         loadQueuedResources();
     }
+
+    resourceManager->GetYtd(GenHash("mapdetail"));
+    resourceManager->GetYtd(GenHash("vehshare"));
+    resourceManager->GetYtd(GenHash("vehshare_worn"));
+    resourceManager->GetYtd(GenHash("vehshare_army"));
+    resourceManager->GetYtd(GenHash("vehshare_truck"));
+
+    /*for (auto& ytd : data.GtxdEntries)
+	{
+	 resourceManager->GetYtd(ytd.second);
+	}*/
 
     peds.emplace_back(new CPed(glm::vec3(-178.16, 6258.31, 47.23), playerYDD));
     peds.emplace_back(new CPed(glm::vec3(9.66, -1184.98, 75.74), playerYDD));
@@ -166,6 +160,23 @@ void GameWorld::loadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
                     if ((object.archetype->BaseArchetypeDef.flags & 2048) > 0)
                     {
                         //	if (!renderProxies) continue;
+                        continue;
+                    }
+
+                    bool isreflproxy = false;
+                    switch (object.CEntity.flags)
+                    {
+                        case 135790592:  //	001000000110000000000000000000    prewater proxy (golf course)
+                        case 135790593:  //	001000000110000000000000000001    water refl proxy? (mike house)
+                        case 672661504:  //	101000000110000000000000000000    vb_ca_prop_tree_reflprox_2
+                        case 536870912:  //	100000000000000000000000000000    vb_05_emissive_mirroronly
+                        case 35127296:   //	000010000110000000000000000000    tunnel refl proxy?
+                        case 39321602:   //	000010010110000000000000000010    mlo reflection?
+                            isreflproxy = true;
+                            break;
+                    }
+                    if (isreflproxy)
+                    {
                         continue;
                     }
 
@@ -479,6 +490,11 @@ void GameWorld::loadQueuedResources()
                     ybn->Finalize();  //	NOT THREAD SAFE!
                     break;
                 }
+                case ysc:
+                {
+                    res->file->Init(stream);
+                    break;
+                }
             }
 
             resourceManager->resource_allocator->deallocate(res->Buffer);
@@ -515,23 +531,30 @@ void GameWorld::cleanupTraffic(Camera* camera)
 {
     float radiusTraffic = 120.0f;
     //	peds
-    for (int i = 3; i < peds.size(); ++i)
+    for (auto it = peds.begin() + 3; it != peds.end();)
     {
-        if (glm::distance(camera->getPosition(), peds[i]->getPosition()) >= radiusTraffic)
+        if (glm::distance(camera->getPosition(), (*it)->getPosition()) >= radiusTraffic)
         {
-            delete peds[i];
-            peds.erase(peds.begin() + i);
+            delete *it;
+            peds.erase(it);
+        }
+        else
+        {
+            ++it;
         }
     }
-
     //vehicles
-    for (int i = 0; i < vehicles.size(); ++i)
+    for (auto it = vehicles.begin(); it != vehicles.end();)
     {
-        if (glm::distance(camera->getPosition(), vehicles[i]->getPosition()) >= radiusTraffic)
+        if (glm::distance(camera->getPosition(), (*it)->getPosition()) >= radiusTraffic)
         {
-            delete vehicles[i];
-            vehicles.erase(vehicles.begin() + i);
+            delete *it;
+            vehicles.erase(it);
             printf("Car Removed\n");
+        }
+        else
+        {
+            ++it;
         }
     }
 }
@@ -752,8 +775,8 @@ void GameWorld::updateWorld(float delta_time, Camera* camera)
     //	sunDirection = glm::normalize(sunDirection);
 
     //updateDynamicObjects();
-    cleanupTraffic(camera);
-    createTraffic(camera);
+    //cleanupTraffic(camera);
+    //createTraffic(camera);
 
     for (auto& ped : peds)
     {

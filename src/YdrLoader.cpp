@@ -78,11 +78,16 @@ void YdrLoader::Init(memstream& file)
 
                             file.seekg(texBase->NamePointer);
 
-                            char* Namearray = (char*)&file.data[texBase->NamePointer];
-                            std::string Name(&Namearray[0]);
+                            char* TextureName = file.getString();
 
-                            std::transform(Name.begin(), Name.end(), Name.begin(), tolower);
-                            uint32_t NameHash = GenHash(Name);
+                            size_t NameLength = strlen(TextureName);
+
+                            for (int i = 0; i < NameLength; i++)
+                            {
+                                TextureName[i] = tolower(TextureName[i]);
+                            }
+
+                            uint32_t NameHash = GenHash(std::string_view(TextureName, NameLength));
 
                             TexturesHashes.push_back(NameHash);
 

@@ -7,6 +7,7 @@
 #include FT_FREETYPE_H
 
 #include "Camera.h"
+#include "ScriptInterpreter.h"
 
 #ifdef _WIN32
 #include "windows/InputManager.h"
@@ -34,6 +35,7 @@ class Game
     std::unique_ptr<GameData> gameData;
     std::unique_ptr<GameWorld> gameWorld;
     std::unique_ptr<RenderingSystem> rendering_system;
+    std::unique_ptr<ScriptInterpreter> scriptMachine;
     std::unique_ptr<InputManager> input;
     std::unique_ptr<Camera> camera;
 
@@ -41,6 +43,7 @@ public:
     Game(const char* GamePath);
     ~Game();
     bool paused = false;
+    float gameTime;
 
     void updateFPS(float delta_time, float cpuThreadTime, float gpuThreadTime);
     void run();
@@ -48,18 +51,23 @@ public:
     void tick(float delta_time);
     void changePlayer();
 
-    InputManager* getInput()
+    InputManager* getInput() const
     {
         return input.get();
     }
 
-    GameWorld* getWorld()
+    GameWorld* getWorld() const
     {
         return gameWorld.get();
     }
 
-    RenderingSystem* getRenderer()
+    RenderingSystem* getRenderer() const
     {
         return rendering_system.get();
+    }
+
+    GameData* getGameData() const
+    {
+        return gameData.get();
     }
 };

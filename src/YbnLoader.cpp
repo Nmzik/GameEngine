@@ -233,30 +233,33 @@ void YbnLoader::Finalize()
 
 YbnLoader::~YbnLoader()
 {
-    btCompoundShape* compound = static_cast<btCompoundShape*>(rigidBody->getCollisionShape());
-
-    int numChild = compound->getNumChildShapes();
-    for (int i = 0; i < numChild; i++)
+    if (rigidBody)
     {
-        btCollisionShape* shape = compound->getChildShape(i);
-        if (shape->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE)
-            delete static_cast<btBvhTriangleMeshShape*>(shape)->getMeshInterface();
-        delete compound->getChildShape(i);
-    }
+        btCompoundShape* compound = static_cast<btCompoundShape*>(rigidBody->getCollisionShape());
 
-    for (auto& Vertices : VerticesArray)
-    {
-        btAlignedFreeInternal(Vertices);
-    }
+        int numChild = compound->getNumChildShapes();
+        for (int i = 0; i < numChild; i++)
+        {
+            btCollisionShape* shape = compound->getChildShape(i);
+            if (shape->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE)
+                delete static_cast<btBvhTriangleMeshShape*>(shape)->getMeshInterface();
+            delete compound->getChildShape(i);
+        }
 
-    for (auto& Indices : IndicesArray)
-    {
-        btAlignedFreeInternal(Indices);
-    }
-    //	CHECK???
-    // if (Loaded)
-    PhysicsSystem::dynamicsWorld->removeRigidBody(rigidBody.get());
+        for (auto& Vertices : VerticesArray)
+        {
+            btAlignedFreeInternal(Vertices);
+        }
 
-    delete rigidBody->getMotionState();
-    delete compound;
+        for (auto& Indices : IndicesArray)
+        {
+            btAlignedFreeInternal(Indices);
+        }
+        //	CHECK???
+        // if (Loaded)
+        PhysicsSystem::dynamicsWorld->removeRigidBody(rigidBody.get());
+
+        delete rigidBody->getMotionState();
+        delete compound;
+    }
 }

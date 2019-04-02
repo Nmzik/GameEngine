@@ -8,6 +8,7 @@
 #include "YftLoader.h"
 #include "YmapLoader.h"
 #include "YndLoader.h"
+#include "YscLoader.h"
 #include "YtdLoader.h"
 #include "YtypLoader.h"
 
@@ -30,26 +31,17 @@ ResourceManager::ResourceManager(GameWorld* world)
     ybnLoader.reserve(50);
     ymapLoader.reserve(500);
 
-    ResourcesThread = std::thread(&ResourceManager::Initialize, this);
-    ResourcesThread.detach();
+    resource_allocator = std::make_unique<ThreadSafeAllocator>(50 * 1024 * 1024);
+
+    ResourcesThread = std::thread(&ResourceManager::update, this);
 }
 
 ResourceManager::~ResourceManager()
 {
-    /*{
-	 std::unique_lock<std::mutex> lock(mylock);
-	 running = false;
-	 loadCondition.notify_one();
-	}
-	ResourcesThread.join();*/
-}
+    Resource* exitResource = new Resource(Type::null, 0, nullptr);
+    addToWaitingList(exitResource);
 
-void ResourceManager::Initialize()
-{
-    std::unique_ptr<uint8_t[]> _memory = std::make_unique<uint8_t[]>(50 * 1024 * 1024);  // 50MB
-    resource_allocator = new ThreadSafeAllocator(50 * 1024 * 1024, _memory.get());
-
-    update();
+    ResourcesThread.join();
 }
 
 void ResourceManager::GetGtxd(uint32_t hash)
@@ -211,43 +203,22 @@ YbnLoader* ResourceManager::GetYbn(uint32_t hash)
     }
 }
 
-FileType* ResourceManager::loadSync(Type type, uint32_t Hash)
+YscLoader* ResourceManager::GetYsc(uint32_t hash)
 {
-    auto it = gameworld->getGameData()->Entries[type].find(Hash);
-    if (it != gameworld->getGameData()->Entries[type].end())
+    auto iter = yscLoader.find(hash);
+    if (iter != yscLoader.end())
     {
-        /*std::vector<uint8_t> Buffer;
-		Buffer.resize(it->second->SystemSize + it->second->GraphicsSize);
-		gameworld->getGameData()->ExtractFileResource(*(it->second), Buffer);
-
-		memstream stream(Buffer.data(), Buffer.size());
-
-		switch (type)
-		{
-		case ydr:
-		 break;
-		case ydd:
-		 break;
-		case yft:
-		 break;
-		case ytd:
-		 break;
-		case ybn: {
-		 YbnLoader* loader = new YbnLoader();
-		 loader->Init(stream);
-		 return loader;
-		}
-		case ymap:
-		 break;
-		case ynd:
-		 break;
-		case ynv:
-		 break;
-		default:
-		 break;
-		}*/
+        iter->second->RefCount++;
+        return iter->second.get();
     }
-    return nullptr;
+    else
+    {
+        YscLoader* loader = new YscLoader();
+        addToWaitingList(new Resource(ysc, hash, loader));
+        loader->RefCount++;
+        yscLoader.insert({hash, std::unique_ptr<YscLoader>(loader)});
+        return loader;
+    }
 }
 
 void ResourceManager::addToWaitingList(Resource* res)
@@ -259,9 +230,8 @@ void ResourceManager::addToWaitingList(Resource* res)
 
 inline void ResourceManager::addToMainQueue(Resource* res)
 {
-    gameworld->resources_lock.lock();
+    std::lock_guard<std::mutex> lock(gameworld->resources_lock);
     gameworld->resources.push_back(res);
-    gameworld->resources_lock.unlock();
 }
 
 void ResourceManager::update()
@@ -276,27 +246,48 @@ void ResourceManager::update()
         waitingList.pop_front();
         lock.unlock();
 
-        auto it = gameworld->getGameData()->Entries[res->type].find(res->Hash);
-        if (it != gameworld->getGameData()->Entries[res->type].end())
+        switch (res->type)
         {
-            uint8_t* allocatedMemory = nullptr;
-
-            while (!allocatedMemory)
+            case ydr:
+            case ydd:
+            case yft:
+            case ytd:
+            case ybn:
+            case ymap:
+            case ynd:
+            case ynv:
+            case ycd:
+            case ysc:
             {
-                allocatedMemory = (uint8_t*)resource_allocator->allocate(it->second->UncompressedFileSize, 16);
+                auto it = gameworld->getGameData()->Entries[res->type].find(res->Hash);
+                if (it != gameworld->getGameData()->Entries[res->type].end())
+                {
+                    uint8_t* allocatedMemory = nullptr;
 
-                //if (!allocatedMemory)
-                //	printf("TRYING AGAIN\n");
+                    while (!allocatedMemory)
+                    {
+                        allocatedMemory = (uint8_t*)resource_allocator->allocate(it->second->UncompressedFileSize, 16);
+                        //if (!allocatedMemory)
+                        //printf("TRYING AGAIN\n");
+                    }
+
+                    //printf("DONE\n");
+
+                    res->Buffer = allocatedMemory;
+                    res->BufferSize = it->second->UncompressedFileSize;
+                    gameworld->getGameData()->extractFileResource(*(it->second), res->Buffer, res->BufferSize);
+                    res->SystemSize = (it->second->SystemSize);
+                }
+                addToMainQueue(res);
             }
-
-            //printf("DONE\n");
-
-            res->Buffer = allocatedMemory;
-            res->BufferSize = it->second->UncompressedFileSize;
-            gameworld->getGameData()->extractFileResource(*(it->second), res->Buffer, res->BufferSize);
-            res->SystemSize = (it->second->SystemSize);
+            break;
+            case null:
+            {
+                printf("EXIT HAS BEEN CALLED\n");
+                running = false;
+            }
+            break;
         }
-        addToMainQueue(res);
     }
 }
 

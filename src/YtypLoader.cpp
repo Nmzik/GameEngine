@@ -4,14 +4,13 @@ YtypLoader::YtypLoader(memstream& file)
 {
     Meta meta(file);
 
-    CMapTypes _CMapTypes;
-
     for (auto& Block : meta.MetaBlocks)
     {
         switch (Block.MetaDataBlock_struct->StructureNameHash)
         {
             case 3649811809:
             {
+                CMapTypes _CMapTypes;
                 std::memcpy(&_CMapTypes, &file.data[Block.MetaDataBlock_struct->DataPointer], sizeof(CMapTypes));
                 ArchetypeDefs.reserve(_CMapTypes.archetypes.Count1);
                 break;

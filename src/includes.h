@@ -11,7 +11,9 @@ enum Type
     ymap,
     ynd,
     ynv,
-    ycd
+    ycd,
+    ysc,
+    null
 };
 
 class FileType;

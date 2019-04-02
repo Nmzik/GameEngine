@@ -15,8 +15,7 @@ void deallocate(void* memblock)
 
 PhysicsSystem::PhysicsSystem()
 {
-    physicsMemory = std::make_unique<uint8_t[]>(50 * 1024 * 1024);  //	50mb
-    physicsAllocator = new FreeListAllocator(50 * 1024 * 1024, physicsMemory.get());
+    physicsAllocator = new FreeListAllocator(50 * 1024 * 1024);
 
     btAlignedAllocSetCustomAligned(allocate, deallocate);
 

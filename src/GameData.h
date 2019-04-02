@@ -1,6 +1,7 @@
 #pragma once
 #include <algorithm>
 #include <memory>
+#include <string_view>
 #include <unordered_map>
 #include "RpfFile.h"
 #include "includes.h"
@@ -53,7 +54,7 @@ public:
 
     std::unordered_map<uint32_t, fwArchetype*> Archetypes;
     //	std::unordered_map<uint32_t, std::vector<fwEntityDef>> MloDictionary;
-    std::unordered_map<uint32_t, RpfResourceFileEntry*> Entries[9];
+    std::unordered_map<uint32_t, RpfResourceFileEntry*> Entries[10];
 
     std::unordered_map<uint32_t, uint32_t> HDTextures;
 

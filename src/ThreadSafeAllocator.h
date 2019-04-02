@@ -10,7 +10,7 @@
 class ThreadSafeAllocator : public Allocator
 {
 public:
-    ThreadSafeAllocator(size_t size, void* start);
+    ThreadSafeAllocator(size_t size);
     ~ThreadSafeAllocator() override;
 
     void* allocate(size_t size, uint8_t alignment) override;

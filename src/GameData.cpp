@@ -13,7 +13,7 @@ GameData::GameData(std::string Path)
     TempBuffer = new uint8_t[40 * 1024 * 1024];
     GTAEncryption::getInstance().LoadKeys();
 
-    std::array<std::string, 24> RpfsFiles = {
+    std::array<std::string, 25> RpfsFiles = {
         "common.rpf",
         "x64a.rpf",
         "x64b.rpf",
@@ -38,15 +38,26 @@ GameData::GameData(std::string Path)
         "x64u.rpf",
         "x64v.rpf",
         "x64w.rpf",
-    };
+        "update.rpf"};
 
     for (std::string& rpfFile : RpfsFiles)
     {
-        std::unique_ptr<std::ifstream> rpf = std::make_unique<std::ifstream>(Path + rpfFile, std::ios::binary);
+        std::string FilePath;
+
+        if (rpfFile == "update.rpf")
+        {
+            FilePath = Path + "update/" + rpfFile;
+        }
+        else
+        {
+            FilePath = Path + rpfFile;
+        }
+
+        std::unique_ptr<std::ifstream> rpf = std::make_unique<std::ifstream>(FilePath, std::ios::binary);
 
         if (!rpf->is_open())
         {
-            printf("NOT FOUND RPF %s!\n", (Path + rpfFile).c_str());
+            printf("NOT FOUND RPF %s!\n", (FilePath).c_str());
             continue;
         }
 
@@ -82,7 +93,11 @@ GameData::GameData(std::string Path)
 
             size_t index = entry.FileName.find_last_of('.');
             std::string extension = entry.FileName.substr(index);
-            entry.ShortNameHash = GenHash(entry.FileName.substr(0, index));
+
+            std::string_view FileNameNoExtension(entry.FileName);
+            FileNameNoExtension.remove_suffix(FileNameNoExtension.size() - index);
+
+            entry.ShortNameHash = GenHash(FileNameNoExtension);
 
             if (extension == ".ydr")
             {
@@ -150,6 +165,11 @@ GameData::GameData(std::string Path)
             {
                 //	YnvEntries[entry.FileNameHash] = &entry;
                 Entries[ynv][entry.ShortNameHash] = &entry;
+            }
+            else if (extension == ".ysc")
+            {
+                //	YscEntries[entry.FileNameHash] = &entry;
+                Entries[ysc][entry.ShortNameHash] = &entry;
             }
         }
         for (auto& entry : rpfFile->BinaryEntries)
@@ -346,10 +366,17 @@ void GameData::loadScenesSwitch(std::vector<uint8_t>& Buffer)
 
 void GameData::loadRpf(std::ifstream& rpf, std::string& FullPath_, std::string& FileName_, uint32_t FileSize_, uint64_t FileOffset)
 {
-    std::unique_ptr<RpfFile> file = std::make_unique<RpfFile>(rpf, FullPath_, FileName_, FileSize_, FileOffset);
+    if (FileName_ == "chinesesimp.rpf")
+    {
+        printf("");
+    }
+    std::unique_ptr<RpfFile> file = std::make_unique<RpfFile>(&rpf, FullPath_, FileName_, FileSize_, FileOffset);
 
     for (auto& BinaryFileEntry : file->BinaryEntries)
     {
+        if (BinaryFileEntry.FileName == "chinesesimp.rpf")
+            continue;
+
         if (BinaryFileEntry.FileName.substr(BinaryFileEntry.FileName.length() - 4) == ".rpf")
         {
             uint32_t RealFileSize = (BinaryFileEntry.FileSize == 0) ? BinaryFileEntry.FileUncompressedSize : BinaryFileEntry.FileSize;
@@ -363,50 +390,43 @@ void GameData::extractFileBinary(RpfBinaryFileEntry& entry, std::vector<uint8_t>
 {
     auto& rpf = entry.File->rpf;
 
-    rpf->seekg(entry.FileOffset);
+    rpf.seekg(entry.FileOffset);
 
     if (entry.FileSize > 40 * 1024 * 1024)
     {
         printf("ERROR BUFFER SIZE\n");
     }
 
-    rpf->read((char*)&TempBuffer[0], entry.FileSize);
+    rpf.read((char*)&TempBuffer[0], entry.FileSize);
 
     if (entry.File->IsAESEncrypted)  //	HAPPENS WITH SOME YMF FILES
         GTAEncryption::getInstance().decryptAES(&TempBuffer[0], entry.FileSize);
     else
-        GTAEncryption::getInstance().decryptNG(TempBuffer, entry.FileSize, entry.FileName, entry.FileUncompressedSize);
+        GTAEncryption::getInstance().decryptNG(&TempBuffer[0], entry.FileSize, entry.FileName, entry.FileUncompressedSize);
 
-    GTAEncryption::getInstance().decompressBytes(TempBuffer, entry.FileSize, output.data(), output.size());
+    GTAEncryption::getInstance().decompressBytes(&TempBuffer[0], entry.FileSize, output.data(), output.size());
 }
 
 void GameData::extractFileResource(RpfResourceFileEntry& entry, uint8_t* AllocatedMem, uint64_t AllocatedSize)
 {
     auto& rpf = entry.File->rpf;
 
-    rpf->seekg(entry.FileOffset);
+    rpf.seekg(entry.FileOffset);
 
     if (entry.FileSize > 40 * 1024 * 1024)
     {
         printf("ERROR BUFFER SIZE\n");
     }
 
-    rpf->read((char*)&TempBuffer[0], entry.FileSize);
+    rpf.read((char*)&TempBuffer[0], entry.FileSize);
 
-    //	uint8_t* decr = tbytes;
-    //	if (entry.IsEncrypted)
-    //{
-    /*if (IsAESEncrypted)
-	{
-	 decr = GTACrypto.DecryptAES(tbytes);
-	}
-	else //if (IsNGEncrypted) //assume the archive is set to NG encryption if not AES... (comment: fix for openIV modded files)
-	{*/
-    //	decr = GTACrypto.DecryptNG(tbytes, entry.FileName, entry.FileSize);
-    //}
-    //	else
-    //{ }
-    //}
+    if (entry.IsEncrypted)
+    {
+        if (entry.File->IsAESEncrypted)
+            GTAEncryption::getInstance().decryptAES(&TempBuffer[0], entry.FileSize);
+        else
+            GTAEncryption::getInstance().decryptNG(&TempBuffer[0], entry.FileSize, entry.FileName, entry.FileSize + 0x10);
+    }
 
-    GTAEncryption::getInstance().decompressBytes(TempBuffer, entry.FileSize, AllocatedMem, AllocatedSize);
+    GTAEncryption::getInstance().decompressBytes(&TempBuffer[0], entry.FileSize, AllocatedMem, AllocatedSize);
 }

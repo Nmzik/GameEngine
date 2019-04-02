@@ -1,10 +1,9 @@
 #include "RpfFile.h"
 #include "GTAEncryption.h"
 
-RpfFile::RpfFile(std::ifstream& rpf, std::string& FullPath, std::string& FileName, uint32_t FileSize, uint64_t FileOffset)
+RpfFile::RpfFile(std::ifstream* rpfFile, std::string& FullPath, std::string& FileName, uint32_t FileSize, uint64_t FileOffset)
+    : rpf(*rpfFile)
 {
-    this->rpf = &rpf;
-
     rpf.seekg(FileOffset);
 
     uint64_t startPos = rpf.tellg();
@@ -80,6 +79,7 @@ RpfFile::RpfFile(std::ifstream& rpf, std::string& FullPath, std::string& FileNam
             RpfResourceFileEntry entry(EntriesStream, rpf, startPos, NamesStream);
             entry.Path = FullPath;
             entry.File = this;
+            entry.IsEncrypted = ((entry.FileName.substr(entry.FileName.length() - 4)) == ".ysc") ? true : false;  //HACK
             //	printf("%s\n", entry.Name.c_str());
             ResourceEntries.push_back(entry);
         }

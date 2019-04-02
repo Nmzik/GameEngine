@@ -1,7 +1,5 @@
 #include "GTAEncryption.h"
 
-#include "aes.hpp"
-
 GTAEncryption GTAEncryption::gtaEncryption;
 
 GTAEncryption::GTAEncryption()
@@ -30,6 +28,8 @@ void GTAEncryption::LoadKeys()
     uint8_t key[] = {0xB3, 0x89, 0x73, 0xAF, 0x8B, 0x9E, 0x26, 0x3A, 0x8D, 0xF1, 0x70, 0x32, 0x14, 0x42, 0xB3, 0x93,
                      0x8B, 0xD3, 0xF2, 0x1F, 0xA4, 0xD0, 0x4D, 0xFF, 0x88, 0x2E, 0x04, 0x66, 0x0F, 0xF9, 0x9D, 0xFD};
     std::memcpy(&PC_AES_KEY[0], &key[0], 32);
+
+    AES_init_ctx(&ctx, PC_AES_KEY);
 
     uint8_t lutkey[] = {
         0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
@@ -97,8 +97,6 @@ uint8_t* GTAEncryption::getNGKey(std::string& name, uint32_t length)
 
 void GTAEncryption::decryptAES(uint8_t* data, uint32_t DataLength)
 {
-    struct AES_ctx ctx;
-    AES_init_ctx(&ctx, PC_AES_KEY);
     for (uint32_t i = 0; i < DataLength / 16; i++)
     {
         AES_ECB_decrypt(&ctx, &data[i * 16]);
@@ -115,23 +113,20 @@ void GTAEncryption::decryptNG(uint8_t* data, uint32_t dataLength, uint8_t* key)
 {
     for (uint32_t blockIndex = 0; blockIndex < dataLength / 16; blockIndex++)
     {
-        uint8_t encryptedBlock[16];
-        memcpy(encryptedBlock, data + 16 * blockIndex, 16);
-        decryptNGBlock(encryptedBlock, 16, (uint32_t*)&key[0]);
-        memcpy(data + 16 * blockIndex, encryptedBlock, 16);
+        decryptNGBlock(data + 16 * blockIndex, 16, (uint32_t*)&key[0]);
     }
 }
 
 void GTAEncryption::decryptNGBlock(uint8_t* data, uint32_t dataLength, uint32_t* key)
 {
-    data = decryptNGRoundA(data, &key[0], PC_NG_DECRYPT_TABLES[0]);
-    data = decryptNGRoundA(data, &key[4], PC_NG_DECRYPT_TABLES[1]);
+    decryptNGRoundA(data, &key[0], PC_NG_DECRYPT_TABLES[0]);
+    decryptNGRoundA(data, &key[4], PC_NG_DECRYPT_TABLES[1]);
     for (int k = 2; k <= 15; k++)
-        data = decryptNGRoundB(data, &key[4 * k], PC_NG_DECRYPT_TABLES[k]);
-    data = decryptNGRoundA(data, &key[4 * 16], PC_NG_DECRYPT_TABLES[16]);
+        decryptNGRoundB(data, &key[4 * k], PC_NG_DECRYPT_TABLES[k]);
+    decryptNGRoundA(data, &key[4 * 16], PC_NG_DECRYPT_TABLES[16]);
 }
 
-uint8_t* GTAEncryption::decryptNGRoundA(uint8_t* data, uint32_t* key, uint32_t table[][256])
+void GTAEncryption::decryptNGRoundA(uint8_t* data, uint32_t* key, uint32_t table[][256])
 {
     uint32_t x1 = table[0][data[0]] ^ table[1][data[1]] ^ table[2][data[2]] ^ table[3][data[3]] ^ key[0];
     uint32_t x2 = table[4][data[4]] ^ table[5][data[5]] ^ table[6][data[6]] ^ table[7][data[7]] ^ key[1];
@@ -154,12 +149,10 @@ uint8_t* GTAEncryption::decryptNGRoundA(uint8_t* data, uint32_t* key, uint32_t t
     data[13] = (uint8_t)((x4 >> 8) & 0xFF);
     data[14] = (uint8_t)((x4 >> 16) & 0xFF);
     data[15] = (uint8_t)((x4 >> 24) & 0xFF);
-
-    return data;
 }
 
 // round 3-15
-uint8_t* GTAEncryption::decryptNGRoundB(uint8_t* data, uint32_t* key, uint32_t table[][256])
+void GTAEncryption::decryptNGRoundB(uint8_t* data, uint32_t* key, uint32_t table[][256])
 {
     uint32_t x1 = table[0][data[0]] ^ table[7][data[7]] ^ table[10][data[10]] ^ table[13][data[13]] ^ key[0];
     uint32_t x2 = table[1][data[1]] ^ table[4][data[4]] ^ table[11][data[11]] ^ table[14][data[14]] ^ key[1];
@@ -182,8 +175,6 @@ uint8_t* GTAEncryption::decryptNGRoundB(uint8_t* data, uint32_t* key, uint32_t t
     data[13] = (uint8_t)((x4 >> 8) & 0xFF);
     data[14] = (uint8_t)((x4 >> 16) & 0xFF);
     data[15] = (uint8_t)((x4 >> 24) & 0xFF);
-
-    return data;
 }
 
 void GTAEncryption::decompressBytes(uint8_t* data, uint32_t dataLength, uint8_t* AllocatedMem, uint64_t AllocatedSize)
@@ -223,7 +214,7 @@ strm.next_out = output.data() + oldSize;
 } while (ret != Z_STREAM_END);
 */
 
-uint32_t GenHash(std::string Name)
+uint32_t GenHash(std::string_view Name)
 {
     uint32_t h = 0;
     for (int i = 0; i < Name.size(); i++)
