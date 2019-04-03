@@ -103,10 +103,10 @@ public:
         return resourceManager.get();
     }
 
-    PhysicsDebugDrawer& getDebugDrawer()
+    /*PhysicsDebugDrawer& getDebugDrawer()
     {
         return physicsSystem.getDebugDrawer();
-    }
+    }*/
 
     void createPedestrian();
     void createVehicle(glm::vec3 position);

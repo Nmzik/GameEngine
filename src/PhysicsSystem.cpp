@@ -29,8 +29,8 @@ PhysicsSystem::PhysicsSystem()
     //	UPDATE STATIC OBJECTS MANUALLY
     dynamicsWorld->setForceUpdateAllAabbs(false);
 
-    debug.setDebugMode(btIDebugDraw::DBG_DrawWireframe);
-    dynamicsWorld->setDebugDrawer(&debug);
+    //debug.setDebugMode(btIDebugDraw::DBG_DrawWireframe);
+    //dynamicsWorld->setDebugDrawer(&debug);
 }
 
 PhysicsSystem::~PhysicsSystem()

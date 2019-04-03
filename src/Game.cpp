@@ -5,6 +5,7 @@
 #include "GTAEncryption.h"
 #include "GameData.h"
 #include "GameWorld.h"
+#include "GameRenderer.h"
 
 #include "InputActions.h"
 
@@ -14,10 +15,8 @@ Game::Game(const char* GamePath)
     : paused(false)
     , gameTime(0)
 {
-    window = std::make_unique<NativeWindow>();
-
     gameData = std::make_unique<GameData>(GamePath);
-    rendering_system = std::make_unique<RenderingSystem>(window.get());
+    rendering_system = std::make_unique<GameRenderer>();
     gameWorld = std::make_unique<GameWorld>(gameData.get());
     input = std::make_unique<InputManager>();
     scriptMachine = std::make_unique<ScriptInterpreter>(gameData.get(), this);
@@ -87,7 +86,7 @@ void Game::updateFPS(float delta_time, float cpuThreadTime, float gpuThreadTime)
         osstr.str("");
         osstr.clear();
 
-        osstr << "Game "
+        /*osstr << "Game "
               << (1.0f / delta_time) << " FPS, "
               << (delta_time * 1000.0f) << " CPU time, "
               << (cpuThreadTime * 1000.0f) << " CPU Thread time, "
@@ -98,7 +97,7 @@ void Game::updateFPS(float delta_time, float cpuThreadTime, float gpuThreadTime)
               << gameWorld->getResourceManager()->GlobalGpuMemory / 1024 / 1024 << " MB GPU Mem, "
               << gameWorld->getResourceManager()->TextureMemory / 1024 / 1024 << " MB Texture Mem, "
               << (physicsAllocator->getSize() - physicsAllocator->getUsedMemory()) / 1024 / 1024 << " MB Bullet Free Mem ";
-        window->setTitle(osstr);
+        window->setTitle(osstr);*/
     }
 }
 
@@ -132,7 +131,7 @@ void Game::run()
         float cpuThreadTime = std::chrono::duration<float>(cpuThreadEnd - cpuThreadStart).count();
 
         auto gpuThreadStart = std::chrono::steady_clock::now();
-        rendering_system->render(gameWorld.get(), camera.get());
+        rendering_system->RenderWorld(gameWorld.get(), camera.get());
         auto gpuThreadEnd = std::chrono::steady_clock::now();
         float gpuThreadTime = std::chrono::duration<float>(gpuThreadEnd - gpuThreadStart).count();
 
@@ -150,12 +149,12 @@ void Game::tick(float delta_time)
         getWorld()->EnableStreaming = !getWorld()->EnableStreaming;
     }
 
-    if (getInput()->IsKeyTriggered(Actions::button_GPU_TIME))
+    /*if (getInput()->IsKeyTriggered(Actions::button_GPU_TIME))
     {
         getRenderer()->gpuTimer = !getRenderer()->gpuTimer;
         //clear variable
         getRenderer()->gpuTime = 0;
-    }
+    }*/
 
     /*if (getInput()->IsKeyTriggered(Actions::button_Z))
     {
@@ -190,10 +189,10 @@ void Game::tick(float delta_time)
 
         //changePlayer();
     }
-    if (getInput()->IsKeyTriggered(Actions::button_ShowCollision))
+    /*if (getInput()->IsKeyTriggered(Actions::button_ShowCollision))
     {
         getRenderer()->RenderDebugWorld = !getRenderer()->RenderDebugWorld;
-    }
+    }*/
 
     CPed* player = getWorld()->peds[getWorld()->currentPlayerID];
 

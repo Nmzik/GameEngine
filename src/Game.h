@@ -11,15 +11,13 @@
 
 #ifdef _WIN32
 #include "windows/InputManager.h"
-#include "windows/NativeWindow.h"
-#include "windows/RenderingSystem.h"
 #else
 
 #endif
 
 class GameData;
 class GameWorld;
-class RenderingSystem;
+class GameRenderer;
 
 /*extern "C" {
 #include "libavcodec/avcodec.h"
@@ -30,11 +28,9 @@ class RenderingSystem;
 
 class Game
 {
-    std::unique_ptr<NativeWindow> window;
-
     std::unique_ptr<GameData> gameData;
     std::unique_ptr<GameWorld> gameWorld;
-    std::unique_ptr<RenderingSystem> rendering_system;
+    std::unique_ptr<GameRenderer> rendering_system;
     std::unique_ptr<ScriptInterpreter> scriptMachine;
     std::unique_ptr<InputManager> input;
     std::unique_ptr<Camera> camera;
@@ -61,7 +57,7 @@ public:
         return gameWorld.get();
     }
 
-    RenderingSystem* getRenderer() const
+    GameRenderer* getRenderer() const
     {
         return rendering_system.get();
     }

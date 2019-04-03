@@ -1,5 +1,19 @@
 #pragma once
-#include <iostream>
+#include "RenderSystem.h"
+#include "OpenGL/GLRenderSystem.h"
+
+class GameWorld;
+class Camera;
+
+class GameRenderer
+{
+public:
+    GameRenderer();
+    ~GameRenderer();
+
+	void RenderWorld(GameWorld* world, Camera* curCamera);
+};
+/*#include <iostream>
 #include <memory>
 #include <random>
 
@@ -21,7 +35,7 @@ inline float lerp(float a, float b, float f)
 
 class GameWorld;
 
-class RenderingSystem
+class GameRenderer
 {
 private:
     GLuint uboGlobal;
@@ -71,8 +85,8 @@ private:
     SDL_GLContext glcontext;
 
 public:
-    RenderingSystem(NativeWindow* window_);
-    ~RenderingSystem();
+    GameRenderer(NativeWindow* window_);
+    ~GameRenderer();
 
     bool ShowTexture = false;
     bool gpuTimer = false;
@@ -96,4 +110,4 @@ public:
     {
         this->type = type;
     }
-};
+};*/

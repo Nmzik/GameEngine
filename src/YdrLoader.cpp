@@ -39,7 +39,7 @@ void YdrLoader::Init(memstream& file)
             ytd->Init(file);
         }
 
-        std::vector<Material> materials;
+        /*std::vector<Material> materials;
         materials.reserve(drawable->ShaderGroupPointer->Shaders.size());
 
         for (int is = 0; is < drawable->ShaderGroupPointer->Shaders.size(); is++)
@@ -143,11 +143,11 @@ void YdrLoader::Init(memstream& file)
 
             Material newMat(DiffuseSampler, BumpSampler, SpecularSampler, DetailSampler);
             materials.push_back(newMat);
-        }
-
+        }*/
+    }
         //////////
 
-        models.resize(drawable->DrawableModels[0]->size());
+       /* models.resize(drawable->DrawableModels[0]->size());
 
         for (int i = 0; i < drawable->DrawableModels[0]->size(); i++)
         {
@@ -188,5 +188,5 @@ void YdrLoader::Init(memstream& file)
                                               materials[(*drawable->DrawableModels[0]->Get(i)->ShaderMappingPointer)[j]], drawable->ShaderGroupPointer->Shaders[(*drawable->DrawableModels[0]->Get(i)->ShaderMappingPointer)[j]]->FileName);
             }
         }
-    }
+    }*/
 }

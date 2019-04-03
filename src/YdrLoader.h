@@ -1,7 +1,6 @@
 #pragma once
 
 #include "FileType.h"
-#include "Model.h"
 
 struct grmShaderFx
 {
@@ -55,6 +54,115 @@ struct rmcDrawableBase : ResourceFileBase
         ShaderGroupPointer.Resolve(file);
         ShaderGroupPointer->Resolve(file);
     };
+};
+
+struct VertexDeclaration
+{
+    uint32_t Flags;
+    uint16_t Stride;
+    uint8_t Unknown_6h;
+    uint8_t Count;
+    uint64_t Types;
+};
+
+struct grcVertexBuffer : datBase
+{
+    uint16_t VertexStride;
+    uint16_t Unknown_Ah;
+    uint32_t Unknown_Ch;  // 0x00000000
+    uint64_t DataPointer1;
+    uint32_t VertexCount;
+    uint32_t Unknown_1Ch;  // 0x00000000
+    uint64_t DataPointer2;
+    uint32_t Unknown_28h;  // 0x00000000
+    uint32_t Unknown_2Ch;  // 0x00000000
+    VertexDeclaration* InfoPointer;
+    uint32_t Unknown_38h;  // 0x00000000
+    uint32_t Unknown_3Ch;  // 0x00000000
+    uint32_t Unknown_40h;  // 0x00000000
+    uint32_t Unknown_44h;  // 0x00000000
+    uint32_t Unknown_48h;  // 0x00000000
+    uint32_t Unknown_4Ch;  // 0x00000000
+    uint32_t Unknown_50h;  // 0x00000000
+    uint32_t Unknown_54h;  // 0x00000000
+    uint32_t Unknown_58h;  // 0x00000000
+    uint32_t Unknown_5Ch;  // 0x00000000
+    uint32_t Unknown_60h;  // 0x00000000
+    uint32_t Unknown_64h;  // 0x00000000
+    uint32_t Unknown_68h;  // 0x00000000
+    uint32_t Unknown_6Ch;  // 0x00000000
+    uint32_t Unknown_70h;  // 0x00000000
+    uint32_t Unknown_74h;  // 0x00000000
+    uint32_t Unknown_78h;  // 0x00000000
+    uint32_t Unknown_7Ch;  // 0x00000000
+
+    void Resolve(memstream& file)
+    {
+        SYSTEM_BASE_PTR(DataPointer1);
+        InfoPointer = (VertexDeclaration*)&file.data[(uint64_t)InfoPointer & ~0x50000000];
+    }
+};
+
+struct grcIndexBuffer : datBase
+{
+    uint32_t IndicesCount;
+    uint32_t Unknown_Ch;  // 0x00000000
+    uint64_t IndicesPointer;
+    uint32_t Unknown_18h;  // 0x00000000
+    uint32_t Unknown_1Ch;  // 0x00000000
+    uint32_t Unknown_20h;  // 0x00000000
+    uint32_t Unknown_24h;  // 0x00000000
+    uint32_t Unknown_28h;  // 0x00000000
+    uint32_t Unknown_2Ch;  // 0x00000000
+    uint32_t Unknown_30h;  // 0x00000000
+    uint32_t Unknown_34h;  // 0x00000000
+    uint32_t Unknown_38h;  // 0x00000000
+    uint32_t Unknown_3Ch;  // 0x00000000
+    uint32_t Unknown_40h;  // 0x00000000
+    uint32_t Unknown_44h;  // 0x00000000
+    uint32_t Unknown_48h;  // 0x00000000
+    uint32_t Unknown_4Ch;  // 0x00000000
+    uint32_t Unknown_50h;  // 0x00000000
+    uint32_t Unknown_54h;  // 0x00000000
+    uint32_t Unknown_58h;  // 0x00000000
+    uint32_t Unknown_5Ch;  // 0x00000000
+
+    void Resolve(memstream& file)
+    {
+        SYSTEM_BASE_PTR(IndicesPointer);
+    }
+};
+
+struct grmGeometry : datBase
+{
+    uint32_t Unknown_8h;   // 0x00000000
+    uint32_t Unknown_Ch;   // 0x00000000
+    uint32_t Unknown_10h;  // 0x00000000
+    uint32_t Unknown_14h;  // 0x00000000
+    pgPtr<grcVertexBuffer> VertexBufferPointer;
+    uint32_t m_unk1[6];
+    pgPtr<grcIndexBuffer> IndexBufferPointer;
+    uint32_t m_unk2[6];
+    uint32_t IndicesCount;
+    uint32_t TrianglesCount;
+    uint16_t VerticesCount;
+    uint16_t Unknown_62h;  // 0x0003
+    uint32_t Unknown_64h;  // 0x00000000
+    uint64_t BoneIdsPointer;
+    uint16_t VertexStride;
+    uint16_t Count1;
+    uint32_t Unknown_74h;  // 0x00000000
+    uint64_t VertexDataPointer;
+    uint32_t m_unk3[6];
+
+    void Resolve(memstream& file)
+    {
+        VertexBufferPointer.Resolve(file);
+        IndexBufferPointer.Resolve(file);
+
+        VertexBufferPointer->Resolve(file);
+        IndexBufferPointer->Resolve(file);
+    }
 };
 
 struct grmModel : datBase
@@ -233,115 +341,6 @@ struct FragDrawable
     uint32_t Unknown_14Ch;  // 0x00000000
 };
 
-struct VertexDeclaration
-{
-    uint32_t Flags;
-    uint16_t Stride;
-    uint8_t Unknown_6h;
-    uint8_t Count;
-    uint64_t Types;
-};
-
-struct grcVertexBuffer : datBase
-{
-    uint16_t VertexStride;
-    uint16_t Unknown_Ah;
-    uint32_t Unknown_Ch;  // 0x00000000
-    uint64_t DataPointer1;
-    uint32_t VertexCount;
-    uint32_t Unknown_1Ch;  // 0x00000000
-    uint64_t DataPointer2;
-    uint32_t Unknown_28h;  // 0x00000000
-    uint32_t Unknown_2Ch;  // 0x00000000
-    VertexDeclaration* InfoPointer;
-    uint32_t Unknown_38h;  // 0x00000000
-    uint32_t Unknown_3Ch;  // 0x00000000
-    uint32_t Unknown_40h;  // 0x00000000
-    uint32_t Unknown_44h;  // 0x00000000
-    uint32_t Unknown_48h;  // 0x00000000
-    uint32_t Unknown_4Ch;  // 0x00000000
-    uint32_t Unknown_50h;  // 0x00000000
-    uint32_t Unknown_54h;  // 0x00000000
-    uint32_t Unknown_58h;  // 0x00000000
-    uint32_t Unknown_5Ch;  // 0x00000000
-    uint32_t Unknown_60h;  // 0x00000000
-    uint32_t Unknown_64h;  // 0x00000000
-    uint32_t Unknown_68h;  // 0x00000000
-    uint32_t Unknown_6Ch;  // 0x00000000
-    uint32_t Unknown_70h;  // 0x00000000
-    uint32_t Unknown_74h;  // 0x00000000
-    uint32_t Unknown_78h;  // 0x00000000
-    uint32_t Unknown_7Ch;  // 0x00000000
-
-    void Resolve(memstream& file)
-    {
-        SYSTEM_BASE_PTR(DataPointer1);
-        InfoPointer = (VertexDeclaration*)&file.data[(uint64_t)InfoPointer & ~0x50000000];
-    }
-};
-
-struct grcIndexBuffer : datBase
-{
-    uint32_t IndicesCount;
-    uint32_t Unknown_Ch;  // 0x00000000
-    uint64_t IndicesPointer;
-    uint32_t Unknown_18h;  // 0x00000000
-    uint32_t Unknown_1Ch;  // 0x00000000
-    uint32_t Unknown_20h;  // 0x00000000
-    uint32_t Unknown_24h;  // 0x00000000
-    uint32_t Unknown_28h;  // 0x00000000
-    uint32_t Unknown_2Ch;  // 0x00000000
-    uint32_t Unknown_30h;  // 0x00000000
-    uint32_t Unknown_34h;  // 0x00000000
-    uint32_t Unknown_38h;  // 0x00000000
-    uint32_t Unknown_3Ch;  // 0x00000000
-    uint32_t Unknown_40h;  // 0x00000000
-    uint32_t Unknown_44h;  // 0x00000000
-    uint32_t Unknown_48h;  // 0x00000000
-    uint32_t Unknown_4Ch;  // 0x00000000
-    uint32_t Unknown_50h;  // 0x00000000
-    uint32_t Unknown_54h;  // 0x00000000
-    uint32_t Unknown_58h;  // 0x00000000
-    uint32_t Unknown_5Ch;  // 0x00000000
-
-    void Resolve(memstream& file)
-    {
-        SYSTEM_BASE_PTR(IndicesPointer);
-    }
-};
-
-struct grmGeometry : datBase
-{
-    uint32_t Unknown_8h;   // 0x00000000
-    uint32_t Unknown_Ch;   // 0x00000000
-    uint32_t Unknown_10h;  // 0x00000000
-    uint32_t Unknown_14h;  // 0x00000000
-    pgPtr<grcVertexBuffer> VertexBufferPointer;
-    uint32_t m_unk1[6];
-    pgPtr<grcIndexBuffer> IndexBufferPointer;
-    uint32_t m_unk2[6];
-    uint32_t IndicesCount;
-    uint32_t TrianglesCount;
-    uint16_t VerticesCount;
-    uint16_t Unknown_62h;  // 0x0003
-    uint32_t Unknown_64h;  // 0x00000000
-    uint64_t BoneIdsPointer;
-    uint16_t VertexStride;
-    uint16_t Count1;
-    uint32_t Unknown_74h;  // 0x00000000
-    uint64_t VertexDataPointer;
-    uint32_t m_unk3[6];
-
-    void Resolve(memstream& file)
-    {
-        VertexBufferPointer.Resolve(file);
-        IndexBufferPointer.Resolve(file);
-
-        VertexBufferPointer->Resolve(file);
-        IndexBufferPointer->Resolve(file);
-    }
-};
-
 #include "YbnLoader.h"
 #include "YtdLoader.h"
 
@@ -353,7 +352,7 @@ class YdrLoader : public FileType
     std::unique_ptr<YtdLoader> ytd;
 
 public:
-    std::vector<Model> models;
+    //std::vector<Model> models;
     std::unique_ptr<YbnLoader> ybn;
     bool isYft = false;
 

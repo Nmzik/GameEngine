@@ -1,6 +1,6 @@
 // Gives a definition to all the OpenGL functions
 
-#include "opengl.h"
+#include "GLFunctions.h"
 
 void(GLAPIENTRYP glCullFace)(GLenum mode);
 void(GLAPIENTRYP glFrontFace)(GLenum mode);

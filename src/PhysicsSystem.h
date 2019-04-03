@@ -1,7 +1,6 @@
 #pragma once
 #include <memory>
 #include "FreeListAllocator.h"
-#include "PhysicsDebugDrawer.h"
 #include <btBulletDynamicsCommon.h>
 #include <LinearMath/btAlignedAllocator.h>
 
@@ -12,7 +11,7 @@ class PhysicsSystem
     std::unique_ptr<btCollisionDispatcher> dispatcher;
     std::unique_ptr<btSequentialImpulseConstraintSolver> solver;
 
-    PhysicsDebugDrawer debug;
+    //PhysicsDebugDrawer debug;
 
 public:
     static std::unique_ptr<btDiscreteDynamicsWorld> dynamicsWorld;
@@ -22,8 +21,8 @@ public:
 
     void update(float delta_time);
 
-    PhysicsDebugDrawer& getDebugDrawer()
+    /*PhysicsDebugDrawer& getDebugDrawer()
     {
         return debug;
-    }
+    }*/
 };

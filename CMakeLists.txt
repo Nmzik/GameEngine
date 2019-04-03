@@ -13,8 +13,8 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC") # MSVC
 	set(CMAKE_C_FLAGS_DEBUG "-DDEBUG=1 /MTd /Od")
 	set(CMAKE_C_FLAGS_RELEASE "/MT")
-	set(CMAKE_CXX_FLAGS_DEBUG "-DDEBUG=1 /MTd /Od")
-	set(CMAKE_CXX_FLAGS_RELEASE "/MT /GS-")
+	set(CMAKE_CXX_FLAGS_DEBUG "-DDEBUG=1 /MTd /Od /MP")
+	set(CMAKE_CXX_FLAGS_RELEASE "/MT /GS- /MP")
 endif()
 
 #Recast
@@ -89,6 +89,13 @@ if(WIN32)
 
 	list (APPEND SOURCES ${WINSOURCES})
 
+
+	file(GLOB OpenGL
+	src/OpenGL/*.h
+	src/OpenGL/*.cpp
+	)
+	
+	list (APPEND SOURCES ${OpenGL})
 endif()
 
 add_executable(MyGameEngine ${SOURCES})

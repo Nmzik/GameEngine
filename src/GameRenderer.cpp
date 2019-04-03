@@ -1,6 +1,31 @@
-#include "RenderingSystem.h"
+#include "GameRenderer.h"
 
-#include "CPed.h"
+GameRenderer::GameRenderer()
+{
+    RenderSystem* renderer = new GLRenderSystem();
+
+    RenderContextDescriptor contextDescriptor;
+    contextDescriptor.videoMode = {1280, 720};
+    renderer->CreateRenderContext(contextDescriptor);
+
+	BufferDescriptor BufDesc;
+	Buffer* buffer = renderer->CreateBuffer(BufDesc);
+
+	ShaderDescriptor VertShaderDesc = {ShaderType::Vertex, "testc disk"};
+	Shader* vertShader = renderer->CreateShader(VertShaderDesc);
+    ShaderDescriptor FragmentShaderDesc = {ShaderType::Fragment, "testc disk"};
+        Shader* FragShader = renderer->CreateShader(FragmentShaderDesc);
+}
+
+GameRenderer::~GameRenderer()
+{
+}
+
+void GameRenderer::RenderWorld(GameWorld* world, Camera* curCamera)
+{
+}
+
+/*#include "CPed.h"
 #include "GameWorld.h"
 #include "Object.h"
 #include "Water.h"
@@ -27,7 +52,7 @@ void myDebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLs
         message);
 }
 
-RenderingSystem::RenderingSystem(NativeWindow* window_)
+GameRenderer::GameRenderer(NativeWindow* window_)
     : window{window_->window}
 {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
@@ -121,11 +146,11 @@ RenderingSystem::RenderingSystem(NativeWindow* window_)
 	shaderSSAO->setMat4(0, projection);
 	shaderSSAO->setMat4(1, InverseProjMatrix);*/
 
-    // gbufferLighting->use();
-    // gbufferLighting->setMat4(0, InverseProjMatrix);
+// gbufferLighting->use();
+// gbufferLighting->setMat4(0, InverseProjMatrix);
 
-    /*hdrShader->use();
-	hdrShader->setVec2(3, glm::vec2(1.0f / (float)ScreenResWidth, 1.0f / (float)ScreenResHeight));*/
+/*hdrShader->use();
+	hdrShader->setVec2(3, glm::vec2(1.0f / (float)ScreenResWidth, 1.0f / (float)ScreenResHeight));
 
     float quadVertices[] = {-1.0f, 1.0f, 0.0f, 1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, -1.0f, 1.0f, 0.0f,
 
@@ -152,7 +177,7 @@ RenderingSystem::RenderingSystem(NativeWindow* window_)
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 2, 2, 0, GL_RGB, GL_FLOAT, pixels);
 }
 
-RenderingSystem::~RenderingSystem()
+GameRenderer::~GameRenderer()
 {
     glDeleteBuffers(1, &quadVBO);
     glDeleteVertexArrays(1, &quadVAO);
@@ -161,7 +186,7 @@ RenderingSystem::~RenderingSystem()
     SDL_GL_DeleteContext(glcontext);
 }
 
-void RenderingSystem::createGBuffer()
+void GameRenderer::createGBuffer()
 {
     glGenFramebuffers(1, &gBuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
@@ -203,7 +228,7 @@ void RenderingSystem::createGBuffer()
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void RenderingSystem::createDepthFBO()
+void GameRenderer::createDepthFBO()
 {
     glGenFramebuffers(1, &depthMapFBO);
     // create depth texture
@@ -222,7 +247,7 @@ void RenderingSystem::createDepthFBO()
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void RenderingSystem::createSSAO()
+void GameRenderer::createSSAO()
 {
     glGenFramebuffers(1, &ssaoFBO);
     glBindFramebuffer(GL_FRAMEBUFFER, ssaoFBO);
@@ -284,7 +309,7 @@ void RenderingSystem::createSSAO()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 }
 
-void RenderingSystem::createHDRFBO()
+void GameRenderer::createHDRFBO()
 {
     glGenFramebuffers(1, &hdrFBO);
     // create floating point color buffer
@@ -307,13 +332,13 @@ void RenderingSystem::createHDRFBO()
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-inline void RenderingSystem::renderQuad()
+inline void GameRenderer::renderQuad()
 {
     glBindVertexArray(quadVAO);
     glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
-void RenderingSystem::render(GameWorld* world, Camera* camera)
+void GameRenderer::render(GameWorld* world, Camera* camera)
 {
     beginFrame();
 
@@ -354,7 +379,7 @@ void RenderingSystem::render(GameWorld* world, Camera* camera)
 	  glDrawElements(GL_TRIANGLES, mesh.num_indices, GL_UNSIGNED_SHORT, 0);
 	 }
 	}
-	glDepthMask(GL_TRUE);*/
+	glDepthMask(GL_TRUE);
 
     glEnable(GL_CULL_FACE);
 
@@ -443,7 +468,7 @@ void RenderingSystem::render(GameWorld* world, Camera* camera)
 	 }
 	}*/
 
-    /*glBindFramebuffer(GL_FRAMEBUFFER, 0);
+/*glBindFramebuffer(GL_FRAMEBUFFER, 0);
 #ifdef USE_DX_REVERSE_Z
     glClearDepth(0.0);
 #endif  // USE_DX_REVERSE_Z
@@ -461,7 +486,7 @@ void RenderingSystem::render(GameWorld* world, Camera* camera)
 	glActiveTexture(GL_TEXTURE4);
 	glBindTexture(GL_TEXTURE_2D, ssaoColorBufferBlur);*/
 
-    /*gbufferLighting->setVec3(4, world->dirLight.direction);
+/*gbufferLighting->setVec3(4, world->dirLight.direction);
     gbufferLighting->setVec3(5, world->dirLight.ambient);
     gbufferLighting->setVec3(6, world->dirLight.diffuse);
     gbufferLighting->setVec3(7, world->dirLight.specular);
@@ -513,14 +538,14 @@ void RenderingSystem::render(GameWorld* world, Camera* camera)
 	//debugDepthQuad->setFloat(1, far_plane);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, depthMap);
-	renderQuad();*/
+	renderQuad();
 
     endFrame();
 
     presentFrame();
 }
 
-void RenderingSystem::beginFrame()
+void GameRenderer::beginFrame()
 {
     DrawCalls = 0;
 
@@ -528,7 +553,7 @@ void RenderingSystem::beginFrame()
         glBeginQuery(GL_TIME_ELAPSED, m_nQueryIDDrawTime);
 }
 
-void RenderingSystem::endFrame()
+void GameRenderer::endFrame()
 {
     if (gpuTimer)
     {
@@ -549,7 +574,7 @@ void RenderingSystem::endFrame()
     }
 }
 
-void RenderingSystem::presentFrame()
+void GameRenderer::presentFrame()
 {
     SDL_GL_SwapWindow(window);
 }
@@ -861,9 +886,9 @@ float exposure = 1.0f;
 hdrShader->setInt(1, 0);
 hdrShader->setFloat(2, exposure);
 renderQuad();
-*/
 
-void RenderingSystem::skyboxPass()
+
+void GameRenderer::skyboxPass()
 {
     //	FORWARD RENDERING
-}
+}*/

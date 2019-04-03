@@ -28,7 +28,7 @@ void YtdLoader::Init(memstream& file)
                 length /= 4;
             }
 
-            Textures.emplace(std::piecewise_construct, std::forward_as_tuple(TexturesHashes[i]), std::forward_as_tuple(texture, file, TexturesHashes[i]));
+            //Textures.emplace(std::piecewise_construct, std::forward_as_tuple(TexturesHashes[i]), std::forward_as_tuple(texture, file, TexturesHashes[i]));
         }
     }
 }

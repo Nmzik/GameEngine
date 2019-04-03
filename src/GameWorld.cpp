@@ -4,7 +4,6 @@
 #include "GTAEncryption.h"
 #include "Object.h"
 #include "ResourceManager.h"
-#include "Water.h"
 #include "YbnLoader.h"
 #include "YddLoader.h"
 #include "YftLoader.h"
