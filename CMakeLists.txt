@@ -96,9 +96,21 @@ if(WIN32)
 	)
 	
 	list (APPEND SOURCES ${OpenGL})
+else()
+
+endif()
+file(GLOB MACSOURCES
+	src/macOS/*.h
+	src/macOS/*.cpp
+	)
+
+	list (APPEND SOURCES ${MACSOURCES})
+if(APPLE)
+	add_executable(MyGameEngine MACOSX_BUNDLE ${SOURCES})
+else()
+	add_executable(MyGameEngine ${SOURCES})
 endif()
 
-add_executable(MyGameEngine ${SOURCES})
 #set_target_properties(MyGameEngine PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${PROJECT_BINARY_DIR}/Release")
 
 target_link_libraries(MyGameEngine SDL2)

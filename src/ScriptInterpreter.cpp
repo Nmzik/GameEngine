@@ -875,7 +875,7 @@ void ScriptInterpreter::executeThread(YscLoader& file)
                 ip += 5;
             }
             break;
-            case dup:  //duplicate?
+            case dupOpcode:  //duplicate?
             {
                 printf("DUP");
                 ScriptParameter var = file.getTopValueFromUnmodifiedStack();

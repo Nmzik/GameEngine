@@ -1,5 +1,6 @@
 #pragma once
 #include <functional>
+#include <unordered_map>
 #include "YscLoader.h"
 #include "glm/ext.hpp"
 class GameData;
@@ -48,7 +49,7 @@ enum Instruction  //opcodes reversed from gta v default.xex
     iPushByte3,    //39
     iPushInt,      //40
     fPush,         //41
-    dup,           //42
+    dupOpcode,           //42
     pop,           //43
     Native,        //44
     Enter,         //45

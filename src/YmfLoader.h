@@ -1,6 +1,7 @@
 #pragma once
 #include <algorithm>
 #include <unordered_map>
+#include <vector>
 #include "FileType.h"
 
 template <class T>
