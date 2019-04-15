@@ -1,12 +1,10 @@
 #include "GameData.h"
-
 #include "YmfLoader.h"
-
 #include "CacheDatFile.h"
 #include "GTAEncryption.h"
 #include "YtypLoader.h"
 
-#include "tinyxml2.h"
+#include <tinyxml2.h>
 
 GameData::GameData(std::string Path)
 {
@@ -37,8 +35,8 @@ GameData::GameData(std::string Path)
         "x64t.rpf",
         "x64u.rpf",
         "x64v.rpf",
-        "x64w.rpf",
-        "update.rpf"};
+        "x64w.rpf"};
+        //"update.rpf"};
 
     for (std::string& rpfFile : RpfsFiles)
     {

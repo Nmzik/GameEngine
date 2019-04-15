@@ -27,6 +27,9 @@ void YdrLoader::Init(memstream& file)
     gtaDrawable* drawable = (gtaDrawable*)file.read(sizeof(gtaDrawable));
     drawable->Resolve(file);
 
+    std::vector<Material> materials;
+    materials.resize(drawable->ShaderGroupPointer->Shaders.size());
+
     //	Shader stuff
     if (drawable->ShaderGroupPointer.pointer)
     {  //	IF POINTER = 0 NO OBJECTS???
@@ -145,22 +148,22 @@ void YdrLoader::Init(memstream& file)
             materials.push_back(newMat);
         }*/
     }
-        //////////
+    //////////
 
-       /* models.resize(drawable->DrawableModels[0]->size());
+    models.resize(drawable->DrawableModels[0]->size());
 
-        for (int i = 0; i < drawable->DrawableModels[0]->size(); i++)
+    for (int i = 0; i < drawable->DrawableModels[0]->size(); i++)
+    {
+        models[i].Unk_2Ch = drawable->DrawableModels[0]->Get(i)->Unknown_2Ch;
+        //	Optimization
+        models[i].geometries.reserve(drawable->DrawableModels[0]->Get(i)->m_geometries.size());
+
+        for (int j = 0; j < drawable->DrawableModels[0]->Get(i)->m_geometries.size(); j++)
         {
-            models[i].Unk_2Ch = drawable->DrawableModels[0]->Get(i)->Unknown_2Ch;
-            //	Optimization
-            models[i].meshes.reserve(drawable->DrawableModels[0]->Get(i)->m_geometries.size());
-
-            for (int j = 0; j < drawable->DrawableModels[0]->Get(i)->m_geometries.size(); j++)
+            if (isYft)
             {
                 switch (drawable->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->InfoPointer->Types)
                 {
-                    case 8598872888530528662:  //YDR - 0x7755555555996996
-                        break;
                     case 216172782140628998:  //	YFT - 0x030000000199A006
                         switch (drawable->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->InfoPointer->Flags)
                         {
@@ -178,15 +181,15 @@ void YdrLoader::Init(memstream& file)
                         }
                         break;
                 }
+            }
 
-                gpuMemory += drawable->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->VertexCount *
-                             drawable->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->VertexStride;
-                gpuMemory += drawable->DrawableModels[0]->Get(i)->m_geometries.Get(j)->IndexBufferPointer->IndicesCount * sizeof(uint16_t);
+            gpuMemory += drawable->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->VertexCount *
+                         drawable->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->VertexStride;
+            gpuMemory += drawable->DrawableModels[0]->Get(i)->m_geometries.Get(j)->IndexBufferPointer->IndicesCount * sizeof(uint16_t);
 
-                models[i].meshes.emplace_back(file.data,
+            models[i].geometries.emplace_back(file.data,
                                               drawable->DrawableModels[0]->Get(i)->m_geometries.Get(j),
                                               materials[(*drawable->DrawableModels[0]->Get(i)->ShaderMappingPointer)[j]], drawable->ShaderGroupPointer->Shaders[(*drawable->DrawableModels[0]->Get(i)->ShaderMappingPointer)[j]]->FileName);
-            }
         }
-    }*/
+    }
 }

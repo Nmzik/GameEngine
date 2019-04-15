@@ -1,5 +1,6 @@
 #pragma once
-#include "membuf.h"
+#include "common.h"
+#include <string>
 
 inline int GetSizeFromFlags(uint32_t flags)
 {

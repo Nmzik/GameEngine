@@ -13,9 +13,6 @@
 [submodule "3rdparty/recastnavigation"]
 	path = 3rdparty/recastnavigation
 	url = https://github.com/recastnavigation/recastnavigation.git
-[submodule "3rdparty/sdl"]
-	path = 3rdparty/sdl
-	url = https://github.com/spurious/SDL-mirror.git
 [submodule "3rdparty/tinyxml2"]
 	path = 3rdparty/tinyxml2
 	url = https://github.com/leethomason/tinyxml2.git

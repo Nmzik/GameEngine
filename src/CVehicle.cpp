@@ -2,7 +2,7 @@
 
 #define CUBE_HALF_EXTENTS 1
 
-CVehicle::CVehicle(glm::vec3 position, float mass, YftLoader* yft)
+CVehicle::CVehicle(glm::vec3 position, float mass, YftLoader* yft, btDynamicsWorld* physicsWorld)
     : throttle(0)
     , steeringValue(0)
     , vehicle(yft)
@@ -35,12 +35,9 @@ CVehicle::CVehicle(glm::vec3 position, float mass, YftLoader* yft)
     m_carChassis = std::make_unique<btRigidBody>(cInfo);
     m_carChassis->setContactProcessingThreshold(BT_LARGE_FLOAT);
 
-    PhysicsSystem::dynamicsWorld->addRigidBody(
-        m_carChassis.get(), btBroadphaseProxy::KinematicFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::KinematicFilter);
-
     //m_wheelShape = std::make_unique<btCylinderShapeX>(btVector3(wheelWidth, wheelRadius, wheelRadius));
 
-    m_vehicleRayCaster = std::make_unique<btDefaultVehicleRaycaster>(PhysicsSystem::dynamicsWorld.get());
+    m_vehicleRayCaster = std::make_unique<btDefaultVehicleRaycaster>(physicsWorld);
     m_vehicle = std::make_unique<btRaycastVehicle>(m_tuning, m_carChassis.get(), m_vehicleRayCaster.get());
 
     ///	never deactivate the vehicle
@@ -48,8 +45,6 @@ CVehicle::CVehicle(glm::vec3 position, float mass, YftLoader* yft)
 
     //	choose coordinate system
     m_vehicle->setCoordinateSystem(0, 2, 1);
-
-    PhysicsSystem::dynamicsWorld->addAction(m_vehicle.get());
 
     float connectionHeight = 0.5f;
 
@@ -96,21 +91,13 @@ CVehicle::CVehicle(glm::vec3 position, float mass, YftLoader* yft)
 
 CVehicle::~CVehicle()
 {
-    PhysicsSystem::dynamicsWorld->removeAction(m_vehicle.get());
-    PhysicsSystem::dynamicsWorld->removeRigidBody(m_carChassis.get());
-
     delete m_carChassis->getMotionState();
-}
-
-glm::mat4 CVehicle::getMat4()
-{
-    m_carChassis->getWorldTransform().getOpenGLMatrix(&modelMatrix[0][0]);
-
-    return modelMatrix;
 }
 
 void CVehicle::physicsTick()
 {
+    m_carChassis->getWorldTransform().getOpenGLMatrix(&modelMatrix[0][0]);
+	//
     float engineForce = throttle * 5000.0f;
 
     m_vehicle->applyEngineForce(engineForce, 0);

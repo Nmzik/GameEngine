@@ -1,7 +1,5 @@
 #include "PhysicsSystem.h"
 
-std::unique_ptr<btDiscreteDynamicsWorld> PhysicsSystem::dynamicsWorld = nullptr;
-
 FreeListAllocator* physicsAllocator;
 
 void* allocate(size_t size, int alignment)
@@ -36,7 +34,6 @@ PhysicsSystem::PhysicsSystem()
 PhysicsSystem::~PhysicsSystem()
 {
     //delete physicsAllocator;
-    dynamicsWorld.reset();
 }
 
 void PhysicsSystem::update(float delta_time)

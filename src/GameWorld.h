@@ -8,7 +8,6 @@
 #include "ResourceManager.h"
 #include "SoundManager.h"
 #include "SpaceGrid.h"
-#include "includes.h"
 //////////
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtx/norm.hpp"
@@ -120,4 +119,9 @@ public:
 
     void testFunction(glm::vec3 Position);
     bool detectInWater(glm::vec3 Position);
+
+    void AddVehicleToWorld(glm::vec3 position, float mass, YftLoader* model);
+    void RemoveVehicleFromWorld(CVehicle* vehicle);
+    void AddPedToWorld(glm::vec3 pos, YddLoader* model);
+    void RemovePedFromWorld(CPed* ped);
 };

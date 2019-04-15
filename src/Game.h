@@ -8,12 +8,7 @@
 
 #include "Camera.h"
 #include "ScriptInterpreter.h"
-
-#ifdef _WIN32
-#include "windows/InputManager.h"
-#else
-
-#endif
+#include "InputManager.h"
 
 class GameData;
 class GameWorld;
@@ -30,6 +25,7 @@ class Game
 {
     std::unique_ptr<GameData> gameData;
     std::unique_ptr<GameWorld> gameWorld;
+    std::unique_ptr<NativeWindow> window;
     std::unique_ptr<GameRenderer> rendering_system;
     std::unique_ptr<ScriptInterpreter> scriptMachine;
     std::unique_ptr<InputManager> input;

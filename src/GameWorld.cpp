@@ -1,4 +1,5 @@
 #include "GameWorld.h"
+#include "common.h"
 
 #include "Camera.h"
 #include "GTAEncryption.h"
@@ -62,9 +63,9 @@ GameWorld::GameWorld(GameData* _gameData)
 	 resourceManager->GetYtd(ytd.second);
 	}*/
 
-    peds.emplace_back(new CPed(glm::vec3(-178.16, 6258.31, 47.23), playerYDD));
-    peds.emplace_back(new CPed(glm::vec3(9.66, -1184.98, 75.74), playerYDD));
-    peds.emplace_back(new CPed(glm::vec3(2250.18f, 3471.40f, 56.50f), playerYDD));
+    AddPedToWorld(glm::vec3(-178.16, 6258.31, 47.23), playerYDD);
+    AddPedToWorld(glm::vec3(9.66, -1184.98, 75.74), playerYDD);
+    AddPedToWorld(glm::vec3(2250.18f, 3471.40f, 56.50f), playerYDD);
 }
 
 GameWorld::~GameWorld()
@@ -486,7 +487,7 @@ void GameWorld::loadQueuedResources()
                 {
                     YbnLoader* ybn = static_cast<YbnLoader*>(res->file);
                     ybn->Init(stream);
-                    ybn->Finalize();  //	NOT THREAD SAFE!
+                    getPhysicsSystem()->getDynamicsWorld()->addRigidBody(ybn->getRigidBody());  //	NOT THREAD SAFE!
                     break;
                 }
                 case ysc:
@@ -520,8 +521,7 @@ void GameWorld::createVehicle(glm::vec3 position)
 
     if (resourceManager->GetYft(data.VehiclesInfo[vehicleID].Hash)->Loaded)
     {
-        CVehicle* veh = new CVehicle(position, data.VehiclesInfo[vehicleID].mass, vehicle);
-        vehicles.emplace_back(veh);
+        AddVehicleToWorld(position, data.VehiclesInfo[vehicleID].mass, vehicle);
         printf("Car Spawned\n");
     }
 }
@@ -534,6 +534,7 @@ void GameWorld::cleanupTraffic(Camera* camera)
     {
         if (glm::distance(camera->getPosition(), (*it)->getPosition()) >= radiusTraffic)
         {
+            RemovePedFromWorld(*it);
             delete *it;
             peds.erase(it);
         }
@@ -547,6 +548,7 @@ void GameWorld::cleanupTraffic(Camera* camera)
     {
         if (glm::distance(camera->getPosition(), (*it)->getPosition()) >= radiusTraffic)
         {
+            RemoveVehicleFromWorld(*it);
             delete *it;
             vehicles.erase(it);
             printf("Car Removed\n");
@@ -705,7 +707,7 @@ void GameWorld::detectWeaponHit(glm::vec3 CameraPosition, glm::vec3 lookDirectio
     btVector3 from(CameraPosition.x, CameraPosition.y, CameraPosition.z), to(HitPos.x, HitPos.y, HitPos.z);
     btCollisionWorld::ClosestRayResultCallback cb(from, to);
     cb.m_collisionFilterGroup = btBroadphaseProxy::AllFilter;
-    PhysicsSystem::dynamicsWorld->rayTest(from, to, cb);
+    physicsSystem.getDynamicsWorld()->rayTest(from, to, cb);
 
     if (cb.hasHit())
     {
@@ -805,6 +807,37 @@ bool GameWorld::detectInWater(glm::vec3 Position)
         }
     }
     return false;
+}
+
+void GameWorld::AddVehicleToWorld(glm::vec3 position, float mass, YftLoader* model)
+{
+    CVehicle* vehicle = new CVehicle(position, mass, model, physicsSystem.getDynamicsWorld());
+    vehicles.push_back(vehicle);
+    physicsSystem.getDynamicsWorld()->addRigidBody(
+        vehicle->getCarChassisRigidbody(), btBroadphaseProxy::KinematicFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::KinematicFilter);
+
+    physicsSystem.getDynamicsWorld()->addAction(vehicle->getRaycastVehicle());
+}
+
+void GameWorld::RemoveVehicleFromWorld(CVehicle* vehicle)
+{
+    physicsSystem.getDynamicsWorld()->removeAction(vehicle->getRaycastVehicle());
+    physicsSystem.getDynamicsWorld()->removeRigidBody(vehicle->getCarChassisRigidbody());
+}
+
+void GameWorld::AddPedToWorld(glm::vec3 pos, YddLoader* model)
+{
+    CPed* ped = new CPed(pos, model);
+    peds.push_back(ped);
+    physicsSystem.getDynamicsWorld()->addRigidBody(ped->getPhysCharacter(),
+                                              btBroadphaseProxy::KinematicFilter,
+                                              btBroadphaseProxy::StaticFilter | btBroadphaseProxy::KinematicFilter | btBroadphaseProxy::DefaultFilter);
+}
+
+void GameWorld::RemovePedFromWorld(CPed* ped)
+{
+    btRigidBody* body = ped->getPhysCharacter();
+    physicsSystem.getDynamicsWorld()->removeRigidBody(body);
 }
 
 void GameWorld::testFunction(glm::vec3 Position)

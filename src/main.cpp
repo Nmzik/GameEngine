@@ -10,12 +10,16 @@
 int main(int argc, char* argv[])
 {
 #if _MSC_VER
-    _CrtSetDbgFlag(_CRTDBG_LEAK_CHECK_DF | _CRTDBG_ALLOC_MEM_DF);
-    _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_DEBUG);
+    //_CrtSetDbgFlag(_CRTDBG_LEAK_CHECK_DF | _CRTDBG_ALLOC_MEM_DF);
+    //_CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_DEBUG);
 #endif
     //No arguments - Exit
     if (argc != 2)
+    {
+        printf("NOT ENOUGH ARGUMENTS");
         return 1;
+    }
+    //printf("GAME DIRECTORY %s", argv[1]);
 
     Game game(argv[1]);
 

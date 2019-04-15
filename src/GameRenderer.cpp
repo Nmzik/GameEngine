@@ -1,28 +1,120 @@
 #include "GameRenderer.h"
+#include "Camera.h"
 
-GameRenderer::GameRenderer()
+#include "Object.h"
+#include "YdrLoader.h"
+#include "Model.h"
+
+GameRenderer::GameRenderer(NativeWindow* window)
+    : nativeWindow(window)
 {
-    RenderSystem* renderer = new GLRenderSystem();
+    nativeWindow->InitializeContext();
 
-    RenderContextDescriptor contextDescriptor;
-    contextDescriptor.videoMode = {1280, 720};
-    renderer->CreateRenderContext(contextDescriptor);
+    glEnable(GL_DEPTH_TEST);
+    glDisable(GL_MULTISAMPLE);
+    glDisable(GL_DITHER);
 
-	BufferDescriptor BufDesc;
-	Buffer* buffer = renderer->CreateBuffer(BufDesc);
+    glClipControl(GL_LOWER_LEFT, GL_ZERO_TO_ONE);
 
-	ShaderDescriptor VertShaderDesc = {ShaderType::Vertex, "testc disk"};
-	Shader* vertShader = renderer->CreateShader(VertShaderDesc);
-    ShaderDescriptor FragmentShaderDesc = {ShaderType::Fragment, "testc disk"};
-        Shader* FragShader = renderer->CreateShader(FragmentShaderDesc);
+    mainShader = new Shader("assets/shaders/gbuffer");
+
+    glGenBuffers(1, &uboGlobal);
+    glBindBuffer(GL_UNIFORM_BUFFER, uboGlobal);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), NULL, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+    glGenBuffers(1, &uboModel);
+    glBindBuffer(GL_UNIFORM_BUFFER, uboModel);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), NULL, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+    // Black/white checkerboard //Default texture
+    glGenTextures(1, &defaultTexture);
+    glBindTexture(GL_TEXTURE_2D, defaultTexture);
+    float pixels[] = {0.85f, 0.79f, 0.79f, 0.85f, 0.79f, 0.79f, 0.85f, 0.79f, 0.79f, 0.85f, 0.79f, 0.79f};
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 2, 2, 0, GL_RGB, GL_FLOAT, pixels);
 }
 
 GameRenderer::~GameRenderer()
 {
 }
 
+void GameRenderer::beginFrame()
+{
+    NumDrawCalls = 0;
+}
+
+void GameRenderer::endFrame()
+{
+}
+
+void GameRenderer::presentFrame()
+{
+    nativeWindow->SwapBuffers();
+}
+
 void GameRenderer::RenderWorld(GameWorld* world, Camera* curCamera)
 {
+    beginFrame();
+
+    glm::mat4 view = curCamera->getViewMatrix();
+    glm::mat4 projection = curCamera->getProjection();
+    glm::mat4 ProjectionView = projection * view;
+
+    curCamera->updateFrustum(ProjectionView);
+
+    glBindBuffer(GL_UNIFORM_BUFFER, uboGlobal);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &ProjectionView[0]);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    glEnable(GL_CULL_FACE);
+
+    glBindBufferBase(GL_UNIFORM_BUFFER, 0, uboGlobal);
+    glBindBufferBase(GL_UNIFORM_BUFFER, 1, uboModel);
+
+    for (auto& object : world->renderList)
+    {
+        glBindBuffer(GL_UNIFORM_BUFFER, uboModel);
+        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &object->modelMatrix[0]);
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+        for (auto& model : object->ydr->models)
+        {
+            if ((model.Unk_2Ch & 1) == 0)
+            {
+                continue;  //	PROXIES
+            }
+            for (auto& geometry : model.geometries)
+            {
+                mainShader->use();
+
+                glBindVertexArray(geometry.VAO);
+
+                glActiveTexture(GL_TEXTURE0);
+                glBindTexture(GL_TEXTURE_2D, defaultTexture);
+
+                glActiveTexture(GL_TEXTURE1);
+                glBindTexture(GL_TEXTURE_2D, defaultTexture);
+
+                glActiveTexture(GL_TEXTURE2);
+                glBindTexture(GL_TEXTURE_2D, defaultTexture);
+
+                glDrawElements(GL_TRIANGLES, geometry.num_indices, GL_UNSIGNED_SHORT, 0);
+
+                NumDrawCalls++;
+            }
+        }
+    }
+
+    glDisable(GL_CULL_FACE);
+
+    endFrame();
+
+    presentFrame();
 }
 
 /*#include "CPed.h"

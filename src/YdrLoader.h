@@ -1,5 +1,4 @@
 #pragma once
-
 #include "FileType.h"
 
 struct grmShaderFx
@@ -343,16 +342,14 @@ struct FragDrawable
 
 #include "YbnLoader.h"
 #include "YtdLoader.h"
-
-// REMOVE DEFAULT INITIALIZATION IN CLASS
-// CAUSES CLASS IN ASSEMBLER
+#include "Model.h"
 
 class YdrLoader : public FileType
 {
     std::unique_ptr<YtdLoader> ytd;
 
 public:
-    //std::vector<Model> models;
+    std::vector<Model> models;
     std::unique_ptr<YbnLoader> ybn;
     bool isYft = false;
 

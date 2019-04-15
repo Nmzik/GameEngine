@@ -50,6 +50,7 @@ void GTAEncryption::LoadKeys()
     if (!ngkeys.is_open())
     {
         printf("NOT FOUND NG!");
+        throw std::runtime_error("NG KEY MISSING");
     }
 
     for (int i = 0; i < 101; i++)
@@ -63,6 +64,7 @@ void GTAEncryption::LoadKeys()
     if (!ngtables.is_open())
     {
         printf("NOT FOUND NG TABLES!");
+        throw std::runtime_error("NG TABLES MISSING");
     }
 
     for (int i = 0; i < 17; i++)

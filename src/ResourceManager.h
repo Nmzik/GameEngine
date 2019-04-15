@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include "FileType.h"
 #include "ThreadSafeAllocator.h"
-#include "includes.h"
+#include "common.h"
 
 class GameWorld;
 
@@ -59,6 +59,8 @@ public:
     YscLoader* GetYsc(uint32_t hash);
 
     inline void addToMainQueue(Resource* res);
+
+    Resource* removeFromWaitingList();
     void addToWaitingList(Resource* res);
 
     void update();

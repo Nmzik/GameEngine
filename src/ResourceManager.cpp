@@ -221,6 +221,12 @@ YscLoader* ResourceManager::GetYsc(uint32_t hash)
     }
 }
 
+inline void ResourceManager::addToMainQueue(Resource* res)
+{
+    std::lock_guard<std::mutex> lock(gameworld->resources_lock);
+    gameworld->resources.push_back(res);
+}
+
 void ResourceManager::addToWaitingList(Resource* res)
 {
     std::lock_guard<std::mutex> lock(mylock);
@@ -228,23 +234,22 @@ void ResourceManager::addToWaitingList(Resource* res)
     loadCondition.notify_one();
 }
 
-inline void ResourceManager::addToMainQueue(Resource* res)
+inline Resource* ResourceManager::removeFromWaitingList()
 {
-    std::lock_guard<std::mutex> lock(gameworld->resources_lock);
-    gameworld->resources.push_back(res);
+    std::unique_lock<std::mutex> lock(mylock);
+
+	loadCondition.wait(lock, [this] { return !waitingList.empty(); });
+
+	Resource* res = waitingList.front();
+    waitingList.pop_front();
+    return res;
 }
 
 void ResourceManager::update()
 {
     while (running)
     {
-        std::unique_lock<std::mutex> lock(mylock);
-
-        loadCondition.wait(lock, [this] { return !waitingList.empty(); });
-
-        Resource* res = waitingList.front();
-        waitingList.pop_front();
-        lock.unlock();
+        Resource* res = removeFromWaitingList();
 
         switch (res->type)
         {
@@ -308,6 +313,7 @@ void ResourceManager::UpdateResourceCache()
     {
         if ((it->second)->RefCount == 0 && (it->second)->Loaded)
         {
+            gameworld->getPhysicsSystem()->getDynamicsWorld()->removeRigidBody((it->second)->getRigidBody());
             it = ybnLoader.erase(it);
         }
         else

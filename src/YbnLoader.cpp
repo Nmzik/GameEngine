@@ -3,6 +3,7 @@
 
 void YbnLoader::Init(memstream& file)
 {
+    Loaded = true;
     btCompoundShape* compound = new btCompoundShape();
 
     ParseYbn(file, compound);
@@ -224,13 +225,6 @@ void YbnLoader::ParseYbn(memstream& file, btCompoundShape* compound)
     }
 }
 
-void YbnLoader::Finalize()
-{
-    PhysicsSystem::dynamicsWorld->addRigidBody(rigidBody.get());
-
-    Loaded = true;
-}
-
 YbnLoader::~YbnLoader()
 {
     if (rigidBody)
@@ -255,11 +249,8 @@ YbnLoader::~YbnLoader()
         {
             btAlignedFreeInternal(Indices);
         }
-        //	CHECK???
-        // if (Loaded)
-        PhysicsSystem::dynamicsWorld->removeRigidBody(rigidBody.get());
-
-        delete rigidBody->getMotionState();
+        
+		delete rigidBody->getMotionState();
         delete compound;
     }
 }

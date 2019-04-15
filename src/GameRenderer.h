@@ -1,17 +1,38 @@
 #pragma once
-#include "RenderSystem.h"
-#include "OpenGL/GLRenderSystem.h"
+#include "Windows/Win32Window.h"
 
 class GameWorld;
 class Camera;
+class Shader;
 
 class GameRenderer
 {
+    NativeWindow* nativeWindow;
+    GLuint defaultTexture;
+    int NumDrawCalls;
+
+	//
+    GLuint uboGlobal;
+    GLuint uboModel;
+
+	Shader* mainShader;
+
 public:
-    GameRenderer();
+    GameRenderer(NativeWindow* window);
     ~GameRenderer();
 
-	void RenderWorld(GameWorld* world, Camera* curCamera);
+    void beginFrame();
+    void endFrame();
+    void presentFrame();
+
+    void RenderWorld(GameWorld* world, Camera* curCamera);
+
+    int getNumDrawCalls() const
+    {
+        return NumDrawCalls;
+    }
+
+	//
 };
 /*#include <iostream>
 #include <memory>

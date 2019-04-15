@@ -1,20 +1,28 @@
 cmake_minimum_required(VERSION 3.6.2)
+
 project(MyGameEngine)
 
 set(CMAKE_SUPPRESS_REGENERATION true)
-
 set(CMAKE_CXX_STANDARD 17)
-
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #set(CMAKE_CXX_EXTENSIONS OFF)
 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
+
+if(WIN32)
+	add_definitions(-DUNICODE)
+    add_definitions(-DNOMINMAX)
+	add_definitions (/D "_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS")
+	if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC") # MSVC
+		set(CMAKE_C_FLAGS_DEBUG "-DDEBUG=1 /MTd /Od")
+		set(CMAKE_C_FLAGS_RELEASE "/MT")
+		set(CMAKE_CXX_FLAGS_DEBUG "-DDEBUG=1 /MTd /Od")
+		set(CMAKE_CXX_FLAGS_RELEASE "/MT /GS-")
+	endif()
+endif()
+
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 	# using Clang
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC") # MSVC
-	set(CMAKE_C_FLAGS_DEBUG "-DDEBUG=1 /MTd /Od")
-	set(CMAKE_C_FLAGS_RELEASE "/MT")
-	set(CMAKE_CXX_FLAGS_DEBUG "-DDEBUG=1 /MTd /Od /MP")
-	set(CMAKE_CXX_FLAGS_RELEASE "/MT /GS- /MP")
 endif()
 
 #Recast
@@ -46,8 +54,8 @@ add_subdirectory(3rdparty/bullet)
 #include(3rdparty/bullet/BulletConfig.cmake)
 
 add_subdirectory(3rdparty/zlib)
+
 add_subdirectory(3rdparty/freetype)
-add_subdirectory(3rdparty/sdl)
 
 set(BUILD_STATIC_LIBS ON CACHE STRING "" FORCE)
 set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
@@ -55,8 +63,11 @@ set(BUILD_TESTS OFF CACHE BOOL "" FORCE)
 
 add_subdirectory(3rdparty/tinyxml2)
 
-include_directories(src/)
-include_directories(3rdparty/sdl/include)
+add_compile_definitions(ECB=1)
+add_compile_definitions(AES256=1)
+
+add_subdirectory(3rdparty/tiny-AES-c)
+
 include_directories(3rdparty/recastnavigation/Recast/Include)
 include_directories(3rdparty/recastnavigation/Detour/Include)
 include_directories(3rdparty/freetype/include)
@@ -67,65 +78,4 @@ include_directories(3rdparty/tinyxml2)
 include_directories(3rdparty/bullet/src)
 include_directories(3rdparty/tiny-AES-c)
 
-add_compile_definitions(ECB=1)
-add_compile_definitions(AES256=1)
-
-add_subdirectory(3rdparty/tiny-AES-c)
-
-add_compile_definitions(GLM_FORCE_XYZW_ONLY)
-add_compile_definitions(GLM_FORCE_DEPTH_ZERO_TO_ONE)
-add_compile_definitions(GLM_ENABLE_EXPERIMENTAL)
-
-file(GLOB SOURCES
-src/*.h
-src/*.cpp
-)
-
-if(WIN32)
-	file(GLOB WINSOURCES
-	src/windows/*.h
-	src/windows/*.cpp
-	)
-
-	list (APPEND SOURCES ${WINSOURCES})
-
-
-	file(GLOB OpenGL
-	src/OpenGL/*.h
-	src/OpenGL/*.cpp
-	)
-	
-	list (APPEND SOURCES ${OpenGL})
-else()
-
-endif()
-file(GLOB MACSOURCES
-	src/macOS/*.h
-	src/macOS/*.cpp
-	)
-
-	list (APPEND SOURCES ${MACSOURCES})
-if(APPLE)
-	add_executable(MyGameEngine MACOSX_BUNDLE ${SOURCES})
-else()
-	add_executable(MyGameEngine ${SOURCES})
-endif()
-
-#set_target_properties(MyGameEngine PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${PROJECT_BINARY_DIR}/Release")
-
-target_link_libraries(MyGameEngine SDL2)
-target_link_libraries(MyGameEngine SDL2main)
-target_link_libraries(MyGameEngine BulletDynamics)
-target_link_libraries(MyGameEngine BulletCollision)
-target_link_libraries(MyGameEngine LinearMath)
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-	target_link_libraries(MyGameEngine opengl32.lib)
-endif()
-target_link_libraries(MyGameEngine zlibstatic)
-target_link_libraries(MyGameEngine tinyxml2)
-target_link_libraries(MyGameEngine Detour)
-target_link_libraries(MyGameEngine Recast)
-target_link_libraries(MyGameEngine freetype)
-target_link_libraries(MyGameEngine tiny-aes)
-
-#set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT MyGameEngine)
+add_subdirectory(src)

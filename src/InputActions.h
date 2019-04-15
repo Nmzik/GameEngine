@@ -4,7 +4,7 @@
 
 enum Actions
 {
-    button_GPU_TIME,
+    button_GPU_TIME = 0,
     button_ESCAPE,
     button_E,
     button_player1,

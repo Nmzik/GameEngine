@@ -5,7 +5,6 @@
 #include <string>
 #include <vector>
 #include "RpfEntry.h"
-#include "membuf.h"
 
 class RpfFile
 {

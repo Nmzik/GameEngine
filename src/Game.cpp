@@ -16,12 +16,14 @@ Game::Game(const char* GamePath)
     , gameTime(0)
 {
     gameData = std::make_unique<GameData>(GamePath);
-    rendering_system = std::make_unique<GameRenderer>();
+    window = std::make_unique<Win32Window>();
+    rendering_system = std::make_unique<GameRenderer>(window.get());
     gameWorld = std::make_unique<GameWorld>(gameData.get());
     input = std::make_unique<InputManager>();
     scriptMachine = std::make_unique<ScriptInterpreter>(gameData.get(), this);
 
-    scriptMachine->startThread(GenHash("startup_install"));
+    //scriptMachine->startThread(GenHash("startup_install"));
+    window->AddListener(input.get());
 
     camera = std::make_unique<Camera>(glm::vec3(0.0, 0.0, 50.0), gameWorld.get());
 
@@ -86,18 +88,18 @@ void Game::updateFPS(float delta_time, float cpuThreadTime, float gpuThreadTime)
         osstr.str("");
         osstr.clear();
 
-        /*osstr << "Game "
+        osstr << "Game "
               << (1.0f / delta_time) << " FPS, "
               << (delta_time * 1000.0f) << " CPU time, "
               << (cpuThreadTime * 1000.0f) << " CPU Thread time, "
               << (gpuThreadTime * 1000.0f) << " Render Thread time, "
-              << rendering_system->gpuTime * 0.000001f << " GPU time, "
+              //<< rendering_system->gpuTime * 0.000001f << " GPU time, "
               << gameWorld->renderList.size() << " Objects, "
-              << rendering_system->DrawCalls << " Draw Calls, "
+              << rendering_system->getNumDrawCalls() << " Draw Calls, "
               << gameWorld->getResourceManager()->GlobalGpuMemory / 1024 / 1024 << " MB GPU Mem, "
               << gameWorld->getResourceManager()->TextureMemory / 1024 / 1024 << " MB Texture Mem, "
               << (physicsAllocator->getSize() - physicsAllocator->getUsedMemory()) / 1024 / 1024 << " MB Bullet Free Mem ";
-        window->setTitle(osstr);*/
+        window->setTitle(osstr.str());
     }
 }
 
@@ -109,7 +111,8 @@ void Game::run()
     while (running)
     {
         auto cpuThreadStart = std::chrono::steady_clock::now();
-        input->Update();
+        //input->Update();
+        window->ProcessEvents();
 
         if (input->IsKeyPressed(Actions::button_ESCAPE))
             break;
@@ -215,7 +218,7 @@ void Game::tick(float delta_time)
             player->exitVehicle();
             player->getPhysCharacter()->getBroadphaseHandle()->m_collisionFilterMask = btBroadphaseProxy::StaticFilter | btBroadphaseProxy::KinematicFilter;
 
-            player->getPhysCharacter()->setGravity(PhysicsSystem::dynamicsWorld->getGravity());
+            player->getPhysCharacter()->setGravity(getWorld()->getPhysicsSystem()->getDynamicsWorld()->getGravity());
         }
         else
         {
@@ -276,7 +279,7 @@ void Game::tick(float delta_time)
         float steering = getInput()->IsKeyPressed(Actions::button_TurnLeft) ? 0.3f : getInput()->IsKeyPressed(Actions::button_TurnRight) ? -0.3f : 0.0f;
         player->getCurrentVehicle()->setSteeringValue(steering);
 
-        player->getPhysCharacter()->setWorldTransform(player->getCurrentVehicle()->m_carChassis->getWorldTransform());
+        player->getPhysCharacter()->setWorldTransform(player->getCurrentVehicle()->getCarChassisRigidbody()->getWorldTransform());
     }
     else
     {
@@ -288,7 +291,7 @@ void Game::tick(float delta_time)
 
             btDynamicsWorld::ClosestRayResultCallback rr(rayFrom, rayTo);
 
-            PhysicsSystem::dynamicsWorld->rayTest(rayFrom, rayTo, rr);
+            getWorld()->getPhysicsSystem()->getDynamicsWorld()->rayTest(rayFrom, rayTo, rr);
 
             if (rr.hasHit())
             {
@@ -336,7 +339,7 @@ void Game::tick(float delta_time)
             // rayCallback
             btCollisionWorld::ClosestRayResultCallback rayCallback(m_rayStart, m_rayEnd);
 
-            PhysicsSystem::dynamicsWorld->rayTest(m_rayStart, m_rayEnd, rayCallback);
+            getWorld()->getPhysicsSystem()->getDynamicsWorld()->rayTest(m_rayStart, m_rayEnd, rayCallback);
             if (rayCallback.hasHit())
             {  //	JUMP!
                 player->getPhysCharacter()->applyCentralImpulse(btVector3(0.f, 0.f, 50.0f));
@@ -367,7 +370,7 @@ void Game::changePlayer()
 {
     uint32_t random = rand() % getWorld()->getGameData()->Scenes.size();
     getWorld()->peds[getWorld()->currentPlayerID]->setPosition(glm::vec3(-205.28, 6432.15, 36.87));
-    getWorld()->peds[getWorld()->currentPlayerID]->getPhysCharacter()->setGravity(PhysicsSystem::dynamicsWorld->getGravity());
+    getWorld()->peds[getWorld()->currentPlayerID]->getPhysCharacter()->setGravity(getWorld()->getPhysicsSystem()->getDynamicsWorld()->getGravity());
     for (int i = 0; i < 3; i++)
     {
         if (getWorld()->currentPlayerID != i)

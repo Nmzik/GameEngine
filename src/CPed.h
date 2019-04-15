@@ -37,8 +37,8 @@ public:
     CPed(glm::vec3 position, YddLoader* ydd);
     ~CPed();
 
-    CPed& operator=(CPed&& other) = default;
-    CPed(CPed&& other) = default;
+    //CPed& operator=(CPed&& other) = default;
+    //CPed(CPed&& other) = default;
 
     bool isAlive() const
     {

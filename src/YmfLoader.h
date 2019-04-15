@@ -1,7 +1,6 @@
 #pragma once
 #include <algorithm>
 #include <unordered_map>
-#include <vector>
 #include "FileType.h"
 
 template <class T>
@@ -55,11 +54,12 @@ public:
 
 class PsoDataSection
 {
+public:
     uint32_t Ident;
     int Length;
     uint8_t* Data;
 
-public:
+
     void Read(memstream& stream)
     {
         Ident = *(uint32_t*)stream.read(sizeof(uint32_t));

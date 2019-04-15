@@ -39,16 +39,11 @@ CPed::CPed(glm::vec3 position, YddLoader* ydd)
     body->setAngularFactor(0.0);
     body->forceActivationState(DISABLE_DEACTIVATION);
 
-    PhysicsSystem::dynamicsWorld->addRigidBody(body.get(),
-                                               btBroadphaseProxy::KinematicFilter,
-                                               btBroadphaseProxy::StaticFilter | btBroadphaseProxy::KinematicFilter | btBroadphaseProxy::DefaultFilter);
-
     playerDirection = glm::vec3(0.0f, 0.0f, 0.0f);
 }
 
 CPed::~CPed()
 {
-    PhysicsSystem::dynamicsWorld->removeRigidBody(body.get());
     delete body->getMotionState();
 }
 

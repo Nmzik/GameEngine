@@ -5,9 +5,9 @@
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <mutex>
-#include "Allocator.h"
+#include "FreeListAllocator.h"
 
-class ThreadSafeAllocator : public Allocator
+class ThreadSafeAllocator : public FreeListAllocator
 {
 public:
     ThreadSafeAllocator(size_t size);
@@ -18,24 +18,8 @@ public:
     void deallocate(void* p) override;
 
 private:
-    struct AllocationHeader
-    {
-        size_t size;
-        uint8_t adjustment;
-    };
-
-    struct FreeBlock
-    {
-        size_t size;
-        FreeBlock* next;
-    };
-
     std::mutex allocatorLock;
 
-    static_assert(sizeof(AllocationHeader) >= sizeof(FreeBlock), "sizeof(AllocationHeader) < sizeof(FreeBlock)");
-
-    ThreadSafeAllocator(const ThreadSafeAllocator&) = delete;
+	ThreadSafeAllocator(const ThreadSafeAllocator&) = delete;
     ThreadSafeAllocator& operator=(const ThreadSafeAllocator&) = delete;
-
-    FreeBlock* _free_blocks;
 };
