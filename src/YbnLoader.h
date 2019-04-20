@@ -149,11 +149,14 @@ class YbnLoader : public FileType
     std::vector<glm::u16vec3*> IndicesArray;
     std::vector<glm::vec3*> VerticesArray;
     std::unique_ptr<btRigidBody> rigidBody;
-public:
 
-	btRigidBody* getRigidBody() const {
-            return rigidBody.get();
-	}
+public:
+    btRigidBody* getRigidBody() const
+    {
+        return rigidBody.get();
+    }
+
+    void AddSphere(btCompoundShape* shape, btVector3 pos);
 
     void Init(memstream& file) override;
     void ParseYbn(memstream& file, btCompoundShape* compound);

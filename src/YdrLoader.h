@@ -340,9 +340,9 @@ struct FragDrawable
     uint32_t Unknown_14Ch;  // 0x00000000
 };
 
+#include "Model.h"
 #include "YbnLoader.h"
 #include "YtdLoader.h"
-#include "Model.h"
 
 class YdrLoader : public FileType
 {

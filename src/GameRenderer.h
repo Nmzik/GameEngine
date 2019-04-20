@@ -11,11 +11,11 @@ class GameRenderer
     GLuint defaultTexture;
     int NumDrawCalls;
 
-	//
+    //
     GLuint uboGlobal;
     GLuint uboModel;
 
-	Shader* mainShader;
+    Shader* mainShader;
 
 public:
     GameRenderer(NativeWindow* window);
@@ -32,7 +32,7 @@ public:
         return NumDrawCalls;
     }
 
-	//
+    //
 };
 /*#include <iostream>
 #include <memory>

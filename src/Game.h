@@ -7,8 +7,8 @@
 #include FT_FREETYPE_H
 
 #include "Camera.h"
-#include "ScriptInterpreter.h"
 #include "InputManager.h"
+#include "ScriptInterpreter.h"
 
 class GameData;
 class GameWorld;

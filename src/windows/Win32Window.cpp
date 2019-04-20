@@ -63,7 +63,7 @@ Win32Window::Win32Window()
 
     hwnd = CreateWindowEx(
         0,                    // Optional window styles.
-        getName(),              // Window class
+        getName(),            // Window class
         L"GameEngine",        // Window text
         WS_OVERLAPPEDWINDOW,  // Window style
 

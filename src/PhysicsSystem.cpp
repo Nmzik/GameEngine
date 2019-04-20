@@ -1,13 +1,31 @@
 #include "PhysicsSystem.h"
 
+#include "CPed.h"
+#include "CVehicle.h"
+
 FreeListAllocator* physicsAllocator;
 
-void* allocate(size_t size, int alignment)
+#if (WIN32)
+#define Allocator_API __declspec(allocator)
+#include <VSCustomNativeHeapEtwProvider.h>
+auto pHeapTracker = std::make_unique<VSHeapTracker::CHeapTracker>("PhysicsHeap");
+#else
+#define Allocator_API
+#endif
+
+Allocator_API void* allocate(size_t size, int alignment)
 {
-    return physicsAllocator->allocate(size, (uint8_t)alignment);
+    void* ptr = physicsAllocator->allocate(size, (uint8_t)alignment);
+#if (WIN32)
+    pHeapTracker->AllocateEvent(ptr, size);
+#endif
+    return ptr;
 }
 void deallocate(void* memblock)
 {
+#if (WIN32)
+    pHeapTracker->DeallocateEvent(memblock);
+#endif
     physicsAllocator->deallocate(memblock);
 }
 
@@ -86,4 +104,61 @@ void PhysicsSystem::update(float delta_time)
 
 	 accumulatedTime -= deltaTime;
 	}*/
+}
+
+PhysicsSystem::RayResult PhysicsSystem::rayCast(glm::vec3& from, glm::vec3& to) const
+{
+    btVector3 rayFrom = btVector3(from.x, from.y, from.z);
+    btVector3 rayTo = btVector3(to.x, to.y, to.z);
+
+    // rayCallback
+    btCollisionWorld::ClosestRayResultCallback rayCallback(rayFrom, rayTo);
+
+    dynamicsWorld->rayTest(rayFrom, rayTo, rayCallback);
+
+    RayResult result;
+    result.HasHit = rayCallback.hasHit();
+    if (rayCallback.hasHit())
+    {
+        result.HitPos = glm::vec3(rayCallback.m_hitPointWorld.x(), rayCallback.m_hitPointWorld.y(), rayCallback.m_hitPointWorld.z());
+        result.HitNormal = glm::vec3(rayCallback.m_hitNormalWorld.x(), rayCallback.m_hitNormalWorld.y(), rayCallback.m_hitNormalWorld.z());
+    }
+
+    return result;
+}
+
+void PhysicsSystem::addPed(CPed* ped)
+{
+    dynamicsWorld->addRigidBody(ped->getPhysCharacter(),
+                                btBroadphaseProxy::KinematicFilter,
+                                btBroadphaseProxy::StaticFilter | btBroadphaseProxy::KinematicFilter | btBroadphaseProxy::DefaultFilter);
+}
+
+void PhysicsSystem::removePed(CPed* ped)
+{
+    dynamicsWorld->removeRigidBody(ped->getPhysCharacter());
+}
+
+void PhysicsSystem::addVehicle(CVehicle* vehicle)
+{
+    dynamicsWorld->addRigidBody(
+        vehicle->getCarChassisRigidbody(), btBroadphaseProxy::KinematicFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::KinematicFilter);
+
+    dynamicsWorld->addAction(vehicle->getRaycastVehicle());
+}
+
+void PhysicsSystem::removeVehicle(CVehicle* vehicle)
+{
+    dynamicsWorld->removeAction(vehicle->getRaycastVehicle());
+    dynamicsWorld->removeRigidBody(vehicle->getCarChassisRigidbody());
+}
+
+void PhysicsSystem::addRigidBody(btRigidBody* body)
+{
+    dynamicsWorld->addRigidBody(body);
+}
+
+void PhysicsSystem::removeRigidBody(btRigidBody* body)
+{
+    dynamicsWorld->removeRigidBody(body);
 }

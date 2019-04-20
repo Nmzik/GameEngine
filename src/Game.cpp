@@ -4,8 +4,8 @@
 #include "CVehicle.h"
 #include "GTAEncryption.h"
 #include "GameData.h"
-#include "GameWorld.h"
 #include "GameRenderer.h"
+#include "GameWorld.h"
 
 #include "InputActions.h"
 
@@ -218,7 +218,7 @@ void Game::tick(float delta_time)
             player->exitVehicle();
             player->getPhysCharacter()->getBroadphaseHandle()->m_collisionFilterMask = btBroadphaseProxy::StaticFilter | btBroadphaseProxy::KinematicFilter;
 
-            player->getPhysCharacter()->setGravity(getWorld()->getPhysicsSystem()->getDynamicsWorld()->getGravity());
+            player->setGravity(getWorld()->getPhysicsSystem()->getGravity());
         }
         else
         {
@@ -286,17 +286,15 @@ void Game::tick(float delta_time)
         glm::vec3 playerPosition = player->getPosition();
         if (playerPosition.z <= -50)
         {
-            btVector3 rayFrom(playerPosition.x, playerPosition.y, 300.f);
-            btVector3 rayTo(playerPosition.x, playerPosition.y, 0.f);
+            glm::vec3 rayFrom(playerPosition.x, playerPosition.y, 300.f);
+            glm::vec3 rayTo(playerPosition.x, playerPosition.y, 0.f);
 
-            btDynamicsWorld::ClosestRayResultCallback rr(rayFrom, rayTo);
+            auto result = getWorld()->getPhysicsSystem()->rayCast(rayFrom, rayTo);
 
-            getWorld()->getPhysicsSystem()->getDynamicsWorld()->rayTest(rayFrom, rayTo, rr);
-
-            if (rr.hasHit())
+            if (result.HasHit)
             {
-                auto& ws = rr.m_hitPointWorld;
-                player->setPosition(glm::vec3(ws.x(), ws.y(), ws.z() + 10.0f));
+                auto& ws = result.HitPos;
+                player->setPosition(glm::vec3(ws.x, ws.y, ws.z + 10.0f));
             }
         }
 
@@ -333,15 +331,12 @@ void Game::tick(float delta_time)
         {
             //	player->Jump();
 
-            btVector3 m_rayStart = player->getPhysCharacter()->getCenterOfMassPosition();
-            btVector3 m_rayEnd = m_rayStart - btVector3(0.0, 0.0, 1.5);
+            glm::vec3 m_rayStart = player->getPosition();
+            glm::vec3 m_rayEnd = m_rayStart - glm::vec3(0.0, 0.0, 1.5);
 
-            // rayCallback
-            btCollisionWorld::ClosestRayResultCallback rayCallback(m_rayStart, m_rayEnd);
-
-            getWorld()->getPhysicsSystem()->getDynamicsWorld()->rayTest(m_rayStart, m_rayEnd, rayCallback);
-            if (rayCallback.hasHit())
-            {  //	JUMP!
+            auto result = getWorld()->getPhysicsSystem()->rayCast(m_rayStart, m_rayEnd);
+            if (result.HasHit)
+            {
                 player->getPhysCharacter()->applyCentralImpulse(btVector3(0.f, 0.f, 50.0f));
             }
         }
@@ -370,7 +365,7 @@ void Game::changePlayer()
 {
     uint32_t random = rand() % getWorld()->getGameData()->Scenes.size();
     getWorld()->peds[getWorld()->currentPlayerID]->setPosition(glm::vec3(-205.28, 6432.15, 36.87));
-    getWorld()->peds[getWorld()->currentPlayerID]->getPhysCharacter()->setGravity(getWorld()->getPhysicsSystem()->getDynamicsWorld()->getGravity());
+    getWorld()->peds[getWorld()->currentPlayerID]->setGravity(getWorld()->getPhysicsSystem()->getGravity());
     for (int i = 0; i < 3; i++)
     {
         if (getWorld()->currentPlayerID != i)

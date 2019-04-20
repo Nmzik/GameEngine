@@ -8,6 +8,7 @@
 class Shader
 {
     GLuint ID;
+
 public:
     Shader(std::string ShaderPath);
     ~Shader();

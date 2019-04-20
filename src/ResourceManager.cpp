@@ -238,9 +238,9 @@ inline Resource* ResourceManager::removeFromWaitingList()
 {
     std::unique_lock<std::mutex> lock(mylock);
 
-	loadCondition.wait(lock, [this] { return !waitingList.empty(); });
+    loadCondition.wait(lock, [this] { return !waitingList.empty(); });
 
-	Resource* res = waitingList.front();
+    Resource* res = waitingList.front();
     waitingList.pop_front();
     return res;
 }
@@ -313,7 +313,7 @@ void ResourceManager::UpdateResourceCache()
     {
         if ((it->second)->RefCount == 0 && (it->second)->Loaded)
         {
-            gameworld->getPhysicsSystem()->getDynamicsWorld()->removeRigidBody((it->second)->getRigidBody());
+            gameworld->getPhysicsSystem()->removeRigidBody((it->second)->getRigidBody());
             it = ybnLoader.erase(it);
         }
         else

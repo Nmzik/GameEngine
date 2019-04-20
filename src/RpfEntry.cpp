@@ -1,6 +1,6 @@
 #include "RpfEntry.h"
-#include "common.h"
 #include <istream>
+#include "common.h"
 
 RpfDirectoryEntry::RpfDirectoryEntry(memstream& stream, memstream& NamesStream)
 {
@@ -53,11 +53,13 @@ RpfResourceFileEntry::RpfResourceFileEntry(memstream& stream, std::istream& orig
     stream.read((char*)&buf2, 3);
     FileOffset = ((uint32_t)buf2[0] + (uint32_t)(buf2[1] << 8) + (uint32_t)(buf2[2] << 16)) & 0x7FFFFF;
 
+    uint32_t SystemFlags;
+    uint32_t GraphicsFlags;
     stream.read((char*)&SystemFlags, sizeof(uint32_t));
     stream.read((char*)&GraphicsFlags, sizeof(uint32_t));
 
     SystemSize = GetSizeFromFlags(SystemFlags);
-    int32_t GraphicsSize = GetSizeFromFlags(GraphicsFlags);
+    GraphicsSize = GetSizeFromFlags(GraphicsFlags);
 
     UncompressedFileSize = SystemSize + GraphicsSize;
     //

@@ -249,8 +249,8 @@ YbnLoader::~YbnLoader()
         {
             btAlignedFreeInternal(Indices);
         }
-        
-		delete rigidBody->getMotionState();
+
+        delete rigidBody->getMotionState();
         delete compound;
     }
 }

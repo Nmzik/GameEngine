@@ -1,6 +1,6 @@
 #pragma once
-#include "common.h"
 #include <string>
+#include "common.h"
 
 inline int GetSizeFromFlags(uint32_t flags)
 {
@@ -23,7 +23,7 @@ inline int GetSizeFromFlags(uint32_t flags)
 class RpfEntry
 {
 public:
-    uint32_t NameHash;
+    //uint32_t NameHash;
     uint32_t ShortNameHash;
 
     std::string FileName;
@@ -63,10 +63,8 @@ public:
 class RpfResourceFileEntry : public RpfFileEntry
 {
 public:
-    uint32_t SystemFlags;
-    uint32_t GraphicsFlags;
-
     int32_t SystemSize;
+    int32_t GraphicsSize;
     uint64_t UncompressedFileSize;
 
     RpfResourceFileEntry(memstream& stream, std::istream& originalFile, uint64_t StartPos, memstream& NamesStream);

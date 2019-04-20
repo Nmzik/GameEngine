@@ -59,7 +59,6 @@ public:
     int Length;
     uint8_t* Data;
 
-
     void Read(memstream& stream)
     {
         Ident = *(uint32_t*)stream.read(sizeof(uint32_t));

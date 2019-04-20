@@ -1,9 +1,9 @@
 #include "GameRenderer.h"
 #include "Camera.h"
 
+#include "Model.h"
 #include "Object.h"
 #include "YdrLoader.h"
-#include "Model.h"
 
 GameRenderer::GameRenderer(NativeWindow* window)
     : nativeWindow(window)

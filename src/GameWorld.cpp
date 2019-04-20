@@ -487,7 +487,7 @@ void GameWorld::loadQueuedResources()
                 {
                     YbnLoader* ybn = static_cast<YbnLoader*>(res->file);
                     ybn->Init(stream);
-                    getPhysicsSystem()->getDynamicsWorld()->addRigidBody(ybn->getRigidBody());  //	NOT THREAD SAFE!
+                    getPhysicsSystem()->addRigidBody(ybn->getRigidBody());  //	NOT THREAD SAFE!
                     break;
                 }
                 case ysc:
@@ -530,7 +530,7 @@ void GameWorld::cleanupTraffic(Camera* camera)
 {
     float radiusTraffic = 120.0f;
     //	peds
-    for (auto it = peds.begin() + 3; it != peds.end();)
+    /*for (auto it = peds.begin() + 3; it != peds.end();)
     {
         if (glm::distance(camera->getPosition(), (*it)->getPosition()) >= radiusTraffic)
         {
@@ -542,7 +542,7 @@ void GameWorld::cleanupTraffic(Camera* camera)
         {
             ++it;
         }
-    }
+    }*/
     //vehicles
     for (auto it = vehicles.begin(); it != vehicles.end();)
     {
@@ -599,53 +599,6 @@ void GameWorld::updateDynamicObjects()
 
 /*void GameWorld::UpdateTraffic(Camera* camera, glm::vec3 pos)
 {
-    float radiusTraffic = 20.0f;
-    //	peds
-
-    for (int i = 0; i < vehicles.size(); i++)
-    {
-        glm::vec3 vehiclePosition(vehicles[i]->m_carChassis->getWorldTransform().getOrigin().getX(),
-                                  vehicles[i]->m_carChassis->getWorldTransform().getOrigin().getY(),
-                                  vehicles[i]->m_carChassis->getWorldTransform().getOrigin().getZ());
-        if (glm::distance(pos, vehiclePosition) >= 100.0f)
-        {
-            delete vehicles[i];
-            vehicles.erase(vehicles.begin() + i);
-        }
-    }
-
-    uint64_t MaximumAvailableVehicles = 30 - vehicles.size();  //	HARDCODED
-    if (pos.z < 100.0f)
-    {
-        for (uint32_t i = 0; i < MaximumAvailableVehicles; i++)
-        {
-            float xRandom = RandomFloat(pos.x - radiusTraffic, pos.x + radiusTraffic);
-            float yRandom = RandomFloat(pos.y - radiusTraffic, pos.y + radiusTraffic);
-            if (!camera->intersects(glm::vec3(xRandom, yRandom, pos.z), 1.0f))
-            {
-                createVehicle(glm::vec3(xRandom, yRandom, pos.z));
-            }
-        }
-    }*/
-
-/*if (pedPool.firstAvailable_ == nullptr) {
-	 for (auto& ped : pedPool.peds)
-	 {
-	  if (glm::distance(camera->position, glm::vec3(ped.getPhysCharacter()->getWorldTransform().getOrigin().getX(),
-	ped.getPhysCharacter()->getWorldTransform().getOrigin().getY(), ped.getPhysCharacter()->getWorldTransform().getOrigin().getZ())) >= 100.0f) {
-	pedPool.Remove(&ped);
-	  }
-	 }
-	}
-
-	while (pedPool.firstAvailable_ != nullptr)
-	{
-	 float xRandom = RandomFloat(camera->position.x - radiusTraffic, camera->position.x + radiusTraffic);
-	 float yRandom = RandomFloat(camera->position.y - radiusTraffic, camera->position.y + radiusTraffic);
-	 //if (!camera->intersects(glm::vec3(xRandom, yRandom, camera->position.z + 3.0f), 1.0f)) {
-	  //pedPool.Add(glm::vec3(xRandom, yRandom, camera->position.z + 3.0f), playerYDD, dynamicsWorld);
-	 //}
-	}*/
 //	CARS
 /*if (nodeGrid.cells[CurNodeCell.x * 32 + CurNodeCell.y]->ynd)
 	{
@@ -704,14 +657,12 @@ CVehicle* GameWorld::findNearestVehicle()
 void GameWorld::detectWeaponHit(glm::vec3 CameraPosition, glm::vec3 lookDirection)
 {
     glm::vec3 HitPos = CameraPosition + lookDirection;
-    btVector3 from(CameraPosition.x, CameraPosition.y, CameraPosition.z), to(HitPos.x, HitPos.y, HitPos.z);
-    btCollisionWorld::ClosestRayResultCallback cb(from, to);
-    cb.m_collisionFilterGroup = btBroadphaseProxy::AllFilter;
-    physicsSystem.getDynamicsWorld()->rayTest(from, to, cb);
+    glm::vec3 from(CameraPosition.x, CameraPosition.y, CameraPosition.z), to(HitPos.x, HitPos.y, HitPos.z);
+    auto result = physicsSystem.rayCast(from, to);
 
-    if (cb.hasHit())
+    if (result.HasHit)
     {
-        CPed* player = static_cast<CPed*>(cb.m_collisionObject->getUserPointer());
+        /*CPed* player = static_cast<CPed*>(cb.m_collisionObject->getUserPointer());
         //	printf("player pointer %p\n", (void*)&player);
         if (player != nullptr)
         {
@@ -726,7 +677,7 @@ void GameWorld::detectWeaponHit(glm::vec3 CameraPosition, glm::vec3 lookDirectio
                 //	DELETEING WILL BE DONE BY TRAFFIC UPDATER (CAMERA FAR FROM PEDESTRIAN -> DELETE!)
             }
         }
-        //	cb.setUserPointer
+        //	cb.setUserPointer*/
     }
 }
 
@@ -811,33 +762,27 @@ bool GameWorld::detectInWater(glm::vec3 Position)
 
 void GameWorld::AddVehicleToWorld(glm::vec3 position, float mass, YftLoader* model)
 {
-    CVehicle* vehicle = new CVehicle(position, mass, model, physicsSystem.getDynamicsWorld());
-    vehicles.push_back(vehicle);
-    physicsSystem.getDynamicsWorld()->addRigidBody(
-        vehicle->getCarChassisRigidbody(), btBroadphaseProxy::KinematicFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::KinematicFilter);
+    CVehicle* vehicle = new CVehicle(position, mass, model, physicsSystem.getPhysicsWorld());
+    physicsSystem.addVehicle(vehicle);
 
-    physicsSystem.getDynamicsWorld()->addAction(vehicle->getRaycastVehicle());
+    vehicles.push_back(vehicle);
 }
 
 void GameWorld::RemoveVehicleFromWorld(CVehicle* vehicle)
 {
-    physicsSystem.getDynamicsWorld()->removeAction(vehicle->getRaycastVehicle());
-    physicsSystem.getDynamicsWorld()->removeRigidBody(vehicle->getCarChassisRigidbody());
+    physicsSystem.removeVehicle(vehicle);
 }
 
 void GameWorld::AddPedToWorld(glm::vec3 pos, YddLoader* model)
 {
     CPed* ped = new CPed(pos, model);
+    physicsSystem.addPed(ped);
     peds.push_back(ped);
-    physicsSystem.getDynamicsWorld()->addRigidBody(ped->getPhysCharacter(),
-                                              btBroadphaseProxy::KinematicFilter,
-                                              btBroadphaseProxy::StaticFilter | btBroadphaseProxy::KinematicFilter | btBroadphaseProxy::DefaultFilter);
 }
 
 void GameWorld::RemovePedFromWorld(CPed* ped)
 {
-    btRigidBody* body = ped->getPhysCharacter();
-    physicsSystem.getDynamicsWorld()->removeRigidBody(body);
+    physicsSystem.removePed(ped);
 }
 
 void GameWorld::testFunction(glm::vec3 Position)

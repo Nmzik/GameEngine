@@ -110,7 +110,7 @@ YmfLoader::YmfLoader(memstream& stream)
 
     CPackFileMetaData* cpak = (CPackFileMetaData*)stream.read(sizeof(CPackFileMetaData));
 
-	struct CInteriorBoundsFiles  //24 bytes, Type:0   // Interiors
+    struct CInteriorBoundsFiles  //24 bytes, Type:0   // Interiors
     {
         uint32_t Name;     //0   Name: INT_0Bh: 0
         uint32_t Unused0;  //4
@@ -118,8 +118,8 @@ YmfLoader::YmfLoader(memstream& stream)
     };
     if (cpak->Interiors.Count1 > 0)
     {
-       // assert("");
-       /* endSwap(&cpak->Interiors.Pointer);
+        // assert("");
+        /* endSwap(&cpak->Interiors.Pointer);
         uint32_t PointerIndex = (cpak->Interiors.Pointer & 0xFFF) - 1;
        endSwap(&PointerIndex);
         stream.seekg(PointerIndex);

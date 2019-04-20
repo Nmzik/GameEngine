@@ -111,8 +111,8 @@ struct TextureDescriptor
     TextureType type = TextureType::Texture1D;
 
     Format format = Format::RGBA8UNorm;
-	
-	/**
+
+    /**
     \brief Number of MIP-map levels. By default 0.
     \remarks If this is 0, the full MIP-chain will be generated.
     If this is 1, no MIP-mapping is used for this texture and it has only a single MIP-map level.
@@ -127,7 +127,6 @@ struct TextureDescriptor
 class Texture
 {
 public:
-	Texture();
-	virtual ~Texture();
+    Texture();
+    virtual ~Texture();
 };
-

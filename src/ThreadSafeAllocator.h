@@ -20,6 +20,6 @@ public:
 private:
     std::mutex allocatorLock;
 
-	ThreadSafeAllocator(const ThreadSafeAllocator&) = delete;
+    ThreadSafeAllocator(const ThreadSafeAllocator&) = delete;
     ThreadSafeAllocator& operator=(const ThreadSafeAllocator&) = delete;
 };

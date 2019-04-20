@@ -61,6 +61,12 @@ public:
     void physicsTick();
     void exitVehicle();
     void enterVehicle(CVehicle* nearestVehicle);
+
+    void setGravity(glm::vec3 gravity)
+    {
+        body->setGravity(btVector3(gravity.x, gravity.y, gravity.z));
+    }
+
     CVehicle* getCurrentVehicle() const
     {
         return vehicle;

@@ -97,7 +97,7 @@ CVehicle::~CVehicle()
 void CVehicle::physicsTick()
 {
     m_carChassis->getWorldTransform().getOpenGLMatrix(&modelMatrix[0][0]);
-	//
+    //
     float engineForce = throttle * 5000.0f;
 
     m_vehicle->applyEngineForce(engineForce, 0);
