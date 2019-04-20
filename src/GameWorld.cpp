@@ -3,6 +3,7 @@
 
 #include "Camera.h"
 #include "GTAEncryption.h"
+#include "GameData.h"
 #include "Object.h"
 #include "ResourceManager.h"
 #include "YbnLoader.h"
@@ -72,36 +73,38 @@ GameWorld::~GameWorld()
 {
 }
 
-void GameWorld::loadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
+void GameWorld::updateObjects(Camera* camera, glm::vec3& position)
 {
-    if (map->Loaded)
+    for (int i = 0; i < CurYmaps.size(); i++)
     {
-        for (auto& object : map->Objects)
+        if (CurYmaps[i]->Loaded)
         {
-            float Dist = glm::length2(position - object.position);
-            bool IsVisible = Dist <= object.CEntity.lodDist * LODMultiplier;
-            bool childrenVisible = (Dist <= object.CEntity.childLodDist * LODMultiplier) && (object.CEntity.numChildren > 0);
-            if (IsVisible && !childrenVisible)
+            for (auto& object : CurYmaps[i]->Objects)
             {
-                if (!object.Loaded)
+                float Dist = glm::length2(position - object.getPosition());
+                bool IsVisible = Dist <= object.CEntity.lodDist * LODMultiplier;
+                bool childrenVisible = (Dist <= object.CEntity.childLodDist * LODMultiplier) && (object.CEntity.numChildren > 0);
+                if (IsVisible && !childrenVisible)
                 {
-                    switch (object.archetype->BaseArchetypeDef.assetType)
+                    if (!object.Loaded)
                     {
-                        case ASSET_TYPE_DRAWABLE:
+                        switch (object.archetype->BaseArchetypeDef.assetType)
                         {
-                            if (!object.ydr)
+                            case ASSET_TYPE_DRAWABLE:
                             {
-                                object.ytd = resourceManager->GetYtd(object.archetype->BaseArchetypeDef.textureDictionary);
-                                object.ydr = resourceManager->GetYdr(object.CEntity.archetypeName);
-                            }
-                            if (object.ydr->Loaded)
-                            {
-                                //	NOTE:
-                                //
-                                //	SPAWN OBJECTS STATICALLY (IN SLEEP STATE)
-                                //
-                                //	SUPER DIRTY NEED FIX URGENT! UGLY FIX!!!
-                                /*if (object.ydr->ybnfile) {
+                                if (!object.ydr)
+                                {
+                                    object.ytd = resourceManager->GetYtd(object.archetype->BaseArchetypeDef.textureDictionary);
+                                    object.ydr = resourceManager->GetYdr(object.CEntity.archetypeName);
+                                }
+                                if (object.ydr->Loaded)
+                                {
+                                    //	NOTE:
+                                    //
+                                    //	SPAWN OBJECTS STATICALLY (IN SLEEP STATE)
+                                    //
+                                    //	SUPER DIRTY NEED FIX URGENT! UGLY FIX!!!
+                                    /*if (object.ydr->ybnfile) {
 
 							 if (object.ydr->ybnfile->compound->getNumChildShapes() != 0) {
 
@@ -117,85 +120,96 @@ void GameWorld::loadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
 							 }//can be an error here
 							}*/
 
-                                object.Loaded = true;
-                            }
-                            break;
-                        }
-                        case ASSET_TYPE_DRAWABLEDICTIONARY:
-                        {
-                            if (!object.ydd)
-                            {
-                                object.ytd = resourceManager->GetYtd(object.archetype->BaseArchetypeDef.textureDictionary);
-                                object.ydd = resourceManager->GetYdd(object.archetype->BaseArchetypeDef.drawableDictionary);
-                            }
-                            if (object.ydd->Loaded)
-                            {
-                                auto iter2 = object.ydd->ydrFiles.find(object.CEntity.archetypeName);
-                                if (iter2 != object.ydd->ydrFiles.end())
-                                {
-                                    object.ydr = iter2->second.get();
                                     object.Loaded = true;
                                 }
+                                break;
                             }
-                            break;
+                            case ASSET_TYPE_DRAWABLEDICTIONARY:
+                            {
+                                if (!object.ydd)
+                                {
+                                    object.ytd = resourceManager->GetYtd(object.archetype->BaseArchetypeDef.textureDictionary);
+                                    object.ydd = resourceManager->GetYdd(object.archetype->BaseArchetypeDef.drawableDictionary);
+                                }
+                                if (object.ydd->Loaded)
+                                {
+                                    auto iter2 = object.ydd->ydrFiles.find(object.CEntity.archetypeName);
+                                    if (iter2 != object.ydd->ydrFiles.end())
+                                    {
+                                        object.ydr = iter2->second.get();
+                                        object.Loaded = true;
+                                    }
+                                }
+                                break;
+                            }
+                            case ASSET_TYPE_FRAGMENT:
+                            {
+                                if (!object.yft)
+                                {
+                                    object.ytd = resourceManager->GetYtd(object.archetype->BaseArchetypeDef.textureDictionary);
+                                    object.yft = resourceManager->GetYft(object.CEntity.archetypeName);
+                                }
+                                if (object.yft->Loaded)
+                                {
+                                    object.ydr = object.yft->ydr.get();
+                                    object.Loaded = true;
+                                }
+                                break;
+                            }
                         }
-                        case ASSET_TYPE_FRAGMENT:
+                    }
+                    else
+                    {
+                        if ((object.archetype->BaseArchetypeDef.flags & 2048) > 0)
                         {
-                            if (!object.yft)
-                            {
-                                object.ytd = resourceManager->GetYtd(object.archetype->BaseArchetypeDef.textureDictionary);
-                                object.yft = resourceManager->GetYft(object.CEntity.archetypeName);
-                            }
-                            if (object.yft->Loaded)
-                            {
-                                object.ydr = object.yft->ydr.get();
-                                object.Loaded = true;
-                            }
-                            break;
+                            //	if (!renderProxies) continue;
+                            continue;
                         }
-                    }
-                }
-                else
-                {
-                    if ((object.archetype->BaseArchetypeDef.flags & 2048) > 0)
-                    {
-                        //	if (!renderProxies) continue;
-                        continue;
-                    }
 
-                    bool isreflproxy = false;
-                    switch (object.CEntity.flags)
-                    {
-                        case 135790592:  //	001000000110000000000000000000    prewater proxy (golf course)
-                        case 135790593:  //	001000000110000000000000000001    water refl proxy? (mike house)
-                        case 672661504:  //	101000000110000000000000000000    vb_ca_prop_tree_reflprox_2
-                        case 536870912:  //	100000000000000000000000000000    vb_05_emissive_mirroronly
-                        case 35127296:   //	000010000110000000000000000000    tunnel refl proxy?
-                        case 39321602:   //	000010010110000000000000000010    mlo reflection?
-                            isreflproxy = true;
-                            break;
-                    }
-                    if (isreflproxy)
-                    {
-                        continue;
-                    }
+                        bool isreflproxy = false;
+                        switch (object.CEntity.flags)
+                        {
+                            case 135790592:  //	001000000110000000000000000000    prewater proxy (golf course)
+                            case 135790593:  //	001000000110000000000000000001    water refl proxy? (mike house)
+                            case 672661504:  //	101000000110000000000000000000    vb_ca_prop_tree_reflprox_2
+                            case 536870912:  //	100000000000000000000000000000    vb_05_emissive_mirroronly
+                            case 35127296:   //	000010000110000000000000000000    tunnel refl proxy?
+                            case 39321602:   //	000010010110000000000000000010    mlo reflection?
+                                isreflproxy = true;
+                                break;
+                        }
+                        if (isreflproxy)
+                        {
+                            continue;
+                        }
 
-                    if (object.archetype->GetType() == 1)
-                    {  //	TIME ARCHETYPE
-                        //	if ((object.Archetype._TimeArchetypeDef.timeFlags >> gameHour) & 1)
-                        //{
-                        continue;
-                        //}
-                    }
+                        if (object.archetype->GetType() == 1)
+                        {  //	TIME ARCHETYPE
+                            //	if ((object.Archetype._TimeArchetypeDef.timeFlags >> gameHour) & 1)
+                            //{
+                            continue;
+                            //}
+                        }
 
-                    if (camera->intersects(object.BoundPos, object.BoundRadius))
-                    {
-                        renderList.push_back(&object);
+                        if (camera->intersects(object.BoundPos, object.BoundRadius))
+                        {
+                            renderList.push_back(&object);
+                        }
                     }
                 }
             }
         }
     }
+
+    glm::vec3 camPosition = camera->getPosition();
+
+    std::sort(renderList.begin(), renderList.end(), [&camPosition](Object* a, Object* b) {  // FRONT_TO_BACK
+        glm::vec3 lhsPosition = glm::vec3(a->getMatrix()[3]);
+        glm::vec3 rhsPosition = glm::vec3(b->getMatrix()[3]);
+
+        return glm::distance2(lhsPosition, camPosition) < glm::distance2(rhsPosition, camPosition);
+    });
+
     /*if (map->CMloInstanceDefs.size() > 0) {
 	 for (int i = 0; i < map->CMloInstanceDefs.size(); i++)
 	 {
@@ -262,11 +276,8 @@ void GameWorld::loadYmap(YmapLoader* map, Camera* camera, glm::vec3& position)
  }
 }*/
 
-void GameWorld::getVisibleYmaps(Camera* camera)
+void GameWorld::getVisibleYmaps(glm::vec3& PlayerPos)
 {
-    glm::vec3 PlayerPos = peds[currentPlayerID]->getPosition();
-    //	glm::vec3 PlayerPos = camera->position;
-
     auto cellID = spaceGrid.GetCellPos(PlayerPos);
     auto NodeCell = nodeGrid.GetCellPos(PlayerPos);
     auto NavCell = navGrid.GetCellPos(PlayerPos);
@@ -330,11 +341,6 @@ void GameWorld::getVisibleYmaps(Camera* camera)
         }
     }
 
-    for (auto& mapNode : CurYmaps)
-    {
-        loadYmap(mapNode, camera, PlayerPos);
-    }
-
     /*for (auto& Proxy : cell.CInteriorProxies)
 	{
 	 LoadYmap(cacheFile.AllCInteriorProxies[Proxy].Parent, camera);
@@ -369,15 +375,6 @@ void GameWorld::getVisibleYmaps(Camera* camera)
 	  }
 	 }
 	}*/
-
-    glm::vec3 camPosition = camera->getPosition();
-
-    std::sort(renderList.begin(), renderList.end(), [&camPosition](Object* a, Object* b) {  // FRONT_TO_BACK
-        glm::vec3 lhsPosition = glm::vec3(a->modelMatrix[3]);
-        glm::vec3 rhsPosition = glm::vec3(b->modelMatrix[3]);
-
-        return glm::distance2(lhsPosition, camPosition) < glm::distance2(rhsPosition, camPosition);
-    });
 
     //	printf("CULLED :%d\n", ydrLoader.size());
     //	culled = 0;
@@ -743,7 +740,12 @@ void GameWorld::updateWorld(float delta_time, Camera* camera)
     if (EnableStreaming)
     {
         renderList.clear();
-        getVisibleYmaps(camera);
+
+        glm::vec3 PlayerPos = getCurrentPlayer()->getPosition();
+        //	glm::vec3 PlayerPos = camera->position;
+
+        getVisibleYmaps(PlayerPos);
+        updateObjects(camera, PlayerPos);
     }
 }
 

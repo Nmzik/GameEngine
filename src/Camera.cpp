@@ -5,7 +5,7 @@
 
 void Camera::updateThirdPersonCamera()
 {
-    CPed* player = world.peds[world.currentPlayerID];
+    CPed* player = world.getCurrentPlayer();
 
     glm::vec3 targetPosition;
 

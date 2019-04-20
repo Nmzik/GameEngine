@@ -1,4 +1,5 @@
 #include "YmapLoader.h"
+#include "Meta.h"
 #include "Object.h"
 #include <btBulletDynamicsCommon.h>
 

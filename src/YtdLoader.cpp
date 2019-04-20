@@ -1,7 +1,5 @@
 #include "YtdLoader.h"
 
-#include "Texture.h"
-
 void YtdLoader::Init(memstream& file)
 {
     Loaded = true;

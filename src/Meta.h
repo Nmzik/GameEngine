@@ -31,8 +31,8 @@ public:
         int32_t StructureSize;
         int16_t Unknown_1Ch;  //	0x0000;
         int16_t EntriesCount;
-    } * MetaStructureInfo_struct;
-
+    };
+    MetaStructureInfoStruct* MetaStructureInfo_struct;
     std::vector<MetaStructureEntryInfo_s*> entryInfos;
 
     MetaStructureInfo(memstream& file)
@@ -65,8 +65,8 @@ public:
         uint64_t EntriesPointer;
         int32_t EntriesCount;
         int32_t Unknown_14h;  //	0x00000000;
-    } * MetaEnumInfo_struct;
-
+    };
+    MetaEnumInfoStruct* MetaEnumInfo_struct;
     std::vector<MetaEnumEntryInfo_s*> infos;
 
     MetaEnumInfo(memstream& file)
@@ -97,8 +97,8 @@ public:
         uint32_t StructureNameHash;
         int32_t DataLength;
         uint64_t DataPointer;
-    } * MetaDataBlock_struct;
-
+    };
+    MetaDataBlockStruct* MetaDataBlock_struct;
     MetaDataBlock(memstream& file)
     {
         MetaDataBlock_struct = (MetaDataBlockStruct*)file.read(sizeof(MetaDataBlockStruct));
@@ -135,8 +135,9 @@ public:
         uint32_t Unknown_64h;
         uint32_t Unknown_68h;
         uint32_t Unknown_6Ch;
-    } * Meta_struct;
+    };
 
+    MetaStruct* Meta_struct;
     std::vector<MetaStructureInfo> MetaInfos;
     std::vector<MetaEnumInfo> EnumInfos;
     std::vector<MetaDataBlock> MetaBlocks;

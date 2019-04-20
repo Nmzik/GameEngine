@@ -51,11 +51,6 @@ public:
     }
 
     void setPosition(glm::vec3 pos);
-    glm::vec3 getPosition() const
-    {
-        return position;
-    }
-    glm::mat4& getMatrix();
 
     void takeDamage(float dmg);
     void physicsTick();

@@ -1,5 +1,6 @@
 #pragma once
-#include "Meta.h"
+#include <vector>
+#include "FileType.h"
 
 enum Unk_1991964615  // archetype assetType
     : int            // Key:1866031916

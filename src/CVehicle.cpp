@@ -1,4 +1,5 @@
 #include "CVehicle.h"
+//#include "../3rdparty/glm/glm/gtx/quaternion.hpp"
 
 #define CUBE_HALF_EXTENTS 1
 
@@ -96,7 +97,16 @@ CVehicle::~CVehicle()
 
 void CVehicle::physicsTick()
 {
-    m_carChassis->getWorldTransform().getOpenGLMatrix(&modelMatrix[0][0]);
+    position = glm::vec3(m_carChassis->getWorldTransform().getOrigin().getX(),
+                         m_carChassis->getWorldTransform().getOrigin().getY(),
+                         m_carChassis->getWorldTransform().getOrigin().getZ());
+    /*btTransform trans = m_carChassis->getWorldTransform();
+    glm::vec3 position = glm::vec3(float(trans.getOrigin().getX()), float(trans.getOrigin().getY()), float(trans.getOrigin().getZ()));
+    btQuaternion rot = trans.getRotation();
+    glm::quat q = glm::quat(rot.getW(), rot.getX(), rot.getY(), rot.getZ());
+    glm::mat4 rot4 = glm::toMat4(q);
+    glm::mat4 m = glm::translate(glm::mat4(1.0), position) * rot4;*/
+
     //
     float engineForce = throttle * 5000.0f;
 

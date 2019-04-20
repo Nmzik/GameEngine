@@ -2,17 +2,18 @@
 //#define GLM_FORCE_LEFT_HANDED
 //#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 
+#include <memory>
 #include <sstream>
 #include "ft2build.h"
 #include FT_FREETYPE_H
 
-#include "Camera.h"
-#include "InputManager.h"
-#include "ScriptInterpreter.h"
-
+class Camera;
+class ScriptInterpreter;
+class InputManager;
 class GameData;
 class GameWorld;
 class GameRenderer;
+class NativeWindow;
 
 /*extern "C" {
 #include "libavcodec/avcodec.h"
@@ -41,7 +42,7 @@ public:
     void run();
 
     void tick(float delta_time);
-    void changePlayer();
+    void changeLocation();
 
     InputManager* getInput() const
     {

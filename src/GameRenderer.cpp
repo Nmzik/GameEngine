@@ -1,8 +1,8 @@
 #include "GameRenderer.h"
 #include "Camera.h"
-
 #include "Model.h"
 #include "Object.h"
+#include "Shader.h"
 #include "YdrLoader.h"
 
 GameRenderer::GameRenderer(NativeWindow* window)
@@ -79,7 +79,7 @@ void GameRenderer::RenderWorld(GameWorld* world, Camera* curCamera)
     for (auto& object : world->renderList)
     {
         glBindBuffer(GL_UNIFORM_BUFFER, uboModel);
-        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &object->modelMatrix[0]);
+        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &object->getMatrix()[0]);
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
         for (auto& model : object->ydr->models)
@@ -111,6 +111,17 @@ void GameRenderer::RenderWorld(GameWorld* world, Camera* curCamera)
     }
 
     glDisable(GL_CULL_FACE);
+
+    /*if (RenderDebugWorld)
+    {
+        world->getPhysicsSystem().->debugDrawWorld();
+
+        glm::mat4 DefaultMatrix(1.0f);
+        glBindBuffer(GL_UNIFORM_BUFFER, uboModel);
+        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &DefaultMatrix[0]);
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+        world->getDebugDrawer().render();
+    }*/
 
     endFrame();
 

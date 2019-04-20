@@ -1,7 +1,5 @@
 #include "SpaceGrid.h"
 
-#include "CacheDatFile.h"
-
 /*void SpaceGrid::AddBoundsItem(BoundsStoreItem* item, uint16_t id)
 {
 	glm::i32vec2 min = GetCellPos(item->Min);

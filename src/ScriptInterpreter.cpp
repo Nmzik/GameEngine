@@ -4,7 +4,7 @@
 #include "Game.h"
 #include "GameData.h"
 #include "GameWorld.h"
-#include "YmfLoader.h"
+#include "ResourceManager.h"
 
 #define DEBUG_PRINTF
 
@@ -80,7 +80,7 @@ namespace ENTITY
         std::vector<ScriptParameter>* param = args.getParams();
         glm::vec3 pos((*param)[6].floatValue, (*param)[5].floatValue, (*param)[4].floatValue);
 
-        args.getInterpreter()->getGame()->getWorld()->peds[args.getInterpreter()->getGame()->getWorld()->currentPlayerID]->setPosition(pos);
+        args.getInterpreter()->getGame()->getWorld()->getCurrentPlayer()->setPosition(pos);
     }
 
     void SET_ENTITY_HEADING(const ScriptArguments& args)

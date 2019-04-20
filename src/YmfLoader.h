@@ -3,13 +3,6 @@
 #include <unordered_map>
 #include "FileType.h"
 
-template <class T>
-void endSwap(T* objp)
-{
-    unsigned char* memp = reinterpret_cast<unsigned char*>(objp);
-    std::reverse(memp, memp + sizeof(T));
-}
-
 enum PsoSection
 {
     PSIN = 0x5053494E,

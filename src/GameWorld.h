@@ -1,11 +1,10 @@
 #pragma once
 
+#include <deque>
 #include "CPed.h"
 #include "CVehicle.h"
-#include "GameData.h"
 #include "Light.h"
 #include "PhysicsSystem.h"
-#include "ResourceManager.h"
 #include "SoundManager.h"
 #include "SpaceGrid.h"
 //////////
@@ -19,6 +18,7 @@ class Camera;
 class YdrLoader;
 class YbnLoader;
 class Object;
+class GameData;
 
 inline float RandomFloat(float min, float max)
 {
@@ -50,10 +50,19 @@ class GameWorld
     std::unique_ptr<ResourceManager> resourceManager;
     //	SoundManager sound;
 
+    float accumulatedTime = 0.0f;
+
+    glm::i32vec2 CurCell;
+    glm::i32vec2 CurNodeCell;
+    glm::i32vec2 CurNavCell;
+    std::vector<YmapLoader*> CurYmaps;
+    std::vector<YbnLoader*> CurYbns;
+
 public:
     YddLoader* skydome;
     uint32_t culled = 0;
     float LODMultiplier = 1.0f;
+    uint8_t currentPlayerID = 0;
     //std::vector<Water> WaterMeshes;
     //std::unordered_map<uint32_t, CarHandling> vehiclesPool;
     std::vector<CPed*> peds;
@@ -66,26 +75,22 @@ public:
     //	RenderList renderList;
     std::vector<Object*> renderList;
 
-    float accumulatedTime = 0.0f;
-
-    glm::i32vec2 CurCell;
-    glm::i32vec2 CurNodeCell;
-    glm::i32vec2 CurNavCell;
-    std::vector<YmapLoader*> CurYmaps;
-    std::vector<YbnLoader*> CurYbns;
     bool EnableStreaming = true;
-
     DirectionalLight dirLight;
     uint8_t gameMinute;
     uint8_t gameHour;
-    uint8_t currentPlayerID = 0;
 
     GameWorld(GameData* _gameData);
     ~GameWorld();
 
-    void loadYmap(YmapLoader* map, Camera* camera, glm::vec3& position);
-    void getVisibleYmaps(Camera* camera);
+    void updateObjects(Camera* camera, glm::vec3& position);
+    void getVisibleYmaps(glm::vec3& PlayerPos);
     void loadQueuedResources();
+
+    CPed* getCurrentPlayer()
+    {
+        return peds[currentPlayerID];
+    }
 
     PhysicsSystem* getPhysicsSystem()
     {

@@ -10,31 +10,21 @@ class Entity
 protected:
     glm::quat rotation;
     glm::vec3 scale;
-
-public:
     glm::vec3 position;
-
     glm::mat4 modelMatrix;
-
     float health = 100.0f;
 
-    Entity(glm::vec3& pos, glm::quat rot, glm::vec3 scale_)
-        : position(pos)
-        , rotation(rot)
-        , scale(scale_)
-        , visible(true)
+public:
+    Entity(glm::vec3& pos, glm::quat rot, glm::vec3 scale_);
+    ~Entity();
+
+    glm::vec3 getPosition() const
     {
-        modelMatrix = glm::translate(glm::mat4(1.0f), position) * glm::mat4_cast(rotation) * glm::scale(glm::mat4(1.0f), scale);
+        return position;
     }
 
-    ~Entity()
-    {
-    }
-
-    glm::mat4& getMatrix()
+    glm::mat4 getMatrix() const
     {
         return modelMatrix;
     }
-
-private:
 };

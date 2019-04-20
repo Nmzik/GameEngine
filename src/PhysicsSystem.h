@@ -1,10 +1,12 @@
 #pragma once
 #include <memory>
-#include "CPed.h"
 #include "FreeListAllocator.h"
 #include <btBulletDynamicsCommon.h>
 #include <LinearMath/btAlignedAllocator.h>
 #include <glm/vec3.hpp>
+
+class CPed;
+class CVehicle;
 
 class PhysicsSystem
 {

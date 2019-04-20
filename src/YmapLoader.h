@@ -1,5 +1,6 @@
 #pragma once
-#include "Meta.h"
+#include <vector>
+#include "FileType.h"
 
 /*struct CMloInstanceDef // 160 bytes, Key:2151576752
 {
@@ -109,7 +110,6 @@ struct CMapData  // 512 bytes, Key:3448101671
     CBlockDesc block;                        //	440   440: Structure: CBlockDesc//3072355914: block
 };
 
-class btDynamicsWorld;
 class Object;
 
 class YmapLoader : public FileType

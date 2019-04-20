@@ -69,16 +69,10 @@ void CPed::takeDamage(float dmg)
         health -= dmg;
 }
 
-glm::mat4& CPed::getMatrix()
-{
-    body->getWorldTransform().getOpenGLMatrix(&modelMatrix[0][0]);
-
-    return modelMatrix;
-}
-
 void CPed::physicsTick()
 {
     position = glm::vec3(body->getWorldTransform().getOrigin().x(), body->getWorldTransform().getOrigin().y(), body->getWorldTransform().getOrigin().z());
+    body->getWorldTransform().getOpenGLMatrix(&modelMatrix[0][0]);
     //	body->setLinearVelocity(btVector3(playerDirection.x, playerDirection.y, playerDirection.z));
 }
 

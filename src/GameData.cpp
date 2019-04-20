@@ -1,6 +1,7 @@
 #include "GameData.h"
 #include "CacheDatFile.h"
 #include "GTAEncryption.h"
+#include "RpfFile.h"
 #include "YmfLoader.h"
 #include "YtypLoader.h"
 

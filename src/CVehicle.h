@@ -1,11 +1,9 @@
 #pragma once
 #include <memory>
 #include "Entity.h"
-#include "Shader.h"
 #include <btBulletDynamicsCommon.h>
 #include "BulletCollision/CollisionDispatch/btGhostObject.h"
 
-#include "PhysicsSystem.h"
 #include "YftLoader.h"
 
 class CVehicle : public Entity
@@ -27,18 +25,6 @@ public:
     CVehicle(glm::vec3 position, float mass, YftLoader* yft, btDynamicsWorld* physicsWorld);
     ~CVehicle();
     //std::unique_ptr<btCollisionShape> m_wheelShape;
-
-    glm::mat4 getMat4() const
-    {
-        return modelMatrix;
-    }
-
-    glm::vec3 getPosition() const
-    {
-        return glm::vec3(m_carChassis->getWorldTransform().getOrigin().getX(),
-                         m_carChassis->getWorldTransform().getOrigin().getY(),
-                         m_carChassis->getWorldTransform().getOrigin().getZ());
-    }
 
     void setPosition(glm::vec3 position)
     {

@@ -1,8 +1,8 @@
 #include "ResourceManager.h"
+#include "GameData.h"
 #include "GameWorld.h"
-#include "RpfEntry.h"
-
 #include "Object.h"
+#include "RpfEntry.h"
 #include "YbnLoader.h"
 #include "YddLoader.h"
 #include "YftLoader.h"

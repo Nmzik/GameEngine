@@ -21,6 +21,8 @@ public:
     GameRenderer(NativeWindow* window);
     ~GameRenderer();
 
+    bool RenderDebugWorld;
+
     void beginFrame();
     void endFrame();
     void presentFrame();

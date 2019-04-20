@@ -3,10 +3,11 @@
 #include <memory>
 #include <string_view>
 #include <unordered_map>
-#include "RpfFile.h"
 #include "glm/glm.hpp"
 
 class RpfFile;
+class RpfBinaryFileEntry;
+class RpfResourceFileEntry;
 class YtypLoader;
 class YftLoader;
 class CacheDatFile;

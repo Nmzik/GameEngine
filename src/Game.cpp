@@ -2,10 +2,14 @@
 
 #include "CPed.h"
 #include "CVehicle.h"
+#include "Camera.h"
 #include "GTAEncryption.h"
 #include "GameData.h"
 #include "GameRenderer.h"
 #include "GameWorld.h"
+#include "InputManager.h"
+#include "ResourceManager.h"
+#include "ScriptInterpreter.h"
 
 #include "InputActions.h"
 
@@ -197,7 +201,7 @@ void Game::tick(float delta_time)
         getRenderer()->RenderDebugWorld = !getRenderer()->RenderDebugWorld;
     }*/
 
-    CPed* player = getWorld()->peds[getWorld()->currentPlayerID];
+    CPed* player = getWorld()->getCurrentPlayer();
 
     if (getInput()->IsKeyTriggered(Actions::button_CameraMode))
     {
@@ -361,16 +365,18 @@ void Game::tick(float delta_time)
     //	getRenderer()->getCamera().ProcessMouseMovement(-x, -y);
 }
 
-void Game::changePlayer()
+void Game::changeLocation()
 {
     uint32_t random = rand() % getWorld()->getGameData()->Scenes.size();
-    getWorld()->peds[getWorld()->currentPlayerID]->setPosition(glm::vec3(-205.28, 6432.15, 36.87));
-    getWorld()->peds[getWorld()->currentPlayerID]->setGravity(getWorld()->getPhysicsSystem()->getGravity());
-    for (int i = 0; i < 3; i++)
+    CPed* ped = getWorld()->getCurrentPlayer();
+
+    ped->setPosition(getWorld()->getGameData()->Scenes[random]);
+    // ped->setGravity(getWorld()->getPhysicsSystem()->getGravity());
+    /*for (int i = 0; i < 3; i++)
     {
         if (getWorld()->currentPlayerID != i)
         {
             getWorld()->peds[i]->getPhysCharacter()->setGravity(btVector3(0, 0, 0));
         }
-    }
+    }*/
 }

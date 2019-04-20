@@ -5,7 +5,6 @@
 #include <mutex>
 #include <thread>
 #include <unordered_map>
-#include "FileType.h"
 #include "ThreadSafeAllocator.h"
 #include "common.h"
 

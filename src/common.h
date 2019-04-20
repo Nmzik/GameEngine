@@ -2,6 +2,14 @@
 #include <cstdint>
 #include <cstring>
 
+//BIG ENDIAN
+template <class T>
+void endSwap(T* objp)
+{
+    unsigned char* memp = reinterpret_cast<unsigned char*>(objp);
+    std::reverse(memp, memp + sizeof(T));
+}
+
 class memstream
 {
     uint64_t offset;
