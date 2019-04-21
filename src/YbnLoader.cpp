@@ -1,6 +1,38 @@
 #include "YbnLoader.h"
 #include "PhysicsSystem.h"
 
+void YbnLoader::addBoxShape(btCompoundShape* compound, btVector3 pos, btVector3 halfExtents)
+{
+    btTransform localTrans;
+    localTrans.setIdentity();
+    localTrans.setOrigin(pos);
+    compound->addChildShape(localTrans, new btBoxShape(halfExtents));
+}
+
+void YbnLoader::addCapsuleShape(btCompoundShape* compound, btVector3 pos, float radius, float height)
+{
+    btTransform localTrans;
+    localTrans.setIdentity();
+    localTrans.setOrigin(pos);
+    compound->addChildShape(localTrans, new btCapsuleShapeZ(radius, height));
+}
+
+void YbnLoader::addSphereShape(btCompoundShape* compound, btVector3 pos, float SphereRadius)
+{
+    btTransform localTrans;
+    localTrans.setIdentity();
+    localTrans.setOrigin(pos);
+    compound->addChildShape(localTrans, new btSphereShape(SphereRadius));
+}
+
+void YbnLoader::addCylinderShape(btCompoundShape* compound, btVector3 pos, btVector3 halfExtents)
+{
+    btTransform localTrans;
+    localTrans.setIdentity();
+    localTrans.setOrigin(pos);
+    compound->addChildShape(localTrans, new btCylinderShapeZ(halfExtents));
+}
+
 void YbnLoader::Init(memstream& file)
 {
     Loaded = true;
@@ -23,26 +55,17 @@ void YbnLoader::ParseYbn(memstream& file, btCompoundShape* compound)
     {
         case 0:
         {
-            btTransform localTrans;
-            localTrans.setIdentity();
-
-            compound->addChildShape(localTrans, new btSphereShape(0.5f));
+            addSphereShape(compound, btVector3(0, 0, 0), 0.5f);
             break;
         }
         case 1:
         {
-            btTransform localTrans;
-            localTrans.setIdentity();
-
-            compound->addChildShape(localTrans, new btCapsuleShapeZ(0.5f, 0.5f));
+            addCapsuleShape(compound, btVector3(0, 0, 0), 0.5f, 0.5f);
             break;
         }
         case 3:
         {
-            btTransform localTrans;
-            localTrans.setIdentity();
-
-            compound->addChildShape(localTrans, new btBoxShape(btVector3(0.5f, 0.5f, 0.5f)));
+            addBoxShape(compound, btVector3(0, 0, 0), btVector3(0.5f, 0.5f, 0.5f));
             break;
         }
         case 4:
@@ -87,29 +110,17 @@ void YbnLoader::ParseYbn(memstream& file, btCompoundShape* compound)
                     case 1:
                     {
                         BoundPolygonSphere* PolygonSphere = (BoundPolygonSphere*)file.read(sizeof(BoundPolygonSphere));
-
-                        btTransform localTrans;
-                        localTrans.setIdentity();
-                        localTrans.setOrigin(btVector3(geom->CenterGeom.x + Vertices[PolygonSphere->sphereIndex].x,
-                                                       geom->CenterGeom.y + Vertices[PolygonSphere->sphereIndex].y,
-                                                       geom->CenterGeom.z + Vertices[PolygonSphere->sphereIndex].z));
-                        compound->addChildShape(localTrans, new btSphereShape(PolygonSphere->sphereRadius));
+                        addSphereShape(compound, btVector3(geom->CenterGeom.x + Vertices[PolygonSphere->sphereIndex].x, geom->CenterGeom.y + Vertices[PolygonSphere->sphereIndex].y, geom->CenterGeom.z + Vertices[PolygonSphere->sphereIndex].z),
+                                       PolygonSphere->sphereRadius);
                         break;
                     }
                     case 2:
                     {
-                        BoundPolygonCapsule* PolygonCapsule = (BoundPolygonCapsule*)file.read(sizeof(BoundPolygonCapsule));
-
                         //	USED FOR BUSHES - NOT FOR ACTUAL COLLISION DETECTION!
-                        /*auto mid = (Vertices[PolygonCapsule->capsuleIndex1] + Vertices[PolygonCapsule->capsuleIndex2]) / 2.f;
-
-				btCapsuleShapeZ* capsule = std::make_unique<btCapsuleShapeZ(PolygonCapsule->capsuleRadius, 0.5f);
-				Shapes.push_back(capsule);
-
-				btTransform localTrans;
-				localTrans.setIdentity();
-				localTrans.setOrigin(btVector3(geom->CenterGeom.x + mid.x, geom->CenterGeom.y + mid.y, geom->CenterGeom.z + mid.z));
-				compound->addChildShape(localTrans, capsule);*/
+                        BoundPolygonCapsule* PolygonCapsule = (BoundPolygonCapsule*)file.read(sizeof(BoundPolygonCapsule));
+                        //auto mid = (Vertices[PolygonCapsule->capsuleIndex1] + Vertices[PolygonCapsule->capsuleIndex2]) / 2.f;
+                        //addCapsuleShape(compound, btVector3(geom->CenterGeom.x + mid.x, geom->CenterGeom.y + mid.y, geom->CenterGeom.z + mid.z),
+                        //  PolygonCapsule->capsuleRadius, 0.5f);
                         break;
                     }
                     case 3:
@@ -132,22 +143,16 @@ void YbnLoader::ParseYbn(memstream& file, btCompoundShape* compound)
                         glm::vec3 size = ((p3 + p4) - (p1 + p2)) * 0.5f;  //	Half extents
                         auto mid = (min + max) / 2.f;
 
-                        btTransform localTrans;
-                        localTrans.setIdentity();
-                        localTrans.setOrigin(btVector3(geom->CenterGeom.x + mid.x, geom->CenterGeom.y + mid.y, geom->CenterGeom.z + mid.z));
-                        compound->addChildShape(localTrans, new btBoxShape(btVector3(size.x, size.y, size.z)));
+                        addBoxShape(compound,
+                                    btVector3(geom->CenterGeom.x + mid.x, geom->CenterGeom.y + mid.y, geom->CenterGeom.z + mid.z),
+                                    btVector3(size.x, size.y, size.z));
                         break;
                     }
                     case 4:
                     {
                         BoundPolygonCylinder* PolygonCylinder = (BoundPolygonCylinder*)file.read(sizeof(BoundPolygonCylinder));
-
-                        btTransform localTrans;
-                        localTrans.setIdentity();
-                        localTrans.setOrigin(btVector3(geom->CenterGeom.x + Vertices[PolygonCylinder->cylinderIndex1].x,
-                                                       geom->CenterGeom.y + Vertices[PolygonCylinder->cylinderIndex1].y,
-                                                       geom->CenterGeom.z + Vertices[PolygonCylinder->cylinderIndex1].z));
-                        compound->addChildShape(localTrans, new btCylinderShapeZ(btVector3(0.5, 0.5, 0.5)));
+                        addCylinderShape(compound, btVector3(geom->CenterGeom.x + Vertices[PolygonCylinder->cylinderIndex1].x, geom->CenterGeom.y + Vertices[PolygonCylinder->cylinderIndex1].y, geom->CenterGeom.z + Vertices[PolygonCylinder->cylinderIndex1].z),
+                                         btVector3(0.5, 0.5, 0.5));
                         break;
                     }
                     default:
@@ -213,10 +218,7 @@ void YbnLoader::ParseYbn(memstream& file, btCompoundShape* compound)
         }
         case 13:
         {
-            btTransform localTrans;
-            localTrans.setIdentity();
-
-            compound->addChildShape(localTrans, new btCylinderShapeZ(btVector3(0.5, 0.5, 0.5)));
+            addCylinderShape(compound, btVector3(0, 0, 0), btVector3(0.5, 0.5, 0.5));
             break;
         }
         default:

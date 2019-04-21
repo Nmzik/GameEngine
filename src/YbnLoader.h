@@ -156,7 +156,10 @@ public:
         return rigidBody.get();
     }
 
-    void AddSphere(btCompoundShape* shape, btVector3 pos);
+    void addBoxShape(btCompoundShape* compound, btVector3 pos, btVector3 halfExtents);
+    void addCapsuleShape(btCompoundShape* compound, btVector3 pos, float radius, float height);
+    void addSphereShape(btCompoundShape* compound, btVector3 pos, float SphereRadius);
+    void addCylinderShape(btCompoundShape* compound, btVector3 pos, btVector3 halfExtents);
 
     void Init(memstream& file) override;
     void ParseYbn(memstream& file, btCompoundShape* compound);
