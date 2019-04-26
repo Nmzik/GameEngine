@@ -176,10 +176,10 @@ class Geometry
 public:
     GLuint VBO[2], VAO;
 
-    Material material;
+    uint16_t materialID;
     uint32_t num_indices;
     uint32_t ShaderName;
 
-    Geometry(const uint8_t* meshData, grmGeometry* drawGeom, Material mat, uint32_t Shader);
+    Geometry(const uint8_t* meshData, grmGeometry* drawGeom, uint16_t _materialID, uint32_t Shader);
     ~Geometry();
 };

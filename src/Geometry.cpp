@@ -2,8 +2,8 @@
 
 #include "YdrLoader.h"
 
-Geometry::Geometry(const uint8_t* meshData, grmGeometry* drawGeom, Material mat, uint32_t Shader)
-    : material(mat)
+Geometry::Geometry(const uint8_t* meshData, grmGeometry* drawGeom, uint16_t _materialID, uint32_t Shader)
+    : materialID(_materialID)
     , num_indices(drawGeom->IndexBufferPointer->IndicesCount)
 {
     switch (Shader)

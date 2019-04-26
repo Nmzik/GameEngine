@@ -132,7 +132,7 @@ void Game::run()
             scriptMachine->execute();
             gameWorld->updateWorld(delta_time, camera.get());
             tick(delta_time);
-            camera->onUpdate();
+            camera->onUpdate(gameWorld->getCurrentPlayer());
         }
         auto cpuThreadEnd = std::chrono::steady_clock::now();
         float cpuThreadTime = std::chrono::duration<float>(cpuThreadEnd - cpuThreadStart).count();

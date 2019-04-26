@@ -5,7 +5,7 @@
 #include "YmfLoader.h"
 #include "YtypLoader.h"
 
-#include <tinyxml2.h>
+#include <pugixml.hpp>
 
 GameData::GameData(std::string Path)
 {
@@ -36,21 +36,12 @@ GameData::GameData(std::string Path)
         "x64t.rpf",
         "x64u.rpf",
         "x64v.rpf",
-        "x64w.rpf"};
-    //"update.rpf"};
+        "x64w.rpf",
+		"update\\update.rpf"};
 
     for (std::string& rpfFile : RpfsFiles)
     {
-        std::string FilePath;
-
-        if (rpfFile == "update.rpf")
-        {
-            FilePath = Path + "update/" + rpfFile;
-        }
-        else
-        {
-            FilePath = Path + rpfFile;
-        }
+        std::string FilePath = Path + rpfFile;
 
         std::unique_ptr<std::ifstream> rpf = std::make_unique<std::ifstream>(FilePath, std::ios::binary);
 
@@ -235,26 +226,24 @@ GameData::~GameData()
 
 void GameData::loadHandlingData(std::vector<uint8_t>& Buffer)
 {
-    tinyxml2::XMLDocument doc;
-    tinyxml2::XMLError eResult = doc.Parse((char*)&Buffer[0], Buffer.size());
+    pugi::xml_document doc;
+    auto error = doc.load_buffer_inplace(Buffer.data(), Buffer.size());
 
-    tinyxml2::XMLElement* root = doc.FirstChildElement("CHandlingDataMgr");
+    pugi::xml_node root = doc.child("CHandlingDataMgr");
 
-    tinyxml2::XMLElement* element = root->FirstChildElement("HandlingData");
+    pugi::xml_node element = root.child("HandlingData");
 
-    for (tinyxml2::XMLElement* e = element->FirstChildElement("Item"); e != NULL; e = e->NextSiblingElement("Item"))
+    for (pugi::xml_node e = element.first_child(); e != NULL; e = e.next_sibling()) //ITEM
     {
+        pugi::xml_node element = e.child("handlingName");
+		//
         CarHandling car;
-
-        tinyxml2::XMLElement* element = e->FirstChildElement("handlingName");
-        std::string CarName = element->FirstChild()->Value();
-
+		//
+        std::string CarName = element.first_child().value();
         std::transform(CarName.begin(), CarName.end(), CarName.begin(), tolower);
+		//
         car.Hash = GenHash(CarName);
-        ///
-        element = element->NextSiblingElement("fMass");
-        element->QueryFloatAttribute("value", &car.mass);
-
+        car.mass = element.next_sibling("fMass").attribute("value").as_float();
         car.file = nullptr;
 
         VehiclesInfo.push_back(car);
@@ -263,77 +252,77 @@ void GameData::loadHandlingData(std::vector<uint8_t>& Buffer)
 
 void GameData::loadGtxd()
 {
-    tinyxml2::XMLDocument doc;
-    tinyxml2::XMLError eResult = doc.LoadFile("assets/gtxd.ymt.rbf.xml");
+    pugi::xml_document doc;
+    auto error = doc.load_file("assets/gtxd.ymt.rbf.xml");
 
-    tinyxml2::XMLElement* root = doc.FirstChildElement("CMapParentTxds");
+    pugi::xml_node root = doc.child("CMapParentTxds");
 
-    tinyxml2::XMLElement* element = root->FirstChildElement("txdRelationships");
+    pugi::xml_node element = root.child("txdRelationships");
 
-    for (tinyxml2::XMLElement* e = element->FirstChildElement("item"); e != NULL; e = e->NextSiblingElement("item"))
+    for (pugi::xml_node e = element.first_child(); e != NULL; e = e.next_sibling()) //item
     {
-        tinyxml2::XMLElement* element = e->FirstChildElement("parent");
-        std::string ParentName = element->FirstChild()->Value();
+        pugi::xml_node element = e.child("parent");
+        std::string ParentName = element.first_child().value();
         std::transform(ParentName.begin(), ParentName.end(), ParentName.begin(), tolower);
 
-        element = e->FirstChildElement("child");
-        std::string childName = element->FirstChild()->Value();
+        element = e.child("child");
+        std::string childName = element.first_child().value();
         GtxdEntries[GenHash(childName)] = GenHash(ParentName);
     }
 }
 
 void GameData::loadWaterQuads(std::vector<uint8_t>& Buffer)
 {
-    tinyxml2::XMLDocument doc;
-    tinyxml2::XMLError eResult = doc.Parse((char*)&Buffer[0], Buffer.size());
+    pugi::xml_document doc;
+    auto error = doc.load_buffer_inplace(Buffer.data(), Buffer.size());
 
-    tinyxml2::XMLElement* root = doc.FirstChildElement("WaterData");
+    pugi::xml_node root = doc.child("WaterData");
 
-    tinyxml2::XMLElement* element = root->FirstChildElement("WaterQuads");
+    pugi::xml_node element = root.child("WaterQuads");
 
-    for (tinyxml2::XMLElement* e = element->FirstChildElement("Item"); e != NULL; e = e->NextSiblingElement("Item"))
+    for (pugi::xml_node e = element.first_child(); e != NULL; e = e.next_sibling()) //item
     {
-        if (e->FirstChild() != nullptr)
+        if (e.first_child() != nullptr)
         {  // water.xml DLC
             WaterQuad waterQuad;
-            tinyxml2::XMLElement* element = e->FirstChildElement("minX");
-            element->QueryFloatAttribute("value", &waterQuad.minX);
+            pugi::xml_node element = e.child("minX");
+            waterQuad.minX = element.attribute("value").as_float();
             ///
-            element = element->NextSiblingElement("maxX");
-            element->QueryFloatAttribute("value", &waterQuad.maxX);
+            element = element.next_sibling("maxX");
+            waterQuad.maxX = element.attribute("value").as_float();
             ///
-            element = element->NextSiblingElement("minY");
-            element->QueryFloatAttribute("value", &waterQuad.minY);
+            element = element.next_sibling("minY");
+            waterQuad.minY = element.attribute("value").as_float();
             ///
-            element = element->NextSiblingElement("maxY");
-            element->QueryFloatAttribute("value", &waterQuad.maxY);
+            element = element.next_sibling("maxY");
+            waterQuad.maxY = element.attribute("value").as_float();
             ///
-            element = element->NextSiblingElement("Type");
-            element->QueryIntAttribute("value", &waterQuad.Type);
+            element = element.next_sibling("Type");
+            waterQuad.Type = element.attribute("value").as_int();
             ///
-            element = element->NextSiblingElement("IsInvisible");
-            element->QueryBoolAttribute("value", &waterQuad.IsInvisible);
+            element = element.next_sibling("IsInvisible");
+            waterQuad.IsInvisible = element.attribute("value").as_bool();
             ///
-            element = element->NextSiblingElement("HasLimitedDepth");
-            element->QueryBoolAttribute("value", &waterQuad.HasLimitedDepth);
+            element = element.next_sibling("HasLimitedDepth");
+            waterQuad.HasLimitedDepth = element.attribute("value").as_bool();
             ///
-            element = element->NextSiblingElement("z");
-            element->QueryFloatAttribute("value", &waterQuad.z);
+            element = element.next_sibling("z");
+            waterQuad.z = element.attribute("value").as_float();
             ///
-            element = element->NextSiblingElement("a1");
-            element->QueryFloatAttribute("value", &waterQuad.a1);
+            element = element.next_sibling("a1");
+            waterQuad.a1 = element.attribute("value").as_float();
             ///
-            element = element->NextSiblingElement("a2");
-            element->QueryFloatAttribute("value", &waterQuad.a2);
+            element = element.next_sibling("a2");
+            waterQuad.a2 = element.attribute("value").as_float();
             ///
-            element = element->NextSiblingElement("a3");
-            element->QueryFloatAttribute("value", &waterQuad.a3);
+            element = element.next_sibling("a3");
+            waterQuad.a3 = element.attribute("value").as_float();
             ///
-            element = element->NextSiblingElement("a4");
-            element->QueryFloatAttribute("value", &waterQuad.a4);
+            element = element.next_sibling("a4");
+            waterQuad.a4 = element.attribute("value").as_float();
             ///
-            element = element->NextSiblingElement("NoStencil");
-            element->QueryBoolAttribute("value", &waterQuad.NoStencil);
+            element = element.next_sibling("NoStencil");
+            waterQuad.NoStencil = element.attribute("value").as_bool();
 
             WaterQuads.push_back(waterQuad);
         }
@@ -342,23 +331,24 @@ void GameData::loadWaterQuads(std::vector<uint8_t>& Buffer)
 
 void GameData::loadScenesSwitch(std::vector<uint8_t>& Buffer)
 {
-    tinyxml2::XMLDocument doc;
-    tinyxml2::XMLError eResult = doc.Parse((char*)&Buffer[0], Buffer.size());
+    pugi::xml_document doc;
+    auto error = doc.load_buffer_inplace(Buffer.data(), Buffer.size());
 
-    tinyxml2::XMLElement* root = doc.FirstChildElement("CPlayerSwitchEstablishingShotMetadataStore");
+    pugi::xml_node root = doc.child("CPlayerSwitchEstablishingShotMetadataStore");
 
-    tinyxml2::XMLElement* element = root->FirstChildElement("ShotList");
+    pugi::xml_node element = root.child("ShotList");
 
-    for (tinyxml2::XMLElement* e = element->FirstChildElement("Item"); e != NULL; e = e->NextSiblingElement("Item"))
+    for (pugi::xml_node e = element.child("Item"); e != NULL; e = e.next_sibling("Item"))
     {
-        tinyxml2::XMLElement* element = e->FirstChildElement("Name");
-        std::string Name = element->FirstChild()->Value();
+        pugi::xml_node element = e.child("Name");
+        std::string Name = element.first_child().value();
         ///
-        element = element->NextSiblingElement("Position");
+        element = element.next_sibling("Position");
+		//
         glm::vec3 Position;
-        element->QueryFloatAttribute("x", &Position.x);
-        element->QueryFloatAttribute("y", &Position.y);
-        element->QueryFloatAttribute("z", &Position.z);
+        Position.x = element.attribute("x").as_float();
+        Position.y = element.attribute("y").as_float();
+        Position.z = element.attribute("z").as_float();
         Scenes.push_back(Position);
     }
 }
@@ -374,7 +364,10 @@ void GameData::loadRpf(std::ifstream& rpf, std::string& FullPath_, std::string& 
     for (auto& BinaryFileEntry : file->BinaryEntries)
     {
         if (BinaryFileEntry.FileName == "chinesesimp.rpf")
+        {
+            printf("");
             continue;
+        }
 
         if (BinaryFileEntry.FileName.substr(BinaryFileEntry.FileName.length() - 4) == ".rpf")
         {

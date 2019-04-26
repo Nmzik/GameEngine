@@ -349,6 +349,7 @@ class YdrLoader : public FileType
     std::unique_ptr<YtdLoader> ytd;
 
 public:
+    std::vector<Material> materials;
     std::vector<Model> models;
     std::unique_ptr<YbnLoader> ybn;
     bool isYft = false;

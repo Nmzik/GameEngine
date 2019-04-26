@@ -30,16 +30,12 @@ class Camera
 
     CameraMode cameraMode;
     ViewPlane planes[6];
-
-    GameWorld& world;
-
 public:
     // Constructor with vectors
     Camera(glm::vec3 pos, GameWorld* gameworld)
         : position(pos)
         , rotation(1.0f, 0.0f, 0.0f, 0.0f)
         , cameraMode(CameraMode::ThirdPerson)
-        , world(*gameworld)
         , projection(glm::perspective(glm::radians(45.0f), (float)1280 / (float)720, 0.1f, 10000.0f))
     {
     }
@@ -77,11 +73,11 @@ public:
         position = pos;
     }
 
-    void updateThirdPersonCamera();
+    void updateThirdPersonCamera(CPed* player);
 
     void updateFreeCamera();
 
-    void onUpdate();
+    void onUpdate(CPed* ped);
 
     void updateFrustum(const glm::mat4& proj);
 

@@ -3,10 +3,8 @@
 #include "CPed.h"
 #include "CVehicle.h"
 
-void Camera::updateThirdPersonCamera()
+void Camera::updateThirdPersonCamera(CPed* player)
 {
-    CPed* player = world.getCurrentPlayer();
-
     glm::vec3 targetPosition;
 
     //Player in vehicle
@@ -73,12 +71,12 @@ void Camera::updateFreeCamera()
     ViewMatrix = glm::lookAt(position, position + rotation * glm::vec3(1.f, 0.f, 0.f), up);
 }
 
-void Camera::onUpdate()
+void Camera::onUpdate(CPed* ped)
 {
     switch (cameraMode)
     {
         case CameraMode::ThirdPerson:
-            updateThirdPersonCamera();
+            updateThirdPersonCamera(ped);
             break;
         case CameraMode::FirstPerson:
             printf("NOT IMPLEMENTED");

@@ -13,9 +13,9 @@
 [submodule "3rdparty/recastnavigation"]
 	path = 3rdparty/recastnavigation
 	url = https://github.com/recastnavigation/recastnavigation.git
-[submodule "3rdparty/tinyxml2"]
-	path = 3rdparty/tinyxml2
-	url = https://github.com/leethomason/tinyxml2.git
 [submodule "3rdparty/tiny-AES-c"]
 	path = 3rdparty/tiny-AES-c
 	url = https://github.com/kokke/tiny-AES-c.git
+[submodule "3rdparty/pugixml"]
+	path = 3rdparty/pugixml
+	url = https://github.com/zeux/pugixml.git

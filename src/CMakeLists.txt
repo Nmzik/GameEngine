@@ -8,13 +8,18 @@ file(GLOB SOURCES
 )
 
 if(WIN32)
+	find_package(GLEW REQUIRED)
+	if (GLEW_FOUND)
+		include_directories(${GLEW_INCLUDE_DIRS})
+    link_libraries(${GLEW_LIBRARIES})
+	endif()
+
 	file(GLOB WINSOURCES
 	windows/*.h
 	windows/*.cpp
 	)
 
 	list (APPEND SOURCES ${WINSOURCES})
-
 
 	file(GLOB OpenGL
 	OpenGL/*.h
@@ -50,10 +55,9 @@ target_link_libraries(MyGameEngine BulletCollision)
 target_link_libraries(MyGameEngine LinearMath)
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 	target_link_libraries(MyGameEngine opengl32.lib)
-	target_link_libraries(MyGameEngine glew32.lib)
 endif()
 target_link_libraries(MyGameEngine zlibstatic)
-target_link_libraries(MyGameEngine tinyxml2)
+target_link_libraries(MyGameEngine pugixml)
 target_link_libraries(MyGameEngine Detour)
 target_link_libraries(MyGameEngine Recast)
 target_link_libraries(MyGameEngine freetype)

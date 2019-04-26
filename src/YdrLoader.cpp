@@ -42,7 +42,6 @@ void YdrLoader::Init(memstream& file)
             ytd->Init(file);
         }
 
-        /*std::vector<Material> materials;
         materials.reserve(drawable->ShaderGroupPointer->Shaders.size());
 
         for (int is = 0; is < drawable->ShaderGroupPointer->Shaders.size(); is++)
@@ -111,9 +110,6 @@ void YdrLoader::Init(memstream& file)
 
             file.seekCur(offset);
 
-            //	if (shaderFX->TextureParametersCount > 0)
-            //	file.read((char*)&ShaderHashes[0], sizeof(uint32_t) * shaderFX.TextureParametersCount);
-
             uint32_t DiffuseSampler = 0;
             uint32_t BumpSampler = 0;
             uint32_t SpecularSampler = 0;
@@ -121,32 +117,32 @@ void YdrLoader::Init(memstream& file)
 
             if ((drawable->ShaderGroupPointer->Shaders.Get(is)->TextureParametersCount > 0))
             {
+                uint32_t* ShaderHashes = (uint32_t*)file.read(sizeof(uint32_t) * drawable->ShaderGroupPointer->Shaders.Get(is)->TextureParametersCount);
+                //
                 for (int i = 0; i < drawable->ShaderGroupPointer->Shaders.Get(is)->TextureParametersCount; i++)
                 {
-                    uint32_t* ShaderName = (uint32_t*)file.read(sizeof(uint32_t));
-
-                    if (ShaderName[0] == 4059966321 || (ShaderName[0] == 3576369631))
+                    if (ShaderHashes[i] == 4059966321 || (ShaderHashes[i] == 3576369631))
                     {  //	DiffuseSampler
                         DiffuseSampler = TexturesHashes[i];
                     }
-                    else if (ShaderName[0] == 1186448975)
+                    else if (ShaderHashes[i] == 1186448975)
                     {  //	BumpSampler
                         BumpSampler = TexturesHashes[i];
                     }
-                    else if (ShaderName[0] == 1619499462)
+                    else if (ShaderHashes[i] == 1619499462)
                     {  //	SpecularSampler
                         SpecularSampler = TexturesHashes[i];
                     }
-                    else if (ShaderName[0] == 3393362404)
+                    else if (ShaderHashes[i] == 3393362404)
                     {  //	DetailSampler
                         DetailSampler = TexturesHashes[i];
                     }
                 }
             }
 
-            Material newMat(DiffuseSampler, BumpSampler, SpecularSampler, DetailSampler);
+            Material newMat{false, DiffuseSampler, BumpSampler, SpecularSampler, DetailSampler};
             materials.push_back(newMat);
-        }*/
+        }
     }
     //////////
 
@@ -189,7 +185,7 @@ void YdrLoader::Init(memstream& file)
 
             models[i].geometries.emplace_back(file.data,
                                               drawable->DrawableModels[0]->Get(i)->m_geometries.Get(j),
-                                              materials[(*drawable->DrawableModels[0]->Get(i)->ShaderMappingPointer)[j]], drawable->ShaderGroupPointer->Shaders[(*drawable->DrawableModels[0]->Get(i)->ShaderMappingPointer)[j]]->FileName);
+                                              (*drawable->DrawableModels[0]->Get(i)->ShaderMappingPointer)[j], drawable->ShaderGroupPointer->Shaders[(*drawable->DrawableModels[0]->Get(i)->ShaderMappingPointer)[j]]->FileName);
         }
     }
 }
