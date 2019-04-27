@@ -1,6 +1,6 @@
 #include "YmapLoader.h"
+#include "CBuilding.h"
 #include "Meta.h"
-#include "Object.h"
 #include <btBulletDynamicsCommon.h>
 
 void YmapLoader::Init(memstream& file)
@@ -53,18 +53,22 @@ void YmapLoader::Init(memstream& file)
                 }
                 break;
             }
+            case 164374718:  //CMloInstanceDef
+            {
+                for (int i = 0; i < Block.MetaDataBlock_struct->DataLength / sizeof(CMloInstanceDef); i++)
+                {
+                    CMloInstanceDef MloInstanceDef;
+                    memcpy(&MloInstanceDef, &file.data[Block.MetaDataBlock_struct->DataPointer + i * sizeof(CMloInstanceDef)], sizeof(CMloInstanceDef));
+
+                    CMloInstanceDefs.push_back(MloInstanceDef);
+                }
+                break;
+            }
             default:
                 break;
         }
-
-        /*else if (Block.MetaDataBlock_struct->StructureNameHash == 164374718) //CMloInstanceDef
-		{
-		 size_t curLength = CMloInstanceDefs.size();
-		 CMloInstanceDefs.resize(curLength + Block.MetaDataBlock_struct->DataLength / sizeof(CMloInstanceDef));
-		 std::memcpy(&CMloInstanceDefs[curLength], &file.data[Block.MetaDataBlock_struct->DataPointer], Block.MetaDataBlock_struct->DataLength);
-		}
-	}
-	/*for (int i = 0; i < Objects.size(); i++)
+    }
+    /*for (int i = 0; i < Objects.size(); i++)
 	{
 		Object d = Objects[i];
 		int pind = Objects[i].CEntity.parentIndex;
@@ -90,7 +94,6 @@ void YmapLoader::Init(memstream& file)
 		 RootObjects.push_back(Objects[i]);
 		}
 	}*/
-    }
 }
 
 YmapLoader::~YmapLoader()

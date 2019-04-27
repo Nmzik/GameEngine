@@ -60,20 +60,20 @@ YtypLoader::YtypLoader(memstream& file)
 
                 break;
             }
+            case 3461354627:
+            {
+                for (int i = 0; i < Block.MetaDataBlock_struct->DataLength / sizeof(fwEntityDef); i++)
+                {
+                    fwEntityDef def;
+                    std::memcpy(&def, &file.data[Block.MetaDataBlock_struct->DataPointer + i * sizeof(fwEntityDef)], sizeof(fwEntityDef));
+                    fwEntityDefs.push_back(def);
+                }
+            }
+            break;
             default:
                 break;
         }
     }
-
-    /*if (Block.MetaDataBlock_struct.StructureNameHash == 3461354627)
-	{
-	 for (int i = 0; i < Block.MetaDataBlock_struct.DataLength / sizeof(fwEntityDef); i++)
-	 {
-	  fwEntityDef def;
-	  std::memcpy(&def, &Block.Data[i * sizeof(fwEntityDef)], sizeof(fwEntityDef));
-	  fwEntityDefs.push_back(def);
-	 }
-	}*/
 }
 
 YtypLoader::~YtypLoader()

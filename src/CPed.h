@@ -3,7 +3,7 @@
 #include <array>
 #include <memory>
 #include <vector>
-#include "Entity.h"
+#include "CEntity.h"
 #include <btBulletDynamicsCommon.h>
 
 class CVehicle;
@@ -18,7 +18,7 @@ struct CharacterWeaponSlot
     uint32_t bulletsTotal;
 };
 
-class CPed : public Entity
+class CPed : public CEntity
 {
     std::unique_ptr<btCapsuleShapeZ> physShape;
     std::unique_ptr<btRigidBody> body;
@@ -31,15 +31,13 @@ class CPed : public Entity
     YddLoader* player;
     bool on_ground = false;
 
-    std::vector<YdrLoader*> playerModel;
-
 public:
     CPed(glm::vec3 position, YddLoader* ydd);
     ~CPed();
 
     //CPed& operator=(CPed&& other) = default;
     //CPed(CPed&& other) = default;
-
+    std::vector<YdrLoader*> playerModel;
     bool isAlive() const
     {
         return health > 0;

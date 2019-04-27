@@ -1,10 +1,10 @@
 #include "GameWorld.h"
 #include "common.h"
 
+#include "CBuilding.h"
 #include "Camera.h"
 #include "GTAEncryption.h"
 #include "GameData.h"
-#include "Object.h"
 #include "ResourceManager.h"
 #include "YbnLoader.h"
 #include "YddLoader.h"
@@ -64,7 +64,7 @@ GameWorld::GameWorld(GameData* _gameData)
 	 resourceManager->GetYtd(ytd.second);
 	}*/
 
-    AddPedToWorld(glm::vec3(-178.16, 6258.31, 47.23), playerYDD);
+    AddPedToWorld(glm::vec3(1705.95, 3746.39, 37.64), playerYDD);
     AddPedToWorld(glm::vec3(9.66, -1184.98, 75.74), playerYDD);
     AddPedToWorld(glm::vec3(2250.18f, 3471.40f, 56.50f), playerYDD);
 }
@@ -75,15 +75,21 @@ GameWorld::~GameWorld()
 
 void GameWorld::updateObjects(Camera* camera, glm::vec3& position)
 {
-    for (int i = 0; i < CurYmaps.size(); i++)
+    culledYmaps = 0;
+    for (auto& ymap : CurYmaps)
     {
-        if (CurYmaps[i]->Loaded)
+        if (ymap->Loaded)
         {
-            for (auto& object : CurYmaps[i]->Objects)
+            if (!camera->ContainsAABBNoClipNoOpt(ymap->_CMapData.entitiesExtentsMin, ymap->_CMapData.entitiesExtentsMax))
+            {
+                ++culledYmaps;
+                continue;
+            }
+            for (auto& object : ymap->Objects)
             {
                 float Dist = glm::length2(position - object.getPosition());
-                bool IsVisible = Dist <= object.CEntity.lodDist * LODMultiplier;
-                bool childrenVisible = (Dist <= object.CEntity.childLodDist * LODMultiplier) && (object.CEntity.numChildren > 0);
+                bool IsVisible = Dist <= object.EntityDef.lodDist * LODMultiplier;
+                bool childrenVisible = (Dist <= object.EntityDef.childLodDist * LODMultiplier) && (object.EntityDef.numChildren > 0);
                 if (IsVisible && !childrenVisible)
                 {
                     if (!object.Loaded)
@@ -95,7 +101,7 @@ void GameWorld::updateObjects(Camera* camera, glm::vec3& position)
                                 if (!object.ydr)
                                 {
                                     object.ytd = resourceManager->GetYtd(object.archetype->BaseArchetypeDef.textureDictionary);
-                                    object.ydr = resourceManager->GetYdr(object.CEntity.archetypeName);
+                                    object.ydr = resourceManager->GetYdr(object.EntityDef.archetypeName);
                                 }
                                 if (object.ydr->Loaded)
                                 {
@@ -133,7 +139,7 @@ void GameWorld::updateObjects(Camera* camera, glm::vec3& position)
                                 }
                                 if (object.ydd->Loaded)
                                 {
-                                    auto iter2 = object.ydd->ydrFiles.find(object.CEntity.archetypeName);
+                                    auto iter2 = object.ydd->ydrFiles.find(object.EntityDef.archetypeName);
                                     if (iter2 != object.ydd->ydrFiles.end())
                                     {
                                         object.ydr = iter2->second.get();
@@ -147,7 +153,7 @@ void GameWorld::updateObjects(Camera* camera, glm::vec3& position)
                                 if (!object.yft)
                                 {
                                     object.ytd = resourceManager->GetYtd(object.archetype->BaseArchetypeDef.textureDictionary);
-                                    object.yft = resourceManager->GetYft(object.CEntity.archetypeName);
+                                    object.yft = resourceManager->GetYft(object.EntityDef.archetypeName);
                                 }
                                 if (object.yft->Loaded)
                                 {
@@ -167,7 +173,7 @@ void GameWorld::updateObjects(Camera* camera, glm::vec3& position)
                         }
 
                         bool isreflproxy = false;
-                        switch (object.CEntity.flags)
+                        switch (object.EntityDef.flags)
                         {
                             case 135790592:  //	001000000110000000000000000000    prewater proxy (golf course)
                             case 135790593:  //	001000000110000000000000000001    water refl proxy? (mike house)
@@ -202,8 +208,17 @@ void GameWorld::updateObjects(Camera* camera, glm::vec3& position)
     }
 
     glm::vec3 camPosition = camera->getPosition();
+    for (auto& ped : peds)
+    {
+        renderList.push_back(ped);
+    }
 
-    std::sort(renderList.begin(), renderList.end(), [&camPosition](Object* a, Object* b) {  // FRONT_TO_BACK
+    for (auto& vehicle : vehicles)
+    {
+        renderList.push_back(vehicle);
+    }
+
+    std::sort(renderList.begin(), renderList.end(), [&camPosition](CEntity* a, CEntity* b) {  // FRONT_TO_BACK
         glm::vec3 lhsPosition = glm::vec3(a->getMatrix()[3]);
         glm::vec3 rhsPosition = glm::vec3(b->getMatrix()[3]);
 
@@ -434,35 +449,6 @@ void GameWorld::loadQueuedResources()
             {
                 case ymap:
                 {
-                    YmapLoader* iter = static_cast<YmapLoader*>(res->file);
-                    iter->Init(stream);
-
-                    for (auto& object : iter->Objects)
-                    {
-                        std::unordered_map<uint32_t, fwArchetype*>::iterator it = getGameData()->Archetypes.find(object.CEntity.archetypeName);
-                        if (it != getGameData()->Archetypes.end())
-                        {
-                            object.archetype = it->second;
-
-                            object.BoundPos = object.CEntity.position - object.archetype->BaseArchetypeDef.bsCentre;
-                            object.BoundRadius = object.archetype->BaseArchetypeDef
-                                                     .bsRadius;  //* std::max(object.CEntity.scaleXY, object.CEntity.scaleZ); TREES doesnt render with multiplying by scale
-
-                            if (object.CEntity.lodDist <= 0)
-                                object.CEntity.lodDist = it->second->BaseArchetypeDef.lodDist;
-                            if (object.CEntity.childLodDist <= 0)
-                                object.CEntity.childLodDist = it->second->BaseArchetypeDef.lodDist;
-                        }
-                        else
-                        {
-                            //	printf("ERROR\n"); ACTUALLY IT CAN HAPPEN
-                            object.archetype = nullptr;
-                            object.CEntity.lodDist = 0.f;  //	HACK = DONT RENDER OBJECTS WITH UNKNOWN ARCHETYPE
-                        }
-
-                        object.CEntity.lodDist *= object.CEntity.lodDist;            // glm::length2
-                        object.CEntity.childLodDist *= object.CEntity.childLodDist;  // glm::length2
-                    }
                     res->file->Loaded = true;
                     break;
                 }
@@ -514,9 +500,7 @@ void GameWorld::createVehicle(glm::vec3 position)
 {
     int vehicleID = rand() % data.VehiclesInfo.size();
 
-    YftLoader* vehicle;
-
-    if (resourceManager->GetYft(data.VehiclesInfo[vehicleID].Hash)->Loaded)
+    if (YftLoader* vehicle = resourceManager->GetYft(data.VehiclesInfo[vehicleID].Hash); vehicle->Loaded)
     {
         AddVehicleToWorld(position, data.VehiclesInfo[vehicleID].mass, vehicle);
         printf("Car Spawned\n");
@@ -541,18 +525,23 @@ void GameWorld::cleanupTraffic(Camera* camera)
         }
     }*/
     //vehicles
-    for (auto it = vehicles.begin(); it != vehicles.end();)
+    for (int i = 0; i < vehicles.size(); i++)
     {
-        if (glm::distance(camera->getPosition(), (*it)->getPosition()) >= radiusTraffic)
+        if (glm::distance(camera->getPosition(), vehicles[i]->getPosition()) >= radiusTraffic)
         {
-            RemoveVehicleFromWorld(*it);
-            delete *it;
-            vehicles.erase(it);
+            RemoveVehicleFromWorld(vehicles[i]);
+            delete vehicles[i];
             printf("Car Removed\n");
-        }
-        else
-        {
-            ++it;
+
+            // ensure that we're not attempting to access out of the bounds of the container.
+            assert(i < vehicles.size());
+
+            //Swap the element with the back element, except in the case when we're the last element.
+            if (i + 1 != vehicles.size())
+                std::swap(vehicles[i], vehicles.back());
+
+            //Pop the back of the container, deleting our old element.
+            vehicles.pop_back();
         }
     }
 }

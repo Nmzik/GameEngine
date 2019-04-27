@@ -1,7 +1,7 @@
 #include "GameRenderer.h"
+#include "CBuilding.h"
 #include "Camera.h"
 #include "Model.h"
-#include "Object.h"
 #include "Shader.h"
 #include "YdrLoader.h"
 
@@ -29,12 +29,19 @@ GameRenderer::GameRenderer(NativeWindow* window)
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     // Black/white checkerboard //Default texture
-    glGenTextures(1, &defaultTexture);
-    glBindTexture(GL_TEXTURE_2D, defaultTexture);
-    float pixels[] = {0.85f, 0.79f, 0.79f, 0.85f, 0.79f, 0.79f, 0.85f, 0.79f, 0.79f, 0.85f, 0.79f, 0.79f};
+    glGenTextures(1, &defaultTexture1);
+    glBindTexture(GL_TEXTURE_2D, defaultTexture1);
+    float pixels1[] = {0.85f, 0.79f, 0.79f, 0.85f, 0.79f, 0.79f, 0.85f, 0.79f, 0.79f, 0.85f, 0.79f, 0.79f};
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 2, 2, 0, GL_RGB, GL_FLOAT, pixels);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 2, 2, 0, GL_RGB, GL_FLOAT, pixels1);
+
+    glGenTextures(1, &defaultTexture2);
+    glBindTexture(GL_TEXTURE_2D, defaultTexture2);
+    float pixels2[] = {0.55f, 0.59f, 0.59f, 0.55f, 0.59f, 0.59f, 0.55f, 0.59f, 0.59f, 0.55f, 0.59f, 0.59f};
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 2, 2, 0, GL_RGB, GL_FLOAT, pixels2);
 }
 
 GameRenderer::~GameRenderer()
@@ -55,7 +62,60 @@ void GameRenderer::presentFrame()
     nativeWindow->SwapBuffers();
 }
 
-void GameRenderer::RenderWorld(GameWorld* world, Camera* curCamera)
+void GameRenderer::renderDrawable(YdrLoader* drawable)
+{
+    int curTexture = 0;
+    for (auto& model : drawable->models)
+    {
+        if ((model.Unk_2Ch & 1) == 0)
+        {
+            continue;  //	PROXIES
+        }
+        for (auto& geometry : model.geometries)
+        {
+            mainShader->use();
+
+            glBindVertexArray(geometry.VAO);
+
+            glActiveTexture(GL_TEXTURE0);
+            curTexture = !curTexture;
+            if (curTexture == 0)
+                glBindTexture(GL_TEXTURE_2D, defaultTexture1);
+            else
+                glBindTexture(GL_TEXTURE_2D, defaultTexture2);
+
+            glActiveTexture(GL_TEXTURE1);
+            glBindTexture(GL_TEXTURE_2D, defaultTexture1);
+
+            glActiveTexture(GL_TEXTURE2);
+            glBindTexture(GL_TEXTURE_2D, defaultTexture1);
+
+            glDrawElements(GL_TRIANGLES, geometry.num_indices, GL_UNSIGNED_SHORT, 0);
+
+            NumDrawCalls++;
+        }
+    }
+}
+
+void GameRenderer::renderBuilding(CBuilding* building)
+{
+    renderDrawable(building->ydr);
+}
+
+void GameRenderer::renderPed(CPed* ped)
+{
+    for (auto& ydr : ped->playerModel)
+    {
+        renderDrawable(ydr);
+    }
+}
+
+void GameRenderer::renderVehicle(CVehicle* vehicle)
+{
+    renderDrawable(vehicle->getDrawable()->ydr.get());
+}
+
+void GameRenderer::renderWorld(GameWorld* world, Camera* curCamera)
 {
     beginFrame();
 
@@ -82,31 +142,28 @@ void GameRenderer::RenderWorld(GameWorld* world, Camera* curCamera)
         glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &object->getMatrix()[0]);
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-        for (auto& model : object->ydr->models)
+        switch (object->getType())
         {
-            if ((model.Unk_2Ch & 1) == 0)
+            case ObjectType::Building:
             {
-                continue;  //	PROXIES
+                CBuilding* building = static_cast<CBuilding*>(object);
+                renderBuilding(building);
+                break;
             }
-            for (auto& geometry : model.geometries)
+            case ObjectType::Vehicle:
             {
-                mainShader->use();
-
-                glBindVertexArray(geometry.VAO);
-
-                glActiveTexture(GL_TEXTURE0);
-                glBindTexture(GL_TEXTURE_2D, defaultTexture);
-
-                glActiveTexture(GL_TEXTURE1);
-                glBindTexture(GL_TEXTURE_2D, defaultTexture);
-
-                glActiveTexture(GL_TEXTURE2);
-                glBindTexture(GL_TEXTURE_2D, defaultTexture);
-
-                glDrawElements(GL_TRIANGLES, geometry.num_indices, GL_UNSIGNED_SHORT, 0);
-
-                NumDrawCalls++;
+                CVehicle* vehicle = static_cast<CVehicle*>(object);
+                //renderVehicle(vehicle);
+                break;
             }
+            case ObjectType::Ped:
+            {
+                CPed* ped = static_cast<CPed*>(object);
+                renderPed(ped);
+                break;
+            }
+            default:
+                break;
         }
     }
 

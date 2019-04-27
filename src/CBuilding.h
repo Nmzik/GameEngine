@@ -1,5 +1,5 @@
 #pragma once
-#include "Entity.h"
+#include "CEntity.h"
 #include "YtypLoader.h"
 
 class YdrLoader;
@@ -8,7 +8,7 @@ class YftLoader;
 class YtdLoader;
 class btRigidBody;
 
-class Object : public Entity
+class CBuilding : public CEntity
 {
 public:
     YdrLoader* ydr = nullptr;
@@ -21,11 +21,11 @@ public:
 
     glm::vec3 BoundPos;
     float BoundRadius;
-    fwEntityDef CEntity;
-    fwArchetype* archetype;
+    fwEntityDef EntityDef;
+    fwArchetype* archetype = nullptr;
 
-    Object(fwEntityDef def);
-    ~Object();
+    CBuilding(fwEntityDef def);
+    ~CBuilding();
 
 private:
 };

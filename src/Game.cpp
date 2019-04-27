@@ -98,6 +98,7 @@ void Game::updateFPS(float delta_time, float cpuThreadTime, float gpuThreadTime)
               << (cpuThreadTime * 1000.0f) << " CPU Thread time, "
               << (gpuThreadTime * 1000.0f) << " Render Thread time, "
               //<< rendering_system->gpuTime * 0.000001f << " GPU time, "
+              << gameWorld->culledYmaps << " Culled ymaps, "
               << gameWorld->renderList.size() << " Objects, "
               << rendering_system->getNumDrawCalls() << " Draw Calls, "
               << gameWorld->getResourceManager()->GlobalGpuMemory / 1024 / 1024 << " MB GPU Mem, "
@@ -138,7 +139,7 @@ void Game::run()
         float cpuThreadTime = std::chrono::duration<float>(cpuThreadEnd - cpuThreadStart).count();
 
         auto gpuThreadStart = std::chrono::steady_clock::now();
-        rendering_system->RenderWorld(gameWorld.get(), camera.get());
+        rendering_system->renderWorld(gameWorld.get(), camera.get());
         auto gpuThreadEnd = std::chrono::steady_clock::now();
         float gpuThreadTime = std::chrono::duration<float>(gpuThreadEnd - gpuThreadStart).count();
 
@@ -152,8 +153,9 @@ void Game::tick(float delta_time)
 
     if (getInput()->IsKeyTriggered(Actions::button_E))
     {
+        getWorld()->enableYmapFrustum = !getWorld()->enableYmapFrustum;
         //	getWorld()->LODMultiplier += 0.05f;
-        getWorld()->EnableStreaming = !getWorld()->EnableStreaming;
+        //getWorld()->EnableStreaming = !getWorld()->EnableStreaming;
     }
 
     /*if (getInput()->IsKeyTriggered(Actions::button_GPU_TIME))
@@ -231,59 +233,63 @@ void Game::tick(float delta_time)
             if (player->getCurrentVehicle())
             {
                 player->getPhysCharacter()->getBroadphaseHandle()->m_collisionFilterMask = btBroadphaseProxy::DefaultFilter;
-                player->getPhysCharacter()->setGravity(btVector3(0, 0, 0));
+                player->setGravity(glm::vec3(0.0f));
             }
         }
     }
+
+    float speed = getInput()->IsKeyPressed(Actions::button_LSHIFT) ? 30.0f : 1.0f;
 
     glm::vec3 movement{};
     movement.x = (float)getInput()->IsKeyPressed(Actions::button_Forward) - getInput()->IsKeyPressed(Actions::button_Backward);
     movement.y = (float)getInput()->IsKeyPressed(Actions::button_TurnLeft) - getInput()->IsKeyPressed(Actions::button_TurnRight);
 
-    movement *= 3;
+    movement *= speed;
 
     if (camera->getCameraMode() == CameraMode::FreeCamera)
     {
         glm::vec3 camPos = camera->getPosition();
         if (getInput()->IsKeyPressed(Actions::button_CameraUp))
         {
-            camPos.z += 10;
+            camPos.z += 5;
         }
 
         if (getInput()->IsKeyPressed(Actions::button_CameraDown))
         {
-            camPos.z -= 10;
+            camPos.z -= 5;
         }
 
-        camera->setPosition(camPos + movement);
+        camera->setPosition(camPos);
     }
 
     if (player->getCurrentVehicle())
     {
-        glm::vec3 vehiclePosition = player->getCurrentVehicle()->getPosition();
+        CVehicle* curVehicle = player->getCurrentVehicle();
+
+        glm::vec3 vehiclePosition = curVehicle->getPosition();
 
         if (vehiclePosition.z <= -150)
         {
-            player->getCurrentVehicle()->setPosition(glm::vec3(vehiclePosition.x, vehiclePosition.y, vehiclePosition.z + 300.f));
+            curVehicle->setPosition(glm::vec3(vehiclePosition.x, vehiclePosition.y, vehiclePosition.z + 300.f));
         }
 
         if (getInput()->IsKeyPressed(Actions::button_Forward))
         {
-            player->getCurrentVehicle()->setThrottle(1.0);
+            curVehicle->setThrottle(1.0);
         }
         else if (getInput()->IsKeyPressed(Actions::button_Backward))
         {
-            player->getCurrentVehicle()->setThrottle(-1.0);
+            curVehicle->setThrottle(-1.0);
         }
         else
         {
-            player->getCurrentVehicle()->setThrottle(0.0);
+            curVehicle->setThrottle(0.0);
         }
 
         float steering = getInput()->IsKeyPressed(Actions::button_TurnLeft) ? 0.3f : getInput()->IsKeyPressed(Actions::button_TurnRight) ? -0.3f : 0.0f;
-        player->getCurrentVehicle()->setSteeringValue(steering);
+        curVehicle->setSteeringValue(steering);
 
-        player->getPhysCharacter()->setWorldTransform(player->getCurrentVehicle()->getCarChassisRigidbody()->getWorldTransform());
+        player->setPosition(curVehicle->getPosition());
     }
     else
     {
@@ -301,9 +307,6 @@ void Game::tick(float delta_time)
                 player->setPosition(glm::vec3(ws.x, ws.y, ws.z + 10.0f));
             }
         }
-
-        float speed = getInput()->IsKeyPressed(Actions::button_LSHIFT) ? 30.0f : 1.0f;
-
         /*bool inWater = false;
 			if (getWorld()->DetectInWater(glm::vec3(player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getX(),
 			player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getY(),

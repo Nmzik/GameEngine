@@ -30,6 +30,7 @@ class Camera
 
     CameraMode cameraMode;
     ViewPlane planes[6];
+
 public:
     // Constructor with vectors
     Camera(glm::vec3 pos, GameWorld* gameworld)
@@ -82,4 +83,5 @@ public:
     void updateFrustum(const glm::mat4& proj);
 
     bool intersects(glm::vec3 center, float radius) const;
+    bool ContainsAABBNoClipNoOpt(glm::vec3& bmin, glm::vec3& bmax);
 };

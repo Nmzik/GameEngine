@@ -4,11 +4,17 @@
 class GameWorld;
 class Camera;
 class Shader;
+//
+class YdrLoader;
+class CBuilding;
+class CPed;
+class CVehicle;
 
 class GameRenderer
 {
     NativeWindow* nativeWindow;
-    GLuint defaultTexture;
+    GLuint defaultTexture1;
+    GLuint defaultTexture2;
     int NumDrawCalls;
 
     //
@@ -27,7 +33,12 @@ public:
     void endFrame();
     void presentFrame();
 
-    void RenderWorld(GameWorld* world, Camera* curCamera);
+    void renderDrawable(YdrLoader* drawable);
+    void renderBuilding(CBuilding* building);
+    void renderPed(CPed* ped);
+    void renderVehicle(CVehicle* vehicle);
+    //
+    void renderWorld(GameWorld* world, Camera* curCamera);
 
     int getNumDrawCalls() const
     {

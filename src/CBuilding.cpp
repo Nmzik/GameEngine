@@ -1,4 +1,4 @@
-#include "Object.h"
+#include "CBuilding.h"
 #include "YddLoader.h"
 #include "YdrLoader.h"
 #include "YftLoader.h"
@@ -6,13 +6,13 @@
 
 #include <btBulletDynamicsCommon.h>
 
-Object::Object(fwEntityDef def)
-    : Entity(def.position, def.rotation, glm::vec3(def.scaleXY, def.scaleXY, def.scaleZ))
-    , CEntity(def)
+CBuilding::CBuilding(fwEntityDef def)
+    : CEntity(def.position, def.rotation, glm::vec3(def.scaleXY, def.scaleXY, def.scaleZ), ObjectType::Building)
+    , EntityDef(def)
 {
 }
 
-Object::~Object()
+CBuilding::~CBuilding()
 {
     /*if (rigidBody)
 	{

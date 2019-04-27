@@ -182,6 +182,6 @@ Geometry::Geometry(const uint8_t* meshData, grmGeometry* drawGeom, uint16_t _mat
 
 Geometry::~Geometry()
 {
-    glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(2, VBO);
+    glDeleteVertexArrays(1, &VAO);
 }

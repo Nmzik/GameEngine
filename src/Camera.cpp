@@ -160,3 +160,19 @@ bool Camera::intersects(glm::vec3 center, float radius) const
 
     return true;
 }
+
+bool Camera::ContainsAABBNoClipNoOpt(glm::vec3& bmin, glm::vec3& bmax)
+{
+    auto c = (bmax + bmin) * 0.5f;
+    auto e = (bmax - bmin) * 0.5f;
+    for (int i = 0; i < 6; i++)
+    {
+        auto pd = planes[i].distance;
+        auto pn = planes[i].normal;
+        auto d = (c.x * pn.x) + (c.y * pn.y) + (c.z * pn.z);
+        auto r = (e.x * (pn.x > 0 ? pn.x : -pn.x)) + (e.y * (pn.y > 0 ? pn.y : -pn.y)) + (e.z * (pn.z > 0 ? pn.z : -pn.z));
+        if ((d + r) < -pd) return false;
+        //if ((d - r) < -pd) ; //intersecting
+    }
+    return true;
+}

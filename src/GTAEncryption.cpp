@@ -196,26 +196,6 @@ void GTAEncryption::decompressBytes(uint8_t* data, uint32_t dataLength, uint8_t*
     (void)inflateReset(&strm);
 }
 
-/*
-do {
-ret = inflate(&strm, Z_NO_FLUSH);
-
-if (ret < 0) {
-(void)inflateReset(&strm);
-printf("Error %d in zlib uncompress\n", ret);
-}
-
-if (ret != Z_STREAM_END) {
-uint32_t oldSize = output.size();
-output.resize(output.size() * 2);
-
-strm.avail_out = oldSize;
-strm.next_out = output.data() + oldSize;
-}
-
-} while (ret != Z_STREAM_END);
-*/
-
 uint32_t GenHash(std::string_view Name)
 {
     uint32_t h = 0;

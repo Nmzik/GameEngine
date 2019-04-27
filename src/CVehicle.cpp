@@ -7,7 +7,7 @@ CVehicle::CVehicle(glm::vec3 position, float mass, YftLoader* yft, btDynamicsWor
     : throttle(0)
     , steeringValue(0)
     , vehicle(yft)
-    , Entity(position, glm::quat(-1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(1.0f))
+    , CEntity(position, glm::quat(-1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(1.0f), ObjectType::Vehicle)
 {
     btRaycastVehicle::btVehicleTuning m_tuning;
 

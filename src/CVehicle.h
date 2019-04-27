@@ -1,12 +1,12 @@
 #pragma once
 #include <memory>
-#include "Entity.h"
+#include "CEntity.h"
 #include <btBulletDynamicsCommon.h>
 #include "BulletCollision/CollisionDispatch/btGhostObject.h"
 
 #include "YftLoader.h"
 
-class CVehicle : public Entity
+class CVehicle : public CEntity
 {
     YftLoader* vehicle;
     //

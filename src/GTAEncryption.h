@@ -14,7 +14,7 @@ private:
     //zlib
     z_stream strm;
     //aes
-    struct AES_ctx ctx;
+    AES_ctx ctx;
 
     uint8_t PC_AES_KEY[32];
     uint8_t LUT[256];

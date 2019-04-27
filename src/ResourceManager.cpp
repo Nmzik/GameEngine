@@ -1,7 +1,7 @@
 #include "ResourceManager.h"
+#include "CBuilding.h"
 #include "GameData.h"
 #include "GameWorld.h"
-#include "Object.h"
 #include "RpfEntry.h"
 #include "YbnLoader.h"
 #include "YddLoader.h"
@@ -282,6 +282,65 @@ void ResourceManager::update()
                     res->BufferSize = it->second->UncompressedFileSize;
                     gameworld->getGameData()->extractFileResource(*(it->second), res->Buffer, res->BufferSize);
                     res->SystemSize = (it->second->SystemSize);
+                }
+                if (res->type == ymap)
+                {
+                    YmapLoader* iter = static_cast<YmapLoader*>(res->file);
+                    memstream stream(&res->Buffer[0], res->BufferSize);
+                    iter->Init(stream);
+
+                    for (auto& mlo : iter->CMloInstanceDefs)
+                    {
+                        auto it = gameworld->getGameData()->MloDictionary.find(mlo.fwEntityDef.archetypeName);
+                        if (it != gameworld->getGameData()->MloDictionary.end())
+                        {
+                            for (auto& EntityDef : it->second)
+                            {
+                                glm::quat rotmultiply = EntityDef.rotation * mlo.fwEntityDef.rotation;
+                                rotmultiply.w = -rotmultiply.w;
+                                glm::mat4 matrix = glm::translate(glm::mat4(1.0f), mlo.fwEntityDef.position + EntityDef.position) *
+                                                   glm::mat4_cast(glm::quat(-mlo.fwEntityDef.rotation.w, -mlo.fwEntityDef.rotation.x,
+                                                                            -mlo.fwEntityDef.rotation.y, -mlo.fwEntityDef.rotation.z)) *
+                                                   glm::scale(glm::mat4(1.0f),
+                                                              glm::vec3(EntityDef.scaleXY, EntityDef.scaleXY, EntityDef.scaleZ));
+                                EntityDef.position = mlo.fwEntityDef.position + EntityDef.position;
+                                EntityDef.rotation = rotmultiply;
+                                iter->Objects.emplace_back(EntityDef);
+                            }
+                        }
+                    }
+
+                    for (auto& object : iter->Objects)
+                    {
+                        std::unordered_map<uint32_t, fwArchetype*>::iterator it = gameworld->getGameData()->Archetypes.find(object.EntityDef.archetypeName);
+                        if (it != gameworld->getGameData()->Archetypes.end())
+                        {
+                            if (it->second->GetType() == 2)
+                            {
+                                printf("");
+                            }
+
+                            object.archetype = it->second;
+
+                            object.BoundPos = object.EntityDef.position - object.archetype->BaseArchetypeDef.bsCentre;
+                            object.BoundRadius = object.archetype->BaseArchetypeDef
+                                                     .bsRadius;  //* std::max(object.CEntity.scaleXY, object.CEntity.scaleZ); TREES doesnt render with multiplying by scale
+
+                            if (object.EntityDef.lodDist <= 0)
+                                object.EntityDef.lodDist = it->second->BaseArchetypeDef.lodDist;
+                            if (object.EntityDef.childLodDist <= 0)
+                                object.EntityDef.childLodDist = it->second->BaseArchetypeDef.lodDist;
+                        }
+                        else
+                        {
+                            //	printf("ERROR\n"); ACTUALLY IT CAN HAPPEN
+                            object.archetype = nullptr;
+                            object.EntityDef.lodDist = 0.f;  //	HACK = DONT RENDER OBJECTS WITH UNKNOWN ARCHETYPE
+                        }
+
+                        object.EntityDef.lodDist *= object.EntityDef.lodDist;            // glm::length2
+                        object.EntityDef.childLodDist *= object.EntityDef.childLodDist;  // glm::length2
+                    }
                 }
                 addToMainQueue(res);
             }

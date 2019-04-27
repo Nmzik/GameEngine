@@ -17,7 +17,6 @@ class Water;
 class Camera;
 class YdrLoader;
 class YbnLoader;
-class Object;
 class GameData;
 
 inline float RandomFloat(float min, float max)
@@ -61,6 +60,7 @@ class GameWorld
 public:
     YddLoader* skydome;
     uint32_t culled = 0;
+    uint32_t culledYmaps;
     float LODMultiplier = 1.0f;
     uint8_t currentPlayerID = 0;
     //std::vector<Water> WaterMeshes;
@@ -73,8 +73,9 @@ public:
     std::deque<Resource*> resourcesThread;
 
     //	RenderList renderList;
-    std::vector<Object*> renderList;
+    std::vector<CEntity*> renderList;
 
+    bool enableYmapFrustum = false;
     bool EnableStreaming = true;
     DirectionalLight dirLight;
     uint8_t gameMinute;

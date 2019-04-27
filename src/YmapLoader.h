@@ -2,15 +2,15 @@
 #include <vector>
 #include "FileType.h"
 
-/*struct CMloInstanceDef // 160 bytes, Key:2151576752
+struct CMloInstanceDef  // 160 bytes, Key:2151576752
 {
- fwEntityDef fwEntityDef;
- uint32_t groupId;             //	128   128: UnsignedInt: 0: 2501631252
- uint32_t floorId;             //	132   132: UnsignedInt: 0: floorId//2187650609
- Array_uint defaultEntitySets; //	136   136: Array: 0: defaultEntitySets//1407157833  {0: Hash: 0: 256}
- uint32_t numExitPortals;      //	152   152: UnsignedInt: 0: numExitPortals//528711607
- uint32_t MLOInstflags;        //	156   156: UnsignedInt: 0: MLOInstflags//3761966250
-};*/
+    fwEntityDef fwEntityDef;
+    uint32_t groupId;              //	128   128: UnsignedInt: 0: 2501631252
+    uint32_t floorId;              //	132   132: UnsignedInt: 0: floorId//2187650609
+    Array_uint defaultEntitySets;  //	136   136: Array: 0: defaultEntitySets//1407157833  {0: Hash: 0: 256}
+    uint32_t numExitPortals;       //	152   152: UnsignedInt: 0: numExitPortals//528711607
+    uint32_t MLOInstflags;         //	156   156: UnsignedInt: 0: MLOInstflags//3761966250
+};
 
 struct CCarGen  // 80 bytes, Key:2345238261
 {
@@ -110,14 +110,14 @@ struct CMapData  // 512 bytes, Key:3448101671
     CBlockDesc block;                        //	440   440: Structure: CBlockDesc//3072355914: block
 };
 
-class Object;
+class CBuilding;
 
 class YmapLoader : public FileType
 {
 public:
     CMapData _CMapData;
-    //	std::vector<CMloInstanceDef> CMloInstanceDefs;
-    std::vector<Object> Objects;
+    std::vector<CMloInstanceDef> CMloInstanceDefs;
+    std::vector<CBuilding> Objects;
     std::vector<CCarGen> CarGenerators;
 
     void Init(memstream& file) override;

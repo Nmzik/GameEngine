@@ -9,7 +9,7 @@
 CPed::CPed(glm::vec3 position, YddLoader* ydd)
     : vehicle(nullptr)
     , player(ydd)
-    , Entity(position, glm::quat(-1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(1.0f))
+    , CEntity(position, glm::quat(-1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(1.0f), ObjectType::Ped)
 {
     health = 200;
     playerModel.push_back(ydd->ydrFiles[121241095].get());

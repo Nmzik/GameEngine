@@ -132,7 +132,7 @@ class YtypLoader
 {
 public:
     std::vector<fwArchetype*> ArchetypeDefs;
-    //	std::vector<fwEntityDef> fwEntityDefs;
+    std::vector<fwEntityDef> fwEntityDefs;
     YtypLoader(memstream& file);
     ~YtypLoader();
 };

@@ -37,7 +37,7 @@ GameData::GameData(std::string Path)
         "x64u.rpf",
         "x64v.rpf",
         "x64w.rpf",
-		"update\\update.rpf"};
+        "update\\update.rpf"};
 
     for (std::string& rpfFile : RpfsFiles)
     {
@@ -138,13 +138,12 @@ GameData::GameData(std::string Path)
                 YtypLoader file(stream);
                 for (auto& def : file.ArchetypeDefs)
                 {
+                    if (def->GetType() == 2)  //MLO
+                    {
+                        MloDictionary[def->BaseArchetypeDef.assetName] = file.fwEntityDefs;
+                    }
                     Archetypes[def->BaseArchetypeDef.assetName] = def;
                 }
-
-                /*if (file.CMloArchetypeDefs.size() != 0)
-				{
-				 MloDictionary[file.CMloArchetypeDefs[0]._BaseArchetypeDef.assetName] = file.fwEntityDefs;
-				}*/
             }
             else if (extension == ".ynd")
             {
@@ -233,15 +232,15 @@ void GameData::loadHandlingData(std::vector<uint8_t>& Buffer)
 
     pugi::xml_node element = root.child("HandlingData");
 
-    for (pugi::xml_node e = element.first_child(); e != NULL; e = e.next_sibling()) //ITEM
+    for (pugi::xml_node e = element.first_child(); e != NULL; e = e.next_sibling())  //ITEM
     {
         pugi::xml_node element = e.child("handlingName");
-		//
+        //
         CarHandling car;
-		//
+        //
         std::string CarName = element.first_child().value();
         std::transform(CarName.begin(), CarName.end(), CarName.begin(), tolower);
-		//
+        //
         car.Hash = GenHash(CarName);
         car.mass = element.next_sibling("fMass").attribute("value").as_float();
         car.file = nullptr;
@@ -259,7 +258,7 @@ void GameData::loadGtxd()
 
     pugi::xml_node element = root.child("txdRelationships");
 
-    for (pugi::xml_node e = element.first_child(); e != NULL; e = e.next_sibling()) //item
+    for (pugi::xml_node e = element.first_child(); e != NULL; e = e.next_sibling())  //item
     {
         pugi::xml_node element = e.child("parent");
         std::string ParentName = element.first_child().value();
@@ -280,7 +279,7 @@ void GameData::loadWaterQuads(std::vector<uint8_t>& Buffer)
 
     pugi::xml_node element = root.child("WaterQuads");
 
-    for (pugi::xml_node e = element.first_child(); e != NULL; e = e.next_sibling()) //item
+    for (pugi::xml_node e = element.first_child(); e != NULL; e = e.next_sibling())  //item
     {
         if (e.first_child() != nullptr)
         {  // water.xml DLC
@@ -344,7 +343,7 @@ void GameData::loadScenesSwitch(std::vector<uint8_t>& Buffer)
         std::string Name = element.first_child().value();
         ///
         element = element.next_sibling("Position");
-		//
+        //
         glm::vec3 Position;
         Position.x = element.attribute("x").as_float();
         Position.y = element.attribute("y").as_float();
