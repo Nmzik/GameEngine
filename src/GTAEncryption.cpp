@@ -76,6 +76,13 @@ void GTAEncryption::LoadKeys()
     }
 
     ngtables.close();
+
+    uint32_t awc_key[] = {
+        4165194522,
+        2330575623,
+        1737828644,
+        4060688116};
+    memcpy(&PC_AWC_KEY[0], &awc_key[0], 16);
 }
 
 uint32_t GTAEncryption::calculateHash(std::string& text)
@@ -103,6 +110,29 @@ void GTAEncryption::decryptAES(uint8_t* data, uint32_t DataLength)
     {
         AES_ECB_decrypt(&ctx, &data[i * 16]);
     }
+}
+
+void GTAEncryption::Decrypt_RSXXTEA(uint8_t* data, size_t dataLength)
+{
+    // Rockstar's modified version of XXTEA
+    uint32_t* blocks = new uint32_t[dataLength / 4];
+    memcpy(&blocks[0], &data[0], dataLength);
+
+    int block_count = dataLength / 4;
+    uint32_t a, b = blocks[0], i;
+
+    i = (uint32_t)(0x9E3779B9 * (6 + 52 / block_count));
+    do
+    {
+        for (int block_index = block_count - 1; block_index >= 0; --block_index)
+        {
+            a = blocks[(block_index > 0 ? block_index : block_count) - 1];
+            b = blocks[block_index] -= (a >> 5 ^ b << 2) + (b >> 3 ^ a << 4) ^ (i ^ b) + (PC_AWC_KEY[block_index & 3 ^ (i >> 2 & 3)] ^ a ^ 0x7B3A207F);
+        }
+        i -= 0x9E3779B9;
+    } while (i != 0);
+
+    memcpy(&data[0], &blocks[0], dataLength);
 }
 
 void GTAEncryption::decryptNG(uint8_t* data, uint32_t dataLength, std::string& name, uint32_t length)

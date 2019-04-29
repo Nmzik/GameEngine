@@ -1,4 +1,5 @@
 #include "GameData.h"
+#include "AwcLoader.h"
 #include "CacheDatFile.h"
 #include "GTAEncryption.h"
 #include "RpfFile.h"
@@ -166,6 +167,11 @@ GameData::GameData(std::string Path)
             size_t index = entry.FileName.find_last_of('.');
             std::string extension = entry.FileName.substr(index);
 
+            std::string_view FileNameNoExtension(entry.FileName);
+            FileNameNoExtension.remove_suffix(FileNameNoExtension.size() - index);
+
+            entry.ShortNameHash = GenHash(FileNameNoExtension);
+
             if (extension == ".ymf")
             {
                 std::vector<uint8_t> outputBuffer(entry.FileUncompressedSize);
@@ -178,6 +184,26 @@ GameData::GameData(std::string Path)
                 {
                     HDTextures[GenHash(texture->targetAsset)] = GenHash(texture->HDTxd);
                 }
+            }
+
+            else if (extension == ".awc")
+            {
+                //	YscEntries[entry.FileNameHash] = &entry;
+                Audios[entry.ShortNameHash] = &entry;
+
+                /*static bool tested = false;
+                if (!tested)
+                {
+                    tested = true;
+                    std::vector<uint8_t> outputBuffer(entry.FileUncompressedSize);
+                    //extractFileBinary(entry, outputBuffer);
+                    auto& rpf = entry.File->rpf;
+                    rpf.seekg(entry.FileOffset);
+                    rpf.read((char*)&outputBuffer[0], entry.FileUncompressedSize);
+
+                    memstream stream(outputBuffer.data(), outputBuffer.size());
+                    AwcLoader loader(stream);
+                }*/
             }
 
             else if (entry.FileName == "handling.meta")
@@ -395,7 +421,8 @@ void GameData::extractFileBinary(RpfBinaryFileEntry& entry, std::vector<uint8_t>
     else
         GTAEncryption::getInstance().decryptNG(&TempBuffer[0], entry.FileSize, entry.FileName, entry.FileUncompressedSize);
 
-    GTAEncryption::getInstance().decompressBytes(&TempBuffer[0], entry.FileSize, output.data(), output.size());
+    if (entry.FileSize > 0)  //awc
+        GTAEncryption::getInstance().decompressBytes(&TempBuffer[0], entry.FileSize, output.data(), output.size());
 }
 
 void GameData::extractFileResource(RpfResourceFileEntry& entry, uint8_t* AllocatedMem, uint64_t AllocatedSize)

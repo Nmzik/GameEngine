@@ -18,6 +18,7 @@ class Camera;
 class YdrLoader;
 class YbnLoader;
 class GameData;
+class CBuilding;
 
 inline float RandomFloat(float min, float max)
 {
@@ -56,6 +57,8 @@ class GameWorld
     glm::i32vec2 CurNavCell;
     std::vector<YmapLoader*> CurYmaps;
     std::vector<YbnLoader*> CurYbns;
+
+    std::vector<CBuilding> minimap;
 
 public:
     YddLoader* skydome;

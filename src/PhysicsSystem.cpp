@@ -162,3 +162,15 @@ void PhysicsSystem::removeRigidBody(btRigidBody* body)
 {
     dynamicsWorld->removeRigidBody(body);
 }
+
+void PhysicsSystem::putRigidBodyToSleep(btRigidBody* body)
+{
+    body->getBroadphaseHandle()->m_collisionFilterMask = btBroadphaseProxy::DefaultFilter;
+    body->setGravity(btVector3(0.f, 0.f, 0.f));
+}
+
+void PhysicsSystem::wakeRigidBodyFromSleep(btRigidBody* body)
+{
+    body->getBroadphaseHandle()->m_collisionFilterMask = btBroadphaseProxy::StaticFilter | btBroadphaseProxy::KinematicFilter;
+    body->setGravity(dynamicsWorld->getGravity());
+}

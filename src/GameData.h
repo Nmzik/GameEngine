@@ -10,6 +10,7 @@ class RpfBinaryFileEntry;
 class RpfResourceFileEntry;
 class YtypLoader;
 class YftLoader;
+class AwcLoader;
 class CacheDatFile;
 
 class fwArchetype;
@@ -56,6 +57,7 @@ public:
     std::unordered_map<uint32_t, fwArchetype*> Archetypes;
     std::unordered_map<uint32_t, std::vector<fwEntityDef>> MloDictionary;
     std::unordered_map<uint32_t, RpfResourceFileEntry*> Entries[10];
+    std::unordered_map<uint32_t, RpfBinaryFileEntry*> Audios;
 
     std::unordered_map<uint32_t, uint32_t> HDTextures;
 

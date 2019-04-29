@@ -64,9 +64,69 @@ GameWorld::GameWorld(GameData* _gameData)
 	 resourceManager->GetYtd(ytd.second);
 	}*/
 
-    AddPedToWorld(glm::vec3(1705.95, 3746.39, 37.64), playerYDD);
+    AddPedToWorld(glm::vec3(461.585052, -1314.648804, 29.332735), playerYDD);
+    //AddPedToWorld(glm::vec3(1705.95, 3746.39, 37.64), playerYDD);
     AddPedToWorld(glm::vec3(9.66, -1184.98, 75.74), playerYDD);
     AddPedToWorld(glm::vec3(2250.18f, 3471.40f, 56.50f), playerYDD);
+
+    //minimap
+    std::vector<YddLoader*> minimapsYDD;
+    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_0_2")));
+    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_0_3")));
+    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_0_4")));
+    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_0_5")));
+    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_0_6")));
+    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_1_1")));
+    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_1_2")));
+    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_1_3")));
+    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_1_4")));
+    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_1_5")));
+    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_1_6")));
+    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_1_7")));
+    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_1_8")));
+    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_2_0")));
+    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_2_1")));
+    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_2_2")));
+    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_2_3")));
+    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_2_4")));
+    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_2_5")));
+    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_2_6")));
+    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_2_7")));
+    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_2_8")));
+    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_3_0")));
+    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_3_1")));
+    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_3_2")));
+    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_3_3")));
+    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_3_4")));
+    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_3_5")));
+    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_3_6")));
+    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_3_7")));
+    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_3_8")));
+    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_4_0")));
+
+    for (int i = 0; i < minimapsYDD.size(); i++)
+    {
+        while (!minimapsYDD[i]->Loaded)
+        {
+            loadQueuedResources();
+        }
+    }
+
+    fwEntityDef def;
+    def.position = glm::vec3(0.f, 0.f, -100.f);
+    def.rotation = glm::quat(0.f, 0.f, 0.f, -1.f);
+    def.scaleXY = 1.0f;
+    def.scaleZ = 1.0f;
+
+    for (int i = 0; i < minimapsYDD.size(); i++)
+    {
+        for (auto& ydr : minimapsYDD[i]->ydrFiles)
+        {
+            CBuilding building(def);
+            building.ydr = ydr.second.get();
+            minimap.push_back(building);
+        }
+    }
 }
 
 GameWorld::~GameWorld()
@@ -216,6 +276,11 @@ void GameWorld::updateObjects(Camera* camera, glm::vec3& position)
     for (auto& vehicle : vehicles)
     {
         renderList.push_back(vehicle);
+    }
+
+    for (int i = 0; i < minimap.size(); i++)
+    {
+        renderList.push_back(&minimap[i]);
     }
 
     std::sort(renderList.begin(), renderList.end(), [&camPosition](CEntity* a, CEntity* b) {  // FRONT_TO_BACK
@@ -731,7 +796,7 @@ void GameWorld::updateWorld(float delta_time, Camera* camera)
         renderList.clear();
 
         glm::vec3 PlayerPos = getCurrentPlayer()->getPosition();
-        //	glm::vec3 PlayerPos = camera->position;
+        //glm::vec3 PlayerPos = camera->position;
 
         getVisibleYmaps(PlayerPos);
         updateObjects(camera, PlayerPos);

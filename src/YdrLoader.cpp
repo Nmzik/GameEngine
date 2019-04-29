@@ -5,27 +5,39 @@
 void YdrLoader::Init(memstream& file)
 {
     Loaded = true;
+
+    rmcDrawable* drawable = nullptr;
     //	READ COLLISION DATA FROM YDR
-    /*if (isYft)
-	{
-		FragDrawable* fragDrawable = (FragDrawable*)file.read(sizeof(FragDrawable));
+    if (isYft)
+    {
+        FragDrawable* fragDrawable = (FragDrawable*)file.read(sizeof(FragDrawable));
+        fragDrawable->Resolve(file);
 
-		if (fragDrawable->BoundPointer != 0)
-		{
-			SYSTEM_BASE_PTR(fragDrawable->BoundPointer);
-			file.seekg(fragDrawable->BoundPointer);
+        drawable = (rmcDrawable*)fragDrawable;
 
-			ybn = std::make_unique<YbnLoader>();
-			ybn->Init(file);
-		}
-	}
-	else
-	{
-		
-	}*/
+        if (fragDrawable->BoundPointer != 0)
+        {
+            /*file.seekg(fragDrawable->BoundPointer);
 
-    gtaDrawable* drawable = (gtaDrawable*)file.read(sizeof(gtaDrawable));
-    drawable->Resolve(file);
+            ybn = std::make_unique<YbnLoader>();
+            ybn->Init(file);*/
+        }
+    }
+    else
+    {
+        gtaDrawable* GTAdrawable = (gtaDrawable*)file.read(sizeof(gtaDrawable));
+        GTAdrawable->Resolve(file);
+
+        drawable = (rmcDrawable*)GTAdrawable;
+
+        if (GTAdrawable->BoundPointer)
+        {
+            /*file.seekg(GTAdrawable->BoundPointer);
+
+            ybn = std::make_unique<YbnLoader>();
+            ybn->Init(file);*/
+        }
+    }
 
     std::vector<Material> materials;
     materials.resize(drawable->ShaderGroupPointer->Shaders.size());

@@ -74,6 +74,7 @@ enum Type
     ynv,
     ycd,
     ysc,
+    awc,
     null
 };
 

@@ -51,14 +51,16 @@ public:
     void setPosition(glm::vec3 pos);
 
     void takeDamage(float dmg);
-    void physicsTick();
-    void exitVehicle();
-    void enterVehicle(CVehicle* nearestVehicle);
 
-    void setGravity(glm::vec3 gravity)
+    void physicsTick();
+
+    void enterVehicle(CVehicle* nearestVehicle);
+    void exitVehicle();
+
+    /*void setGravity(glm::vec3 gravity)
     {
         body->setGravity(btVector3(gravity.x, gravity.y, gravity.z));
-    }
+    }*/
 
     CVehicle* getCurrentVehicle() const
     {

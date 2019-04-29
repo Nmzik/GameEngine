@@ -293,7 +293,7 @@ struct gtaDrawable : rmcDrawable
 {
     uint64_t NamePointer;
     pgObjectArray<CLightAttr> LightAttributes;
-    uint32_t Unknown_BCh;  // 0x00000000
+    //uint32_t Unknown_BCh;  // 0x00000000
     uint32_t Unknown_C0h;  // 0x00000000
     uint32_t Unknown_C4h;  // 0x00000000
     uint64_t BoundPointer;
@@ -304,14 +304,14 @@ struct gtaDrawable : rmcDrawable
 
         LightAttributes.Resolve(file);
 
-        /*if (BoundPointer != 0)
-		{
-			SYSTEM_BASE_PTR(BoundPointer);
-		}*/
+        if (BoundPointer != 0)
+        {
+            SYSTEM_BASE_PTR(BoundPointer);
+        }
     }
 };
 
-struct FragDrawable
+struct FragDrawable : rmcDrawable
 {
     uint32_t Unknown_0A8h;
     uint32_t Unknown_0ACh;
@@ -338,6 +338,16 @@ struct FragDrawable
     uint32_t Unknown_144h;  // 0x00000000
     uint32_t Unknown_148h;  // 0x00000000
     uint32_t Unknown_14Ch;  // 0x00000000
+
+    inline void Resolve(memstream& file)
+    {
+        rmcDrawable::Resolve(file);
+
+        if (BoundPointer != 0)
+        {
+            SYSTEM_BASE_PTR(BoundPointer);
+        }
+    }
 };
 
 #include "Model.h"

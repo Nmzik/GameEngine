@@ -40,11 +40,14 @@ public:
     void addRigidBody(btRigidBody* body);
     void removeRigidBody(btRigidBody* body);
 
-    glm::vec3 getGravity() const
+    void putRigidBodyToSleep(btRigidBody* body);
+    void wakeRigidBodyFromSleep(btRigidBody* body);
+
+    /*glm::vec3 getGravity() const
     {
         btVector3 gravity = dynamicsWorld->getGravity();
         return glm::vec3(gravity.x(), gravity.y(), gravity.z());
-    }
+    }*/
 
     //DEPRECATED
     btDynamicsWorld* getPhysicsWorld()

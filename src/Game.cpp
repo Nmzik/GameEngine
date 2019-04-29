@@ -153,7 +153,7 @@ void Game::tick(float delta_time)
 
     if (getInput()->IsKeyTriggered(Actions::button_E))
     {
-        getWorld()->enableYmapFrustum = !getWorld()->enableYmapFrustum;
+        camera->setPosition(glm::vec3(0.f));
         //	getWorld()->LODMultiplier += 0.05f;
         //getWorld()->EnableStreaming = !getWorld()->EnableStreaming;
     }
@@ -184,7 +184,7 @@ void Game::tick(float delta_time)
     {
         getWorld()->currentPlayerID = 0;
 
-        //changePlayer();
+        changeLocation();
     }
     if (getInput()->IsKeyTriggered(Actions::button_player2))
     {
@@ -205,12 +205,20 @@ void Game::tick(float delta_time)
 
     CPed* player = getWorld()->getCurrentPlayer();
 
+    //printf("CUR POS PLAYER %s\n", glm::to_string(player->getPosition()).c_str());
+
     if (getInput()->IsKeyTriggered(Actions::button_CameraMode))
     {
         if (camera->getCameraMode() != CameraMode::FreeCamera)
+        {
+            getWorld()->getPhysicsSystem()->putRigidBodyToSleep(player->getPhysCharacter());
             camera->setCameraMode(CameraMode::FreeCamera);
+        }
         else
+        {
+            getWorld()->getPhysicsSystem()->wakeRigidBodyFromSleep(player->getPhysCharacter());
             camera->setCameraMode(CameraMode::ThirdPerson);
+        }
     }
 
     if (getInput()->IsKeyTriggered(Actions::button_EnterExitVehicle))
@@ -222,9 +230,7 @@ void Game::tick(float delta_time)
             player->setPosition(player->getCurrentVehicle()->getPosition());
 
             player->exitVehicle();
-            player->getPhysCharacter()->getBroadphaseHandle()->m_collisionFilterMask = btBroadphaseProxy::StaticFilter | btBroadphaseProxy::KinematicFilter;
-
-            player->setGravity(getWorld()->getPhysicsSystem()->getGravity());
+            getWorld()->getPhysicsSystem()->wakeRigidBodyFromSleep(player->getPhysCharacter());
         }
         else
         {
@@ -232,8 +238,7 @@ void Game::tick(float delta_time)
             player->enterVehicle(getWorld()->findNearestVehicle());
             if (player->getCurrentVehicle())
             {
-                player->getPhysCharacter()->getBroadphaseHandle()->m_collisionFilterMask = btBroadphaseProxy::DefaultFilter;
-                player->setGravity(glm::vec3(0.0f));
+                getWorld()->getPhysicsSystem()->putRigidBodyToSleep(player->getPhysCharacter());
             }
         }
     }
@@ -259,55 +264,56 @@ void Game::tick(float delta_time)
             camPos.z -= 5;
         }
 
-        camera->setPosition(camPos);
-    }
-
-    if (player->getCurrentVehicle())
-    {
-        CVehicle* curVehicle = player->getCurrentVehicle();
-
-        glm::vec3 vehiclePosition = curVehicle->getPosition();
-
-        if (vehiclePosition.z <= -150)
-        {
-            curVehicle->setPosition(glm::vec3(vehiclePosition.x, vehiclePosition.y, vehiclePosition.z + 300.f));
-        }
-
-        if (getInput()->IsKeyPressed(Actions::button_Forward))
-        {
-            curVehicle->setThrottle(1.0);
-        }
-        else if (getInput()->IsKeyPressed(Actions::button_Backward))
-        {
-            curVehicle->setThrottle(-1.0);
-        }
-        else
-        {
-            curVehicle->setThrottle(0.0);
-        }
-
-        float steering = getInput()->IsKeyPressed(Actions::button_TurnLeft) ? 0.3f : getInput()->IsKeyPressed(Actions::button_TurnRight) ? -0.3f : 0.0f;
-        curVehicle->setSteeringValue(steering);
-
-        player->setPosition(curVehicle->getPosition());
+        camera->setPosition(camPos + movement);
     }
     else
     {
-        glm::vec3 playerPosition = player->getPosition();
-        if (playerPosition.z <= -50)
+        if (player->getCurrentVehicle())
         {
-            glm::vec3 rayFrom(playerPosition.x, playerPosition.y, 300.f);
-            glm::vec3 rayTo(playerPosition.x, playerPosition.y, 0.f);
+            CVehicle* curVehicle = player->getCurrentVehicle();
 
-            auto result = getWorld()->getPhysicsSystem()->rayCast(rayFrom, rayTo);
+            glm::vec3 vehiclePosition = curVehicle->getPosition();
 
-            if (result.HasHit)
+            if (vehiclePosition.z <= -150)
             {
-                auto& ws = result.HitPos;
-                player->setPosition(glm::vec3(ws.x, ws.y, ws.z + 10.0f));
+                curVehicle->setPosition(glm::vec3(vehiclePosition.x, vehiclePosition.y, vehiclePosition.z + 300.f));
             }
+
+            if (getInput()->IsKeyPressed(Actions::button_Forward))
+            {
+                curVehicle->setThrottle(1.0);
+            }
+            else if (getInput()->IsKeyPressed(Actions::button_Backward))
+            {
+                curVehicle->setThrottle(-1.0);
+            }
+            else
+            {
+                curVehicle->setThrottle(0.0);
+            }
+
+            float steering = getInput()->IsKeyPressed(Actions::button_TurnLeft) ? 0.3f : getInput()->IsKeyPressed(Actions::button_TurnRight) ? -0.3f : 0.0f;
+            curVehicle->setSteeringValue(steering);
+
+            player->setPosition(curVehicle->getPosition());
         }
-        /*bool inWater = false;
+        else
+        {
+            glm::vec3 playerPosition = player->getPosition();
+            if (playerPosition.z <= -50)
+            {
+                glm::vec3 rayFrom(playerPosition.x, playerPosition.y, 300.f);
+                glm::vec3 rayTo(playerPosition.x, playerPosition.y, 0.f);
+
+                auto result = getWorld()->getPhysicsSystem()->rayCast(rayFrom, rayTo);
+
+                if (result.HasHit)
+                {
+                    auto& ws = result.HitPos;
+                    player->setPosition(glm::vec3(ws.x, ws.y, ws.z + 10.0f));
+                }
+            }
+            /*bool inWater = false;
 			if (getWorld()->DetectInWater(glm::vec3(player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getX(),
 			player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getY(),
 			player->getPhysCharacter()->getGhostObject()->getWorldTransform().getOrigin().getZ())))
@@ -322,29 +328,30 @@ void Game::tick(float delta_time)
 			}
 			}*/
 
-        /*float length = glm::length(movement);
+            /*float length = glm::length(movement);
 			if (length > 0.1f) {
 			 auto move = speed * glm::normalize(movement);
 			 //move *= delta_time;*/
 
-        /*if (player->getPhysCharacter()->getLinearVelocity().z() < -40.f) {
+            /*if (player->getPhysCharacter()->getLinearVelocity().z() < -40.f) {
 			 player->getPhysCharacter()->setLinearVelocity(btVector3(movement.x * 30.0f, movement.y * 30.0f, -40.0f));
 			}
 			else*/
-        player->getPhysCharacter()->setLinearVelocity(
-            btVector3(movement.x * 400.0f * speed * delta_time, movement.y * 400.0f * speed * delta_time, player->getPhysCharacter()->getLinearVelocity().z()));
+            player->getPhysCharacter()->setLinearVelocity(
+                btVector3(movement.x * 400.0f * speed * delta_time, movement.y * 400.0f * speed * delta_time, player->getPhysCharacter()->getLinearVelocity().z()));
 
-        if (getInput()->IsKeyTriggered(Actions::button_SPACE))
-        {
-            //	player->Jump();
-
-            glm::vec3 m_rayStart = player->getPosition();
-            glm::vec3 m_rayEnd = m_rayStart - glm::vec3(0.0, 0.0, 1.5);
-
-            auto result = getWorld()->getPhysicsSystem()->rayCast(m_rayStart, m_rayEnd);
-            if (result.HasHit)
+            if (getInput()->IsKeyTriggered(Actions::button_SPACE))
             {
-                player->getPhysCharacter()->applyCentralImpulse(btVector3(0.f, 0.f, 50.0f));
+                //	player->Jump();
+
+                glm::vec3 m_rayStart = player->getPosition();
+                glm::vec3 m_rayEnd = m_rayStart - glm::vec3(0.0, 0.0, 1.5);
+
+                auto result = getWorld()->getPhysicsSystem()->rayCast(m_rayStart, m_rayEnd);
+                if (result.HasHit)
+                {
+                    player->getPhysCharacter()->applyCentralImpulse(btVector3(0.f, 0.f, 50.0f));
+                }
             }
         }
     }
