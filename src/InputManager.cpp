@@ -33,26 +33,31 @@ void InputManager::ProcessButton(uint32_t key, bool isDown)
         if (key == keyMapping[i].first)
         {
             if (isDown)
-                Input[keyMapping[i].second] = 1;
+                CurrentInput[keyMapping[i].second] = 1;
             else
-                Input[keyMapping[i].second] = 0;
+                CurrentInput[keyMapping[i].second] = 0;
         }
     }
 }
 
+void InputManager::update()
+{
+    memcpy(&PreviousInput[0], &CurrentInput[0], ActionsKeySize);
+}
+
 bool InputManager::IsKeyTriggered(Actions iKeyCode) const
 {
-    return (Input[iKeyCode] == 1);
+    return (CurrentInput[iKeyCode] == 1 && PreviousInput[iKeyCode] == 0);
 }
 
 bool InputManager::IsKeyPressed(Actions iKeyCode) const
 {
-    return (Input[iKeyCode] == 1);
+    return (CurrentInput[iKeyCode] == 1);
 }
 
 bool InputManager::IsKeyReleased(Actions iKeyCode) const
 {
-    return (Input[iKeyCode] == 0);
+    return (CurrentInput[iKeyCode] == 0 && PreviousInput[iKeyCode] == 1);
 }
 
 void InputManager::setMouseMovement(int x, int y)

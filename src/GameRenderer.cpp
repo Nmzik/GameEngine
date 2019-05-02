@@ -112,7 +112,7 @@ void GameRenderer::renderPed(CPed* ped)
 
 void GameRenderer::renderVehicle(CVehicle* vehicle)
 {
-    renderDrawable(vehicle->getDrawable()->ydr.get());
+    renderDrawable(vehicle->getDrawable()->ydr);
 }
 
 void GameRenderer::renderWorld(GameWorld* world, Camera* curCamera)
@@ -153,7 +153,7 @@ void GameRenderer::renderWorld(GameWorld* world, Camera* curCamera)
             case ObjectType::Vehicle:
             {
                 CVehicle* vehicle = static_cast<CVehicle*>(object);
-                //renderVehicle(vehicle);
+                renderVehicle(vehicle);
                 break;
             }
             case ObjectType::Ped:

@@ -1,6 +1,10 @@
 #pragma once
 #include "FileType.h"
 
+#include "Model.h"
+#include "YtdLoader.h"
+#include "YbnLoader.h"
+
 struct grmShaderFx
 {
     uint64_t ParametersPointer;
@@ -350,19 +354,21 @@ struct FragDrawable : rmcDrawable
     }
 };
 
-#include "Model.h"
-#include "YbnLoader.h"
-#include "YtdLoader.h"
-
 class YdrLoader : public FileType
 {
-    std::unique_ptr<YtdLoader> ytd;
-
+    YtdLoader* ytd;
 public:
     std::vector<Material> materials;
     std::vector<Model> models;
-    std::unique_ptr<YbnLoader> ybn;
+    YbnLoader* ybn;
     bool isYft = false;
+
+    YdrLoader()
+        : ytd(nullptr)
+        , ybn(nullptr)
+    {
+    }
+    ~YdrLoader();
 
     void Init(memstream& file) override;
 };

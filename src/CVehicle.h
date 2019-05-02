@@ -22,7 +22,7 @@ class CVehicle : public CEntity
     float steeringValue;
 
 public:
-    CVehicle(glm::vec3 position, float mass, YftLoader* yft, btDynamicsWorld* physicsWorld);
+    CVehicle(glm::vec3 position, glm::quat rot, float mass, YftLoader* yft, btDynamicsWorld* physicsWorld);
     ~CVehicle();
     //std::unique_ptr<btCollisionShape> m_wheelShape;
 

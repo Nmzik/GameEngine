@@ -9,12 +9,12 @@
 CPed::CPed(glm::vec3 position, YddLoader* ydd)
     : vehicle(nullptr)
     , player(ydd)
-    , CEntity(position, glm::quat(-1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(1.0f), ObjectType::Ped)
+    , CEntity(position, glm::quat(0.0f, 0.0f, 0.0f, -1.0f), glm::vec3(1.0f), ObjectType::Ped)
 {
     health = 200;
-    playerModel.push_back(ydd->ydrFiles[121241095].get());
-    playerModel.push_back(ydd->ydrFiles[1471150075].get());
-    playerModel.push_back(ydd->ydrFiles[2540683012].get());
+    playerModel.push_back(ydd->ydrFiles[121241095]);
+    playerModel.push_back(ydd->ydrFiles[1471150075]);
+    playerModel.push_back(ydd->ydrFiles[2540683012]);
 
     btScalar mass(1.0f);
     btVector3 localInertia(0, 0, 0);
@@ -25,6 +25,7 @@ CPed::CPed(glm::vec3 position, YddLoader* ydd)
     btTransform transform;
     transform.setIdentity();
     transform.setOrigin(btVector3(position.x, position.y, position.z));
+    transform.setRotation(btQuaternion(0.0f, 0.0f, 0.0f, -1.0f));
 
     btDefaultMotionState* myMotionState = new btDefaultMotionState(transform);
     btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, physShape.get(), localInertia);

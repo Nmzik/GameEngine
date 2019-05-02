@@ -11,7 +11,7 @@ void YftLoader::Init(memstream& file)
     SYSTEM_BASE_PTR(fragType->DrawablePointer);
     file.seekg(fragType->DrawablePointer);
 
-    ydr = std::make_unique<YdrLoader>();
+    ydr = GlobalPool::GetInstance()->ydrPool.create();
     ydr->isYft = true;
     ydr->Init(file);
     gpuMemory += ydr->gpuMemory;
@@ -57,16 +57,12 @@ void YftLoader::Init(memstream& file)
     SYSTEM_BASE_PTR(fragPhysicsLOD->BoundPointer);
     file.seekg(fragPhysicsLOD->BoundPointer);
 
-    ybn = std::make_unique<YbnLoader>();
+    ybn = GlobalPool::GetInstance()->ybnPool.create();
     ybn->Init(file);
 }
 
 YftLoader::~YftLoader()
 {
-    /*for (auto& ydr : *fragPhysicsLODs)
-	{
-	 YdrPool.getPool().Remove(ydr);
-	}
-
-	delete fragPhysicsLODs;*/
+    GlobalPool::GetInstance()->ybnPool.remove(ybn);
+    GlobalPool::GetInstance()->ydrPool.remove(ydr);
 }

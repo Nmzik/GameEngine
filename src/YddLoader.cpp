@@ -26,10 +26,10 @@ void YddLoader::Init(memstream& file)
 
         file.seekg(data_pointer[0]);
 
-        std::unique_ptr<YdrLoader> ydr = std::make_unique<YdrLoader>();
+        YdrLoader* ydr = GlobalPool::GetInstance()->ydrPool.create();
         ydr->Init(file);
         gpuMemory += ydr->gpuMemory;
-        ydrFiles.insert({YdrHashes[i], std::move(ydr)});
+        ydrFiles.insert({YdrHashes[i], ydr});
 
         file.seekg(DrawablePointer);
     }
@@ -37,4 +37,8 @@ void YddLoader::Init(memstream& file)
 
 YddLoader::~YddLoader()
 {
+    for (auto& ydr : ydrFiles)
+    {
+        GlobalPool::GetInstance()->ydrPool.remove(ydr.second);
+    }
 }

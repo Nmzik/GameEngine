@@ -3,11 +3,11 @@
 
 #define CUBE_HALF_EXTENTS 1
 
-CVehicle::CVehicle(glm::vec3 position, float mass, YftLoader* yft, btDynamicsWorld* physicsWorld)
+CVehicle::CVehicle(glm::vec3 position, glm::quat rot, float mass, YftLoader* yft, btDynamicsWorld* physicsWorld)
     : throttle(0)
     , steeringValue(0)
     , vehicle(yft)
-    , CEntity(position, glm::quat(-1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(1.0f), ObjectType::Vehicle)
+    , CEntity(position, rot, glm::vec3(1.0f), ObjectType::Vehicle)
 {
     btRaycastVehicle::btVehicleTuning m_tuning;
 
@@ -28,6 +28,7 @@ CVehicle::CVehicle(glm::vec3 position, float mass, YftLoader* yft, btDynamicsWor
     btTransform tr;
     tr.setIdentity();
     tr.setOrigin(btVector3(position.x, position.y, position.z));
+    //tr.setRotation(btQuaternion(rot.w, 0.f, -rot.x));
 
     btDefaultMotionState* myMotionState = new btDefaultMotionState(tr);
 
@@ -40,6 +41,7 @@ CVehicle::CVehicle(glm::vec3 position, float mass, YftLoader* yft, btDynamicsWor
 
     m_vehicleRayCaster = std::make_unique<btDefaultVehicleRaycaster>(physicsWorld);
     m_vehicle = std::make_unique<btRaycastVehicle>(m_tuning, m_carChassis.get(), m_vehicleRayCaster.get());
+    m_carChassis->setWorldTransform(tr);
 
     ///	never deactivate the vehicle
     m_carChassis->setActivationState(DISABLE_DEACTIVATION);
@@ -100,6 +102,7 @@ void CVehicle::physicsTick()
     position = glm::vec3(m_carChassis->getWorldTransform().getOrigin().getX(),
                          m_carChassis->getWorldTransform().getOrigin().getY(),
                          m_carChassis->getWorldTransform().getOrigin().getZ());
+    m_carChassis->getWorldTransform().getOpenGLMatrix(&modelMatrix[0][0]);
     /*btTransform trans = m_carChassis->getWorldTransform();
     glm::vec3 position = glm::vec3(float(trans.getOrigin().getX()), float(trans.getOrigin().getY()), float(trans.getOrigin().getZ()));
     btQuaternion rot = trans.getRotation();

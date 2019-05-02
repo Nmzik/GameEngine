@@ -50,7 +50,7 @@ void YdrLoader::Init(memstream& file)
         {
             SYSTEM_BASE_PTR(drawable->ShaderGroupPointer->TextureDictionaryPointer);
             file.seekg(drawable->ShaderGroupPointer->TextureDictionaryPointer);
-            ytd = std::make_unique<YtdLoader>();
+            ytd = GlobalPool::GetInstance()->ytdPool.create();
             ytd->Init(file);
         }
 
@@ -200,4 +200,10 @@ void YdrLoader::Init(memstream& file)
                                               (*drawable->DrawableModels[0]->Get(i)->ShaderMappingPointer)[j], drawable->ShaderGroupPointer->Shaders[(*drawable->DrawableModels[0]->Get(i)->ShaderMappingPointer)[j]]->FileName);
         }
     }
+}
+
+YdrLoader::~YdrLoader()
+{
+    if (ytd)
+        GlobalPool::GetInstance()->ytdPool.remove(ytd);
 }

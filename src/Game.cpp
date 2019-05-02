@@ -116,7 +116,7 @@ void Game::run()
     while (running)
     {
         auto cpuThreadStart = std::chrono::steady_clock::now();
-        //input->Update();
+        input->update();
         window->ProcessEvents();
 
         if (input->IsKeyPressed(Actions::button_ESCAPE))
@@ -153,7 +153,8 @@ void Game::tick(float delta_time)
 
     if (getInput()->IsKeyTriggered(Actions::button_E))
     {
-        camera->setPosition(glm::vec3(0.f));
+        printf("CUR POS PLAYER %s\n", glm::to_string(getWorld()->getCurrentPlayer()->getPosition()).c_str());
+        //camera->setPosition(glm::vec3(0.f));
         //	getWorld()->LODMultiplier += 0.05f;
         //getWorld()->EnableStreaming = !getWorld()->EnableStreaming;
     }
@@ -205,8 +206,6 @@ void Game::tick(float delta_time)
 
     CPed* player = getWorld()->getCurrentPlayer();
 
-    //printf("CUR POS PLAYER %s\n", glm::to_string(player->getPosition()).c_str());
-
     if (getInput()->IsKeyTriggered(Actions::button_CameraMode))
     {
         if (camera->getCameraMode() != CameraMode::FreeCamera)
@@ -226,7 +225,7 @@ void Game::tick(float delta_time)
         if (player->getCurrentVehicle())
         {
             //	in Vehicle
-            printf("EXITING\n");
+            //printf("EXITING\n");
             player->setPosition(player->getCurrentVehicle()->getPosition());
 
             player->exitVehicle();
@@ -234,7 +233,7 @@ void Game::tick(float delta_time)
         }
         else
         {
-            printf("ENTERING\n");
+            //printf("ENTERING\n");
             player->enterVehicle(getWorld()->findNearestVehicle());
             if (player->getCurrentVehicle())
             {
@@ -277,25 +276,12 @@ void Game::tick(float delta_time)
             if (vehiclePosition.z <= -150)
             {
                 curVehicle->setPosition(glm::vec3(vehiclePosition.x, vehiclePosition.y, vehiclePosition.z + 300.f));
+                curVehicle->getCarChassisRigidbody()->clearForces();
             }
 
-            if (getInput()->IsKeyPressed(Actions::button_Forward))
-            {
-                curVehicle->setThrottle(1.0);
-            }
-            else if (getInput()->IsKeyPressed(Actions::button_Backward))
-            {
-                curVehicle->setThrottle(-1.0);
-            }
-            else
-            {
-                curVehicle->setThrottle(0.0);
-            }
-
-            float steering = getInput()->IsKeyPressed(Actions::button_TurnLeft) ? 0.3f : getInput()->IsKeyPressed(Actions::button_TurnRight) ? -0.3f : 0.0f;
-            curVehicle->setSteeringValue(steering);
-
-            player->setPosition(curVehicle->getPosition());
+            curVehicle->setThrottle(movement.x);
+            curVehicle->setSteeringValue(movement.y);
+            player->setPosition(vehiclePosition);
         }
         else
         {
@@ -311,6 +297,7 @@ void Game::tick(float delta_time)
                 {
                     auto& ws = result.HitPos;
                     player->setPosition(glm::vec3(ws.x, ws.y, ws.z + 10.0f));
+                    player->getPhysCharacter()->clearForces();
                 }
             }
             /*bool inWater = false;
@@ -338,7 +325,7 @@ void Game::tick(float delta_time)
 			}
 			else*/
             player->getPhysCharacter()->setLinearVelocity(
-                btVector3(movement.x * 400.0f * speed * delta_time, movement.y * 400.0f * speed * delta_time, player->getPhysCharacter()->getLinearVelocity().z()));
+                btVector3(movement.x * 800.0f * speed * delta_time, movement.y * 800.0f * speed * delta_time, player->getPhysCharacter()->getLinearVelocity().z()));
 
             if (getInput()->IsKeyTriggered(Actions::button_SPACE))
             {
@@ -350,7 +337,7 @@ void Game::tick(float delta_time)
                 auto result = getWorld()->getPhysicsSystem()->rayCast(m_rayStart, m_rayEnd);
                 if (result.HasHit)
                 {
-                    player->getPhysCharacter()->applyCentralImpulse(btVector3(0.f, 0.f, 50.0f));
+                    player->getPhysCharacter()->applyCentralImpulse(btVector3(0.f, 0.f, 5.0f));
                 }
             }
         }

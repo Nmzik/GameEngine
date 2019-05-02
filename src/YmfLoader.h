@@ -50,7 +50,7 @@ class PsoDataSection
 public:
     uint32_t Ident;
     int Length;
-    uint8_t* Data;
+    std::unique_ptr<uint8_t[]> Data;
 
     void Read(memstream& stream)
     {
@@ -59,7 +59,7 @@ public:
         endSwap(&Length);
 
         stream.seekCur(-8);
-        Data = new uint8_t[Length];
+        Data = std::make_unique<uint8_t[]>(Length);
         memcpy(&Data[0], &stream.data[stream.tellg()], Length);
         stream.seekCur(Length);
     }

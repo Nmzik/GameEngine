@@ -117,7 +117,7 @@ public:
     }*/
 
     void createPedestrian();
-    void createVehicle(glm::vec3 position);
+    void createVehicle(glm::vec3 position, glm::quat rotation);
     void updateDynamicObjects();
     void cleanupTraffic(Camera* camera);
     void createTraffic(Camera* camera);
@@ -129,7 +129,7 @@ public:
     void testFunction(glm::vec3 Position);
     bool detectInWater(glm::vec3 Position);
 
-    void AddVehicleToWorld(glm::vec3 position, float mass, YftLoader* model);
+    void AddVehicleToWorld(glm::vec3 position, glm::quat rot, float mass, YftLoader* model);
     void RemoveVehicleFromWorld(CVehicle* vehicle);
     void AddPedToWorld(glm::vec3 pos, YddLoader* model);
     void RemovePedFromWorld(CPed* ped);
