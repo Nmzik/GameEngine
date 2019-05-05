@@ -1,9 +1,10 @@
 #pragma once
-#include "YdrLoader.h"
+#include <vector>
+#include "FileType.h"
 
 class YndLoader
 {
-    struct : ResourceFileBase
+    struct NodeDictionary : ResourceFileBase
     {
         uint64_t NodesPointer;
         uint32_t NodesCount;
@@ -25,7 +26,7 @@ class YndLoader
         uint32_t JunctionHeightmapBytesCount;
         uint32_t Unk68;  // 0x00000000
         uint32_t Unk6C;  // 0x00000000
-    } NodeDictionary;
+    };
 
     struct Node
     {

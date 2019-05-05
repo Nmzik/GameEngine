@@ -15,6 +15,7 @@ class GameRenderer
     NativeWindow* nativeWindow;
     GLuint defaultTexture1;
     GLuint defaultTexture2;
+    GLuint defaultTexture;
     int NumDrawCalls;
 
     //

@@ -26,9 +26,13 @@ public:
     ~CVehicle();
     //std::unique_ptr<btCollisionShape> m_wheelShape;
 
-    void setPosition(glm::vec3 position)
+    void setPosition(glm::vec3 pos)
     {
-        m_carChassis->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), btVector3(position.x, position.y, position.z)));
+        btTransform transform;
+        transform.setIdentity();
+        transform.setOrigin(btVector3(pos.x, pos.y, pos.z));
+
+		m_carChassis->setWorldTransform(transform);
     }
 
     btRaycastVehicle* getRaycastVehicle() const

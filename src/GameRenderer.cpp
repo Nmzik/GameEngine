@@ -7,6 +7,7 @@
 
 GameRenderer::GameRenderer(NativeWindow* window)
     : nativeWindow(window)
+    , RenderDebugWorld(false)
 {
     nativeWindow->InitializeContext();
 
@@ -42,6 +43,13 @@ GameRenderer::GameRenderer(NativeWindow* window)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 2, 2, 0, GL_RGB, GL_FLOAT, pixels2);
+
+    glGenTextures(1, &defaultTexture);
+    glBindTexture(GL_TEXTURE_2D, defaultTexture);
+    float pixels3[] = {1.f, 1.f, 1.f, 1.f, 1.f, 1.f, 1.f, 1.f, 1.f, 1.f, 1.f, 1.f};
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 2, 2, 0, GL_RGB, GL_FLOAT, pixels3);
 }
 
 GameRenderer::~GameRenderer()
@@ -169,16 +177,18 @@ void GameRenderer::renderWorld(GameWorld* world, Camera* curCamera)
 
     glDisable(GL_CULL_FACE);
 
-    /*if (RenderDebugWorld)
+    if (RenderDebugWorld)
     {
-        world->getPhysicsSystem().->debugDrawWorld();
-
+        world->getPhysicsSystem()->getPhysicsWorld()->debugDrawWorld();
         glm::mat4 DefaultMatrix(1.0f);
         glBindBuffer(GL_UNIFORM_BUFFER, uboModel);
         glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &DefaultMatrix[0]);
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
-        world->getDebugDrawer().render();
-    }*/
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, defaultTexture);
+        world->getPhysicsSystem()->debug.render();
+    }
 
     endFrame();
 

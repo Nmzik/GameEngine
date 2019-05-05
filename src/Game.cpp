@@ -199,10 +199,10 @@ void Game::tick(float delta_time)
 
         //changePlayer();
     }
-    /*if (getInput()->IsKeyTriggered(Actions::button_ShowCollision))
+    if (getInput()->IsKeyTriggered(Actions::button_ShowCollision))
     {
         getRenderer()->RenderDebugWorld = !getRenderer()->RenderDebugWorld;
-    }*/
+    }
 
     CPed* player = getWorld()->getCurrentPlayer();
 
@@ -267,16 +267,23 @@ void Game::tick(float delta_time)
     }
     else
     {
-        if (player->getCurrentVehicle())
+        if (CVehicle * curVehicle; curVehicle = player->getCurrentVehicle())
         {
-            CVehicle* curVehicle = player->getCurrentVehicle();
-
             glm::vec3 vehiclePosition = curVehicle->getPosition();
 
             if (vehiclePosition.z <= -150)
             {
-                curVehicle->setPosition(glm::vec3(vehiclePosition.x, vehiclePosition.y, vehiclePosition.z + 300.f));
-                curVehicle->getCarChassisRigidbody()->clearForces();
+                glm::vec3 rayFrom(vehiclePosition.x, vehiclePosition.y, 300.f);
+                glm::vec3 rayTo(vehiclePosition.x, vehiclePosition.y, 0.f);
+
+                auto result = getWorld()->getPhysicsSystem()->rayCast(rayFrom, rayTo);
+
+                if (result.HasHit)
+                {
+                    auto& ws = result.HitPos;
+                    curVehicle->setPosition(glm::vec3(ws.x, ws.y, ws.z + 10.f));
+                    curVehicle->getCarChassisRigidbody()->clearForces();
+                }
             }
 
             curVehicle->setThrottle(movement.x);
@@ -324,8 +331,8 @@ void Game::tick(float delta_time)
 			 player->getPhysCharacter()->setLinearVelocity(btVector3(movement.x * 30.0f, movement.y * 30.0f, -40.0f));
 			}
 			else*/
-            player->getPhysCharacter()->setLinearVelocity(
-                btVector3(movement.x * 800.0f * speed * delta_time, movement.y * 800.0f * speed * delta_time, player->getPhysCharacter()->getLinearVelocity().z()));
+
+            player->setMovementDirection(movement * 2);
 
             if (getInput()->IsKeyTriggered(Actions::button_SPACE))
             {

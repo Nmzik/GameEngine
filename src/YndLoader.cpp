@@ -2,57 +2,58 @@
 
 YndLoader::YndLoader(memstream& file)
 {
-    /*file.read((char*)&NodeDictionary, sizeof(NodeDictionary));
+    NodeDictionary nodeDictionary;
+    file.read((char*)&nodeDictionary, sizeof(NodeDictionary));
 
-	TranslatePTR(NodeDictionary.NodesPointer);
+    TranslatePTR(nodeDictionary.NodesPointer);
 
-	file.seekg(NodeDictionary.NodesPointer);
-	nodes.resize(NodeDictionary.NodesCount);
+    file.seekg(nodeDictionary.NodesPointer);
+    nodes.resize(nodeDictionary.NodesCount);
 
-	for (uint32_t i = 0; i < NodeDictionary.NodesCount; i++)
-	{
-	 file.read((char*)&nodes[i], sizeof(Node));
-	}
+    for (uint32_t i = 0; i < nodeDictionary.NodesCount; i++)
+    {
+        file.read((char*)&nodes[i], sizeof(Node));
+    }
 
-	////////////////
-	TranslatePTR(NodeDictionary.LinksPtr);
+    ////////////////
+    TranslatePTR(nodeDictionary.LinksPtr);
 
-	file.seekg(NodeDictionary.LinksPtr);
-	nodeLinks.resize(NodeDictionary.LinksCount);
+    file.seekg(nodeDictionary.LinksPtr);
+    nodeLinks.resize(nodeDictionary.LinksCount);
 
-	for (uint32_t i = 0; i < NodeDictionary.LinksCount; i++)
-	{
-	 file.read((char*)&nodeLinks[i], sizeof(NodeLink));
-	}
+    for (uint32_t i = 0; i < nodeDictionary.LinksCount; i++)
+    {
+        file.read((char*)&nodeLinks[i], sizeof(NodeLink));
+    }
 
-	/////////////////
-	TranslatePTR(NodeDictionary.JunctionsPtr);
+    /////////////////
+    TranslatePTR(nodeDictionary.JunctionsPtr);
 
-	file.seekg(NodeDictionary.JunctionsPtr);
-	nodeJunctions.resize(NodeDictionary.JunctionsCount);
+    file.seekg(nodeDictionary.JunctionsPtr);
+    nodeJunctions.resize(nodeDictionary.JunctionsCount);
 
-	for (uint32_t i = 0; i < NodeDictionary.JunctionsCount; i++)
-	{
-	 file.read((char*)&nodeJunctions[i], sizeof(NodeJunction));
-	}
+    for (uint32_t i = 0; i < nodeDictionary.JunctionsCount; i++)
+    {
+        file.read((char*)&nodeJunctions[i], sizeof(NodeJunction));
+    }
 
-	//////////////////
-	TranslatePTR(NodeDictionary.JunctionHeightmapBytesPtr);
+    //////////////////
+    TranslatePTR(nodeDictionary.JunctionHeightmapBytesPtr);
 
-	file.seekg(NodeDictionary.JunctionHeightmapBytesPtr);
-	JunctionHeightmapBytes.resize(NodeDictionary.JunctionHeightmapBytesCount);
-	file.read((char*)&JunctionHeightmapBytes[0], NodeDictionary.JunctionHeightmapBytesCount);
+    file.seekg(nodeDictionary.JunctionHeightmapBytesPtr);
+    JunctionHeightmapBytes.resize(nodeDictionary.JunctionHeightmapBytesCount);
+    file.read((char*)&JunctionHeightmapBytes[0], nodeDictionary.JunctionHeightmapBytesCount);
 
-	///////////////////
-	TranslatePTR(NodeDictionary.JunctionRefsPtr);
+    ///////////////////
+    TranslatePTR(nodeDictionary.JunctionRefsPtr);
 
-	file.seekg(NodeDictionary.JunctionRefsPtr);
-	NodeJunctionRefs.resize(NodeDictionary.JunctionRefsCount1);
+    file.seekg(nodeDictionary.JunctionRefsPtr);
+    NodeJunctionRefs.resize(nodeDictionary.JunctionRefsCount1);
 
-	for (int i = 0; i < NodeDictionary.JunctionRefsCount1; i++)
-	{
-	 file.read((char*)&NodeJunctionRefs[i], sizeof(NodeJunctionRef));
-	}*/
+    for (int i = 0; i < nodeDictionary.JunctionRefsCount1; i++)
+    {
+        file.read((char*)&NodeJunctionRefs[i], sizeof(NodeJunctionRef));
+    }
 }
 
 YndLoader::~YndLoader()

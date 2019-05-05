@@ -39,10 +39,10 @@ public:
     {
         for (size_t i = 0; i < num; i++)
         {
-            Type *place = (Type*) operator new(sizeof(Type));
+            Type* place = (Type*)operator new(sizeof(Type));
             free.push(place);
         }
-	}
+    }
 
     //#### create an instance of Type:
     template <typename... Args>

@@ -30,6 +30,7 @@ class CPed : public CEntity
     CVehicle* vehicle;
     YddLoader* player;
     bool on_ground = false;
+    glm::vec3 movementDirection;
 
 public:
     CPed(glm::vec3 position, YddLoader* ydd);
@@ -46,6 +47,11 @@ public:
     float getCurrentHealth() const
     {
         return health;
+    }
+
+    void setMovementDirection(glm::vec3 pos)
+    {
+        movementDirection = pos;
     }
 
     void setPosition(glm::vec3 pos);

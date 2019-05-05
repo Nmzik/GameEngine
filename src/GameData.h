@@ -10,6 +10,7 @@ class RpfBinaryFileEntry;
 class RpfResourceFileEntry;
 class YtypLoader;
 class YftLoader;
+class YndLoader;
 class AwcLoader;
 class CacheDatFile;
 
@@ -60,10 +61,11 @@ public:
     std::unordered_map<uint32_t, RpfBinaryFileEntry*> Audios;
 
     std::unordered_map<uint32_t, uint32_t> HDTextures;
-
+    std::vector<std::unique_ptr<YndLoader>> nodes;
     std::unordered_map<uint32_t, uint32_t> GtxdEntries;
     std::vector<CarHandling> VehiclesInfo;
     std::vector<glm::vec3> Scenes;
+    std::vector<WaterQuad*> waterPosition;
 
     GameData(std::string Path);
     ~GameData();

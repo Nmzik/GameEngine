@@ -57,6 +57,7 @@ class GameWorld
     glm::i32vec2 CurNavCell;
     std::vector<YmapLoader*> CurYmaps;
     std::vector<YbnLoader*> CurYbns;
+    YndLoader* curNode;
 
     std::vector<CBuilding> minimap;
 

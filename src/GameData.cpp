@@ -4,6 +4,8 @@
 #include "GTAEncryption.h"
 #include "RpfFile.h"
 #include "YmfLoader.h"
+#include "YndLoader.h"
+#include "YnvLoader.h"
 #include "YtypLoader.h"
 
 #include <pugixml.hpp>
@@ -11,6 +13,7 @@
 GameData::GameData(std::string Path)
 {
     TempBuffer = new uint8_t[40 * 1024 * 1024];
+    nodes.resize(32 * 32);
     GTAEncryption::getInstance().LoadKeys();
 
     std::array<std::string, 25> RpfsFiles = {
@@ -148,11 +151,26 @@ GameData::GameData(std::string Path)
             }
             else if (extension == ".ynd")
             {
+                std::vector<uint8_t> Buffer(entry.SystemSize + entry.GraphicsSize);
+                extractFileResource(entry, &Buffer[0], Buffer.size());
+
+                memstream stream(Buffer.data(), Buffer.size());
+                std::unique_ptr<YndLoader> loader = std::make_unique<YndLoader>(stream);
+
+                FileNameNoExtension.remove_prefix(5);
+                int nodeID = std::stoi(FileNameNoExtension.data());
+                nodes[nodeID] = std::move(loader);
+
                 //	YndEntries[entry.FileNameHash] = &entry;
                 Entries[ynd][entry.ShortNameHash] = &entry;
             }
             else if (extension == ".ynv")
             {
+                /*std::vector<uint8_t> Buffer(entry.SystemSize + entry.GraphicsSize);
+                extractFileResource(entry, &Buffer[0], Buffer.size());
+
+                memstream stream(Buffer.data(), Buffer.size());
+                std::unique_ptr<YnvLoader> loader = std::make_unique<YnvLoader>(stream);*/
                 //	YnvEntries[entry.FileNameHash] = &entry;
                 Entries[ynv][entry.ShortNameHash] = &entry;
             }
@@ -233,7 +251,22 @@ GameData::GameData(std::string Path)
             }
         }
     }
+    /*const int WATER_WORLD_SIZE = 10000.f;
+    const int WATER_HQ_DATA_SIZE = 128;
 
+	waterPosition.resize(25000);
+	for (auto& water : WaterQuads)
+    {
+        auto wX = static_cast<int>((water.minX + water.maxX + WATER_WORLD_SIZE / 2.f) /
+                                   (WATER_WORLD_SIZE / WATER_HQ_DATA_SIZE));
+        auto wY = static_cast<int>((water.minY + water.maxY + WATER_WORLD_SIZE / 2.f) /
+                                   (WATER_WORLD_SIZE / WATER_HQ_DATA_SIZE));
+
+		int i = (wX * WATER_HQ_DATA_SIZE) + wY;
+		int x = i < 0 ? 0 : i;
+
+		waterPosition[i] = &water;
+    }*/
     /*bool has_collision = false;
 	size_t countBuvket = Entries[ydd].bucket_count();
 	for (size_t bucket = 0; bucket < Entries[ydd].bucket_count(); bucket++) {

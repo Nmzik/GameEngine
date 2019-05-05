@@ -198,7 +198,6 @@ public:
         : ydr(nullptr)
         , ybn(nullptr)
     {
-
-	}
+    }
     ~YftLoader();
 };

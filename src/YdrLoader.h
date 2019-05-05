@@ -2,8 +2,8 @@
 #include "FileType.h"
 
 #include "Model.h"
-#include "YtdLoader.h"
 #include "YbnLoader.h"
+#include "YtdLoader.h"
 
 struct grmShaderFx
 {
@@ -357,6 +357,7 @@ struct FragDrawable : rmcDrawable
 class YdrLoader : public FileType
 {
     YtdLoader* ytd;
+
 public:
     std::vector<Material> materials;
     std::vector<Model> models;

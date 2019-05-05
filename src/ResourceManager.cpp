@@ -5,6 +5,7 @@
 #include "RpfEntry.h"
 #include "YbnLoader.h"
 #include "YddLoader.h"
+#include "YdrLoader.h"
 #include "YftLoader.h"
 #include "YmapLoader.h"
 #include "YndLoader.h"
@@ -141,7 +142,7 @@ YtdLoader* ResourceManager::GetYtd(uint32_t hash)
         YtdLoader* loader = GlobalPool::GetInstance()->ytdPool.create();
         addToWaitingList(GlobalPool::GetInstance()->resourcesPool.create(ytd, hash, loader));
         loader->RefCount++;
-        ytdLoader.insert({hash,loader});
+        ytdLoader.insert({hash, loader});
 
         return loader;
     }
