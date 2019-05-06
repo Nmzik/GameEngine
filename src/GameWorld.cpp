@@ -781,11 +781,13 @@ void GameWorld::updateWorld(float delta_time, Camera* camera)
 
     for (auto& ped : peds)
     {
+        //physicsSystem.getPhysicsWorld()->updateSingleAabb(ped->getPhysCharacter());
         ped->physicsTick();
     }
 
     for (auto& vehicle : vehicles)
     {
+        //physicsSystem.getPhysicsWorld()->updateSingleAabb(vehicle->getCarChassisRigidbody());
         vehicle->physicsTick();
     }
 

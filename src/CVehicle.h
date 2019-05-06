@@ -32,7 +32,7 @@ public:
         transform.setIdentity();
         transform.setOrigin(btVector3(pos.x, pos.y, pos.z));
 
-		m_carChassis->setWorldTransform(transform);
+        m_carChassis->setWorldTransform(transform);
     }
 
     btRaycastVehicle* getRaycastVehicle() const

@@ -49,8 +49,6 @@ void YbnLoader::ParseYbn(memstream& file, btCompoundShape* compound)
 {
     Bounds* bounds = (Bounds*)file.read(sizeof(Bounds));
 
-    compound->setMargin(bounds->Margin);
-
     switch (bounds->Type)
     {
         case 0:
@@ -188,7 +186,10 @@ void YbnLoader::ParseYbn(memstream& file, btCompoundShape* compound)
                 btTransform localTrans;
                 localTrans.setIdentity();
                 localTrans.setOrigin(btVector3(geom->CenterGeom.x, geom->CenterGeom.y, geom->CenterGeom.z));
-                compound->addChildShape(localTrans, new btBvhTriangleMeshShape(VertIndices, false));
+
+                btBvhTriangleMeshShape* shape = new btBvhTriangleMeshShape(VertIndices, true);
+                shape->setMargin(bounds->Margin);
+                compound->addChildShape(localTrans, shape);
             }
 
             break;
@@ -239,7 +240,7 @@ YbnLoader::~YbnLoader()
             btCollisionShape* shape = compound->getChildShape(i);
             if (shape->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE)
                 delete static_cast<btBvhTriangleMeshShape*>(shape)->getMeshInterface();
-            delete compound->getChildShape(i);
+            delete shape;
         }
 
         for (auto& Vertices : VerticesArray)

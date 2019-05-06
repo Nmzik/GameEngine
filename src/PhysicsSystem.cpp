@@ -16,6 +16,10 @@ auto pHeapTracker = std::make_unique<VSHeapTracker::CHeapTracker>("PhysicsHeap")
 Allocator_API void* allocate(size_t size, int alignment)
 {
     void* ptr = physicsAllocator->allocate(size, (uint8_t)alignment);
+    if (ptr == nullptr)
+    {
+        printf("");
+    }
 #if (WIN32)
     pHeapTracker->AllocateEvent(ptr, size);
 #endif
@@ -43,7 +47,7 @@ PhysicsSystem::PhysicsSystem()
 
     dynamicsWorld->setGravity(btVector3(0, 0, -9.8f));
     //	UPDATE STATIC OBJECTS MANUALLY
-    dynamicsWorld->setForceUpdateAllAabbs(false);
+    //dynamicsWorld->setForceUpdateAllAabbs(false);
 
     debug.setDebugMode(btIDebugDraw::DBG_DrawWireframe);
     dynamicsWorld->setDebugDrawer(&debug);
@@ -129,9 +133,7 @@ PhysicsSystem::RayResult PhysicsSystem::rayCast(glm::vec3& from, glm::vec3& to) 
 
 void PhysicsSystem::addPed(CPed* ped)
 {
-    dynamicsWorld->addRigidBody(ped->getPhysCharacter(),
-                                btBroadphaseProxy::KinematicFilter,
-                                btBroadphaseProxy::StaticFilter | btBroadphaseProxy::KinematicFilter | btBroadphaseProxy::DefaultFilter);
+    dynamicsWorld->addRigidBody(ped->getPhysCharacter());
 }
 
 void PhysicsSystem::removePed(CPed* ped)
@@ -142,7 +144,7 @@ void PhysicsSystem::removePed(CPed* ped)
 void PhysicsSystem::addVehicle(CVehicle* vehicle)
 {
     dynamicsWorld->addRigidBody(
-        vehicle->getCarChassisRigidbody(), btBroadphaseProxy::KinematicFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::KinematicFilter);
+        vehicle->getCarChassisRigidbody());
 
     dynamicsWorld->addAction(vehicle->getRaycastVehicle());
 }
@@ -165,12 +167,12 @@ void PhysicsSystem::removeRigidBody(btRigidBody* body)
 
 void PhysicsSystem::putRigidBodyToSleep(btRigidBody* body)
 {
-    body->getBroadphaseHandle()->m_collisionFilterMask = btBroadphaseProxy::DefaultFilter;
+    body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
     body->setGravity(btVector3(0.f, 0.f, 0.f));
 }
 
 void PhysicsSystem::wakeRigidBodyFromSleep(btRigidBody* body)
 {
-    body->getBroadphaseHandle()->m_collisionFilterMask = btBroadphaseProxy::StaticFilter | btBroadphaseProxy::KinematicFilter;
+    body->setCollisionFlags(body->getCollisionFlags() & ~btCollisionObject::CF_NO_CONTACT_RESPONSE);
     body->setGravity(dynamicsWorld->getGravity());
 }
