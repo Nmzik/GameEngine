@@ -225,13 +225,13 @@ YscLoader* ResourceManager::GetYsc(uint32_t hash)
 inline void ResourceManager::addToMainQueue(Resource* res)
 {
     std::lock_guard<std::mutex> lock(gameworld->resources_lock);
-    gameworld->resources.push_back(res);
+    gameworld->resources.push(res);
 }
 
 void ResourceManager::addToWaitingList(Resource* res)
 {
     std::lock_guard<std::mutex> lock(mylock);
-    waitingList.push_back(res);
+    waitingList.push(res);
     loadCondition.notify_one();
 }
 
@@ -242,7 +242,7 @@ inline Resource* ResourceManager::removeFromWaitingList()
     loadCondition.wait(lock, [this] { return !waitingList.empty(); });
 
     Resource* res = waitingList.front();
-    waitingList.pop_front();
+    waitingList.pop();
     return res;
 }
 

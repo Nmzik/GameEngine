@@ -413,10 +413,6 @@ void GameData::loadScenesSwitch(std::vector<uint8_t>& Buffer)
 
 void GameData::loadRpf(std::ifstream& rpf, std::string& FullPath_, std::string& FileName_, uint32_t FileSize_, uint64_t FileOffset)
 {
-    if (FileName_ == "chinesesimp.rpf")
-    {
-        printf("");
-    }
     std::unique_ptr<RpfFile> file = std::make_unique<RpfFile>(&rpf, FullPath_, FileName_, FileSize_, FileOffset);
 
     for (auto& BinaryFileEntry : file->BinaryEntries)

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <deque>
+#include <queue>
 #include "CPed.h"
 #include "CVehicle.h"
 #include "Light.h"
@@ -73,8 +73,8 @@ public:
     std::vector<CVehicle*> vehicles;
 
     std::mutex resources_lock;
-    std::deque<Resource*> resources;
-    std::deque<Resource*> resourcesThread;
+    std::queue<Resource*> resources;
+    std::queue<Resource*> resourcesThread;
 
     //	RenderList renderList;
     std::vector<CEntity*> renderList;

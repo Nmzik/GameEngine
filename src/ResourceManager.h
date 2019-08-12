@@ -1,7 +1,7 @@
 #pragma once
 
 #include <condition_variable>
-#include <deque>
+#include <queue>
 #include <mutex>
 #include <thread>
 #include <unordered_map>
@@ -28,7 +28,7 @@ class ResourceManager
     std::condition_variable loadCondition;
     bool running;
 
-    std::deque<Resource*> waitingList;
+    std::queue<Resource*> waitingList;
     GameWorld* gameworld;
 
     std::unordered_map<uint32_t, YdrLoader*> ydrLoader;

@@ -484,7 +484,7 @@ void GameWorld::loadQueuedResources()
     while (resourcesThread.size() > 0 && diffms < 2)  //	2ms
     {
         Resource* res = resourcesThread.front();
-        resourcesThread.pop_front();
+        resourcesThread.pop();
 
         //	Object hash equal to texture hash what should we do? there are +hi textures with the same name
 
