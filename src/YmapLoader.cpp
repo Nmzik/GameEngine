@@ -17,8 +17,8 @@ void YmapLoader::Init(memstream& file)
             std::memcpy(&_CMapData, &file.data[Block.MetaDataBlock_struct->DataPointer], sizeof(CMapData));
 
             //	Optimization
-            Objects.reserve(_CMapData.entities.Count1);
-            CarGenerators.reserve(_CMapData.carGenerators.Count1);
+            objects.reserve(_CMapData.entities.Count1);
+            carGenerators.reserve(_CMapData.carGenerators.Count1);
         }
     }
 
@@ -38,7 +38,7 @@ void YmapLoader::Init(memstream& file)
 
                     //	if (def.lodLevel == Unk_1264241711::LODTYPES_DEPTH_ORPHANHD) def.lodDist *= 1.5f;
 
-                    Objects.emplace_back(def);
+                    objects.emplace_back(def);
                 }
                 break;
             }
@@ -49,7 +49,7 @@ void YmapLoader::Init(memstream& file)
                     CCarGen CarGenerator;
                     memcpy(&CarGenerator, &file.data[Block.MetaDataBlock_struct->DataPointer + i * sizeof(CCarGen)], sizeof(CCarGen));
 
-                    CarGenerators.push_back(CarGenerator);
+                    carGenerators.push_back(CarGenerator);
                 }
                 break;
             }

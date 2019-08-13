@@ -33,14 +33,14 @@ public:
     GTAEncryption();
     ~GTAEncryption();
 
-    void LoadKeys();
+    void loadKeys();
 
     uint32_t calculateHash(std::string& text);
 
     uint8_t* getNGKey(std::string& name, uint32_t length);
 
     void decryptAES(uint8_t* data, uint32_t DataLength);
-    void Decrypt_RSXXTEA(uint8_t* data, size_t dataLength);
+    void decrypt_RSXXTEA(uint8_t* data, size_t dataLength);
     void decryptNG(uint8_t* data, uint32_t dataLength, std::string& name, uint32_t length);
     void decryptNG(uint8_t* data, uint32_t dataLength, uint8_t* key);
     void decryptNGBlock(uint8_t* data, uint32_t dataLength, uint32_t* key);

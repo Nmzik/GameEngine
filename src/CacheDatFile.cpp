@@ -1,15 +1,15 @@
 #include "CacheDatFile.h"
 #include "common.h"
 
-CacheDatFile::CacheDatFile(std::vector<uint8_t>& Data)
+CacheDatFile::CacheDatFile(std::vector<uint8_t>& data)
 {
-    memstream stream(Data.data(), Data.size());
+    memstream stream(data.data(), data.size());
     stream.seekg(100);
 
     uint32_t modlen;
     uint32_t structcount = 0;
 
-    size_t SizeData = Data.size();
+    size_t SizeData = data.size();
 
     std::string line;
     //	skip version
@@ -26,13 +26,13 @@ CacheDatFile::CacheDatFile(std::vector<uint8_t>& Data)
                 stream.read((char*)&modlen, sizeof(uint32_t));
                 structcount = modlen / sizeof(MapDataStoreNode);
 
-                AllMapNodes.reserve(structcount);
+                allMapNodes.reserve(structcount);
 
                 for (uint32_t i = 0; i < structcount; i++)
                 {
                     MapDataStoreNode node;
                     stream.read((char*)&node, sizeof(MapDataStoreNode));
-                    AllMapNodes.push_back(node);
+                    allMapNodes.push_back(node);
                 }
 
                 i += (int)(modlen + 4);
@@ -42,13 +42,13 @@ CacheDatFile::CacheDatFile(std::vector<uint8_t>& Data)
                 stream.read((char*)&modlen, sizeof(uint32_t));
                 structcount = modlen / sizeof(CInteriorProxy);
 
-                AllCInteriorProxies.reserve(structcount);
+                allCInteriorProxies.reserve(structcount);
 
                 for (uint32_t i = 0; i < structcount; i++)
                 {
                     CInteriorProxy proxy;
                     stream.read((char*)&proxy, sizeof(CInteriorProxy));
-                    AllCInteriorProxies.push_back(proxy);
+                    allCInteriorProxies.push_back(proxy);
                 }
 
                 i += (int)(modlen + 4);
@@ -58,13 +58,13 @@ CacheDatFile::CacheDatFile(std::vector<uint8_t>& Data)
                 stream.read((char*)&modlen, sizeof(uint32_t));
                 structcount = modlen / sizeof(BoundsStoreItem);
 
-                AllBoundsStoreItems.reserve(structcount);
+                allBoundsStoreItems.reserve(structcount);
 
                 for (uint32_t i = 0; i < structcount; i++)
                 {
                     BoundsStoreItem item;
                     stream.read((char*)&item, sizeof(BoundsStoreItem));
-                    AllBoundsStoreItems.push_back(item);
+                    allBoundsStoreItems.push_back(item);
                 }
 
                 i += (int)(modlen + 4);

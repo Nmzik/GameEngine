@@ -3,6 +3,7 @@
 
 RpfFile::RpfFile(std::ifstream* rpfFile, std::string& FullPath, std::string& FileName, uint32_t FileSize, uint64_t FileOffset)
     : rpf(*rpfFile)
+, path(FullPath)
 {
     rpf.seekg(FileOffset);
 
@@ -36,7 +37,7 @@ RpfFile::RpfFile(std::ifstream* rpfFile, std::string& FullPath, std::string& Fil
             //	printf("AES\n");
             GTAEncryption::getInstance().decryptAES(entriesData.get(), EntryCount * 16);
             GTAEncryption::getInstance().decryptAES(namesData.get(), NamesLength);
-            IsAESEncrypted = true;
+            isAESEncrypted = true;
             break;
         case 0x0FEFFFFF:
             //	printf("NG\n");
@@ -71,17 +72,16 @@ RpfFile::RpfFile(std::ifstream* rpfFile, std::string& FullPath, std::string& Fil
             RpfBinaryFileEntry entry(EntriesStream, startPos, NamesStream);
             entry.File = this;
             //	printf("%s\n", entry.Name.c_str());
-            BinaryEntries.push_back(entry);
+            binaryEntries.push_back(entry);
         }
         else
         {
             //	printf("RESOURCE\n");
             RpfResourceFileEntry entry(EntriesStream, rpf, startPos, NamesStream);
-            entry.Path = FullPath;
             entry.File = this;
             entry.IsEncrypted = ((entry.FileName.substr(entry.FileName.length() - 4)) == ".ysc") ? true : false;  //HACK
             //	printf("%s\n", entry.Name.c_str());
-            ResourceEntries.push_back(entry);
+            resourceEntries.push_back(entry);
         }
     }
 }

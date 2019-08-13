@@ -1,7 +1,9 @@
 #include "AwcLoader.h"
 #include "GTAEncryption.h"
 
+#ifdef WIN32
 #include <xaudio2.h>
+#endif
 
 struct AwcChunkInfo
 {
@@ -58,7 +60,7 @@ struct AwcChannelChunkHeader
 
 AwcLoader::AwcLoader(memstream& file)
 {
-    uint32_t* Magic = (uint32_t*)file.read(sizeof(uint32_t));
+    /*uint32_t* Magic = (uint32_t*)file.read(sizeof(uint32_t));
 
     if (*Magic != 0x54414441 && *Magic != 0x41444154)  //we need to decrypt
     {
@@ -138,7 +140,7 @@ AwcLoader::AwcLoader(memstream& file)
             printf("SOMETHING WRONG");
 
         printf("DONE");
-    }
+    }*/
 }
 
 AwcLoader::~AwcLoader()

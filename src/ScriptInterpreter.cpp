@@ -5,6 +5,7 @@
 #include "GameData.h"
 #include "GameWorld.h"
 #include "ResourceManager.h"
+#include "YscLoader.h"
 
 #define DEBUG_PRINTF
 
@@ -875,7 +876,7 @@ void ScriptInterpreter::executeThread(YscLoader& file)
                 ip += 5;
             }
             break;
-            case dup:  //duplicate?
+            case dupInstr:  //duplicate?
             {
                 printf("DUP");
                 ScriptParameter var = file.getTopValueFromUnmodifiedStack();
@@ -1381,7 +1382,7 @@ void ScriptInterpreter::executeThread(YscLoader& file)
 
 bool ScriptInterpreter::startThread(uint32_t ScriptHash)
 {
-    LoadedScripts.insert({ScriptHash, game->getWorld()->getResourceManager()->GetYsc(ScriptHash)});
+    LoadedScripts.insert({ScriptHash, game->getWorld()->getResourceManager()->getYsc(ScriptHash)});
     return true;
 }
 

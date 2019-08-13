@@ -83,8 +83,8 @@ public:
     std::vector<Node> nodes;
     std::vector<NodeLink> nodeLinks;
     std::vector<NodeJunction> nodeJunctions;
-    std::vector<uint8_t> JunctionHeightmapBytes;
-    std::vector<NodeJunctionRef> NodeJunctionRefs;
+    std::vector<uint8_t> junctionHeightmapBytes;
+    std::vector<NodeJunctionRef> nodeJunctionRefs;
 
     YndLoader(memstream& file);
     ~YndLoader();

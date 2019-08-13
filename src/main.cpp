@@ -16,7 +16,7 @@ int main(int argc, char* argv[])
     //No arguments - Exit
     if (argc != 2)
     {
-        printf("NOT ENOUGH ARGUMENTS");
+        printf("NOT ENOUGH ARGUMENTS\n");
         return 1;
     }
     //printf("GAME DIRECTORY %s", argv[1]);

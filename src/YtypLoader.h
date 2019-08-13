@@ -95,7 +95,7 @@ public:
 
     int Type;
 
-    uint32_t GetType()
+    uint32_t getType()
     {
         return Type;
     }

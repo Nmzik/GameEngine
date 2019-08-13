@@ -26,38 +26,38 @@ InputManager::~InputManager()
 {
 }
 
-void InputManager::ProcessButton(uint32_t key, bool isDown)
+void InputManager::processButton(uint32_t key, bool isDown)
 {
     for (int i = 0; i < keyMapping.size(); i++)
     {
         if (key == keyMapping[i].first)
         {
             if (isDown)
-                CurrentInput[keyMapping[i].second] = 1;
+                currentInput[keyMapping[i].second] = 1;
             else
-                CurrentInput[keyMapping[i].second] = 0;
+                currentInput[keyMapping[i].second] = 0;
         }
     }
 }
 
 void InputManager::update()
 {
-    memcpy(&PreviousInput[0], &CurrentInput[0], ActionsKeySize);
+    memcpy(&previousInput[0], &currentInput[0], ActionsKeySize);
 }
 
-bool InputManager::IsKeyTriggered(Actions iKeyCode) const
+bool InputManager::isKeyTriggered(Actions iKeyCode) const
 {
-    return (CurrentInput[iKeyCode] == 1 && PreviousInput[iKeyCode] == 0);
+    return (currentInput[iKeyCode] == 1 && previousInput[iKeyCode] == 0);
 }
 
-bool InputManager::IsKeyPressed(Actions iKeyCode) const
+bool InputManager::isKeyPressed(Actions iKeyCode) const
 {
-    return (CurrentInput[iKeyCode] == 1);
+    return (currentInput[iKeyCode] == 1);
 }
 
-bool InputManager::IsKeyReleased(Actions iKeyCode) const
+bool InputManager::isKeyReleased(Actions iKeyCode) const
 {
-    return (CurrentInput[iKeyCode] == 0 && PreviousInput[iKeyCode] == 1);
+    return (currentInput[iKeyCode] == 0 && previousInput[iKeyCode] == 1);
 }
 
 void InputManager::setMouseMovement(int x, int y)

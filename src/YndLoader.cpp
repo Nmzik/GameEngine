@@ -41,18 +41,18 @@ YndLoader::YndLoader(memstream& file)
     TranslatePTR(nodeDictionary.JunctionHeightmapBytesPtr);
 
     file.seekg(nodeDictionary.JunctionHeightmapBytesPtr);
-    JunctionHeightmapBytes.resize(nodeDictionary.JunctionHeightmapBytesCount);
-    file.read((char*)&JunctionHeightmapBytes[0], nodeDictionary.JunctionHeightmapBytesCount);
+    junctionHeightmapBytes.resize(nodeDictionary.JunctionHeightmapBytesCount);
+    file.read((char*)&junctionHeightmapBytes[0], nodeDictionary.JunctionHeightmapBytesCount);
 
     ///////////////////
     TranslatePTR(nodeDictionary.JunctionRefsPtr);
 
     file.seekg(nodeDictionary.JunctionRefsPtr);
-    NodeJunctionRefs.resize(nodeDictionary.JunctionRefsCount1);
+    nodeJunctionRefs.resize(nodeDictionary.JunctionRefsCount1);
 
     for (int i = 0; i < nodeDictionary.JunctionRefsCount1; i++)
     {
-        file.read((char*)&NodeJunctionRefs[i], sizeof(NodeJunctionRef));
+        file.read((char*)&nodeJunctionRefs[i], sizeof(NodeJunctionRef));
     }
 }
 

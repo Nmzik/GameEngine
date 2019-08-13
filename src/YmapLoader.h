@@ -117,8 +117,8 @@ class YmapLoader : public FileType
 public:
     CMapData _CMapData;
     std::vector<CMloInstanceDef> CMloInstanceDefs;
-    std::vector<CBuilding> Objects;
-    std::vector<CCarGen> CarGenerators;
+    std::vector<CBuilding> objects;
+    std::vector<CCarGen> carGenerators;
 
     void Init(memstream& file) override;
     ~YmapLoader();

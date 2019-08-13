@@ -152,7 +152,8 @@ void YdrLoader::Init(memstream& file)
                 }
             }
 
-            Material newMat{false, DiffuseSampler, BumpSampler, SpecularSampler, DetailSampler};
+            //Material newMat{false, DiffuseSampler, BumpSampler, SpecularSampler, DetailSampler};
+            Material newMat{false};
             materials.push_back(newMat);
         }
     }

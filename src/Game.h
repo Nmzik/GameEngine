@@ -26,14 +26,14 @@ class Game
 {
     std::unique_ptr<GameData> gameData;
     std::unique_ptr<GameWorld> gameWorld;
-    std::unique_ptr<NativeWindow> window;
+    //std::unique_ptr<NativeWindow> window;
     std::unique_ptr<GameRenderer> rendering_system;
     std::unique_ptr<ScriptInterpreter> scriptMachine;
     std::unique_ptr<InputManager> input;
     std::unique_ptr<Camera> camera;
 
 public:
-    Game(const char* GamePath);
+    Game(const char* gamePath);
     ~Game();
     bool paused = false;
     float gameTime;

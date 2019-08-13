@@ -18,8 +18,8 @@
 // 50MB for ResourceLoader
 
 ResourceManager::ResourceManager(GameWorld* world)
-    : gameworld{world}
-    , running(true)
+    : running(true)
+    , gameworld{world}
 {
     // printf("RESOURCE MANAGER LOADED!\n");
 
@@ -34,7 +34,7 @@ ResourceManager::ResourceManager(GameWorld* world)
 
     resource_allocator = std::make_unique<ThreadSafeAllocator>(50 * 1024 * 1024);
 
-    ResourcesThread = std::thread(&ResourceManager::update, this);
+    resourcesThread = std::thread(&ResourceManager::update, this);
 }
 
 ResourceManager::~ResourceManager()
@@ -42,10 +42,10 @@ ResourceManager::~ResourceManager()
     Resource* exitResource = GlobalPool::GetInstance()->resourcesPool.create(Type::null, 0, nullptr);
     addToWaitingList(exitResource);
 
-    ResourcesThread.join();
+    resourcesThread.join();
 }
 
-void ResourceManager::GetGtxd(uint32_t hash)
+void ResourceManager::getGtxd(uint32_t hash)
 {
     /* auto iter = data.GtxdEntries.find(hash);
 	 if (iter != data.GtxdEntries.end()) {
@@ -57,7 +57,7 @@ void ResourceManager::GetGtxd(uint32_t hash)
 	 }*/
 }
 
-YmapLoader* ResourceManager::GetYmap(uint32_t hash)
+YmapLoader* ResourceManager::getYmap(uint32_t hash)
 {
     auto it = ymapLoader.find(hash);
     if (it != ymapLoader.end())
@@ -76,7 +76,7 @@ YmapLoader* ResourceManager::GetYmap(uint32_t hash)
     }
 }
 
-YdrLoader* ResourceManager::GetYdr(uint32_t hash)
+YdrLoader* ResourceManager::getYdr(uint32_t hash)
 {
     auto iter = ydrLoader.find(hash);
     if (iter != ydrLoader.end())
@@ -95,7 +95,7 @@ YdrLoader* ResourceManager::GetYdr(uint32_t hash)
     }
 }
 
-YtdLoader* ResourceManager::GetYtd(uint32_t hash)
+YtdLoader* ResourceManager::getYtd(uint32_t hash)
 {
     auto it = ytdLoader.find(hash);
     if (it != ytdLoader.end())
@@ -108,7 +108,7 @@ YtdLoader* ResourceManager::GetYtd(uint32_t hash)
         /*auto iter = gameworld->getGameData()->GtxdEntries.find(hash);
 		if (iter != gameworld->getGameData()->GtxdEntries.end())
 		{
-		 GetYtd(iter->second);
+		 getYtd(iter->second);
 		}*/
 
         bool HDTextures = false;
@@ -148,7 +148,7 @@ YtdLoader* ResourceManager::GetYtd(uint32_t hash)
     }
 }
 
-YddLoader* ResourceManager::GetYdd(uint32_t hash)
+YddLoader* ResourceManager::getYdd(uint32_t hash)
 {
     auto iter = yddLoader.find(hash);
     if (iter != yddLoader.end())
@@ -167,7 +167,7 @@ YddLoader* ResourceManager::GetYdd(uint32_t hash)
     }
 }
 
-YftLoader* ResourceManager::GetYft(uint32_t hash)
+YftLoader* ResourceManager::getYft(uint32_t hash)
 {
     auto iter = yftLoader.find(hash);
     if (iter != yftLoader.end())
@@ -186,7 +186,7 @@ YftLoader* ResourceManager::GetYft(uint32_t hash)
     }
 }
 
-YbnLoader* ResourceManager::GetYbn(uint32_t hash)
+YbnLoader* ResourceManager::getYbn(uint32_t hash)
 {
     auto iter = ybnLoader.find(hash);
     if (iter != ybnLoader.end())
@@ -204,7 +204,7 @@ YbnLoader* ResourceManager::GetYbn(uint32_t hash)
     }
 }
 
-YscLoader* ResourceManager::GetYsc(uint32_t hash)
+YscLoader* ResourceManager::getYsc(uint32_t hash)
 {
     auto iter = yscLoader.find(hash);
     if (iter != yscLoader.end())
@@ -265,8 +265,8 @@ void ResourceManager::update()
             case ycd:
             case ysc:
             {
-                auto it = gameworld->getGameData()->Entries[res->type].find(res->Hash);
-                if (it != gameworld->getGameData()->Entries[res->type].end())
+                auto it = gameworld->getGameData()->entries[res->type].find(res->Hash);
+                if (it != gameworld->getGameData()->entries[res->type].end())
                 {
                     uint8_t* allocatedMemory = nullptr;
 
@@ -295,52 +295,52 @@ void ResourceManager::update()
                         auto it = gameworld->getGameData()->MloDictionary.find(mlo.fwEntityDef.archetypeName);
                         if (it != gameworld->getGameData()->MloDictionary.end())
                         {
-                            for (auto& EntityDef : it->second)
+                            for (auto& entityDef : it->second)
                             {
-                                glm::quat rotmultiply = EntityDef.rotation * mlo.fwEntityDef.rotation;
+                                glm::quat rotmultiply = entityDef.rotation * mlo.fwEntityDef.rotation;
                                 rotmultiply.w = -rotmultiply.w;
-                                glm::mat4 matrix = glm::translate(glm::mat4(1.0f), mlo.fwEntityDef.position + EntityDef.position) *
+                                glm::mat4 matrix = glm::translate(glm::mat4(1.0f), mlo.fwEntityDef.position + entityDef.position) *
                                                    glm::mat4_cast(glm::quat(-mlo.fwEntityDef.rotation.w, -mlo.fwEntityDef.rotation.x,
                                                                             -mlo.fwEntityDef.rotation.y, -mlo.fwEntityDef.rotation.z)) *
                                                    glm::scale(glm::mat4(1.0f),
-                                                              glm::vec3(EntityDef.scaleXY, EntityDef.scaleXY, EntityDef.scaleZ));
-                                EntityDef.position = mlo.fwEntityDef.position + EntityDef.position;
-                                EntityDef.rotation = rotmultiply;
-                                iter->Objects.emplace_back(EntityDef);
+                                                              glm::vec3(entityDef.scaleXY, entityDef.scaleXY, entityDef.scaleZ));
+                                entityDef.position = mlo.fwEntityDef.position + entityDef.position;
+                                entityDef.rotation = rotmultiply;
+                                iter->objects.emplace_back(entityDef);
                             }
                         }
                     }
 
-                    for (auto& object : iter->Objects)
+                    for (auto& object : iter->objects)
                     {
-                        std::unordered_map<uint32_t, fwArchetype*>::iterator it = gameworld->getGameData()->Archetypes.find(object.EntityDef.archetypeName);
-                        if (it != gameworld->getGameData()->Archetypes.end())
+                        std::unordered_map<uint32_t, fwArchetype*>::iterator it = gameworld->getGameData()->archetypes.find(object.entityDef.archetypeName);
+                        if (it != gameworld->getGameData()->archetypes.end())
                         {
-                            if (it->second->GetType() == 2)
+                            if (it->second->getType() == 2)
                             {
                                 printf("");
                             }
 
                             object.archetype = it->second;
 
-                            object.BoundPos = object.EntityDef.position - object.archetype->BaseArchetypeDef.bsCentre;
-                            object.BoundRadius = object.archetype->BaseArchetypeDef
+                            object.boundPos = object.entityDef.position - object.archetype->BaseArchetypeDef.bsCentre;
+                            object.boundRadius = object.archetype->BaseArchetypeDef
                                                      .bsRadius;  //* std::max(object.CEntity.scaleXY, object.CEntity.scaleZ); TREES doesnt render with multiplying by scale
 
-                            if (object.EntityDef.lodDist <= 0)
-                                object.EntityDef.lodDist = it->second->BaseArchetypeDef.lodDist;
-                            if (object.EntityDef.childLodDist <= 0)
-                                object.EntityDef.childLodDist = it->second->BaseArchetypeDef.lodDist;
+                            if (object.entityDef.lodDist <= 0)
+                                object.entityDef.lodDist = it->second->BaseArchetypeDef.lodDist;
+                            if (object.entityDef.childLodDist <= 0)
+                                object.entityDef.childLodDist = it->second->BaseArchetypeDef.lodDist;
                         }
                         else
                         {
                             //	printf("ERROR\n"); ACTUALLY IT CAN HAPPEN
                             object.archetype = nullptr;
-                            object.EntityDef.lodDist = 0.f;  //	HACK = DONT RENDER OBJECTS WITH UNKNOWN ARCHETYPE
+                            object.entityDef.lodDist = 0.f;  //	HACK = DONT RENDER objects WITH UNKNOWN ARCHETYPE
                         }
 
-                        object.EntityDef.lodDist *= object.EntityDef.lodDist;            // glm::length2
-                        object.EntityDef.childLodDist *= object.EntityDef.childLodDist;  // glm::length2
+                        object.entityDef.lodDist *= object.entityDef.lodDist;            // glm::length2
+                        object.entityDef.childLodDist *= object.entityDef.childLodDist;  // glm::length2
                     }
                 }
                 addToMainQueue(res);
@@ -356,7 +356,7 @@ void ResourceManager::update()
     }
 }
 
-void ResourceManager::RemoveAll()
+void ResourceManager::removeAll()
 {
     for (auto it = ytdLoader.begin(); it != ytdLoader.end();)
     {
@@ -365,10 +365,10 @@ void ResourceManager::RemoveAll()
     }
 }
 
-void ResourceManager::UpdateResourceCache()
+void ResourceManager::updateResourceCache()
 {
     //	printf("FREE SPACE %zd\n", _main_allocator->getSize() - _main_allocator->getUsedMemory());
-    // REMOVE OBJECTS WHEN WE ARE IN ANOTHER CELL????  RUN GARBAGE COLLECTOR WHEN IN ANOTHER CEL
+    // REMOVE objects WHEN WE ARE IN ANOTHER CELL????  RUN GARBAGE COLLECTOR WHEN IN ANOTHER CEL
     for (auto it = ybnLoader.begin(); it != ybnLoader.end();)
     {
         if ((it->second)->RefCount == 0 && (it->second)->Loaded)

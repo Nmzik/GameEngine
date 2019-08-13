@@ -8,7 +8,7 @@
 
 CBuilding::CBuilding(fwEntityDef def)
     : CEntity(def.position, def.rotation, glm::vec3(def.scaleXY, def.scaleXY, def.scaleZ), ObjectType::Building)
-    , EntityDef(def)
+    , entityDef(def)
 {
 }
 

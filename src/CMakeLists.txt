@@ -25,12 +25,12 @@ if(WIN32)
 	OpenGL/*.h
 	OpenGL/*.cpp
 	)
-	
+
 	#list (APPEND SOURCES ${OpenGL})
 else()
 	file(GLOB MACSOURCES
-	macOS/*.h
-	macOS/*.cpp
+	metal/*.h
+	metal/*.cpp
 	)
 
 	list (APPEND SOURCES ${MACSOURCES})

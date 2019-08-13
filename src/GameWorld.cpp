@@ -26,8 +26,8 @@ GameWorld::GameWorld(GameData* _gameData)
         vehiclesPool[vehicle.Hash] = vehicle;
     }*/
 
-    CurYbns.reserve(50);
-    CurYmaps.reserve(200);  //> 100
+    curYbns.reserve(50);
+    curYmaps.reserve(200);  //> 100
     vehicles.reserve(50);
     peds.reserve(20);
     //	RenderList
@@ -50,74 +50,74 @@ GameWorld::GameWorld(GameData* _gameData)
         WaterMeshes.push_back(water);
     }*/
 
-    for (auto& ynd : data.Entries[ynd])
+    for (auto& ynd : data.entries[ynd])
     {
     }
 
     gameHour = 10;
     gameMinute = 0;
 
-    resourceManager->GetYtd(3403519606);  //water
-    resourceManager->GetYtd(4096714883);  //PLAYER YTD
+    resourceManager->getYtd(3403519606);  //water
+    resourceManager->getYtd(4096714883);  //PLAYER YTD
 
-    YddLoader* playerYDD = resourceManager->GetYdd(4096714883);
-    skydome = resourceManager->GetYdd(2640562617);
+    YddLoader* playerYDD = resourceManager->getYdd(4096714883);
+    skydome = resourceManager->getYdd(2640562617);
 
     while (!skydome->Loaded || !playerYDD->Loaded)
     {
         loadQueuedResources();
     }
 
-    resourceManager->GetYtd(GenHash("mapdetail"));
-    resourceManager->GetYtd(GenHash("vehshare"));
-    resourceManager->GetYtd(GenHash("vehshare_worn"));
-    resourceManager->GetYtd(GenHash("vehshare_army"));
-    resourceManager->GetYtd(GenHash("vehshare_truck"));
+    resourceManager->getYtd(GenHash("mapdetail"));
+    resourceManager->getYtd(GenHash("vehshare"));
+    resourceManager->getYtd(GenHash("vehshare_worn"));
+    resourceManager->getYtd(GenHash("vehshare_army"));
+    resourceManager->getYtd(GenHash("vehshare_truck"));
 
     /*for (auto& ytd : data.GtxdEntries)
 	{
-	 resourceManager->GetYtd(ytd.second);
+	 resourceManager->getYtd(ytd.second);
 	}*/
 
-    AddPedToWorld(glm::vec3(-19.09, -407.75, 48.77), playerYDD);
-    //AddPedToWorld(glm::vec3(1705.95, 3746.39, 37.64), playerYDD);
-    AddPedToWorld(glm::vec3(9.66, -1184.98, 75.74), playerYDD);
-    AddPedToWorld(glm::vec3(2250.18f, 3471.40f, 56.50f), playerYDD);
+    addPedToWorld(glm::vec3(-19.09, -407.75, 48.77), playerYDD);
+    //addPedToWorld(glm::vec3(1705.95, 3746.39, 37.64), playerYDD);
+    addPedToWorld(glm::vec3(9.66, -1184.98, 75.74), playerYDD);
+    addPedToWorld(glm::vec3(2250.18f, 3471.40f, 56.50f), playerYDD);
 
     //minimap
     /*std::vector<YddLoader*> minimapsYDD;
-    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_0_2")));
-    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_0_3")));
-    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_0_4")));
-    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_0_5")));
-    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_0_6")));
-    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_1_1")));
-    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_1_2")));
-    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_1_3")));
-    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_1_4")));
-    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_1_5")));
-    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_1_6")));
-    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_1_7")));
-    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_1_8")));
-    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_2_0")));
-    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_2_1")));
-    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_2_2")));
-    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_2_3")));
-    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_2_4")));
-    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_2_5")));
-    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_2_6")));
-    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_2_7")));
-    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_2_8")));
-    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_3_0")));
-    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_3_1")));
-    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_3_2")));
-    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_3_3")));
-    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_3_4")));
-    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_3_5")));
-    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_3_6")));
-    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_3_7")));
-    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_3_8")));
-    minimapsYDD.push_back(resourceManager->GetYdd(GenHash("minimap_4_0")));
+    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_0_2")));
+    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_0_3")));
+    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_0_4")));
+    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_0_5")));
+    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_0_6")));
+    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_1_1")));
+    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_1_2")));
+    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_1_3")));
+    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_1_4")));
+    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_1_5")));
+    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_1_6")));
+    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_1_7")));
+    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_1_8")));
+    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_2_0")));
+    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_2_1")));
+    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_2_2")));
+    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_2_3")));
+    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_2_4")));
+    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_2_5")));
+    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_2_6")));
+    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_2_7")));
+    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_2_8")));
+    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_3_0")));
+    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_3_1")));
+    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_3_2")));
+    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_3_3")));
+    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_3_4")));
+    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_3_5")));
+    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_3_6")));
+    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_3_7")));
+    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_3_8")));
+    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_4_0")));
 
     for (int i = 0; i < minimapsYDD.size(); i++)
     {
@@ -151,7 +151,7 @@ GameWorld::~GameWorld()
 void GameWorld::updateObjects(Camera* camera, glm::vec3& position)
 {
     culledYmaps = 0;
-    for (auto& ymap : CurYmaps)
+    for (auto& ymap : curYmaps)
     {
         if (ymap->Loaded)
         {
@@ -160,14 +160,14 @@ void GameWorld::updateObjects(Camera* camera, glm::vec3& position)
                 ++culledYmaps;
                 continue;
             }
-            for (auto& object : ymap->Objects)
+            for (auto& object : ymap->objects)
             {
                 float Dist = glm::length2(position - object.getPosition());
-                bool IsVisible = Dist <= object.EntityDef.lodDist * LODMultiplier;
-                bool childrenVisible = (Dist <= object.EntityDef.childLodDist * LODMultiplier) && (object.EntityDef.numChildren > 0);
+                bool IsVisible = Dist <= object.entityDef.lodDist * LODMultiplier;
+                bool childrenVisible = (Dist <= object.entityDef.childLodDist * LODMultiplier) && (object.entityDef.numChildren > 0);
                 if (IsVisible && !childrenVisible)
                 {
-                    if (!object.Loaded)
+                    if (!object.loaded)
                     {
                         switch (object.archetype->BaseArchetypeDef.assetType)
                         {
@@ -175,8 +175,8 @@ void GameWorld::updateObjects(Camera* camera, glm::vec3& position)
                             {
                                 if (!object.ydr)
                                 {
-                                    object.ytd = resourceManager->GetYtd(object.archetype->BaseArchetypeDef.textureDictionary);
-                                    object.ydr = resourceManager->GetYdr(object.EntityDef.archetypeName);
+                                    object.ytd = resourceManager->getYtd(object.archetype->BaseArchetypeDef.textureDictionary);
+                                    object.ydr = resourceManager->getYdr(object.entityDef.archetypeName);
                                 }
                                 if (object.ydr->Loaded)
                                 {
@@ -201,7 +201,7 @@ void GameWorld::updateObjects(Camera* camera, glm::vec3& position)
 							 }//can be an error here
 							}*/
 
-                                    object.Loaded = true;
+                                    object.loaded = true;
                                 }
                                 break;
                             }
@@ -209,16 +209,16 @@ void GameWorld::updateObjects(Camera* camera, glm::vec3& position)
                             {
                                 if (!object.ydd)
                                 {
-                                    object.ytd = resourceManager->GetYtd(object.archetype->BaseArchetypeDef.textureDictionary);
-                                    object.ydd = resourceManager->GetYdd(object.archetype->BaseArchetypeDef.drawableDictionary);
+                                    object.ytd = resourceManager->getYtd(object.archetype->BaseArchetypeDef.textureDictionary);
+                                    object.ydd = resourceManager->getYdd(object.archetype->BaseArchetypeDef.drawableDictionary);
                                 }
                                 if (object.ydd->Loaded)
                                 {
-                                    auto iter2 = object.ydd->ydrFiles.find(object.EntityDef.archetypeName);
+                                    auto iter2 = object.ydd->ydrFiles.find(object.entityDef.archetypeName);
                                     if (iter2 != object.ydd->ydrFiles.end())
                                     {
                                         object.ydr = iter2->second;
-                                        object.Loaded = true;
+                                        object.loaded = true;
                                     }
                                 }
                                 break;
@@ -227,13 +227,13 @@ void GameWorld::updateObjects(Camera* camera, glm::vec3& position)
                             {
                                 if (!object.yft)
                                 {
-                                    object.ytd = resourceManager->GetYtd(object.archetype->BaseArchetypeDef.textureDictionary);
-                                    object.yft = resourceManager->GetYft(object.EntityDef.archetypeName);
+                                    object.ytd = resourceManager->getYtd(object.archetype->BaseArchetypeDef.textureDictionary);
+                                    object.yft = resourceManager->getYft(object.entityDef.archetypeName);
                                 }
                                 if (object.yft->Loaded)
                                 {
                                     object.ydr = object.yft->ydr;
-                                    object.Loaded = true;
+                                    object.loaded = true;
                                 }
                                 break;
                             }
@@ -248,7 +248,7 @@ void GameWorld::updateObjects(Camera* camera, glm::vec3& position)
                         }
 
                         bool isreflproxy = false;
-                        switch (object.EntityDef.flags)
+                        switch (object.entityDef.flags)
                         {
                             case 135790592:  //	001000000110000000000000000000    prewater proxy (golf course)
                             case 135790593:  //	001000000110000000000000000001    water refl proxy? (mike house)
@@ -264,7 +264,7 @@ void GameWorld::updateObjects(Camera* camera, glm::vec3& position)
                             continue;
                         }
 
-                        if (object.archetype->GetType() == 1)
+                        if (object.archetype->getType() == 1)
                         {  //	TIME ARCHETYPE
                             //	if ((object.Archetype._TimeArchetypeDef.timeFlags >> gameHour) & 1)
                             //{
@@ -272,7 +272,7 @@ void GameWorld::updateObjects(Camera* camera, glm::vec3& position)
                             //}
                         }
 
-                        if (camera->intersects(object.BoundPos, object.BoundRadius))
+                        if (camera->intersects(object.boundPos, object.boundRadius))
                         {
                             renderList.push_back(&object);
                         }
@@ -369,65 +369,65 @@ void GameWorld::updateObjects(Camera* camera, glm::vec3& position)
 
 void GameWorld::getVisibleYmaps(glm::vec3& PlayerPos)
 {
-    auto cellID = spaceGrid.GetCellPos(PlayerPos);
-    auto NodeCell = nodeGrid.GetCellPos(PlayerPos);
-    auto NavCell = navGrid.GetCellPos(PlayerPos);
+    auto cellID = spaceGrid.getCellPos(PlayerPos);
+    auto NodeCell = nodeGrid.getCellPos(PlayerPos);
+    auto NavCell = navGrid.getCellPos(PlayerPos);
 
-    if (CurNavCell != NavCell)
+    if (curNavCell != NavCell)
     {
-        CurNavCell = NavCell;
+        curNavCell = NavCell;
 
         //auto& cell = navGrid.GetCell(NavCell);
     }
 
-    if (CurNodeCell != NodeCell)
+    if (curNodeCell != NodeCell)
     {
-        CurNodeCell = NodeCell;
-        curNode = data.nodes[CurNodeCell.x * 32 + CurNodeCell.y].get();
+        curNodeCell = NodeCell;
+        curNode = data.nodes[curNodeCell.x * 32 + curNodeCell.y].get();
         //auto& cell = nodeGrid.GetCell(NodeCell);
     }
 
-    if (CurCell != cellID)
+    if (curCell != cellID)
     {
         //	printf("NEW CELL\n");
-        CurCell = cellID;
+        curCell = cellID;
 
-        for (auto& ybn : CurYbns)
+        for (auto& ybn : curYbns)
         {
             ybn->RefCount--;
         }
 
-        for (auto& map : CurYmaps)
+        for (auto& map : curYmaps)
         {
             map->RefCount--;
         }
 
-        CurYbns.clear();
-        CurYmaps.clear();
+        curYbns.clear();
+        curYmaps.clear();
         //	Clear previous Ybns
 
         //SpaceGridCell& cell = spaceGrid.GetCell(cellID);
 
         //	Bounds
-        for (int i = 0; i < data.cacheFile->AllBoundsStoreItems.size(); i++)
+        for (int i = 0; i < data.cacheFile->allBoundsStoreItems.size(); i++)
         {
-            glm::i32vec2 min = spaceGrid.GetCellPos(data.cacheFile->AllBoundsStoreItems[i].Min);
-            glm::i32vec2 max = spaceGrid.GetCellPos(data.cacheFile->AllBoundsStoreItems[i].Max);
+            glm::i32vec2 min = spaceGrid.getCellPos(data.cacheFile->allBoundsStoreItems[i].Min);
+            glm::i32vec2 max = spaceGrid.getCellPos(data.cacheFile->allBoundsStoreItems[i].Max);
 
             if (cellID.x <= max.x && cellID.x >= min.x && cellID.y <= max.y && cellID.y >= min.y)
             {
-                CurYbns.emplace_back(resourceManager->GetYbn(data.cacheFile->AllBoundsStoreItems[i].Name));
+                curYbns.emplace_back(resourceManager->getYbn(data.cacheFile->allBoundsStoreItems[i].Name));
             }
         }
 
-        for (int i = 0; i < data.cacheFile->AllMapNodes.size(); i++)
+        for (int i = 0; i < data.cacheFile->allMapNodes.size(); i++)
         {
-            glm::i32vec2 min = spaceGrid.GetCellPos(data.cacheFile->AllMapNodes[i].streamingExtentsMin);  //	NOT entitiesExtents !!!! GIVES WEIRD RESULTS
-            glm::i32vec2 max = spaceGrid.GetCellPos(data.cacheFile->AllMapNodes[i].streamingExtentsMax);
+            glm::i32vec2 min = spaceGrid.getCellPos(data.cacheFile->allMapNodes[i].streamingExtentsMin);  //	NOT entitiesExtents !!!! GIVES WEIRD RESULTS
+            glm::i32vec2 max = spaceGrid.getCellPos(data.cacheFile->allMapNodes[i].streamingExtentsMax);
 
             if (cellID.x <= max.x && cellID.x >= min.x && cellID.y <= max.y && cellID.y >= min.y)
             {
-                CurYmaps.emplace_back(resourceManager->GetYmap(data.cacheFile->AllMapNodes[i].Name));
+                curYmaps.emplace_back(resourceManager->getYmap(data.cacheFile->allMapNodes[i].Name));
             }
         }
     }
@@ -459,7 +459,7 @@ void GameWorld::getVisibleYmaps(glm::vec3& PlayerPos)
 	 }
 	}*/
 
-    resourceManager->UpdateResourceCache();
+    resourceManager->updateResourceCache();
 
     loadQueuedResources();
 }
@@ -551,11 +551,11 @@ void GameWorld::createVehicle(glm::vec3 position, glm::quat rotation)
 {
     int vehicleID = rand() % data.VehiclesInfo.size();
 
-    if (YftLoader* vehicle = resourceManager->GetYft(data.VehiclesInfo[vehicleID].Hash); vehicle->Loaded)
+    if (YftLoader* vehicle = resourceManager->getYft(data.VehiclesInfo[vehicleID].Hash); vehicle->Loaded)
     {
         if (vehicle->ydr)
         {
-            AddVehicleToWorld(position, rotation, data.VehiclesInfo[vehicleID].mass, vehicle);
+            addVehicleToWorld(position, rotation, data.VehiclesInfo[vehicleID].mass, vehicle);
             printf("Car Spawned\n");
         }
     }
@@ -583,7 +583,7 @@ void GameWorld::cleanupTraffic(Camera* camera)
     {
         if (glm::distance2(camera->getPosition(), vehicles[i]->getPosition()) >= radiusTraffic * radiusTraffic)
         {
-            RemoveVehicleFromWorld(vehicles[i]);
+            removeVehicleFromWorld(vehicles[i]);
             GlobalPool::GetInstance()->CVehiclePool.remove(vehicles[i]);
             printf("Car Removed\n");
 
@@ -643,12 +643,12 @@ void GameWorld::createTraffic(Camera* camera)
 
 void GameWorld::updateDynamicObjects()
 {
-    /*for (auto & map : CurYmaps)
+    /*for (auto & map : curYmaps)
 	{
 	 if (map->Loaded) {
 	  for (auto & object : map->Objects)
 	  {
-	   if (object.Loaded) {
+	   if (object.loaded) {
 	 if (object.Archetype._BaseArchetypeDef.flags == 549584896 && object.rigidBody) {
 	  object.rigidBody->getWorldTransform().getOpenGLMatrix(&object.modelMatrix[0][0]);
 	 }
@@ -661,10 +661,10 @@ void GameWorld::updateDynamicObjects()
 /*void GameWorld::UpdateTraffic(Camera* camera, glm::vec3 pos)
 {
 //	CARS
-/*if (nodeGrid.cells[CurNodeCell.x * 32 + CurNodeCell.y]->ynd)
+/*if (nodeGrid.cells[curNodeCell.x * 32 + curNodeCell.y]->ynd)
 	{
 
-	 for (auto& node : nodeGrid.cells[CurNodeCell.x * 32 + CurNodeCell.y]->ynd->nodes)
+	 for (auto& node : nodeGrid.cells[curNodeCell.x * 32 + curNodeCell.y]->ynd->nodes)
 	 {
 	  pos = glm::vec3(node.PositionX / 4.0f, node.PositionY / 4.0f, node.PositionZ / 32.0f);
 
@@ -791,7 +791,7 @@ void GameWorld::updateWorld(float delta_time, Camera* camera)
         vehicle->physicsTick();
     }
 
-    if (EnableStreaming)
+    if (enableStreaming)
     {
         renderList.clear();
 
@@ -823,7 +823,7 @@ bool GameWorld::detectInWater(glm::vec3 Position)
     return false;
 }
 
-void GameWorld::AddVehicleToWorld(glm::vec3 position, glm::quat rot, float mass, YftLoader* model)
+void GameWorld::addVehicleToWorld(glm::vec3 position, glm::quat rot, float mass, YftLoader* model)
 {
     CVehicle* vehicle = GlobalPool::GetInstance()->CVehiclePool.create(position, rot, mass, model, physicsSystem.getPhysicsWorld());
     physicsSystem.addVehicle(vehicle);
@@ -831,28 +831,28 @@ void GameWorld::AddVehicleToWorld(glm::vec3 position, glm::quat rot, float mass,
     vehicles.push_back(vehicle);
 }
 
-void GameWorld::RemoveVehicleFromWorld(CVehicle* vehicle)
+void GameWorld::removeVehicleFromWorld(CVehicle* vehicle)
 {
     physicsSystem.removeVehicle(vehicle);
 }
 
-void GameWorld::AddPedToWorld(glm::vec3 pos, YddLoader* model)
+void GameWorld::addPedToWorld(glm::vec3 pos, YddLoader* model)
 {
     CPed* ped = GlobalPool::GetInstance()->CPedPool.create(pos, model);
     physicsSystem.addPed(ped);
     peds.push_back(ped);
 }
 
-void GameWorld::RemovePedFromWorld(CPed* ped)
+void GameWorld::removePedFromWorld(CPed* ped)
 {
     physicsSystem.removePed(ped);
 }
 
-void GameWorld::testFunction(glm::vec3 Position)
+void GameWorld::testFunction(glm::vec3 position)
 {
     /*for (auto& ytd : data.GtxdEntries)
 	{
-	 while (!resourceManager->GetYtd(ytd.second))
+	 while (!resourceManager->getYtd(ytd.second))
 	 {
 	  LoadQueuedResources();
 	 }

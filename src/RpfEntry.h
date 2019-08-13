@@ -27,7 +27,6 @@ public:
     uint32_t ShortNameHash;
 
     std::string FileName;
-    std::string Path;
 };
 
 class RpfDirectoryEntry : public RpfEntry
@@ -36,7 +35,7 @@ public:
     uint32_t EntriesIndex;
     uint32_t EntriesCount;
 
-    RpfDirectoryEntry(memstream& stream, memstream& NamesStream);
+    RpfDirectoryEntry(memstream& stream, memstream& namesStream);
 };
 
 class RpfFile;
@@ -57,7 +56,7 @@ public:
     uint32_t FileUncompressedSize;
     uint32_t EncryptionType;
 
-    RpfBinaryFileEntry(memstream& stream, uint64_t StartPos, memstream& NamesStream);
+    RpfBinaryFileEntry(memstream& stream, uint64_t startPos, memstream& namesStream);
 };
 
 class RpfResourceFileEntry : public RpfFileEntry
@@ -67,5 +66,5 @@ public:
     int32_t GraphicsSize;
     uint64_t UncompressedFileSize;
 
-    RpfResourceFileEntry(memstream& stream, std::istream& originalFile, uint64_t StartPos, memstream& NamesStream);
+    RpfResourceFileEntry(memstream& stream, std::istream& originalFile, uint64_t startPos, memstream& namesStream);
 };

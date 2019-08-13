@@ -51,10 +51,10 @@ struct BoundsStoreItem
 class CacheDatFile
 {
 public:
-    std::vector<MapDataStoreNode> AllMapNodes;
-    std::vector<CInteriorProxy> AllCInteriorProxies;
-    std::vector<BoundsStoreItem> AllBoundsStoreItems;
+    std::vector<MapDataStoreNode> allMapNodes;
+    std::vector<CInteriorProxy> allCInteriorProxies;
+    std::vector<BoundsStoreItem> allBoundsStoreItems;
 
-    CacheDatFile(std::vector<uint8_t>& Data);
+    CacheDatFile(std::vector<uint8_t>& data);
     ~CacheDatFile();
 };

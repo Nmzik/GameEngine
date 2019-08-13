@@ -1,7 +1,11 @@
 #pragma once
 #include <memory>
 #include "FreeListAllocator.h"
-#include "PhysicsDebugDrawer.h"
+#ifdef WIN32
+#include "windows/PhysicsDebugDrawer.h"
+#else
+#include "metal/PhysicsDebugDrawer.h"
+#endif
 #include <btBulletDynamicsCommon.h>
 #include <LinearMath/btAlignedAllocator.h>
 #include <glm/vec3.hpp>

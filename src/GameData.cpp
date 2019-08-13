@@ -10,12 +10,20 @@
 
 #include <pugixml.hpp>
 
-GameData::GameData(std::string Path)
+GameData::GameData(std::string path)
+:mainDirPath(path)
 {
-    TempBuffer = new uint8_t[40 * 1024 * 1024];
+    tempBuffer = new uint8_t[40 * 1024 * 1024];
     nodes.resize(32 * 32);
-    GTAEncryption::getInstance().LoadKeys();
+    GTAEncryption::getInstance().loadKeys();
+}
 
+GameData::~GameData()
+{
+}
+
+void GameData::load()
+{
     std::array<std::string, 25> RpfsFiles = {
         "common.rpf",
         "x64a.rpf",
@@ -42,188 +50,188 @@ GameData::GameData(std::string Path)
         "x64v.rpf",
         "x64w.rpf",
         "update\\update.rpf"};
-
+    
     for (std::string& rpfFile : RpfsFiles)
     {
-        std::string FilePath = Path + rpfFile;
-
+        std::string FilePath = mainDirPath + rpfFile;
+        
         std::unique_ptr<std::ifstream> rpf = std::make_unique<std::ifstream>(FilePath, std::ios::binary);
-
+        
         if (!rpf->is_open())
         {
             printf("NOT FOUND RPF %s!\n", (FilePath).c_str());
             continue;
         }
-
+        
         rpf->seekg(0, std::ios::end);
         uint32_t FileSize = (uint32_t)rpf->tellg();
         rpf->seekg(0, std::ios::beg);
-
+        
         loadRpf(*rpf, rpfFile, rpfFile, FileSize, 0);
-
+        
         openedFiles.push_back(std::move(rpf));
     }
-
+    
     loadGtxd();
-
-    Entries[ydr].reserve(58000);
-    Entries[ydd].reserve(8600);
-    Entries[yft].reserve(6100);
-    Entries[ytd].reserve(25600);
-    Entries[ybn].reserve(8800);
-    Entries[ymap].reserve(4600);
-    Entries[ynd].reserve(300);
-    Entries[ynv].reserve(4500);
+    
+    entries[ydr].reserve(58000);
+    entries[ydd].reserve(8600);
+    entries[yft].reserve(6100);
+    entries[ytd].reserve(25600);
+    entries[ybn].reserve(8800);
+    entries[ymap].reserve(4600);
+    entries[ynd].reserve(300);
+    entries[ynv].reserve(4500);
     HDTextures.reserve(16481);
-
+    
     for (auto& rpfFile : rpfFiles)
     {
-        for (auto& entry : rpfFile->ResourceEntries)
+        for (auto& entry : rpfFile->resourceEntries)
         {
-            //	NO FILES DETECTED WITH uppercase in their names
-            //	also it seems that full name (with extension) is never used in game engine
-            //	std::transform(entry.FileName.begin(), entry.FileName.end(), entry.FileName.begin(), tolower);
-            //	entry.FileNameHash = GenHash(entry.FileName);
-
+            //    NO FILES DETECTED WITH uppercase in their names
+            //    also it seems that full name (with extension) is never used in game engine
+            //    std::transform(entry.FileName.begin(), entry.FileName.end(), entry.FileName.begin(), tolower);
+            //    entry.FileNameHash = GenHash(entry.FileName);
+            
             size_t index = entry.FileName.find_last_of('.');
             std::string extension = entry.FileName.substr(index);
-
+            
             std::string_view FileNameNoExtension(entry.FileName);
             FileNameNoExtension.remove_suffix(FileNameNoExtension.size() - index);
-
+            
             entry.ShortNameHash = GenHash(FileNameNoExtension);
-
+            
             if (extension == ".ydr")
             {
-                //	YdrEntries[GenHash(entry.FileName.substr(0, entry.FileName.length() - 4) + "_lod")] = &entry; //WHY????
-                //	YdrEntries[entry.FileNameHash] = &entry;
-                Entries[ydr][entry.ShortNameHash] = &entry;
+                //    Ydrentries[GenHash(entry.FileName.substr(0, entry.FileName.length() - 4) + "_lod")] = &entry; //WHY????
+                //    Ydrentries[entry.FileNameHash] = &entry;
+                entries[ydr][entry.ShortNameHash] = &entry;
             }
             else if (extension == ".ydd")
             {
-                //	YddEntries[entry.FileNameHash] = &entry;
-                Entries[ydd][entry.ShortNameHash] = &entry;
+                //    Yddentries[entry.FileNameHash] = &entry;
+                entries[ydd][entry.ShortNameHash] = &entry;
             }
             else if (extension == ".ycd")
             {
-                //	YddEntries[entry.FileNameHash] = &entry;
-                Entries[ycd][entry.ShortNameHash] = &entry;
+                //    Yddentries[entry.FileNameHash] = &entry;
+                entries[ycd][entry.ShortNameHash] = &entry;
             }
             else if (extension == ".yft")
             {
-                //	YftEntries[entry.FileNameHash] = &entry;
-                Entries[yft][entry.ShortNameHash] = &entry;
+                //    Yftentries[entry.FileNameHash] = &entry;
+                entries[yft][entry.ShortNameHash] = &entry;
             }
             else if (extension == ".ytd")
             {
-                //	YtdEntries[entry.FileNameHash] = &entry;
-                Entries[ytd][entry.ShortNameHash] = &entry;
+                //    Ytdentries[entry.FileNameHash] = &entry;
+                entries[ytd][entry.ShortNameHash] = &entry;
             }
             else if (extension == ".ybn")
             {
-                //	YbnEntries[entry.FileNameHash] = &entry;
-                Entries[ybn][entry.ShortNameHash] = &entry;
+                //    Ybnentries[entry.FileNameHash] = &entry;
+                entries[ybn][entry.ShortNameHash] = &entry;
             }
             else if (extension == ".ymap")
             {
-                //	YmapEntries[entry.FileNameHash] = &entry;
-                Entries[ymap][entry.ShortNameHash] = &entry;
+                //    Ymapentries[entry.FileNameHash] = &entry;
+                entries[ymap][entry.ShortNameHash] = &entry;
             }
             else if (extension == ".ytyp")
             {
-                //	YtypEntries[entry.FileNameHash] = &entry;
-                //	YtypEntries[entry.ShortNameHash] = &entry;
-
+                //    Ytypentries[entry.FileNameHash] = &entry;
+                //    Ytypentries[entry.ShortNameHash] = &entry;
+                
                 std::vector<uint8_t> outputBuffer(entry.UncompressedFileSize);
                 extractFileResource(entry, outputBuffer.data(), outputBuffer.size());
-
+                
                 memstream stream(outputBuffer.data(), outputBuffer.size());
-
+                
                 YtypLoader file(stream);
                 for (auto& def : file.ArchetypeDefs)
                 {
-                    if (def->GetType() == 2)  //MLO
+                    if (def->getType() == 2)  //MLO
                     {
                         MloDictionary[def->BaseArchetypeDef.assetName] = file.fwEntityDefs;
                     }
-                    Archetypes[def->BaseArchetypeDef.assetName] = def;
+                    archetypes[def->BaseArchetypeDef.assetName] = def;
                 }
             }
             else if (extension == ".ynd")
             {
                 std::vector<uint8_t> Buffer(entry.SystemSize + entry.GraphicsSize);
                 extractFileResource(entry, &Buffer[0], Buffer.size());
-
+                
                 memstream stream(Buffer.data(), Buffer.size());
                 std::unique_ptr<YndLoader> loader = std::make_unique<YndLoader>(stream);
-
+                
                 FileNameNoExtension.remove_prefix(5);
                 int nodeID = std::stoi(FileNameNoExtension.data());
                 nodes[nodeID] = std::move(loader);
-
-                //	YndEntries[entry.FileNameHash] = &entry;
-                Entries[ynd][entry.ShortNameHash] = &entry;
+                
+                //    Yndentries[entry.FileNameHash] = &entry;
+                entries[ynd][entry.ShortNameHash] = &entry;
             }
             else if (extension == ".ynv")
             {
                 /*std::vector<uint8_t> Buffer(entry.SystemSize + entry.GraphicsSize);
-                extractFileResource(entry, &Buffer[0], Buffer.size());
-
-                memstream stream(Buffer.data(), Buffer.size());
-                std::unique_ptr<YnvLoader> loader = std::make_unique<YnvLoader>(stream);*/
-                //	YnvEntries[entry.FileNameHash] = &entry;
-                Entries[ynv][entry.ShortNameHash] = &entry;
+                 extractFileResource(entry, &Buffer[0], Buffer.size());
+                 
+                 memstream stream(Buffer.data(), Buffer.size());
+                 std::unique_ptr<YnvLoader> loader = std::make_unique<YnvLoader>(stream);*/
+                //    Ynventries[entry.FileNameHash] = &entry;
+                entries[ynv][entry.ShortNameHash] = &entry;
             }
             else if (extension == ".ysc")
             {
-                //	YscEntries[entry.FileNameHash] = &entry;
-                Entries[ysc][entry.ShortNameHash] = &entry;
+                //    Yscentries[entry.FileNameHash] = &entry;
+                entries[ysc][entry.ShortNameHash] = &entry;
             }
         }
-        for (auto& entry : rpfFile->BinaryEntries)
+        for (auto& entry : rpfFile->binaryEntries)
         {
             size_t index = entry.FileName.find_last_of('.');
             std::string extension = entry.FileName.substr(index);
-
+            
             std::string_view FileNameNoExtension(entry.FileName);
             FileNameNoExtension.remove_suffix(FileNameNoExtension.size() - index);
-
+            
             entry.ShortNameHash = GenHash(FileNameNoExtension);
-
+            
             if (extension == ".ymf")
             {
                 std::vector<uint8_t> outputBuffer(entry.FileUncompressedSize);
                 extractFileBinary(entry, outputBuffer);
-
+                
                 memstream stream(outputBuffer.data(), outputBuffer.size());
                 YmfLoader loader(stream);
-
+                
                 for (auto texture : loader.HDtextures)
                 {
                     HDTextures[GenHash(texture->targetAsset)] = GenHash(texture->HDTxd);
                 }
             }
-
+            
             else if (extension == ".awc")
             {
-                //	YscEntries[entry.FileNameHash] = &entry;
-                Audios[entry.ShortNameHash] = &entry;
-
+                //    Yscentries[entry.FileNameHash] = &entry;
+                audios[entry.ShortNameHash] = &entry;
+                
                 /*static bool tested = false;
-                if (!tested)
-                {
-                    tested = true;
-                    std::vector<uint8_t> outputBuffer(entry.FileUncompressedSize);
-                    //extractFileBinary(entry, outputBuffer);
-                    auto& rpf = entry.File->rpf;
-                    rpf.seekg(entry.FileOffset);
-                    rpf.read((char*)&outputBuffer[0], entry.FileUncompressedSize);
-
-                    memstream stream(outputBuffer.data(), outputBuffer.size());
-                    AwcLoader loader(stream);
-                }*/
+                 if (!tested)
+                 {
+                 tested = true;
+                 std::vector<uint8_t> outputBuffer(entry.FileUncompressedSize);
+                 //extractFileBinary(entry, outputBuffer);
+                 auto& rpf = entry.File->rpf;
+                 rpf.seekg(entry.FileOffset);
+                 rpf.read((char*)&outputBuffer[0], entry.FileUncompressedSize);
+                 
+                 memstream stream(outputBuffer.data(), outputBuffer.size());
+                 AwcLoader loader(stream);
+                 }*/
             }
-
+            
             else if (entry.FileName == "handling.meta")
             {
                 std::vector<uint8_t> Buffer(entry.FileUncompressedSize);
@@ -234,7 +242,7 @@ GameData::GameData(std::string Path)
             {
                 std::vector<uint8_t> Buffer(entry.FileUncompressedSize);
                 extractFileBinary(entry, Buffer);
-
+                
                 cacheFile = std::make_unique<CacheDatFile>(Buffer);
             }
             else if (entry.FileName == "water.xml")
@@ -252,34 +260,30 @@ GameData::GameData(std::string Path)
         }
     }
     /*const int WATER_WORLD_SIZE = 10000.f;
-    const int WATER_HQ_DATA_SIZE = 128;
-
-	waterPosition.resize(25000);
-	for (auto& water : WaterQuads)
-    {
-        auto wX = static_cast<int>((water.minX + water.maxX + WATER_WORLD_SIZE / 2.f) /
-                                   (WATER_WORLD_SIZE / WATER_HQ_DATA_SIZE));
-        auto wY = static_cast<int>((water.minY + water.maxY + WATER_WORLD_SIZE / 2.f) /
-                                   (WATER_WORLD_SIZE / WATER_HQ_DATA_SIZE));
-
-		int i = (wX * WATER_HQ_DATA_SIZE) + wY;
-		int x = i < 0 ? 0 : i;
-
-		waterPosition[i] = &water;
-    }*/
+     const int WATER_HQ_DATA_SIZE = 128;
+     
+     waterPosition.resize(25000);
+     for (auto& water : WaterQuads)
+     {
+     auto wX = static_cast<int>((water.minX + water.maxX + WATER_WORLD_SIZE / 2.f) /
+     (WATER_WORLD_SIZE / WATER_HQ_DATA_SIZE));
+     auto wY = static_cast<int>((water.minY + water.maxY + WATER_WORLD_SIZE / 2.f) /
+     (WATER_WORLD_SIZE / WATER_HQ_DATA_SIZE));
+     
+     int i = (wX * WATER_HQ_DATA_SIZE) + wY;
+     int x = i < 0 ? 0 : i;
+     
+     waterPosition[i] = &water;
+     }*/
     /*bool has_collision = false;
-	size_t countBuvket = Entries[ydd].bucket_count();
-	for (size_t bucket = 0; bucket < Entries[ydd].bucket_count(); bucket++) {
-
-	 if (Entries[ydd].bucket_size(bucket) > 1) {
-	  has_collision = true;
-	  break;
-	 }
-	}*/
-}
-
-GameData::~GameData()
-{
+     size_t countBuvket = entries[ydd].bucket_count();
+     for (size_t bucket = 0; bucket < entries[ydd].bucket_count(); bucket++) {
+     
+     if (entries[ydd].bucket_size(bucket) > 1) {
+     has_collision = true;
+     break;
+     }
+     }*/
 }
 
 void GameData::loadHandlingData(std::vector<uint8_t>& Buffer)
@@ -325,7 +329,7 @@ void GameData::loadGtxd()
 
         element = e.child("child");
         std::string childName = element.first_child().value();
-        GtxdEntries[GenHash(childName)] = GenHash(ParentName);
+        gtxdEntries[GenHash(childName)] = GenHash(ParentName);
     }
 }
 
@@ -382,7 +386,7 @@ void GameData::loadWaterQuads(std::vector<uint8_t>& Buffer)
             element = element.next_sibling("NoStencil");
             waterQuad.NoStencil = element.attribute("value").as_bool();
 
-            WaterQuads.push_back(waterQuad);
+            waterQuads.push_back(waterQuad);
         }
     }
 }
@@ -415,7 +419,7 @@ void GameData::loadRpf(std::ifstream& rpf, std::string& FullPath_, std::string& 
 {
     std::unique_ptr<RpfFile> file = std::make_unique<RpfFile>(&rpf, FullPath_, FileName_, FileSize_, FileOffset);
 
-    for (auto& BinaryFileEntry : file->BinaryEntries)
+    for (auto& BinaryFileEntry : file->binaryEntries)
     {
         if (BinaryFileEntry.FileName == "chinesesimp.rpf")
         {
@@ -443,15 +447,15 @@ void GameData::extractFileBinary(RpfBinaryFileEntry& entry, std::vector<uint8_t>
         printf("ERROR BUFFER SIZE\n");
     }
 
-    rpf.read((char*)&TempBuffer[0], entry.FileSize);
+    rpf.read((char*)&tempBuffer[0], entry.FileSize);
 
-    if (entry.File->IsAESEncrypted)  //	HAPPENS WITH SOME YMF FILES
-        GTAEncryption::getInstance().decryptAES(&TempBuffer[0], entry.FileSize);
+    if (entry.File->isAESEncrypted)  //	HAPPENS WITH SOME YMF FILES
+        GTAEncryption::getInstance().decryptAES(&tempBuffer[0], entry.FileSize);
     else
-        GTAEncryption::getInstance().decryptNG(&TempBuffer[0], entry.FileSize, entry.FileName, entry.FileUncompressedSize);
+        GTAEncryption::getInstance().decryptNG(&tempBuffer[0], entry.FileSize, entry.FileName, entry.FileUncompressedSize);
 
     if (entry.FileSize > 0)  //awc
-        GTAEncryption::getInstance().decompressBytes(&TempBuffer[0], entry.FileSize, output.data(), output.size());
+        GTAEncryption::getInstance().decompressBytes(&tempBuffer[0], entry.FileSize, output.data(), output.size());
 }
 
 void GameData::extractFileResource(RpfResourceFileEntry& entry, uint8_t* AllocatedMem, uint64_t AllocatedSize)
@@ -465,15 +469,15 @@ void GameData::extractFileResource(RpfResourceFileEntry& entry, uint8_t* Allocat
         printf("ERROR BUFFER SIZE\n");
     }
 
-    rpf.read((char*)&TempBuffer[0], entry.FileSize);
+    rpf.read((char*)&tempBuffer[0], entry.FileSize);
 
     if (entry.IsEncrypted)
     {
-        if (entry.File->IsAESEncrypted)
-            GTAEncryption::getInstance().decryptAES(&TempBuffer[0], entry.FileSize);
+        if (entry.File->isAESEncrypted)
+            GTAEncryption::getInstance().decryptAES(&tempBuffer[0], entry.FileSize);
         else
-            GTAEncryption::getInstance().decryptNG(&TempBuffer[0], entry.FileSize, entry.FileName, entry.FileSize + 0x10);
+            GTAEncryption::getInstance().decryptNG(&tempBuffer[0], entry.FileSize, entry.FileName, entry.FileSize + 0x10);
     }
 
-    GTAEncryption::getInstance().decompressBytes(&TempBuffer[0], entry.FileSize, AllocatedMem, AllocatedSize);
+    GTAEncryption::getInstance().decompressBytes(&tempBuffer[0], entry.FileSize, AllocatedMem, AllocatedSize);
 }

@@ -446,7 +446,7 @@ public:
     FileType()
     {
     }
-    ~FileType()
+    virtual ~FileType()
     {
     }
 

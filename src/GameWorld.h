@@ -52,11 +52,11 @@ class GameWorld
 
     float accumulatedTime = 0.0f;
 
-    glm::i32vec2 CurCell;
-    glm::i32vec2 CurNodeCell;
-    glm::i32vec2 CurNavCell;
-    std::vector<YmapLoader*> CurYmaps;
-    std::vector<YbnLoader*> CurYbns;
+    glm::i32vec2 curCell;
+    glm::i32vec2 curNodeCell;
+    glm::i32vec2 curNavCell;
+    std::vector<YmapLoader*> curYmaps;
+    std::vector<YbnLoader*> curYbns;
     YndLoader* curNode;
 
     std::vector<CBuilding> minimap;
@@ -80,7 +80,7 @@ public:
     std::vector<CEntity*> renderList;
 
     bool enableYmapFrustum = false;
-    bool EnableStreaming = true;
+    bool enableStreaming = true;
     DirectionalLight dirLight;
     uint8_t gameMinute;
     uint8_t gameHour;
@@ -89,7 +89,7 @@ public:
     ~GameWorld();
 
     void updateObjects(Camera* camera, glm::vec3& position);
-    void getVisibleYmaps(glm::vec3& PlayerPos);
+    void getVisibleYmaps(glm::vec3& playerPos);
     void loadQueuedResources();
 
     CPed* getCurrentPlayer()
@@ -124,14 +124,14 @@ public:
     void createTraffic(Camera* camera);
 
     CVehicle* findNearestVehicle();
-    void detectWeaponHit(glm::vec3 CameraPosition, glm::vec3 lookDirection);
+    void detectWeaponHit(glm::vec3 cameraPosition, glm::vec3 lookDirection);
     void updateWorld(float delta_time, Camera* camera);
 
-    void testFunction(glm::vec3 Position);
-    bool detectInWater(glm::vec3 Position);
+    void testFunction(glm::vec3 position);
+    bool detectInWater(glm::vec3 position);
 
-    void AddVehicleToWorld(glm::vec3 position, glm::quat rot, float mass, YftLoader* model);
-    void RemoveVehicleFromWorld(CVehicle* vehicle);
-    void AddPedToWorld(glm::vec3 pos, YddLoader* model);
-    void RemovePedFromWorld(CPed* ped);
+    void addVehicleToWorld(glm::vec3 position, glm::quat rot, float mass, YftLoader* model);
+    void removeVehicleFromWorld(CVehicle* vehicle);
+    void addPedToWorld(glm::vec3 pos, YddLoader* model);
+    void removePedFromWorld(CPed* ped);
 };

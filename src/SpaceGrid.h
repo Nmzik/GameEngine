@@ -18,7 +18,7 @@ public:
     SpaceGrid() = default;
     ~SpaceGrid() = default;
 
-    glm::i32vec2 GetCellPos(glm::vec3 p)
+    glm::i32vec2 getCellPos(glm::vec3 p)
     {
         glm::i32vec2 ind = (p + WorldSize) * CellSizeInv;
         int x = (int)ind.x;
@@ -43,7 +43,7 @@ public:
     NodeGrid() = default;
     ~NodeGrid() = default;
 
-    glm::i32vec2 GetCellPos(glm::vec3 p)
+    glm::i32vec2 getCellPos(glm::vec3 p)
     {
         glm::vec3 ind = (p - glm::vec3(CornerX, CornerY, 0)) * CellSizeInv;
         int x = (int)ind.x;
@@ -68,7 +68,7 @@ public:
     NavGrid() = default;
     ~NavGrid() = default;
 
-    glm::i32vec2 GetCellPos(glm::vec3 p)
+    glm::i32vec2 getCellPos(glm::vec3 p)
     {
         glm::vec3 ind = (p - glm::vec3(CornerX, CornerY, 0)) * CellSizeInv;
         int x = (int)ind.x;

@@ -11,25 +11,25 @@ public:
     NativeWindow() = default;
     virtual ~NativeWindow() = default;
 
-    void AddListener(InputManager* input)
+    void addListener(InputManager* input)
     {
         inputManager = input;
     }
 
-    void ProcessButtonPress(uint32_t key, bool isDown)
+    void processButtonPress(uint32_t key, bool isDown)
     {
-        inputManager->ProcessButton(key, isDown);
+        inputManager->processButton(key, isDown);
     }
 
-    void ProcessMouseEvents(int x, int y)
+    void processMouseEvents(int x, int y)
     {
         inputManager->setMouseMovement(x, y);
     }
 
-    virtual void InitializeContext() = 0;
+    virtual void initializeContext() = 0;
     virtual void setTitle(std::string& osstr) = 0;
 
-    virtual void ProcessEvents() = 0;
+    virtual void processEvents() = 0;
 
-    virtual void SwapBuffers() = 0;
+    virtual void swapBuffers() = 0;
 };

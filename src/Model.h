@@ -1,5 +1,12 @@
 #pragma once
-#include "Geometry.h"
+
+#include <vector>
+
+#ifdef WIN32
+#include "opengl/Geometry.h"
+#else
+#include "metal/Geometry.h"
+#endif
 
 class Model
 {

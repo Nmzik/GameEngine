@@ -10,12 +10,12 @@ class RpfFile
 {
 public:
     std::ifstream& rpf;
-    bool IsAESEncrypted = false;
+    bool isAESEncrypted = false;
+    std::string path;
+    std::vector<RpfResourceFileEntry> resourceEntries;
+    std::vector<RpfBinaryFileEntry> binaryEntries;
 
-    std::vector<RpfResourceFileEntry> ResourceEntries;
-    std::vector<RpfBinaryFileEntry> BinaryEntries;
-
-    RpfFile(std::ifstream* rpfFile, std::string& FullPath, std::string& FileName, uint32_t FileSize, uint64_t FileOffset);
+    RpfFile(std::ifstream* rpfFile, std::string& fullPath, std::string& fileName, uint32_t fileSize, uint64_t fileOffset);
 
     ~RpfFile();
 };

@@ -1,6 +1,8 @@
 #pragma once
+#include <vector>
 #include <algorithm>
 #include <memory>
+#include <string>
 #include <string_view>
 #include <unordered_map>
 #include "glm/glm.hpp"
@@ -46,30 +48,31 @@ struct CarHandling
 
 class GameData
 {
-    uint8_t* TempBuffer;
-
+    uint8_t* tempBuffer;
+    std::string mainDirPath;
     std::vector<std::unique_ptr<RpfFile>> rpfFiles;
     std::vector<std::unique_ptr<std::ifstream>> openedFiles;
 
 public:
-    std::vector<WaterQuad> WaterQuads;
+    std::vector<WaterQuad> waterQuads;
     std::unique_ptr<CacheDatFile> cacheFile;
 
-    std::unordered_map<uint32_t, fwArchetype*> Archetypes;
+    std::unordered_map<uint32_t, fwArchetype*> archetypes;
     std::unordered_map<uint32_t, std::vector<fwEntityDef>> MloDictionary;
-    std::unordered_map<uint32_t, RpfResourceFileEntry*> Entries[10];
-    std::unordered_map<uint32_t, RpfBinaryFileEntry*> Audios;
+    std::unordered_map<uint32_t, RpfResourceFileEntry*> entries[10];
+    std::unordered_map<uint32_t, RpfBinaryFileEntry*> audios;
 
     std::unordered_map<uint32_t, uint32_t> HDTextures;
     std::vector<std::unique_ptr<YndLoader>> nodes;
-    std::unordered_map<uint32_t, uint32_t> GtxdEntries;
+    std::unordered_map<uint32_t, uint32_t> gtxdEntries;
     std::vector<CarHandling> VehiclesInfo;
     std::vector<glm::vec3> Scenes;
     std::vector<WaterQuad*> waterPosition;
 
-    GameData(std::string Path);
+    GameData(std::string path);
     ~GameData();
 
+    void load();
     void loadHandlingData(std::vector<uint8_t>& Buffer);
     void loadGtxd();
     void loadWaterQuads(std::vector<uint8_t>& Buffer);

@@ -16,12 +16,12 @@ public:
     YftLoader* yft = nullptr;
     YtdLoader* ytd = nullptr;
     btRigidBody* rigidBody = nullptr;
-    bool Loaded = false;
+    bool loaded = false;
     //	uint8_t type = 0;
 
-    glm::vec3 BoundPos;
-    float BoundRadius;
-    fwEntityDef EntityDef;
+    glm::vec3 boundPos;
+    float boundRadius;
+    fwEntityDef entityDef;
     fwArchetype* archetype = nullptr;
 
     CBuilding(fwEntityDef def);

@@ -23,7 +23,7 @@ GTAEncryption::~GTAEncryption()
     (void)inflateEnd(&strm);
 }
 
-void GTAEncryption::LoadKeys()
+void GTAEncryption::loadKeys()
 {
     uint8_t key[] = {0xB3, 0x89, 0x73, 0xAF, 0x8B, 0x9E, 0x26, 0x3A, 0x8D, 0xF1, 0x70, 0x32, 0x14, 0x42, 0xB3, 0x93,
                      0x8B, 0xD3, 0xF2, 0x1F, 0xA4, 0xD0, 0x4D, 0xFF, 0x88, 0x2E, 0x04, 0x66, 0x0F, 0xF9, 0x9D, 0xFD};
@@ -112,7 +112,7 @@ void GTAEncryption::decryptAES(uint8_t* data, uint32_t DataLength)
     }
 }
 
-void GTAEncryption::Decrypt_RSXXTEA(uint8_t* data, size_t dataLength)
+void GTAEncryption::decrypt_RSXXTEA(uint8_t* data, size_t dataLength)
 {
     // Rockstar's modified version of XXTEA
     uint32_t* blocks = new uint32_t[dataLength / 4];
