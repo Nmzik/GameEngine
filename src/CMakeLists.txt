@@ -14,26 +14,44 @@ if(WIN32)
     link_libraries(${GLEW_LIBRARIES})
 	endif()
 
-	file(GLOB WINSOURCES
+	file(GLOB WIN_SOURCES
 	windows/*.h
 	windows/*.cpp
 	)
 
-	list (APPEND SOURCES ${WINSOURCES})
+	list (APPEND SOURCES ${WIN_SOURCES})
 
-	file(GLOB OpenGL
-	OpenGL/*.h
-	OpenGL/*.cpp
-	)
+	#file(GLOB OpenGL
+	#OpenGL/*.h
+	#OpenGL/*.cpp
+	#)
 
 	#list (APPEND SOURCES ${OpenGL})
-else()
-	file(GLOB MACSOURCES
-	metal/*.h
-	metal/*.cpp
+elseif(APPLE)
+	set (METAL 1)
+
+	if(METAL)
+		add_compile_definitions(GLM_FORCE_LEFT_HANDED)
+
+		file(GLOB METAL_SOURCES
+		metal/*.h
+		metal/*.mm
+		metal/*.cpp
+		)
+
+		list (APPEND SOURCES ${METAL_SOURCES})
+	endif()
+
+	list (APPEND MAC_SOURCES
+		macOS/AppDelegate.h
+		macOS/AppDelegate.m
+		macOS/main.m
+		macOS/Shaders.metal
+		macOS/ViewController.h
+		macOS/ViewController.mm
 	)
 
-	list (APPEND SOURCES ${MACSOURCES})
+	list (APPEND SOURCES ${MAC_SOURCES})
 endif()
 
 if(APPLE)

@@ -265,7 +265,7 @@ void ResourceManager::update()
             case ycd:
             case ysc:
             {
-                auto it = gameworld->getGameData()->entries[res->type].find(res->Hash);
+                auto it = gameworld->getGameData()->entries[res->type].find(res->hash);
                 if (it != gameworld->getGameData()->entries[res->type].end())
                 {
                     uint8_t* allocatedMemory = nullptr;
@@ -279,15 +279,15 @@ void ResourceManager::update()
 
                     //printf("DONE\n");
 
-                    res->Buffer = allocatedMemory;
-                    res->BufferSize = it->second->UncompressedFileSize;
-                    gameworld->getGameData()->extractFileResource(*(it->second), res->Buffer, res->BufferSize);
-                    res->SystemSize = (it->second->SystemSize);
+                    res->buffer = allocatedMemory;
+                    res->bufferSize = it->second->UncompressedFileSize;
+                    gameworld->getGameData()->extractFileResource(*(it->second), res->buffer, res->bufferSize);
+                    res->systemSize = (it->second->SystemSize);
                 }
                 if (res->type == ymap)
                 {
                     YmapLoader* iter = static_cast<YmapLoader*>(res->file);
-                    memstream stream(&res->Buffer[0], res->BufferSize);
+                    memstream stream(&res->buffer[0], res->bufferSize);
                     iter->Init(stream);
 
                     for (auto& mlo : iter->CMloInstanceDefs)

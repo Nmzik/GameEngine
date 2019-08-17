@@ -7,6 +7,7 @@
 #include "PhysicsSystem.h"
 #include "SoundManager.h"
 #include "SpaceGrid.h"
+#include "GameRenderer.h"
 //////////
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtx/norm.hpp"
@@ -45,6 +46,7 @@ class GameWorld
     SpaceGrid spaceGrid;
     NodeGrid nodeGrid;
     NavGrid navGrid;
+    GameRenderer& renderer;
 
     PhysicsSystem physicsSystem;
     std::unique_ptr<ResourceManager> resourceManager;
@@ -85,7 +87,7 @@ public:
     uint8_t gameMinute;
     uint8_t gameHour;
 
-    GameWorld(GameData* _gameData);
+    GameWorld(GameData* _gameData, GameRenderer& _renderer);
     ~GameWorld();
 
     void updateObjects(Camera* camera, glm::vec3& position);

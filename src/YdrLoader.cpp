@@ -2,7 +2,7 @@
 #include <algorithm>
 #include "GTAEncryption.h"
 
-void YdrLoader::Init(memstream& file)
+void YdrLoader::Init(GameRenderer* renderer, memstream& file)
 {
     Loaded = true;
 
@@ -39,7 +39,6 @@ void YdrLoader::Init(memstream& file)
         }
     }
 
-    std::vector<Material> materials;
     materials.resize(drawable->ShaderGroupPointer->Shaders.size());
 
     //	Shader stuff
@@ -196,9 +195,25 @@ void YdrLoader::Init(memstream& file)
                          drawable->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->VertexStride;
             gpuMemory += drawable->DrawableModels[0]->Get(i)->m_geometries.Get(j)->IndexBufferPointer->IndicesCount * sizeof(uint16_t);
 
-            models[i].geometries.emplace_back(file.data,
+            grmGeometry* geom = drawable->DrawableModels[0]->Get(i)->m_geometries.Get(j);
+            
+            int vertexSize = geom->VertexBufferPointer->VertexCount * geom->VertexBufferPointer->VertexStride;
+            const uint8_t* vertexPointer = &file.data[geom->VertexBufferPointer->DataPointer1];
+            
+            int indicesSize = geom->IndexBufferPointer->IndicesCount * sizeof(uint16_t);
+            const uint8_t* indicesPointer = &file.data[geom->IndexBufferPointer->IndicesPointer];
+            
+            VertexBufferHandle vertexHandle = renderer->createVertexBuffer(vertexSize, vertexPointer);
+            
+            IndexBufferHandle indexHandle = renderer->createIndexBuffer(indicesSize, indicesPointer);
+            
+            Geometry geometry(vertexHandle, indexHandle, geom->IndexBufferPointer->IndicesCount);
+            geometry.type = (VertexType)geom->VertexBufferPointer->InfoPointer->Flags;
+            models[i].geometries.push_back(geometry);
+            
+            /*models[i].geometries.emplace_back(file.data,
                                               drawable->DrawableModels[0]->Get(i)->m_geometries.Get(j),
-                                              (*drawable->DrawableModels[0]->Get(i)->ShaderMappingPointer)[j], drawable->ShaderGroupPointer->Shaders[(*drawable->DrawableModels[0]->Get(i)->ShaderMappingPointer)[j]]->FileName);
+                                              (*drawable->DrawableModels[0]->Get(i)->ShaderMappingPointer)[j], drawable->ShaderGroupPointer->Shaders[(*drawable->DrawableModels[0]->Get(i)->ShaderMappingPointer)[j]]->FileName);*/
         }
     }
 }

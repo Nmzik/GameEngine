@@ -85,17 +85,17 @@ class Resource
 {
 public:
     Type type;
-    uint32_t Hash;
-    int32_t SystemSize;
+    uint32_t hash;
+    int32_t systemSize;
     FileType* file;
-    uint8_t* Buffer;
-    uint64_t BufferSize;
+    uint8_t* buffer;
+    uint64_t bufferSize;
 
-    Resource(Type t, uint32_t hash, FileType* _file)
+    Resource(Type t, uint32_t resHash, FileType* _file)
         : type(t)
-        , Hash(hash)
+        , hash(resHash)
         , file(_file)
-        , BufferSize(0)
+        , bufferSize(0)
     {
     }
 

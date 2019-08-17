@@ -371,5 +371,5 @@ public:
     }
     ~YdrLoader();
 
-    void Init(memstream& file) override;
+    void Init(GameRenderer* renderer, memstream& file) override;
 };

@@ -2,11 +2,7 @@
 
 #include <vector>
 
-#ifdef WIN32
-#include "opengl/Geometry.h"
-#else
-#include "metal/Geometry.h"
-#endif
+#include "Geometry.h"
 
 class Model
 {

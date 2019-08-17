@@ -1,10 +1,10 @@
 #include "Geometry.h"
 
-#include "../YdrLoader.h"
+#include "YdrLoader.h"
 
-Geometry::Geometry(const uint8_t* meshData, grmGeometry* drawGeom, uint16_t _materialID, uint32_t Shader)
-    /*: materialID(_materialID)
-    , num_indices(drawGeom->IndexBufferPointer->IndicesCount)*/
+/*Geometry::Geometry(const uint8_t* meshData, grmGeometry* drawGeom, uint16_t _materialID, uint32_t Shader)
+    : materialID(_materialID)
+    , num_indices(drawGeom->IndexBufferPointer->IndicesCount)
 {
     switch (Shader)
     {
@@ -177,7 +177,14 @@ Geometry::Geometry(const uint8_t* meshData, grmGeometry* drawGeom, uint16_t _mat
     glBufferData(GL_ELEMENT_ARRAY_BUFFER,
                  drawGeom->IndexBufferPointer->IndicesCount * sizeof(uint16_t),
                  &meshData[drawGeom->IndexBufferPointer->IndicesPointer],
-                 GL_STATIC_DRAW);  //	16 BIT INDICES max 65536*/
+                 GL_STATIC_DRAW);  //	16 BIT INDICES max 65536
+}*/
+
+Geometry::Geometry(VertexBufferHandle vert_handle, IndexBufferHandle index_handle, uint32_t countIndices)
+:   vertexBufferHandle(vert_handle),
+    indexBufferHandle(index_handle),
+    indexCount(countIndices)
+{
 }
 
 Geometry::~Geometry()

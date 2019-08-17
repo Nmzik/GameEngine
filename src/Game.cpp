@@ -5,11 +5,15 @@
 #include "Camera.h"
 #include "GTAEncryption.h"
 #include "GameData.h"
+
+#include "GameRenderer.h"
+
 #ifdef WIN32
 #include "windows/GameRenderer.h"
 #else
-#include "metal/GameRenderer.h"
+#include "metal/MetalRenderer.h"
 #endif
+
 #include "GameWorld.h"
 #include "InputManager.h"
 #include "ResourceManager.h"
@@ -28,8 +32,9 @@ Game::Game(const char* GamePath)
 #ifdef WIN32
     window = std::make_unique<Win32Window>();
 #endif
-    rendering_system = std::make_unique<GameRenderer>(/*window.get()*/);
-    gameWorld = std::make_unique<GameWorld>(gameData.get());
+    rendering_system = std::make_unique<MetalRenderer>();
+    //rendering_system = std::make_unique<GameRenderer>(/*window.get()*/);
+    gameWorld = std::make_unique<GameWorld>(gameData.get(), *rendering_system.get());
     input = std::make_unique<InputManager>();
     scriptMachine = std::make_unique<ScriptInterpreter>(gameData.get(), this);
     
@@ -154,9 +159,35 @@ void Game::run()
     }
 }
 
+void Game::frame()
+{
+    input->update();
+    //window->ProcessEvents();
+    
+    /*if (input->isKeyPressed(Actions::button_ESCAPE))
+        break;*/
+    //running = false;
+    
+    auto old_time = current_time;
+    current_time = std::chrono::steady_clock::now();
+    float delta_time = std::chrono::duration<float>(current_time - old_time).count();
+    gameTime += delta_time;
+    
+    if (!paused)
+    {
+        scriptMachine->execute();
+        gameWorld->updateWorld(delta_time, camera.get());
+        tick(delta_time);
+        camera->onUpdate(gameWorld->getCurrentPlayer());
+    }
+    rendering_system->renderWorld(gameWorld.get(), camera.get());
+    
+    updateFPS(delta_time, 0.0f, 0.0f);
+}
+
 void Game::tick(float delta_time)
 {
-    camera->lookcamera = getInput()->getMouseMovement();
+    camera->lookCamera = getInput()->getMouseMovement();
     
     if (getInput()->isKeyTriggered(Actions::button_E))
     {
@@ -208,7 +239,7 @@ void Game::tick(float delta_time)
     }
     if (getInput()->isKeyTriggered(Actions::button_ShowCollision))
     {
-        getRenderer()->RenderDebugWorld = !getRenderer()->RenderDebugWorld;
+        getRenderer()->renderDebugWorld = !getRenderer()->renderDebugWorld;
     }
     
     CPed* player = getWorld()->getCurrentPlayer();

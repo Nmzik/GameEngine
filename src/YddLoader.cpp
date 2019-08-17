@@ -1,7 +1,7 @@
 #include "YddLoader.h"
 #include "YdrLoader.h"
 
-void YddLoader::Init(memstream& file)
+void YddLoader::Init(GameRenderer* renderer, memstream& file)
 {
     Loaded = true;
 
@@ -27,7 +27,7 @@ void YddLoader::Init(memstream& file)
         file.seekg(data_pointer[0]);
 
         YdrLoader* ydr = GlobalPool::GetInstance()->ydrPool.create();
-        ydr->Init(file);
+        ydr->Init(renderer, file);
         gpuMemory += ydr->gpuMemory;
         ydrFiles.insert({YdrHashes[i], ydr});
 

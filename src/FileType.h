@@ -436,6 +436,8 @@ public:
 };
 */
 
+#include "GameRenderer.h"
+
 class FileType
 {
 public:
@@ -450,5 +452,12 @@ public:
     {
     }
 
-    virtual void Init(memstream& file) = 0;
+    virtual void Init(memstream& file)
+    {
+        
+    }
+    virtual void Init(GameRenderer* renderer, memstream& file)
+    {
+        
+    }
 };

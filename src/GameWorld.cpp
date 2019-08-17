@@ -15,9 +15,10 @@
 #include "YtdLoader.h"
 #include "YtypLoader.h"
 
-GameWorld::GameWorld(GameData* _gameData)
+GameWorld::GameWorld(GameData* _gameData, GameRenderer& _renderer)
     : dirLight(glm::vec3(0.1f, 0.8f, 0.1f), glm::vec3(0.2f, 0.2f, 0.2f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1.0f, 1.0f, 1.0f), true)
     , data(*_gameData)
+    , renderer(_renderer)
     , resourceManager(std::make_unique<ResourceManager>(this))
     , curNode(nullptr)
 {
@@ -488,14 +489,14 @@ void GameWorld::loadQueuedResources()
 
         //	Object hash equal to texture hash what should we do? there are +hi textures with the same name
 
-        if (res->BufferSize == 0)
+        if (res->bufferSize == 0)
         {
             res->file->Loaded = true;
         }
         else
         {
-            memstream stream(&res->Buffer[0], res->BufferSize);
-            stream.systemSize = res->SystemSize;
+            memstream stream(&res->buffer[0], res->bufferSize);
+            stream.systemSize = res->systemSize;
             switch (res->type)
             {
                 case ymap:
@@ -507,7 +508,7 @@ void GameWorld::loadQueuedResources()
                 case ydd:
                 case yft:
                 {
-                    res->file->Init(stream);
+                    res->file->Init(&renderer, stream);
                     resourceManager->GlobalGpuMemory += res->file->gpuMemory;
                     break;
                 }
@@ -531,7 +532,7 @@ void GameWorld::loadQueuedResources()
                 }
             }
 
-            resourceManager->resource_allocator->deallocate(res->Buffer);
+            resourceManager->resource_allocator->deallocate(res->buffer);
         }
 
         GlobalPool::GetInstance()->resourcesPool.remove(res);

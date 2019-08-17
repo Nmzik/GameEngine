@@ -42,6 +42,14 @@ enum VertexType : uint32_t
     PNCTTT = 473,
 };
 
+struct VertexBufferHandle {
+    int32_t id;
+};
+
+struct IndexBufferHandle {
+    int32_t id;
+};
+
 struct grmGeometry;
 
 struct Material
@@ -67,8 +75,28 @@ struct Material
 
 class Geometry
 {
+    VertexBufferHandle vertexBufferHandle;
+    IndexBufferHandle indexBufferHandle;
+    uint32_t indexCount;
 public:
-
-    Geometry(const uint8_t* meshData, grmGeometry* drawGeom, uint16_t _materialID, uint32_t Shader);
+    
+    VertexType type;
+    //Geometry(const uint8_t* meshData, grmGeometry* drawGeom, uint16_t _materialID, uint32_t Shader);
+    Geometry(VertexBufferHandle vert_handle, IndexBufferHandle index_handle, uint32_t countIndices);
     ~Geometry();
+    
+    VertexBufferHandle getVertexBufferHandle() const
+    {
+        return vertexBufferHandle;
+    }
+    
+    IndexBufferHandle getIndexBufferHandle() const
+    {
+        return indexBufferHandle;
+    }
+    
+    uint32_t getIndexCount() const
+    {
+        return indexCount;
+    }
 };

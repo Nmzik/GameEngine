@@ -52,10 +52,17 @@ struct VertexAttributes
 };
 
 const std::vector<VertexAttributes> DefaultAttrib = {
-    {0, 3, GL_FLOAT, 36, nullptr}, {1, 3, GL_FLOAT, 36, (GLvoid*)12}, {2, 4, GL_UNSIGNED_BYTE, 36, (GLvoid*)24}, {3, 2, GL_FLOAT, 36, (GLvoid*)28}};
+    {0, 3, GL_FLOAT, 36, nullptr},
+    {1, 3, GL_FLOAT, 36, (GLvoid*)12},
+    {2, 4, GL_UNSIGNED_BYTE, 36, (GLvoid*)24},
+    {3, 2, GL_FLOAT, 36, (GLvoid*)28}};
 
 const std::vector<VertexAttributes> DefaultExAttrib = {
-    {0, 3, GL_FLOAT, 52, nullptr}, {1, 3, GL_FLOAT, 52, (GLvoid*)12}, {2, 4, GL_UNSIGNED_BYTE, 52, (GLvoid*)24}, {3, 2, GL_FLOAT, 52, (GLvoid*)28}};
+    {0, 3, GL_FLOAT, 52, nullptr},
+    {1, 3, GL_FLOAT, 52, (GLvoid*)12},
+    {2, 4, GL_UNSIGNED_BYTE, 52, (GLvoid*)24},
+    {3, 2, GL_FLOAT, 52, (GLvoid*)28}};
+
 const std::vector<VertexAttributes> PNCCTAttrib = {
     {0, 3, GL_FLOAT, 40, nullptr}, {1, 3, GL_FLOAT, 40, (GLvoid*)12}, {2, 4, GL_UNSIGNED_BYTE, 40, (GLvoid*)24}, {3, 2, GL_FLOAT, 40, (GLvoid*)32}};
 const std::vector<VertexAttributes> PNCCTTTTAttrib = {

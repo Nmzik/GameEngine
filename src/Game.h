@@ -1,9 +1,10 @@
 #pragma once
-//#define GLM_FORCE_LEFT_HANDED
-//#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#define GLM_FORCE_LEFT_HANDED
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 
 #include <memory>
 #include <sstream>
+#include <chrono>
 #include "ft2build.h"
 #include FT_FREETYPE_H
 
@@ -32,6 +33,8 @@ class Game
     std::unique_ptr<InputManager> input;
     std::unique_ptr<Camera> camera;
 
+    std::chrono::steady_clock::time_point current_time;
+    
 public:
     Game(const char* gamePath);
     ~Game();
@@ -40,8 +43,9 @@ public:
 
     void updateFPS(float delta_time, float cpuThreadTime, float gpuThreadTime);
     void run();
-
+    void frame();
     void tick(float delta_time);
+    
     void changeLocation();
 
     InputManager* getInput() const

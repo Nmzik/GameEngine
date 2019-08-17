@@ -1,13 +1,12 @@
 #include "GameRenderer.h"
-#include "../CBuilding.h"
-#include "../Camera.h"
-#include "../Model.h"
-#include "../YdrLoader.h"
-#include "Shader.h"
+#include "CBuilding.h"
+#include "Camera.h"
+#include "Model.h"
+#include "YdrLoader.h"
 
 GameRenderer::GameRenderer(/*NativeWindow* window*/)
     : /*nativeWindow(window)
-    ,*/ RenderDebugWorld(false)
+    ,*/ renderDebugWorld(false)
 {
     //nativeWindow->InitializeContext();
 
@@ -18,9 +17,9 @@ GameRenderer::~GameRenderer()
 {
 }
 
-void GameRenderer::beginFrame()
+/*void GameRenderer::beginFrame()
 {
-    NumDrawCalls = 0;
+    numDrawCalls = 0;
 }
 
 void GameRenderer::endFrame()
@@ -62,7 +61,7 @@ void GameRenderer::renderDrawable(YdrLoader* drawable)
 
             glDrawElements(GL_TRIANGLES, geometry.num_indices, GL_UNSIGNED_SHORT, 0);*/
 
-            NumDrawCalls++;
+            /*NumDrawCalls++;
         }
     }
 }
@@ -83,11 +82,11 @@ void GameRenderer::renderPed(CPed* ped)
 void GameRenderer::renderVehicle(CVehicle* vehicle)
 {
     renderDrawable(vehicle->getDrawable()->ydr);
-}
+}*/
 
-void GameRenderer::renderWorld(GameWorld* world, Camera* curCamera)
+/*void GameRenderer::renderWorld(GameWorld* world, Camera* curCamera)
 {
-    beginFrame();
+    //beginFrame();
 
     glm::mat4 view = curCamera->getViewMatrix();
     glm::mat4 projection = curCamera->getProjection();
@@ -152,7 +151,7 @@ void GameRenderer::renderWorld(GameWorld* world, Camera* curCamera)
         world->getPhysicsSystem()->debug.render();
     }*/
 
-    endFrame();
+    /*endFrame();
 
-    presentFrame();
-}
+    presentFrame();*/
+//}

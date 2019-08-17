@@ -2,7 +2,7 @@
 #include "YbnLoader.h"
 #include "YdrLoader.h"
 
-void YftLoader::Init(memstream& file)
+void YftLoader::Init(GameRenderer* renderer, memstream& file)
 {
     Loaded = true;
 
@@ -13,7 +13,7 @@ void YftLoader::Init(memstream& file)
 
     ydr = GlobalPool::GetInstance()->ydrPool.create();
     ydr->isYft = true;
-    ydr->Init(file);
+    ydr->Init(renderer, file);
     gpuMemory += ydr->gpuMemory;
 
     SYSTEM_BASE_PTR(fragType->PhysicsLODGroupPointer);
