@@ -19,7 +19,7 @@ InputManager::InputManager()
     keyMapping.emplace_back(0x5A, Actions::button_CameraDown);
     keyMapping.emplace_back(0x10, button_LSHIFT);
     keyMapping.emplace_back(0x20, button_SPACE);
-    
+
 #endif
     keyMapping.emplace_back(53, button_ESCAPE);
     keyMapping.emplace_back(14, Actions::button_E);

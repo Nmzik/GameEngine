@@ -3,7 +3,7 @@
 #include "Meta.h"
 #include <btBulletDynamicsCommon.h>
 
-void YmapLoader::Init(memstream& file)
+void YmapLoader::init(memstream& file)
 {
     //	Could be an additional extraction code here
 
@@ -17,7 +17,7 @@ void YmapLoader::Init(memstream& file)
             std::memcpy(&_CMapData, &file.data[Block.MetaDataBlock_struct->DataPointer], sizeof(CMapData));
 
             //	Optimization
-            objects.reserve(_CMapData.entities.Count1);
+            entities.reserve(_CMapData.entities.Count1);
             carGenerators.reserve(_CMapData.carGenerators.Count1);
         }
     }
@@ -34,11 +34,11 @@ void YmapLoader::Init(memstream& file)
                     std::memcpy(&def, &file.data[Block.MetaDataBlock_struct->DataPointer + i * sizeof(fwEntityDef)], sizeof(fwEntityDef));
 
                     //	FIX OPENGL
-                    def.rotation.w = -def.rotation.w;
+                    //def.rotation.w = -def.rotation.w;
 
                     //	if (def.lodLevel == Unk_1264241711::LODTYPES_DEPTH_ORPHANHD) def.lodDist *= 1.5f;
 
-                    objects.emplace_back(def);
+                    entities.emplace_back(def);
                 }
                 break;
             }

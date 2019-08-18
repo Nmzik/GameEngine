@@ -33,7 +33,7 @@ public:
     GTAEncryption();
     ~GTAEncryption();
 
-    void loadKeys();
+    void loadKeys(std::string keyPath);
 
     uint32_t calculateHash(std::string& text);
 

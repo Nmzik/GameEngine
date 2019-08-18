@@ -50,7 +50,7 @@ enum Instruction  //opcodes reversed from gta v default.xex
     iPushByte3,    //39
     iPushInt,      //40
     fPush,         //41
-    dupInstr,           //42
+    dupInstr,      //42
     pop,           //43
     Native,        //44
     Enter,         //45

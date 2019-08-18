@@ -48,12 +48,12 @@
                  &meshData[drawGeom->VertexBufferPointer->DataPointer1],
                  GL_STATIC_DRAW);*/
 
-    //	const Position = 0; //	Positions
-    //	const Normals = 1; //	NORMALS
-    //	const Color = 2; //	COLOR
-    //	const TexCoord = 3; //	TEXTCOORD
+//	const Position = 0; //	Positions
+//	const Normals = 1; //	NORMALS
+//	const Color = 2; //	COLOR
+//	const TexCoord = 3; //	TEXTCOORD
 
-    /*const std::vector<VertexAttributes>* Attributes;
+/*const std::vector<VertexAttributes>* Attributes;
 
     switch (drawGeom->VertexBufferPointer->InfoPointer->Flags)
     {
@@ -148,7 +148,7 @@
 		break;
 		case PCCNC:
 		break;*/
-        /*case PCCNCTT:
+/*case PCCNCTT:
             Attributes = &PCCNCTTAttrib;
             break;
         case PCCNCTTX:
@@ -161,7 +161,7 @@
 		break;
 		case PNCTTT:
 		break;*/
-        /*default:
+/*default:
             Attributes = &WaterAttrib;
             //	printf("VERTEX\n");
             break;
@@ -181,9 +181,9 @@
 }*/
 
 Geometry::Geometry(VertexBufferHandle vert_handle, IndexBufferHandle index_handle, uint32_t countIndices)
-:   vertexBufferHandle(vert_handle),
-    indexBufferHandle(index_handle),
-    indexCount(countIndices)
+    : vertexBufferHandle(vert_handle)
+    , indexBufferHandle(index_handle)
+    , indexCount(countIndices)
 {
 }
 

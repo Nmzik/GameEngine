@@ -3,11 +3,11 @@
 #include <queue>
 #include "CPed.h"
 #include "CVehicle.h"
+#include "GameRenderer.h"
 #include "Light.h"
 #include "PhysicsSystem.h"
 #include "SoundManager.h"
 #include "SpaceGrid.h"
-#include "GameRenderer.h"
 //////////
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtx/norm.hpp"
@@ -21,7 +21,7 @@ class YbnLoader;
 class GameData;
 class CBuilding;
 
-inline float RandomFloat(float min, float max)
+inline float randomFloat(float min, float max)
 {
     return (max - min) * ((((float)rand()) / (float)RAND_MAX)) + min;
 }

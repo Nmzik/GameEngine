@@ -441,9 +441,9 @@ public:
 class FileType
 {
 public:
-    uint32_t RefCount = 0;
+    uint32_t refCount = 0;
     uint64_t gpuMemory = 0;
-    bool Loaded = false;
+    bool loaded = false;
 
     FileType()
     {
@@ -452,12 +452,10 @@ public:
     {
     }
 
-    virtual void Init(memstream& file)
+    virtual void init(memstream& file)
     {
-        
     }
-    virtual void Init(GameRenderer* renderer, memstream& file)
+    virtual void init(GameRenderer* renderer, memstream& file)
     {
-        
     }
 };

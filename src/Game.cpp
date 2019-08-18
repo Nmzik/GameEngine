@@ -24,8 +24,8 @@
 extern FreeListAllocator* physicsAllocator;
 
 Game::Game(const char* GamePath)
-: paused(false)
-, gameTime(0)
+    : paused(false)
+    , gameTime(0)
 {
     gameData = std::make_unique<GameData>(GamePath);
     gameData->load();
@@ -37,17 +37,17 @@ Game::Game(const char* GamePath)
     gameWorld = std::make_unique<GameWorld>(gameData.get(), *rendering_system.get());
     input = std::make_unique<InputManager>();
     scriptMachine = std::make_unique<ScriptInterpreter>(gameData.get(), this);
-    
+
     //scriptMachine->startThread(GenHash("startup_install"));
     //window->AddListener(input.get());
-    
+
     camera = std::make_unique<Camera>(glm::vec3(0.0, 0.0, 50.0), gameWorld.get());
-    
+
     //	FT_Library library;
     //	FT_Init_FreeType(&library);
-    
+
     // get format from audio file
-    
+
     //	Libavcodec
     //	FFMPEG STUFF ADPCM OR PCM | it seems that all audio files are pcm!
     /*AVFormatContext* format = avformat_alloc_context();
@@ -94,28 +94,28 @@ Game::~Game()
 void Game::updateFPS(float delta_time, float cpuThreadTime, float gpuThreadTime)
 {
     static auto time_since_last_fps_output = 0.f;
-    
+
     time_since_last_fps_output += delta_time;
     if (time_since_last_fps_output >= 1.0f)
     {
         time_since_last_fps_output = 0.0f;
-        
+
         static std::ostringstream osstr;
         osstr.str("");
         osstr.clear();
-        
+
         osstr << "Game "
-        << (1.0f / delta_time) << " FPS, "
-        << (delta_time * 1000.0f) << " CPU time, "
-        << (cpuThreadTime * 1000.0f) << " CPU Thread time, "
-        << (gpuThreadTime * 1000.0f) << " Render Thread time, "
-        //<< rendering_system->gpuTime * 0.000001f << " GPU time, "
-        << gameWorld->culledYmaps << " Culled ymaps, "
-        << gameWorld->renderList.size() << " Objects, "
-        << rendering_system->getNumDrawCalls() << " Draw Calls, "
-        << gameWorld->getResourceManager()->GlobalGpuMemory / 1024 / 1024 << " MB GPU Mem, "
-        << gameWorld->getResourceManager()->TextureMemory / 1024 / 1024 << " MB Texture Mem, "
-        << (physicsAllocator->getSize() - physicsAllocator->getUsedMemory()) / 1024 / 1024 << " MB Bullet Free Mem ";
+              << (1.0f / delta_time) << " FPS, "
+              << (delta_time * 1000.0f) << " CPU time, "
+              << (cpuThreadTime * 1000.0f) << " CPU Thread time, "
+              << (gpuThreadTime * 1000.0f) << " Render Thread time, "
+              //<< rendering_system->gpuTime * 0.000001f << " GPU time, "
+              << gameWorld->culledYmaps << " Culled ymaps, "
+              << gameWorld->renderList.size() << " Objects, "
+              << rendering_system->getNumDrawCalls() << " Draw Calls, "
+              << gameWorld->getResourceManager()->GlobalGpuMemory / 1024 / 1024 << " MB GPU Mem, "
+              << gameWorld->getResourceManager()->TextureMemory / 1024 / 1024 << " MB Texture Mem, "
+              << (physicsAllocator->getSize() - physicsAllocator->getUsedMemory()) / 1024 / 1024 << " MB Bullet Free Mem ";
         //window->setTitle(osstr.str());
     }
 }
@@ -124,22 +124,22 @@ void Game::run()
 {
     bool running = true;
     auto current_time = std::chrono::steady_clock::now();
-    
+
     while (running)
     {
         auto cpuThreadStart = std::chrono::steady_clock::now();
         input->update();
         //window->ProcessEvents();
-        
+
         if (input->isKeyPressed(Actions::button_ESCAPE))
             break;
         //running = false;
-        
+
         auto old_time = current_time;
         current_time = std::chrono::steady_clock::now();
         float delta_time = std::chrono::duration<float>(current_time - old_time).count();
         gameTime += delta_time;
-        
+
         if (!paused)
         {
             scriptMachine->execute();
@@ -149,12 +149,12 @@ void Game::run()
         }
         auto cpuThreadEnd = std::chrono::steady_clock::now();
         float cpuThreadTime = std::chrono::duration<float>(cpuThreadEnd - cpuThreadStart).count();
-        
+
         auto gpuThreadStart = std::chrono::steady_clock::now();
         rendering_system->renderWorld(gameWorld.get(), camera.get());
         auto gpuThreadEnd = std::chrono::steady_clock::now();
         float gpuThreadTime = std::chrono::duration<float>(gpuThreadEnd - gpuThreadStart).count();
-        
+
         updateFPS(delta_time, cpuThreadTime, gpuThreadTime);
     }
 }
@@ -163,16 +163,16 @@ void Game::frame()
 {
     input->update();
     //window->ProcessEvents();
-    
+
     /*if (input->isKeyPressed(Actions::button_ESCAPE))
         break;*/
     //running = false;
-    
+
     auto old_time = current_time;
     current_time = std::chrono::steady_clock::now();
     float delta_time = std::chrono::duration<float>(current_time - old_time).count();
     gameTime += delta_time;
-    
+
     if (!paused)
     {
         scriptMachine->execute();
@@ -181,14 +181,14 @@ void Game::frame()
         camera->onUpdate(gameWorld->getCurrentPlayer());
     }
     rendering_system->renderWorld(gameWorld.get(), camera.get());
-    
+
     updateFPS(delta_time, 0.0f, 0.0f);
 }
 
 void Game::tick(float delta_time)
 {
-    camera->lookCamera = getInput()->getMouseMovement();
-    
+    camera->lookCamera += getInput()->getMouseMovement();
+
     if (getInput()->isKeyTriggered(Actions::button_E))
     {
         printf("CUR POS PLAYER %s\n", glm::to_string(getWorld()->getCurrentPlayer()->getPosition()).c_str());
@@ -196,14 +196,14 @@ void Game::tick(float delta_time)
         //	getWorld()->LODMultiplier += 0.05f;
         //getWorld()->EnableStreaming = !getWorld()->EnableStreaming;
     }
-    
+
     /*if (getInput()->isKeyTriggered(Actions::button_GPU_TIME))
      {
      getRenderer()->gpuTimer = !getRenderer()->gpuTimer;
      //clear variable
      getRenderer()->gpuTime = 0;
      }*/
-    
+
     /*if (getInput()->isKeyTriggered(Actions::button_Z))
      {
      if (getWorld()->gameHour > 23)
@@ -218,32 +218,32 @@ void Game::tick(float delta_time)
      getWorld()->gameHour--;
      //	getRenderer()->ShowTexture = !getRenderer()->ShowTexture;
      }*/
-    
+
     if (getInput()->isKeyTriggered(Actions::button_player1))
     {
         getWorld()->currentPlayerID = 0;
-        
+
         changeLocation();
     }
     if (getInput()->isKeyTriggered(Actions::button_player2))
     {
         getWorld()->currentPlayerID = 1;
-        
+
         //changePlayer();
     }
     if (getInput()->isKeyTriggered(Actions::button_player3))
     {
         getWorld()->currentPlayerID = 2;
-        
+
         //changePlayer();
     }
     if (getInput()->isKeyTriggered(Actions::button_ShowCollision))
     {
         getRenderer()->renderDebugWorld = !getRenderer()->renderDebugWorld;
     }
-    
+
     CPed* player = getWorld()->getCurrentPlayer();
-    
+
     if (getInput()->isKeyTriggered(Actions::button_CameraMode))
     {
         if (camera->getCameraMode() != CameraMode::FreeCamera)
@@ -257,7 +257,7 @@ void Game::tick(float delta_time)
             camera->setCameraMode(CameraMode::ThirdPerson);
         }
     }
-    
+
     if (getInput()->isKeyTriggered(Actions::button_EnterExitVehicle))
     {
         if (player->getCurrentVehicle())
@@ -265,7 +265,7 @@ void Game::tick(float delta_time)
             //	in Vehicle
             //printf("EXITING\n");
             player->setPosition(player->getCurrentVehicle()->getPosition());
-            
+
             player->exitVehicle();
             getWorld()->getPhysicsSystem()->wakeRigidBodyFromSleep(player->getPhysCharacter());
         }
@@ -279,15 +279,15 @@ void Game::tick(float delta_time)
             }
         }
     }
-    
-    float speed = getInput()->isKeyPressed(Actions::button_LSHIFT) ? 30.0f : 1.0f;
-    
+
+    float speed = getInput()->isKeyPressed(Actions::button_LSHIFT) ? 30.0f : 20.0f;
+
     glm::vec3 movement{};
     movement.x = (float)getInput()->isKeyPressed(Actions::button_Forward) - getInput()->isKeyPressed(Actions::button_Backward);
     movement.y = (float)getInput()->isKeyPressed(Actions::button_TurnLeft) - getInput()->isKeyPressed(Actions::button_TurnRight);
-    
+
     movement *= speed;
-    
+
     if (camera->getCameraMode() == CameraMode::FreeCamera)
     {
         glm::vec3 camPos = camera->getPosition();
@@ -295,12 +295,12 @@ void Game::tick(float delta_time)
         {
             camPos.z += 5;
         }
-        
+
         if (getInput()->isKeyPressed(Actions::button_CameraDown))
         {
             camPos.z -= 5;
         }
-        
+
         camera->setPosition(camPos + movement);
     }
     else
@@ -308,14 +308,14 @@ void Game::tick(float delta_time)
         if (CVehicle * curVehicle; (curVehicle = player->getCurrentVehicle()))
         {
             glm::vec3 vehiclePosition = curVehicle->getPosition();
-            
+
             if (vehiclePosition.z <= -150)
             {
                 glm::vec3 rayFrom(vehiclePosition.x, vehiclePosition.y, 300.f);
                 glm::vec3 rayTo(vehiclePosition.x, vehiclePosition.y, 0.f);
-                
+
                 auto result = getWorld()->getPhysicsSystem()->rayCast(rayFrom, rayTo);
-                
+
                 if (result.HasHit)
                 {
                     auto& ws = result.HitPos;
@@ -323,7 +323,7 @@ void Game::tick(float delta_time)
                     curVehicle->getCarChassisRigidbody()->clearForces();
                 }
             }
-            
+
             curVehicle->setThrottle(movement.x);
             curVehicle->setSteeringValue(movement.y);
             player->setPosition(vehiclePosition);
@@ -335,9 +335,9 @@ void Game::tick(float delta_time)
             {
                 glm::vec3 rayFrom(playerPosition.x, playerPosition.y, 300.f);
                 glm::vec3 rayTo(playerPosition.x, playerPosition.y, 0.f);
-                
+
                 auto result = getWorld()->getPhysicsSystem()->rayCast(rayFrom, rayTo);
-                
+
                 if (result.HasHit)
                 {
                     auto& ws = result.HitPos;
@@ -359,26 +359,26 @@ void Game::tick(float delta_time)
              inWater = false;
              }
              }*/
-            
+
             /*float length = glm::length(movement);
              if (length > 0.1f) {
              auto move = speed * glm::normalize(movement);
              //move *= delta_time;*/
-            
+
             /*if (player->getPhysCharacter()->getLinearVelocity().z() < -40.f) {
              player->getPhysCharacter()->setLinearVelocity(btVector3(movement.x * 30.0f, movement.y * 30.0f, -40.0f));
              }
              else*/
-            
+
             player->setMovementDirection(movement * 2);
-            
+
             if (getInput()->isKeyTriggered(Actions::button_SPACE))
             {
                 //	player->Jump();
-                
+
                 glm::vec3 m_rayStart = player->getPosition();
                 glm::vec3 m_rayEnd = m_rayStart - glm::vec3(0.0, 0.0, 1.5);
-                
+
                 auto result = getWorld()->getPhysicsSystem()->rayCast(m_rayStart, m_rayEnd);
                 if (result.HasHit)
                 {
@@ -403,16 +403,16 @@ void Game::tick(float delta_time)
      cb.m_hitNormalWorld.z()) *
      0.1f;
      }*/
-    
+
     //	getRenderer()->getCamera().ProcessMouseMovement(-x, -y);
 }
 
 void Game::changeLocation()
 {
-    uint32_t random = rand() % getWorld()->getGameData()->Scenes.size();
+    uint32_t random = rand() % getWorld()->getGameData()->scenes.size();
     CPed* ped = getWorld()->getCurrentPlayer();
-    
-    ped->setPosition(getWorld()->getGameData()->Scenes[random]);
+
+    ped->setPosition(getWorld()->getGameData()->scenes[random]);
     // ped->setGravity(getWorld()->getPhysicsSystem()->getGravity());
     /*for (int i = 0; i < 3; i++)
      {

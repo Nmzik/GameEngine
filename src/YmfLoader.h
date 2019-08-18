@@ -1,8 +1,8 @@
 #pragma once
 #include <algorithm>
 #include <unordered_map>
-#include "FileType.h"
 #include <vector>
+#include "FileType.h"
 
 enum PsoSection
 {

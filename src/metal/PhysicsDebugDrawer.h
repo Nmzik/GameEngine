@@ -5,8 +5,6 @@
 
 class PhysicsDebugDrawer : public btIDebugDraw
 {
-    
-
 public:
     PhysicsDebugDrawer();
     ~PhysicsDebugDrawer();

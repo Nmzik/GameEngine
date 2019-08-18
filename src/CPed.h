@@ -27,8 +27,8 @@ class CPed : public CEntity
     uint16_t currentWeapon = 0;
     bool inWater = false;
     glm::vec3 playerDirection;
-    CVehicle* vehicle;
     YddLoader* player;
+    CVehicle* vehicle;
     bool on_ground = false;
     glm::vec3 movementDirection;
 

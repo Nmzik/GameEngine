@@ -161,7 +161,7 @@ public:
     void addSphereShape(btCompoundShape* compound, btVector3 pos, float SphereRadius);
     void addCylinderShape(btCompoundShape* compound, btVector3 pos, btVector3 halfExtents);
 
-    void Init(memstream& file) override;
-    void ParseYbn(memstream& file, btCompoundShape* compound);
+    void init(memstream& file) override;
+    void parseYbn(memstream& file, btCompoundShape* compound);
     ~YbnLoader();
 };

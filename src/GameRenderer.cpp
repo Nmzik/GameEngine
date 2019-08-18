@@ -6,11 +6,10 @@
 
 GameRenderer::GameRenderer(/*NativeWindow* window*/)
     : /*nativeWindow(window)
-    ,*/ renderDebugWorld(false)
+    ,*/
+    renderDebugWorld(false)
 {
     //nativeWindow->InitializeContext();
-
-    
 }
 
 GameRenderer::~GameRenderer()
@@ -61,7 +60,7 @@ void GameRenderer::renderDrawable(YdrLoader* drawable)
 
             glDrawElements(GL_TRIANGLES, geometry.num_indices, GL_UNSIGNED_SHORT, 0);*/
 
-            /*NumDrawCalls++;
+/*NumDrawCalls++;
         }
     }
 }
@@ -151,7 +150,7 @@ void GameRenderer::renderVehicle(CVehicle* vehicle)
         world->getPhysicsSystem()->debug.render();
     }*/
 
-    /*endFrame();
+/*endFrame();
 
     presentFrame();*/
 //}

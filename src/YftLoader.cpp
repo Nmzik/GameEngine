@@ -2,9 +2,9 @@
 #include "YbnLoader.h"
 #include "YdrLoader.h"
 
-void YftLoader::Init(GameRenderer* renderer, memstream& file)
+void YftLoader::init(GameRenderer* renderer, memstream& file)
 {
-    Loaded = true;
+    loaded = true;
 
     FragType* fragType = (FragType*)file.read(sizeof(FragType));
 
@@ -13,7 +13,7 @@ void YftLoader::Init(GameRenderer* renderer, memstream& file)
 
     ydr = GlobalPool::GetInstance()->ydrPool.create();
     ydr->isYft = true;
-    ydr->Init(renderer, file);
+    ydr->init(renderer, file);
     gpuMemory += ydr->gpuMemory;
 
     SYSTEM_BASE_PTR(fragType->PhysicsLODGroupPointer);
@@ -58,7 +58,7 @@ void YftLoader::Init(GameRenderer* renderer, memstream& file)
     file.seekg(fragPhysicsLOD->BoundPointer);
 
     ybn = GlobalPool::GetInstance()->ybnPool.create();
-    ybn->Init(file);
+    ybn->init(file);
 }
 
 YftLoader::~YftLoader()

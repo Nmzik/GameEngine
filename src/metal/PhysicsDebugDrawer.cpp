@@ -2,7 +2,6 @@
 
 PhysicsDebugDrawer::PhysicsDebugDrawer()
 {
-    
 }
 
 PhysicsDebugDrawer::~PhysicsDebugDrawer()
@@ -11,7 +10,6 @@ PhysicsDebugDrawer::~PhysicsDebugDrawer()
 
 void PhysicsDebugDrawer::drawLine(const btVector3& from, const btVector3& to, const btVector3& color)
 {
-   
 }
 
 void PhysicsDebugDrawer::drawContactPoint(
@@ -39,5 +37,4 @@ int PhysicsDebugDrawer::getDebugMode() const
 
 void PhysicsDebugDrawer::render()
 {
-    
 }

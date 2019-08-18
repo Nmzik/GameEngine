@@ -17,13 +17,13 @@ class memstream
 
 public:
     int32_t systemSize;
-    size_t BufferSize;
+    size_t bufferSize;
     const uint8_t* data;
 
     memstream(const uint8_t* buffer, size_t sizeData)
-        : data(buffer)
-        , offset(0)
-        , BufferSize(sizeData)
+        : offset(0)
+        , bufferSize(sizeData)
+        , data(buffer)
     {
     }
 

@@ -23,7 +23,7 @@ GTAEncryption::~GTAEncryption()
     (void)inflateEnd(&strm);
 }
 
-void GTAEncryption::loadKeys()
+void GTAEncryption::loadKeys(std::string keyPath)
 {
     uint8_t key[] = {0xB3, 0x89, 0x73, 0xAF, 0x8B, 0x9E, 0x26, 0x3A, 0x8D, 0xF1, 0x70, 0x32, 0x14, 0x42, 0xB3, 0x93,
                      0x8B, 0xD3, 0xF2, 0x1F, 0xA4, 0xD0, 0x4D, 0xFF, 0x88, 0x2E, 0x04, 0x66, 0x0F, 0xF9, 0x9D, 0xFD};
@@ -45,7 +45,8 @@ void GTAEncryption::loadKeys()
         0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF};
     std::memcpy(&LUT[0], &lutkey[0], 256);
 
-    std::ifstream ngkeys("assets/gtav_ng_key.dat", std::ios::binary);
+    std::ifstream ngkeys(keyPath + "assets/gtav_ng_key.dat", std::ios::binary);
+    //std::ifstream ngkeys("assets/gtav_ng_key.dat", std::ios::binary);
 
     if (!ngkeys.is_open())
     {
@@ -59,7 +60,8 @@ void GTAEncryption::loadKeys()
     }
     ngkeys.close();
 
-    std::ifstream ngtables("assets/gtav_ng_decrypt_tables.dat", std::ios::binary);
+    std::ifstream ngtables(keyPath + "assets/gtav_ng_decrypt_tables.dat", std::ios::binary);
+    //std::ifstream ngtables("assets/gtav_ng_decrypt_tables.dat", std::ios::binary);
 
     if (!ngtables.is_open())
     {

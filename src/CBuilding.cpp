@@ -25,18 +25,18 @@ CBuilding::~CBuilding()
         {
             case ASSET_TYPE_DRAWABLE:
                 if (ydr)
-                    ydr->RefCount--;
+                    ydr->refCount--;
                 break;
             case ASSET_TYPE_DRAWABLEDICTIONARY:
                 if (ydd)
-                    ydd->RefCount--;
+                    ydd->refCount--;
                 break;
             case ASSET_TYPE_FRAGMENT:
                 if (yft)
-                    yft->RefCount--;
+                    yft->refCount--;
                 break;
         }
     }
     if (ytd)
-        ytd->RefCount--;
+        ytd->refCount--;
 }

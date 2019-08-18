@@ -25,6 +25,6 @@ class YddLoader : public FileType
 public:
     std::unordered_map<uint32_t, YdrLoader*> ydrFiles;
 
-    void Init(GameRenderer* renderer, memstream& file) override;
+    void init(GameRenderer* renderer, memstream& file) override;
     ~YddLoader();
 };

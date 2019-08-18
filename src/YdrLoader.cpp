@@ -2,9 +2,10 @@
 #include <algorithm>
 #include "GTAEncryption.h"
 
-void YdrLoader::Init(GameRenderer* renderer, memstream& file)
+void YdrLoader::init(GameRenderer* _renderer, memstream& file)
 {
-    Loaded = true;
+    renderer = _renderer;
+    loaded = true;
 
     rmcDrawable* drawable = nullptr;
     //	READ COLLISION DATA FROM YDR
@@ -50,7 +51,7 @@ void YdrLoader::Init(GameRenderer* renderer, memstream& file)
             SYSTEM_BASE_PTR(drawable->ShaderGroupPointer->TextureDictionaryPointer);
             file.seekg(drawable->ShaderGroupPointer->TextureDictionaryPointer);
             ytd = GlobalPool::GetInstance()->ytdPool.create();
-            ytd->Init(file);
+            ytd->init(file);
         }
 
         materials.reserve(drawable->ShaderGroupPointer->Shaders.size());
@@ -196,21 +197,21 @@ void YdrLoader::Init(GameRenderer* renderer, memstream& file)
             gpuMemory += drawable->DrawableModels[0]->Get(i)->m_geometries.Get(j)->IndexBufferPointer->IndicesCount * sizeof(uint16_t);
 
             grmGeometry* geom = drawable->DrawableModels[0]->Get(i)->m_geometries.Get(j);
-            
+
             int vertexSize = geom->VertexBufferPointer->VertexCount * geom->VertexBufferPointer->VertexStride;
             const uint8_t* vertexPointer = &file.data[geom->VertexBufferPointer->DataPointer1];
-            
+
             int indicesSize = geom->IndexBufferPointer->IndicesCount * sizeof(uint16_t);
             const uint8_t* indicesPointer = &file.data[geom->IndexBufferPointer->IndicesPointer];
-            
+
             VertexBufferHandle vertexHandle = renderer->createVertexBuffer(vertexSize, vertexPointer);
-            
+
             IndexBufferHandle indexHandle = renderer->createIndexBuffer(indicesSize, indicesPointer);
-            
+
             Geometry geometry(vertexHandle, indexHandle, geom->IndexBufferPointer->IndicesCount);
             geometry.type = (VertexType)geom->VertexBufferPointer->InfoPointer->Flags;
             models[i].geometries.push_back(geometry);
-            
+
             /*models[i].geometries.emplace_back(file.data,
                                               drawable->DrawableModels[0]->Get(i)->m_geometries.Get(j),
                                               (*drawable->DrawableModels[0]->Get(i)->ShaderMappingPointer)[j], drawable->ShaderGroupPointer->Shaders[(*drawable->DrawableModels[0]->Get(i)->ShaderMappingPointer)[j]]->FileName);*/
@@ -222,4 +223,16 @@ YdrLoader::~YdrLoader()
 {
     if (ytd)
         GlobalPool::GetInstance()->ytdPool.remove(ytd);
+
+    if (renderer)
+    {
+        for (auto& model : models)
+        {
+            for (auto& geom : model.geometries)
+            {
+                renderer->removeVertexBuffer(geom.getVertexBufferHandle());
+                renderer->removeIndexbuffer(geom.getIndexBufferHandle());
+            }
+        }
+    }
 }

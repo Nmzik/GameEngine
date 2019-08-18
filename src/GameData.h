@@ -1,10 +1,10 @@
 #pragma once
-#include <vector>
 #include <algorithm>
 #include <memory>
 #include <string>
 #include <string_view>
 #include <unordered_map>
+#include <vector>
 #include "glm/glm.hpp"
 
 class RpfFile;
@@ -58,25 +58,25 @@ public:
     std::unique_ptr<CacheDatFile> cacheFile;
 
     std::unordered_map<uint32_t, fwArchetype*> archetypes;
-    std::unordered_map<uint32_t, std::vector<fwEntityDef>> MloDictionary;
+    std::unordered_map<uint32_t, std::vector<fwEntityDef>> mloDictionary;
     std::unordered_map<uint32_t, RpfResourceFileEntry*> entries[10];
     std::unordered_map<uint32_t, RpfBinaryFileEntry*> audios;
 
-    std::unordered_map<uint32_t, uint32_t> HDTextures;
+    std::unordered_map<uint32_t, uint32_t> hdTextures;
     std::vector<std::unique_ptr<YndLoader>> nodes;
     std::unordered_map<uint32_t, uint32_t> gtxdEntries;
-    std::vector<CarHandling> VehiclesInfo;
-    std::vector<glm::vec3> Scenes;
+    std::vector<CarHandling> vehiclesInfo;
+    std::vector<glm::vec3> scenes;
     std::vector<WaterQuad*> waterPosition;
 
     GameData(std::string path);
     ~GameData();
 
     void load();
-    void loadHandlingData(std::vector<uint8_t>& Buffer);
+    void loadHandlingData(std::vector<uint8_t>& buffer);
     void loadGtxd();
-    void loadWaterQuads(std::vector<uint8_t>& Buffer);
-    void loadScenesSwitch(std::vector<uint8_t>& Buffer);
+    void loadWaterQuads(std::vector<uint8_t>& buffer);
+    void loadScenesSwitch(std::vector<uint8_t>& buffer);
 
     void loadRpf(std::ifstream& rpf, std::string& FullPath_, std::string& FileName_, uint32_t FileSize_, uint64_t FileOffset);
 

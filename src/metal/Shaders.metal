@@ -12,7 +12,7 @@ using namespace metal;
 struct VertexIn {
     float3 position [[attribute(0)]];
     float3 normal [[attribute(1)]];
-    uchar4 tx [[attribute(2)]];
+    char4 tx [[attribute(2)]];
     float2 test [[attribute(3)]];
 };
 
@@ -25,11 +25,12 @@ struct Uniforms {
     float4x4 modelMatrix;
 };
 
-vertex VertexOut basic_vertex(const device VertexIn* vertex_array   [[buffer(0)]],
+vertex VertexOut basic_vertex(const VertexIn vertex_array   [[stage_in]],
                               const device Uniforms& uniforms       [[buffer(1)]],
                               unsigned int vid [[vertex_id]]) {
     VertexOut vertexOut;
-    vertexOut.position = uniforms.projViewMatrix * uniforms.modelMatrix * float4(vertex_array[vid].position, 1);
+    
+    vertexOut.position = uniforms.projViewMatrix * uniforms.modelMatrix * float4(vertex_array.position, 1);
     
     return vertexOut;
 }

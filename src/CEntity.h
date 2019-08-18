@@ -35,9 +35,9 @@ class CEntity
     ObjectType type;
 
 protected:
+    glm::vec3 position;
     glm::quat rotation;
     glm::vec3 scale;
-    glm::vec3 position;
     glm::mat4 modelMatrix;
     float health = 100.0f;
 

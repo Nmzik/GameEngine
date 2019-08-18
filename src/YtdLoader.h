@@ -91,5 +91,5 @@ class YtdLoader : public FileType
 public:
     std::unordered_map<uint32_t, Texture> Textures;
 
-    void Init(memstream& file) override;
+    void init(memstream& file) override;
 };

@@ -21,7 +21,7 @@ ResourceManager::ResourceManager(GameWorld* world)
     : running(true)
     , gameworld{world}
 {
-    // printf("RESOURCE MANAGER LOADED!\n");
+    // printf("RESOURCE MANAGER loaded!\n");
 
     // yndLoader.reserve(500);
     // ytypLoader.reserve(500);
@@ -62,14 +62,14 @@ YmapLoader* ResourceManager::getYmap(uint32_t hash)
     auto it = ymapLoader.find(hash);
     if (it != ymapLoader.end())
     {
-        it->second->RefCount++;
+        it->second->refCount++;
         return it->second;
     }
     else
     {
         YmapLoader* loader = GlobalPool::GetInstance()->ymapPool.create();
         addToWaitingList(GlobalPool::GetInstance()->resourcesPool.create(ymap, hash, loader));
-        loader->RefCount++;
+        loader->refCount++;
         ymapLoader.insert({hash, loader});
 
         return loader;
@@ -81,14 +81,14 @@ YdrLoader* ResourceManager::getYdr(uint32_t hash)
     auto iter = ydrLoader.find(hash);
     if (iter != ydrLoader.end())
     {
-        iter->second->RefCount++;
+        iter->second->refCount++;
         return iter->second;
     }
     else
     {
         YdrLoader* loader = GlobalPool::GetInstance()->ydrPool.create();
         addToWaitingList(GlobalPool::GetInstance()->resourcesPool.create(ydr, hash, loader));
-        loader->RefCount++;
+        loader->refCount++;
         ydrLoader.insert({hash, loader});
 
         return loader;
@@ -100,7 +100,7 @@ YtdLoader* ResourceManager::getYtd(uint32_t hash)
     auto it = ytdLoader.find(hash);
     if (it != ytdLoader.end())
     {
-        it->second->RefCount++;
+        it->second->refCount++;
         return it->second;
     }
     else
@@ -114,20 +114,20 @@ YtdLoader* ResourceManager::getYtd(uint32_t hash)
         bool HDTextures = false;
         if (HDTextures)
         {
-            auto iter = gameworld->getGameData()->HDTextures.find(hash);
-            if (iter != gameworld->getGameData()->HDTextures.end())
+            auto iter = gameworld->getGameData()->hdTextures.find(hash);
+            if (iter != gameworld->getGameData()->hdTextures.end())
             {
                 auto it = ytdLoader.find(iter->second);
                 if (it != ytdLoader.end())
                 {
-                    it->second->RefCount++;
+                    it->second->refCount++;
                     return it->second;
                 }
                 else
                 {
                     YtdLoader* loader = GlobalPool::GetInstance()->ytdPool.create();
                     addToWaitingList(GlobalPool::GetInstance()->resourcesPool.create(ytd, iter->second, loader));
-                    loader->RefCount++;
+                    loader->refCount++;
                     ytdLoader.insert({iter->second, loader});
 
                     return loader;
@@ -141,7 +141,7 @@ YtdLoader* ResourceManager::getYtd(uint32_t hash)
 
         YtdLoader* loader = GlobalPool::GetInstance()->ytdPool.create();
         addToWaitingList(GlobalPool::GetInstance()->resourcesPool.create(ytd, hash, loader));
-        loader->RefCount++;
+        loader->refCount++;
         ytdLoader.insert({hash, loader});
 
         return loader;
@@ -153,14 +153,14 @@ YddLoader* ResourceManager::getYdd(uint32_t hash)
     auto iter = yddLoader.find(hash);
     if (iter != yddLoader.end())
     {
-        iter->second->RefCount++;
+        iter->second->refCount++;
         return iter->second;
     }
     else
     {
         YddLoader* loader = GlobalPool::GetInstance()->yddPool.create();
         addToWaitingList(GlobalPool::GetInstance()->resourcesPool.create(ydd, hash, loader));
-        loader->RefCount++;
+        loader->refCount++;
         yddLoader.insert({hash, loader});
 
         return loader;
@@ -172,14 +172,14 @@ YftLoader* ResourceManager::getYft(uint32_t hash)
     auto iter = yftLoader.find(hash);
     if (iter != yftLoader.end())
     {
-        iter->second->RefCount++;
+        iter->second->refCount++;
         return iter->second;
     }
     else
     {
         YftLoader* loader = GlobalPool::GetInstance()->yftPool.create();
         addToWaitingList(GlobalPool::GetInstance()->resourcesPool.create(yft, hash, loader));
-        loader->RefCount++;
+        loader->refCount++;
         yftLoader.insert({hash, loader});
 
         return loader;
@@ -191,14 +191,14 @@ YbnLoader* ResourceManager::getYbn(uint32_t hash)
     auto iter = ybnLoader.find(hash);
     if (iter != ybnLoader.end())
     {
-        iter->second->RefCount++;
+        iter->second->refCount++;
         return iter->second;
     }
     else
     {
         YbnLoader* loader = GlobalPool::GetInstance()->ybnPool.create();
         addToWaitingList(GlobalPool::GetInstance()->resourcesPool.create(ybn, hash, loader));
-        loader->RefCount++;
+        loader->refCount++;
         ybnLoader.insert({hash, loader});
         return loader;
     }
@@ -209,14 +209,14 @@ YscLoader* ResourceManager::getYsc(uint32_t hash)
     auto iter = yscLoader.find(hash);
     if (iter != yscLoader.end())
     {
-        iter->second->RefCount++;
+        iter->second->refCount++;
         return iter->second.get();
     }
     else
     {
         YscLoader* loader = new YscLoader();
         addToWaitingList(GlobalPool::GetInstance()->resourcesPool.create(ysc, hash, loader));
-        loader->RefCount++;
+        loader->refCount++;
         yscLoader.insert({hash, std::unique_ptr<YscLoader>(loader)});
         return loader;
     }
@@ -283,64 +283,65 @@ void ResourceManager::update()
                     res->bufferSize = it->second->UncompressedFileSize;
                     gameworld->getGameData()->extractFileResource(*(it->second), res->buffer, res->bufferSize);
                     res->systemSize = (it->second->SystemSize);
-                }
-                if (res->type == ymap)
-                {
-                    YmapLoader* iter = static_cast<YmapLoader*>(res->file);
-                    memstream stream(&res->buffer[0], res->bufferSize);
-                    iter->Init(stream);
 
-                    for (auto& mlo : iter->CMloInstanceDefs)
+                    if (res->type == ymap)
                     {
-                        auto it = gameworld->getGameData()->MloDictionary.find(mlo.fwEntityDef.archetypeName);
-                        if (it != gameworld->getGameData()->MloDictionary.end())
+                        YmapLoader* iter = static_cast<YmapLoader*>(res->file);
+                        memstream stream(&res->buffer[0], res->bufferSize);
+                        iter->init(stream);
+
+                        for (auto& mlo : iter->CMloInstanceDefs)
                         {
-                            for (auto& entityDef : it->second)
+                            auto it = gameworld->getGameData()->mloDictionary.find(mlo.fwEntityDef.archetypeName);
+                            if (it != gameworld->getGameData()->mloDictionary.end())
                             {
-                                glm::quat rotmultiply = entityDef.rotation * mlo.fwEntityDef.rotation;
-                                rotmultiply.w = -rotmultiply.w;
-                                glm::mat4 matrix = glm::translate(glm::mat4(1.0f), mlo.fwEntityDef.position + entityDef.position) *
-                                                   glm::mat4_cast(glm::quat(-mlo.fwEntityDef.rotation.w, -mlo.fwEntityDef.rotation.x,
-                                                                            -mlo.fwEntityDef.rotation.y, -mlo.fwEntityDef.rotation.z)) *
-                                                   glm::scale(glm::mat4(1.0f),
-                                                              glm::vec3(entityDef.scaleXY, entityDef.scaleXY, entityDef.scaleZ));
-                                entityDef.position = mlo.fwEntityDef.position + entityDef.position;
-                                entityDef.rotation = rotmultiply;
-                                iter->objects.emplace_back(entityDef);
+                                for (auto& entityDef : it->second)
+                                {
+                                    glm::quat rotmultiply = entityDef.rotation * mlo.fwEntityDef.rotation;
+                                    rotmultiply.w = -rotmultiply.w;
+                                    glm::mat4 matrix = glm::translate(glm::mat4(1.0f), mlo.fwEntityDef.position + entityDef.position) *
+                                                       glm::mat4_cast(glm::quat(-mlo.fwEntityDef.rotation.w, -mlo.fwEntityDef.rotation.x,
+                                                                                -mlo.fwEntityDef.rotation.y, -mlo.fwEntityDef.rotation.z)) *
+                                                       glm::scale(glm::mat4(1.0f),
+                                                                  glm::vec3(entityDef.scaleXY, entityDef.scaleXY, entityDef.scaleZ));
+                                    entityDef.position = mlo.fwEntityDef.position + entityDef.position;
+                                    entityDef.rotation = rotmultiply;
+                                    iter->entities.emplace_back(entityDef);
+                                }
                             }
                         }
-                    }
 
-                    for (auto& object : iter->objects)
-                    {
-                        std::unordered_map<uint32_t, fwArchetype*>::iterator it = gameworld->getGameData()->archetypes.find(object.entityDef.archetypeName);
-                        if (it != gameworld->getGameData()->archetypes.end())
+                        for (auto& object : iter->entities)
                         {
-                            if (it->second->getType() == 2)
+                            std::unordered_map<uint32_t, fwArchetype*>::iterator it = gameworld->getGameData()->archetypes.find(object.entityDef.archetypeName);
+                            if (it != gameworld->getGameData()->archetypes.end())
                             {
-                                printf("");
+                                if (it->second->getType() == 2)
+                                {
+                                    printf("");
+                                }
+
+                                object.archetype = it->second;
+
+                                object.boundPos = object.entityDef.position - object.archetype->BaseArchetypeDef.bsCentre;
+                                object.boundRadius = object.archetype->BaseArchetypeDef
+                                                         .bsRadius;  //* std::max(object.CEntity.scaleXY, object.CEntity.scaleZ); TREES doesnt render with multiplying by scale
+
+                                if (object.entityDef.lodDist <= 0)
+                                    object.entityDef.lodDist = it->second->BaseArchetypeDef.lodDist;
+                                if (object.entityDef.childLodDist <= 0)
+                                    object.entityDef.childLodDist = it->second->BaseArchetypeDef.lodDist;
+                            }
+                            else
+                            {
+                                //    printf("ERROR\n"); ACTUALLY IT CAN HAPPEN
+                                object.archetype = nullptr;
+                                object.entityDef.lodDist = 0.f;  //    HACK = DONT RENDER objects WITH UNKNOWN ARCHETYPE
                             }
 
-                            object.archetype = it->second;
-
-                            object.boundPos = object.entityDef.position - object.archetype->BaseArchetypeDef.bsCentre;
-                            object.boundRadius = object.archetype->BaseArchetypeDef
-                                                     .bsRadius;  //* std::max(object.CEntity.scaleXY, object.CEntity.scaleZ); TREES doesnt render with multiplying by scale
-
-                            if (object.entityDef.lodDist <= 0)
-                                object.entityDef.lodDist = it->second->BaseArchetypeDef.lodDist;
-                            if (object.entityDef.childLodDist <= 0)
-                                object.entityDef.childLodDist = it->second->BaseArchetypeDef.lodDist;
+                            object.entityDef.lodDist *= object.entityDef.lodDist;            // glm::length2
+                            object.entityDef.childLodDist *= object.entityDef.childLodDist;  // glm::length2
                         }
-                        else
-                        {
-                            //	printf("ERROR\n"); ACTUALLY IT CAN HAPPEN
-                            object.archetype = nullptr;
-                            object.entityDef.lodDist = 0.f;  //	HACK = DONT RENDER objects WITH UNKNOWN ARCHETYPE
-                        }
-
-                        object.entityDef.lodDist *= object.entityDef.lodDist;            // glm::length2
-                        object.entityDef.childLodDist *= object.entityDef.childLodDist;  // glm::length2
                     }
                 }
                 addToMainQueue(res);
@@ -371,9 +372,10 @@ void ResourceManager::updateResourceCache()
     // REMOVE objects WHEN WE ARE IN ANOTHER CELL????  RUN GARBAGE COLLECTOR WHEN IN ANOTHER CEL
     for (auto it = ybnLoader.begin(); it != ybnLoader.end();)
     {
-        if ((it->second)->RefCount == 0 && (it->second)->Loaded)
+        if ((it->second)->refCount == 0 && (it->second)->loaded)
         {
-            gameworld->getPhysicsSystem()->removeRigidBody((it->second)->getRigidBody());
+            if ((it->second)->getRigidBody())
+                gameworld->getPhysicsSystem()->removeRigidBody((it->second)->getRigidBody());
             GlobalPool::GetInstance()->ybnPool.remove(it->second);
             it = ybnLoader.erase(it);
         }
@@ -385,7 +387,7 @@ void ResourceManager::updateResourceCache()
 
     for (auto it = ymapLoader.begin(); it != ymapLoader.end();)
     {
-        if ((it->second)->RefCount == 0 && (it->second)->Loaded)
+        if ((it->second)->refCount == 0 && (it->second)->loaded)
         {
             GlobalPool::GetInstance()->ymapPool.remove(it->second);
             it = ymapLoader.erase(it);
@@ -398,7 +400,7 @@ void ResourceManager::updateResourceCache()
 
     for (auto it = ydrLoader.begin(); it != ydrLoader.end();)
     {
-        if ((it->second)->RefCount == 0 && (it->second)->Loaded)
+        if ((it->second)->refCount == 0 && (it->second)->loaded)
         {
             GlobalGpuMemory -= it->second->gpuMemory;
             GlobalPool::GetInstance()->ydrPool.remove(it->second);
@@ -412,7 +414,7 @@ void ResourceManager::updateResourceCache()
 
     for (auto it = yddLoader.begin(); it != yddLoader.end();)
     {
-        if ((it->second)->RefCount == 0 && (it->second)->Loaded)
+        if ((it->second)->refCount == 0 && (it->second)->loaded)
         {
             GlobalGpuMemory -= it->second->gpuMemory;
             GlobalPool::GetInstance()->yddPool.remove(it->second);
@@ -426,7 +428,7 @@ void ResourceManager::updateResourceCache()
 
     for (auto it = yftLoader.begin(); it != yftLoader.end();)
     {
-        if ((it->second)->RefCount == 0 && (it->second)->Loaded)
+        if ((it->second)->refCount == 0 && (it->second)->loaded)
         {
             GlobalGpuMemory -= it->second->gpuMemory;
             GlobalPool::GetInstance()->yftPool.remove(it->second);
@@ -440,7 +442,7 @@ void ResourceManager::updateResourceCache()
 
     for (auto it = ytdLoader.begin(); it != ytdLoader.end();)
     {
-        if ((it->second)->RefCount == 0 && (it->second)->Loaded)
+        if ((it->second)->refCount == 0 && (it->second)->loaded)
         {
             TextureMemory -= it->second->gpuMemory;
             GlobalPool::GetInstance()->ytdPool.remove(it->second);

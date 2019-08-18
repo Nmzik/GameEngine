@@ -3,7 +3,7 @@
 
 RpfFile::RpfFile(std::ifstream* rpfFile, std::string& FullPath, std::string& FileName, uint32_t FileSize, uint64_t FileOffset)
     : rpf(*rpfFile)
-, path(FullPath)
+    , path(FullPath)
 {
     rpf.seekg(FileOffset);
 

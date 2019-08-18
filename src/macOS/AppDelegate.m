@@ -19,6 +19,7 @@
     self.window = [NSWindow windowWithContentViewController:controller];
     [self.window makeFirstResponder:controller];
     [self.window makeKeyAndOrderFront:self];
+    [self.window setAcceptsMouseMovedEvents:YES];
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {

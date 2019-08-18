@@ -1,9 +1,9 @@
 #include "YddLoader.h"
 #include "YdrLoader.h"
 
-void YddLoader::Init(GameRenderer* renderer, memstream& file)
+void YddLoader::init(GameRenderer* renderer, memstream& file)
 {
-    Loaded = true;
+    loaded = true;
 
     DrawableDictionary* drawableDictionary = (DrawableDictionary*)file.read(sizeof(DrawableDictionary));
 
@@ -27,7 +27,7 @@ void YddLoader::Init(GameRenderer* renderer, memstream& file)
         file.seekg(data_pointer[0]);
 
         YdrLoader* ydr = GlobalPool::GetInstance()->ydrPool.create();
-        ydr->Init(renderer, file);
+        ydr->init(renderer, file);
         gpuMemory += ydr->gpuMemory;
         ydrFiles.insert({YdrHashes[i], ydr});
 

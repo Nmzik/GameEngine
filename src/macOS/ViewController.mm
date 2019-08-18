@@ -54,14 +54,18 @@
 }
 
 - (void)drawInMTKView:(nonnull MTKView *)view {
-    NSPoint event_location = [NSEvent mouseLocation];
-    //NSLog(@"%f %d", event_location.x, event_location.y);
     game->frame();
-    game->getInput()->setMouseMovement(event_location.x, event_location.y);
 }
 
 - (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size {
     NSLog(@"HERE");
+}
+
+- (void)mouseMoved:(NSEvent *)event
+{
+    NSPoint locationInView = [_view convertPoint:[event locationInWindow] fromView:_view];
+    game->getInput()->setMouseMovement(locationInView.x / 2, locationInView.y / 2);
+    //NSLog(@"%f %f", test.x, test.y);
 }
 
 - (void)keyDown:(NSEvent *)event

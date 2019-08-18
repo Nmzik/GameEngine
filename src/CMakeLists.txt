@@ -27,31 +27,41 @@ if(WIN32)
 	#)
 
 	#list (APPEND SOURCES ${OpenGL})
+endif()
+
+if(CMAKE_SYSTEM_NAME STREQUAL iOS)
+	set (METAL 1)
+
+	list (APPEND SOURCES
+		ios/AppDelegate.h
+		ios/AppDelegate.m
+		ios/main.m
+		ios/ViewController.h
+		ios/ViewController.mm
+		ios/LaunchScreen.storyboard
+	)
 elseif(APPLE)
 	set (METAL 1)
 
-	if(METAL)
-		add_compile_definitions(GLM_FORCE_LEFT_HANDED)
-
-		file(GLOB METAL_SOURCES
-		metal/*.h
-		metal/*.mm
-		metal/*.cpp
-		)
-
-		list (APPEND SOURCES ${METAL_SOURCES})
-	endif()
-
-	list (APPEND MAC_SOURCES
+	list (APPEND SOURCES
 		macOS/AppDelegate.h
 		macOS/AppDelegate.m
 		macOS/main.m
-		macOS/Shaders.metal
 		macOS/ViewController.h
 		macOS/ViewController.mm
 	)
+endif()
 
-	list (APPEND SOURCES ${MAC_SOURCES})
+if(METAL)
+	add_compile_definitions(GLM_FORCE_LEFT_HANDED)
+
+	file(GLOB METAL_SOURCES
+		metal/*.h
+		metal/*.mm
+		metal/*.cpp
+		metal/*.metal
+	)
+	list (APPEND SOURCES ${METAL_SOURCES})
 endif()
 
 if(APPLE)

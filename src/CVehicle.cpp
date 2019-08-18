@@ -4,10 +4,10 @@
 #define CUBE_HALF_EXTENTS 1
 
 CVehicle::CVehicle(glm::vec3 position, glm::quat rot, float mass, YftLoader* yft, btDynamicsWorld* physicsWorld)
-    : throttle(0)
-    , steeringValue(0)
+    : CEntity(position, rot, glm::vec3(1.0f), ObjectType::Vehicle)
     , vehicle(yft)
-    , CEntity(position, rot, glm::vec3(1.0f), ObjectType::Vehicle)
+    , throttle(0)
+    , steeringValue(0)
 {
     btRaycastVehicle::btVehicleTuning m_tuning;
 

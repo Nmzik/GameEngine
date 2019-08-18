@@ -1,8 +1,8 @@
 #include "YtdLoader.h"
 
-void YtdLoader::Init(memstream& file)
+void YtdLoader::init(memstream& file)
 {
-    Loaded = true;
+    loaded = true;
 
     TextureDictionary* texDictionary = (TextureDictionary*)file.read(sizeof(TextureDictionary));
     texDictionary->Resolve(file);

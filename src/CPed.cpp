@@ -7,9 +7,9 @@
 #include "YdrLoader.h"
 
 CPed::CPed(glm::vec3 position, YddLoader* ydd)
-    : vehicle(nullptr)
-    , player(ydd)
-    , CEntity(position, glm::quat(0.0f, 0.0f, 0.0f, -1.0f), glm::vec3(1.0f), ObjectType::Ped)
+    : CEntity(position, glm::quat(0.0f, 0.0f, 0.0f, -1.0f), glm::vec3(1.0f), ObjectType::Ped)
+,player(ydd)
+,vehicle(nullptr)
 {
     health = 200;
     playerModel.push_back(ydd->ydrFiles[121241095]);

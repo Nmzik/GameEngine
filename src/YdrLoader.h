@@ -357,6 +357,7 @@ struct FragDrawable : rmcDrawable
 class YdrLoader : public FileType
 {
     YtdLoader* ytd;
+    GameRenderer* renderer = nullptr;
 
 public:
     std::vector<Material> materials;
@@ -371,5 +372,5 @@ public:
     }
     ~YdrLoader();
 
-    void Init(GameRenderer* renderer, memstream& file) override;
+    void init(GameRenderer* _renderer, memstream& file) override;
 };

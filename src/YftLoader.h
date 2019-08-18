@@ -193,8 +193,8 @@ public:
     YbnLoader* ybn;
     std::vector<YdrLoader*> fragPhysicsLODs;
 
-    void Init(GameRenderer* renderer, memstream& file) override;
-    
+    void init(GameRenderer* renderer, memstream& file) override;
+
     YftLoader()
         : ydr(nullptr)
         , ybn(nullptr)

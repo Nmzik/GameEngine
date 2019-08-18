@@ -13,17 +13,17 @@ class CVehicle;
 
 class GameRenderer
 {
-    
     int numDrawCalls;
+
 public:
     GameRenderer(/*NativeWindow* window*/);
-    ~GameRenderer();
+    virtual ~GameRenderer();
 
     bool renderDebugWorld;
 
     virtual VertexBufferHandle createVertexBuffer(uint32_t size, const uint8_t* pointer) = 0;
     virtual IndexBufferHandle createIndexBuffer(uint32_t size, const uint8_t* pointer) = 0;
-    
+
     virtual void removeVertexBuffer(VertexBufferHandle handle) = 0;
     virtual void removeIndexbuffer(IndexBufferHandle handle) = 0;
     /*void beginFrame();
@@ -41,8 +41,6 @@ public:
     {
         return numDrawCalls;
     }
-    
-    
 
     //
 };

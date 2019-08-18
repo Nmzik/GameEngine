@@ -16,7 +16,7 @@ uint64_t getNativeHash(uint16_t index, const uint64_t nativeTable, uint64_t code
 
 void YscLoader::Init(memstream& file)
 {
-    Loaded = true;
+    loaded = true;
 
     int32_t RSC7Offset = *(int32_t*)file.read(sizeof(int32_t)) == 0x37435352 ? 0x10 : 0x0;
 

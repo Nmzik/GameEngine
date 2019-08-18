@@ -33,19 +33,19 @@ void YbnLoader::addCylinderShape(btCompoundShape* compound, btVector3 pos, btVec
     compound->addChildShape(localTrans, new btCylinderShapeZ(halfExtents));
 }
 
-void YbnLoader::Init(memstream& file)
+void YbnLoader::init(memstream& file)
 {
-    Loaded = true;
+    loaded = true;
     btCompoundShape* compound = new btCompoundShape();
 
-    ParseYbn(file, compound);
+    parseYbn(file, compound);
 
     btDefaultMotionState* MotionState = new btDefaultMotionState(btTransform(btQuaternion(0.f, 0.f, 0.f, -1.f), btVector3(0, 0, 0)));
     btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(0, MotionState, compound, btVector3(0, 0, 0));
     rigidBody = std::make_unique<btRigidBody>(groundRigidBodyCI);
 }
 
-void YbnLoader::ParseYbn(memstream& file, btCompoundShape* compound)
+void YbnLoader::parseYbn(memstream& file, btCompoundShape* compound)
 {
     Bounds* bounds = (Bounds*)file.read(sizeof(Bounds));
 
@@ -210,7 +210,7 @@ void YbnLoader::ParseYbn(memstream& file, btCompoundShape* compound)
                 SYSTEM_BASE_PTR(DataPointer);
                 file.seekg(DataPointer);
 
-                ParseYbn(file, compound);
+                parseYbn(file, compound);
 
                 file.seekg(BoundsPointer);
             }
