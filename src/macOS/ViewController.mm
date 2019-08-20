@@ -51,7 +51,7 @@
     
     _view.device = device;
     _view.colorPixelFormat = MTLPixelFormatBGRA8Unorm;
-    _view.depthStencilPixelFormat = MTLPixelFormatDepth32Float_Stencil8;
+    _view.depthStencilPixelFormat = MTLPixelFormatDepth32Float;
     _view.framebufferOnly = true;
     //_view.delegate = self;
     

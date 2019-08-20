@@ -34,7 +34,7 @@ void YmapLoader::init(memstream& file)
                     std::memcpy(&def, &file.data[Block.MetaDataBlock_struct->DataPointer + i * sizeof(fwEntityDef)], sizeof(fwEntityDef));
 
                     //	FIX OPENGL
-                    //def.rotation.w = -def.rotation.w;
+                    def.rotation.w = -def.rotation.w;
 
                     //	if (def.lodLevel == Unk_1264241711::LODTYPES_DEPTH_ORPHANHD) def.lodDist *= 1.5f;
 

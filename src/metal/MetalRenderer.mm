@@ -61,6 +61,7 @@ id <MTLBuffer> scene_buffer;
 id <MTLBuffer> cubeTestBuffer;
 id <MTLRenderCommandEncoder> commandEncoder;
 id <MTLDepthStencilState> depthStencilState;
+id <MTLTexture> depthTexture;
 
 //id <MTLHeap> heap;
 
@@ -144,12 +145,10 @@ void MetalRenderer::initializeEngine()
     //
     mainPassDescriptor = [MTLRenderPassDescriptor new];
     mainPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
-    mainPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0, 104/255, 55/255, 1.0);
+    mainPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0, 0, 0, 1);
     mainPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
     mainPassDescriptor.depthAttachment.loadAction = MTLLoadActionClear;
     mainPassDescriptor.depthAttachment.clearDepth = 1.0f;
-    //mainPassDescriptor.depthAttachment.loadAction = MTLLoadActionClear;
-    //mainPassDescriptor.depthAttachment.clearDepth = 1.0f;
     
     scene_buffer = [device newBufferWithLength:sizeof(uniform_buffer_struct) options:MTLResourceStorageModeShared];
     
@@ -177,6 +176,12 @@ void MetalRenderer::initializeEngine()
     depthDescriptor.depthCompareFunction = MTLCompareFunctionLess;
     depthDescriptor.depthWriteEnabled = true;
     depthStencilState = [device newDepthStencilStateWithDescriptor:depthDescriptor];
+    
+    MTLTextureDescriptor *desc = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatDepth32Float width:mtkView.frame.size.width * mtkView.contentScaleFactor height:mtkView.frame.size.height * mtkView.contentScaleFactor mipmapped:NO];
+    desc.storageMode = MTLStorageModePrivate;
+    desc.usage = MTLTextureUsageRenderTarget;
+    
+    depthTexture = [device newTextureWithDescriptor:desc];
 }
 
 void MetalRenderer::createRenderPipelines()
@@ -208,7 +213,7 @@ void MetalRenderer::createRenderPipelines()
         vertexDescriptor.layouts[0].stride = 36;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
-        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatInvalid;
+        renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
         DefaultPipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -232,9 +237,9 @@ void MetalRenderer::createRenderPipelines()
         vertexDescriptor.layouts[0].stride = 52;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
-        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
-        NSError* error;
-        DefaultExPipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:&error];
+        renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
+        //NSError* error;
+        DefaultExPipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
         //NSLog([error localizedDescription]);
     }
     
@@ -257,7 +262,7 @@ void MetalRenderer::createRenderPipelines()
         vertexDescriptor.layouts[0].stride = 40;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
-        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
+        renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
         PNCCTPipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -281,7 +286,7 @@ void MetalRenderer::createRenderPipelines()
         vertexDescriptor.layouts[0].stride = 64;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
-        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
+        renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
         PNCCTTTTPipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -305,7 +310,7 @@ void MetalRenderer::createRenderPipelines()
         vertexDescriptor.layouts[0].stride = 72;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
-        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
+        renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
         PCCNCCTTXPipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -329,7 +334,7 @@ void MetalRenderer::createRenderPipelines()
         vertexDescriptor.layouts[0].stride = 68;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
-        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
+        renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
         PNCTTTXPipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -353,7 +358,7 @@ void MetalRenderer::createRenderPipelines()
         vertexDescriptor.layouts[0].stride = 60;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
-        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
+        renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
         PNCTTXPipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -377,7 +382,7 @@ void MetalRenderer::createRenderPipelines()
         vertexDescriptor.layouts[0].stride = 68;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
-        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
+        renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
         PNCTTTX_2PipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -401,7 +406,7 @@ void MetalRenderer::createRenderPipelines()
         vertexDescriptor.layouts[0].stride = 68;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
-        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
+        renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
         PNCTTTX_3PipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -425,7 +430,7 @@ void MetalRenderer::createRenderPipelines()
         vertexDescriptor.layouts[0].stride = 64;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
-        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
+        renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
         PNCCTTXPipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -449,7 +454,7 @@ void MetalRenderer::createRenderPipelines()
         vertexDescriptor.layouts[0].stride = 64;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
-        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
+        renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
         PNCCTTX_2PipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -473,7 +478,7 @@ void MetalRenderer::createRenderPipelines()
         vertexDescriptor.layouts[0].stride = 72;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
-        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
+        renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
         PNCCTTTXPipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -497,7 +502,7 @@ void MetalRenderer::createRenderPipelines()
         vertexDescriptor.layouts[0].stride = 64;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
-        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
+        renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
         PCCNCCTXPipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -521,7 +526,7 @@ void MetalRenderer::createRenderPipelines()
         vertexDescriptor.layouts[0].stride = 60;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
-        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
+        renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
         PCCNCTXPipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -545,7 +550,7 @@ void MetalRenderer::createRenderPipelines()
         vertexDescriptor.layouts[0].stride = 44;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
-        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
+        renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
         PCCNCTPipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -569,7 +574,7 @@ void MetalRenderer::createRenderPipelines()
         vertexDescriptor.layouts[0].stride = 48;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
-        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
+        renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
         PNCCTTPipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -593,7 +598,7 @@ void MetalRenderer::createRenderPipelines()
         vertexDescriptor.layouts[0].stride = 56;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
-        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
+        renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
         PNCCTXPipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -617,7 +622,7 @@ void MetalRenderer::createRenderPipelines()
         vertexDescriptor.layouts[0].stride = 24;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
-        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
+        renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
         PCTPipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -641,7 +646,7 @@ void MetalRenderer::createRenderPipelines()
         vertexDescriptor.layouts[0].stride = 20;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
-        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
+        renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
         PTPipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -665,7 +670,7 @@ void MetalRenderer::createRenderPipelines()
         vertexDescriptor.layouts[0].stride = 28;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
-        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
+        renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
         PTTPipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -689,7 +694,7 @@ void MetalRenderer::createRenderPipelines()
         vertexDescriptor.layouts[0].stride = 28;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
-        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
+        renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
         PNCPipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -713,7 +718,7 @@ void MetalRenderer::createRenderPipelines()
         vertexDescriptor.layouts[0].stride = 16;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
-        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
+        renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
         PCPipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -737,7 +742,7 @@ void MetalRenderer::createRenderPipelines()
         vertexDescriptor.layouts[0].stride = 20;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
-        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
+        renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
         PCCPipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -761,7 +766,7 @@ void MetalRenderer::createRenderPipelines()
         vertexDescriptor.layouts[0].stride = 32;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
-        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
+        renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
         PCCH2H4PipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -785,7 +790,7 @@ void MetalRenderer::createRenderPipelines()
         vertexDescriptor.layouts[0].stride = 32;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
-        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
+        renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
         PNCH2PipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -809,7 +814,7 @@ void MetalRenderer::createRenderPipelines()
         vertexDescriptor.layouts[0].stride = 76;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
-        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
+        renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
         PNCTTTTXPipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -1193,7 +1198,7 @@ void MetalRenderer::renderDrawable(YdrLoader* drawable)
                     continue;
             }
             //
-            //[commandEncoder setDepthStencilState:depthStencilState];
+            [commandEncoder setDepthStencilState:depthStencilState];
             [commandEncoder setCullMode:MTLCullModeBack];
             //if (geometry.type != VertexType::Default)
             // continue;
@@ -1258,6 +1263,7 @@ void MetalRenderer::renderWorld(GameWorld* world, Camera* curCamera)
     id <CAMetalDrawable> drawable = [mtkView currentDrawable];
     
     mainPassDescriptor.colorAttachments[0].texture = drawable.texture;
+    mainPassDescriptor.depthAttachment.texture = depthTexture;
     
     id <MTLCommandBuffer> commandBuffer = [commandQueue commandBuffer];
     commandEncoder = [commandBuffer renderCommandEncoderWithDescriptor:mainPassDescriptor];

@@ -102,12 +102,13 @@
         double deltaX = location.x - _startTouch.x;
         double deltaY = location.y - _startTouch.y;
         
-        if (deltaX > 10 && deltaY > 10)
+        if (deltaX > 8 && deltaY > 8)
         {
             game->getInput()->processButton(0, false);
             game->getInput()->processButton(2, false);
             game->getInput()->processButton(13, false);
             game->getInput()->processButton(1, false);
+            break;
         }
         
         game->getInput()->setMouseMovement(deltaX, deltaY);

@@ -37,10 +37,10 @@ vertex VertexOut basic_vertex(const VertexIn vertex_array   [[stage_in]],
     return vertexOut;
 }
 
-fragment float4 basic_fragment(VertexOut out [[stage_in]],
+fragment half4 basic_fragment(VertexOut out [[stage_in]],
                               texture2d<float> tex2d [[texture(0)]],
                               sampler sampler2d [[sampler(0)]]) {
-    float4 texSample = tex2d.sample(sampler2d, out.texCoord);
+    half4 texSample = half4(tex2d.sample(sampler2d, out.texCoord));
     //texSample.a = 1.0;
         //discard_fragment();
     //return texSample;
