@@ -2,9 +2,9 @@
 #include <memory>
 #include "FreeListAllocator.h"
 #ifdef WIN32
-#include "windows/PhysicsDebugDrawer.h"
+#include "windows/DebugDrawer.h"
 #else
-#include "metal/PhysicsDebugDrawer.h"
+#include "metal/DebugDrawer.h"
 #endif
 #include <btBulletDynamicsCommon.h>
 #include <LinearMath/btAlignedAllocator.h>
@@ -25,7 +25,7 @@ public:
     PhysicsSystem();
     ~PhysicsSystem();
 
-    PhysicsDebugDrawer debug;
+    DebugDrawer debug;
     void update(float delta_time);
 
     struct RayResult

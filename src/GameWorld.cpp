@@ -15,10 +15,9 @@
 #include "YtdLoader.h"
 #include "YtypLoader.h"
 
-GameWorld::GameWorld(GameData* _gameData, GameRenderer& _renderer)
-    : data(*_gameData)
-    , renderer(_renderer)
-    , resourceManager(std::make_unique<ResourceManager>(this))
+GameWorld::GameWorld(ResourceManager* resManager, GameRenderer* _renderer)
+    : resourceManager(resManager)
+    , renderer(*_renderer)
     , curNode(nullptr)
     , dirLight(glm::vec3(0.1f, 0.8f, 0.1f), glm::vec3(0.2f, 0.2f, 0.2f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1.0f, 1.0f, 1.0f), true)
 {
@@ -51,23 +50,24 @@ GameWorld::GameWorld(GameData* _gameData, GameRenderer& _renderer)
         WaterMeshes.push_back(water);
     }*/
 
-    for (auto& ynd : data.entries[ynd])
+    /*for (auto& ynd : data.entries[ynd])
     {
-    }
+    }*/
 
     gameHour = 10;
     gameMinute = 0;
 
+    resourceManager->getYdr(4145603484);
     resourceManager->getYtd(3403519606);  //water
     resourceManager->getYtd(4096714883);  //PLAYER YTD
 
     YddLoader* playerYDD = resourceManager->getYdd(4096714883);
     skydome = resourceManager->getYdd(2640562617);
 
-    while (!skydome->loaded || !playerYDD->loaded)
+    /*while (!skydome->loaded || !playerYDD->loaded)
     {
         loadQueuedResources();
-    }
+    }*/
 
     resourceManager->getYtd(GenHash("mapdetail"));
     resourceManager->getYtd(GenHash("vehshare"));
@@ -384,7 +384,7 @@ void GameWorld::getVisibleYmaps(glm::vec3& PlayerPos)
     if (curNodeCell != NodeCell)
     {
         curNodeCell = NodeCell;
-        curNode = data.nodes[curNodeCell.x * 32 + curNodeCell.y].get();
+        curNode = resourceManager->getGameData()->nodes[curNodeCell.x * 32 + curNodeCell.y].get();
         //auto& cell = nodeGrid.GetCell(NodeCell);
     }
 
@@ -408,7 +408,7 @@ void GameWorld::getVisibleYmaps(glm::vec3& PlayerPos)
         //	Clear previous Ybns
 
         //SpaceGridCell& cell = spaceGrid.GetCell(cellID);
-
+        GameData& data = *resourceManager->getGameData();
         //	Bounds
         for (int i = 0; i < data.cacheFile->allBoundsStoreItems.size(); i++)
         {
@@ -459,87 +459,6 @@ void GameWorld::getVisibleYmaps(glm::vec3& PlayerPos)
 	  ++it;
 	 }
 	}*/
-
-    resourceManager->updateResourceCache();
-
-    loadQueuedResources();
-}
-
-void GameWorld::loadQueuedResources()
-{
-    //	If we still didn't finish loading our queue, do not swap! Swap only if we dont have any job.
-    if (resourcesThread.size() == 0)
-    {
-        resources_lock.lock();
-        if (resources.size() > 0)
-            resourcesThread.swap(resources);
-        resources_lock.unlock();
-    }
-
-    //	HASH 38759883
-
-    auto old_time = std::chrono::steady_clock::now();
-
-    long long diffms = 0;
-
-    while (resourcesThread.size() > 0 && diffms < 2)  //	2ms
-    {
-        Resource* res = resourcesThread.front();
-        resourcesThread.pop();
-
-        //	Object hash equal to texture hash what should we do? there are +hi textures with the same name
-
-        if (res->bufferSize == 0)
-        {
-            res->file->loaded = true;
-        }
-        else
-        {
-            memstream stream(&res->buffer[0], res->bufferSize);
-            stream.systemSize = res->systemSize;
-            switch (res->type)
-            {
-                case ymap:
-                {
-                    res->file->loaded = true;
-                    break;
-                }
-                case ydr:
-                case ydd:
-                case yft:
-                {
-                    res->file->init(&renderer, stream);
-                    resourceManager->GlobalGpuMemory += res->file->gpuMemory;
-                    break;
-                }
-                case ytd:
-                {
-                    res->file->init(stream);
-                    resourceManager->TextureMemory += res->file->gpuMemory;
-                    break;
-                }
-                case ybn:
-                {
-                    YbnLoader* ybn = static_cast<YbnLoader*>(res->file);
-                    ybn->init(stream);
-                    getPhysicsSystem()->addRigidBody(ybn->getRigidBody());  //	NOT THREAD SAFE!
-                    break;
-                }
-                case ysc:
-                {
-                    res->file->init(stream);
-                    break;
-                }
-            }
-
-            resourceManager->resource_allocator->deallocate(res->buffer);
-        }
-
-        GlobalPool::GetInstance()->resourcesPool.remove(res);
-
-        auto new_time = std::chrono::steady_clock::now();
-        diffms = std::chrono::duration_cast<std::chrono::microseconds>(new_time - old_time).count();
-    }
 }
 
 void GameWorld::createPedestrian()
@@ -550,6 +469,7 @@ void GameWorld::createPedestrian()
 
 void GameWorld::createVehicle(glm::vec3 position, glm::quat rotation)
 {
+    GameData& data = *resourceManager->getGameData();
     int vehicleID = rand() % data.vehiclesInfo.size();
 
     if (YftLoader* vehicle = resourceManager->getYft(data.vehiclesInfo[vehicleID].Hash); vehicle->loaded)
@@ -814,7 +734,7 @@ bool GameWorld::detectInWater(glm::vec3 Position)
                                (WATER_WORLD_SIZE / WATER_HQ_DATA_SIZE));
 
     int i = (wX * WATER_HQ_DATA_SIZE) + wY;
-    if (data.waterPosition[i])
+    if (resourceManager->getGameData()->waterPosition[i])
     {
         printf("IN WATER\n");
     }

@@ -13,7 +13,7 @@ YtypLoader::YtypLoader(memstream& file)
             {
                 CMapTypes _CMapTypes;
                 std::memcpy(&_CMapTypes, &file.data[Block.MetaDataBlock_struct->DataPointer], sizeof(CMapTypes));
-                ArchetypeDefs.reserve(_CMapTypes.archetypes.Count1);
+                archetypeDefs.reserve(_CMapTypes.archetypes.Count1);
                 break;
             }
             case 2195127427:
@@ -25,7 +25,7 @@ YtypLoader::YtypLoader(memstream& file)
 
                     fwArchetype* arch = new fwArchetype();
                     arch->BaseArchetypeDef = def;
-                    ArchetypeDefs.push_back(arch);
+                    archetypeDefs.push_back(arch);
                 }
 
                 break;
@@ -40,7 +40,7 @@ YtypLoader::YtypLoader(memstream& file)
                     TimeArchetype* arch = new TimeArchetype();
                     arch->BaseArchetypeDef = def._BaseArchetypeDef;
                     arch->TimeArchetypeDef = def._TimeArchetypeDef;
-                    ArchetypeDefs.push_back(arch);
+                    archetypeDefs.push_back(arch);
                 }
 
                 break;
@@ -55,7 +55,7 @@ YtypLoader::YtypLoader(memstream& file)
                     MloArchetype* arch = new MloArchetype();
                     arch->BaseArchetypeDef = def._BaseArchetypeDef;
                     arch->MloArchetypeDef = def._MloArchetypeDefData;
-                    ArchetypeDefs.push_back(arch);
+                    archetypeDefs.push_back(arch);
                 }
 
                 break;

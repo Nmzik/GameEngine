@@ -56,6 +56,10 @@ struct grmGeometry;
 
 struct Material
 {
+    uint32_t DiffuseSampler;
+    uint32_t BumpSampler;
+    uint32_t SpecularSampler;
+    uint32_t DetailSampler;
     //Material(uint32_t DiffuseHash, uint32_t BumpHash, uint32_t SpecularHash, uint32_t DetailHash) {
     /*diffuseTextureID = TextureManager::GetTextureManager().GetTexture(DiffuseHash);
      if (BumpHash != 0)
@@ -70,7 +74,7 @@ struct Material
     //}
     //~Material();
 
-    bool useBump = false;
+    //bool useBump = false;
 };
 
 class Geometry

@@ -3,11 +3,11 @@
 #include "LinearMath/btIDebugDraw.h"
 #include "glm/glm.hpp"
 
-class PhysicsDebugDrawer : public btIDebugDraw
+class DebugDrawer : public btIDebugDraw
 {
 public:
-    PhysicsDebugDrawer();
-    ~PhysicsDebugDrawer();
+    DebugDrawer();
+    ~DebugDrawer();
 
     void drawLine(const btVector3& from, const btVector3& to, const btVector3& color) override;
     void drawContactPoint(const btVector3& pointOnB, const btVector3& normalOnB, btScalar distance, int lifeTime, const btVector3& color) override;

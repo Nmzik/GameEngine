@@ -1,7 +1,8 @@
 #include "YtdLoader.h"
 
-void YtdLoader::init(memstream& file)
+void YtdLoader::init(GameRenderer* _renderer, memstream& file)
 {
+    renderer = _renderer;
     loaded = true;
 
     TextureDictionary* texDictionary = (TextureDictionary*)file.read(sizeof(TextureDictionary));
@@ -26,7 +27,18 @@ void YtdLoader::init(memstream& file)
                 length /= 4;
             }
 
-            //Textures.emplace(std::piecewise_construct, std::forward_as_tuple(TexturesHashes[i]), std::forward_as_tuple(texture, file, TexturesHashes[i]));
+            TextureHandle handle = renderer->createTexture(&file.data[texture->DataPointer], texture->Width, texture->Height, texture->Levels, texture->Format);
+            Texture tex(handle);
+
+            textures.insert({TexturesHashes[i], tex});
         }
+    }
+}
+
+YtdLoader::~YtdLoader()
+{
+    for (auto& tex : textures)
+    {
+        renderer->removeTexture(tex.second.getHandle());
     }
 }

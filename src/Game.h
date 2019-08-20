@@ -15,6 +15,7 @@ class GameData;
 class GameWorld;
 class GameRenderer;
 class NativeWindow;
+class ResourceManager;
 
 /*extern "C" {
 #include "libavcodec/avcodec.h"
@@ -26,9 +27,11 @@ class NativeWindow;
 class Game
 {
     std::unique_ptr<GameData> gameData;
+    std::unique_ptr<ResourceManager> resourceManager;
     std::unique_ptr<GameWorld> gameWorld;
     //std::unique_ptr<NativeWindow> window;
     std::unique_ptr<GameRenderer> rendering_system;
+    //std::unique_ptr<btIDebugDraw> debugRenderer;
     std::unique_ptr<ScriptInterpreter> scriptMachine;
     std::unique_ptr<InputManager> input;
     std::unique_ptr<Camera> camera;
@@ -44,6 +47,7 @@ public:
     void updateFPS(float delta_time, float cpuThreadTime, float gpuThreadTime);
     void run();
     void frame();
+    void loadQueuedResources();
     void tick(float delta_time);
 
     void changeLocation();
@@ -66,5 +70,10 @@ public:
     GameData* getGameData() const
     {
         return gameData.get();
+    }
+
+    ResourceManager* getResourceManager() const
+    {
+        return resourceManager.get();
     }
 };

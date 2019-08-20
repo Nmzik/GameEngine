@@ -23,9 +23,16 @@
 -(void)viewDidLoad {
     [super viewDidLoad];
     
+    [self initMetal];
     game = new Game("/Volumes/BOOTCAMP/Program\ Files/Rockstar\ Games/Grand\ Theft\ Auto\ V/");
     
-    [self initMetal];
+    MetalRenderer* renderer = static_cast<MetalRenderer*>(game->getRenderer());
+    renderer->device = device;
+    renderer->mtkView = _view;
+    
+    renderer->initializeEngine();
+    
+    _view.delegate = self;
 }
 
 - (void)loadView {
@@ -34,23 +41,24 @@
 
 -(void)initMetal {
     
+    device = MTLCreateSystemDefaultDevice();
     _view = (MTKView *)self.view;
-    
-    MetalRenderer* renderer = static_cast<MetalRenderer*>(game->getRenderer());
-    _view.device = renderer->device;
-    renderer->mtkView = _view;
     
     if (!_view) {
         NSLog(@"Not supported");
         return;
     }
     
+    _view.device = device;
     _view.colorPixelFormat = MTLPixelFormatBGRA8Unorm;
+    _view.depthStencilPixelFormat = MTLPixelFormatDepth32Float_Stencil8;
     _view.framebufferOnly = true;
-    _view.delegate = self;
+    //_view.delegate = self;
     
     CGRect newFrame = CGRectMake( _view.frame.origin.x, _view.frame.origin.y, 1024, 576);
     _view.frame = newFrame;
+    
+    NSLog(@"METAL RENDERER IS READY!");
 }
 
 - (void)drawInMTKView:(nonnull MTKView *)view {

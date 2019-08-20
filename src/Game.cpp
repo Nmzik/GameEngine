@@ -7,6 +7,9 @@
 #include "GameData.h"
 
 #include "GameRenderer.h"
+#include "ResourceManager.h"
+
+#include "YbnLoader.h"
 
 #ifdef WIN32
 #include "windows/GameRenderer.h"
@@ -29,12 +32,13 @@ Game::Game(const char* GamePath)
 {
     gameData = std::make_unique<GameData>(GamePath);
     gameData->load();
+    resourceManager = std::make_unique<ResourceManager>(gameData.get());
 #ifdef WIN32
     window = std::make_unique<Win32Window>();
 #endif
     rendering_system = std::make_unique<MetalRenderer>();
     //rendering_system = std::make_unique<GameRenderer>(/*window.get()*/);
-    gameWorld = std::make_unique<GameWorld>(gameData.get(), *rendering_system.get());
+    gameWorld = std::make_unique<GameWorld>(resourceManager.get(), rendering_system.get());
     input = std::make_unique<InputManager>();
     scriptMachine = std::make_unique<ScriptInterpreter>(gameData.get(), this);
 
@@ -85,10 +89,134 @@ Game::Game(const char* GamePath)
      AVPacket packet;
      av_init_packet(&packet);
      */
+    current_time = std::chrono::steady_clock::now();
 }
 
 Game::~Game()
 {
+}
+
+void Game::run()
+{
+    bool running = true;
+
+    while (running)
+    {
+        frame();
+    }
+}
+
+void Game::frame()
+{
+    auto cpuThreadStart = std::chrono::steady_clock::now();
+
+    auto old_time = current_time;
+    current_time = std::chrono::steady_clock::now();
+    float delta_time = std::chrono::duration<float>(current_time - old_time).count();
+    gameTime += delta_time;
+
+    input->update();
+    //window->ProcessEvents();
+
+    /*if (input->isKeyPressed(Actions::button_ESCAPE))
+        break;*/
+    //running = false;
+
+    if (!paused)
+    {
+        scriptMachine->execute();
+        gameWorld->updateWorld(delta_time, camera.get());
+        tick(delta_time);
+        camera->onUpdate(gameWorld->getCurrentPlayer());
+    }
+
+    auto cpuThreadEnd = std::chrono::steady_clock::now();
+    float cpuThreadTime = std::chrono::duration<float>(cpuThreadEnd - cpuThreadStart).count();
+
+    auto gpuThreadStart = std::chrono::steady_clock::now();
+    rendering_system->renderWorld(gameWorld.get(), camera.get());
+    auto gpuThreadEnd = std::chrono::steady_clock::now();
+    float gpuThreadTime = std::chrono::duration<float>(gpuThreadEnd - gpuThreadStart).count();
+
+    resourceManager->updateResourceCache(gameWorld.get());
+    loadQueuedResources();
+
+    updateFPS(delta_time, cpuThreadTime, gpuThreadTime);
+}
+
+void Game::loadQueuedResources()
+{
+    //    If we still didn't finish loading our queue, do not swap! Swap only if we dont have any job.
+    if (resourceManager->tempMainThreadResources.empty())
+    {
+        std::lock_guard<std::mutex> swapLock(resourceManager->mainThreadLock);
+        if (resourceManager->mainThreadResources.size() > 0)
+            resourceManager->mainThreadResources.swap(resourceManager->tempMainThreadResources);
+    }
+
+    //    HASH 38759883
+    auto old_time = std::chrono::steady_clock::now();
+
+    long diffms = 0;
+
+    while (resourceManager->tempMainThreadResources.size() > 0 && diffms < 2)  //    2ms
+    {
+        Resource* res = resourceManager->tempMainThreadResources.front();
+        resourceManager->tempMainThreadResources.pop();
+
+        //    Object hash equal to texture hash what should we do? there are +hi textures with the same name
+
+        if (res->bufferSize == 0)
+        {
+            res->file->loaded = true;
+        }
+        else
+        {
+            memstream stream(&res->buffer[0], res->bufferSize);
+            stream.systemSize = res->systemSize;
+            switch (res->type)
+            {
+                case ymap:
+                {
+                    res->file->loaded = true;
+                    break;
+                }
+                case ydr:
+                case ydd:
+                case yft:
+                {
+                    res->file->init(getRenderer(), stream);
+                    resourceManager->GlobalGpuMemory += res->file->gpuMemory;
+                    break;
+                }
+                case ytd:
+                {
+                    res->file->init(stream);
+                    resourceManager->TextureMemory += res->file->gpuMemory;
+                    break;
+                }
+                case ybn:
+                {
+                    YbnLoader* ybn = static_cast<YbnLoader*>(res->file);
+                    ybn->init(stream);
+                    getWorld()->getPhysicsSystem()->addRigidBody(ybn->getRigidBody());  //    NOT THREAD SAFE!
+                    break;
+                }
+                case ysc:
+                {
+                    res->file->init(stream);
+                    break;
+                }
+            }
+
+            resourceManager->resource_allocator->deallocate(res->buffer);
+        }
+
+        GlobalPool::GetInstance()->resourcesPool.remove(res);
+
+        auto new_time = std::chrono::steady_clock::now();
+        diffms = std::chrono::duration_cast<std::chrono::microseconds>(new_time - old_time).count();
+    }
 }
 
 void Game::updateFPS(float delta_time, float cpuThreadTime, float gpuThreadTime)
@@ -113,76 +241,11 @@ void Game::updateFPS(float delta_time, float cpuThreadTime, float gpuThreadTime)
               << gameWorld->culledYmaps << " Culled ymaps, "
               << gameWorld->renderList.size() << " Objects, "
               << rendering_system->getNumDrawCalls() << " Draw Calls, "
-              << gameWorld->getResourceManager()->GlobalGpuMemory / 1024 / 1024 << " MB GPU Mem, "
-              << gameWorld->getResourceManager()->TextureMemory / 1024 / 1024 << " MB Texture Mem, "
+              << resourceManager->GlobalGpuMemory / 1024 / 1024 << " MB GPU Mem, "
+              << resourceManager->TextureMemory / 1024 / 1024 << " MB Texture Mem, "
               << (physicsAllocator->getSize() - physicsAllocator->getUsedMemory()) / 1024 / 1024 << " MB Bullet Free Mem ";
         //window->setTitle(osstr.str());
     }
-}
-
-void Game::run()
-{
-    bool running = true;
-    auto current_time = std::chrono::steady_clock::now();
-
-    while (running)
-    {
-        auto cpuThreadStart = std::chrono::steady_clock::now();
-        input->update();
-        //window->ProcessEvents();
-
-        if (input->isKeyPressed(Actions::button_ESCAPE))
-            break;
-        //running = false;
-
-        auto old_time = current_time;
-        current_time = std::chrono::steady_clock::now();
-        float delta_time = std::chrono::duration<float>(current_time - old_time).count();
-        gameTime += delta_time;
-
-        if (!paused)
-        {
-            scriptMachine->execute();
-            gameWorld->updateWorld(delta_time, camera.get());
-            tick(delta_time);
-            camera->onUpdate(gameWorld->getCurrentPlayer());
-        }
-        auto cpuThreadEnd = std::chrono::steady_clock::now();
-        float cpuThreadTime = std::chrono::duration<float>(cpuThreadEnd - cpuThreadStart).count();
-
-        auto gpuThreadStart = std::chrono::steady_clock::now();
-        rendering_system->renderWorld(gameWorld.get(), camera.get());
-        auto gpuThreadEnd = std::chrono::steady_clock::now();
-        float gpuThreadTime = std::chrono::duration<float>(gpuThreadEnd - gpuThreadStart).count();
-
-        updateFPS(delta_time, cpuThreadTime, gpuThreadTime);
-    }
-}
-
-void Game::frame()
-{
-    input->update();
-    //window->ProcessEvents();
-
-    /*if (input->isKeyPressed(Actions::button_ESCAPE))
-        break;*/
-    //running = false;
-
-    auto old_time = current_time;
-    current_time = std::chrono::steady_clock::now();
-    float delta_time = std::chrono::duration<float>(current_time - old_time).count();
-    gameTime += delta_time;
-
-    if (!paused)
-    {
-        scriptMachine->execute();
-        gameWorld->updateWorld(delta_time, camera.get());
-        tick(delta_time);
-        camera->onUpdate(gameWorld->getCurrentPlayer());
-    }
-    rendering_system->renderWorld(gameWorld.get(), camera.get());
-
-    updateFPS(delta_time, 0.0f, 0.0f);
 }
 
 void Game::tick(float delta_time)
@@ -409,10 +472,10 @@ void Game::tick(float delta_time)
 
 void Game::changeLocation()
 {
-    uint32_t random = rand() % getWorld()->getGameData()->scenes.size();
+    uint32_t random = rand() % resourceManager->getGameData()->scenes.size();
     CPed* ped = getWorld()->getCurrentPlayer();
 
-    ped->setPosition(getWorld()->getGameData()->scenes[random]);
+    ped->setPosition(resourceManager->getGameData()->scenes[random]);
     // ped->setGravity(getWorld()->getPhysicsSystem()->getGravity());
     /*for (int i = 0; i < 3; i++)
      {

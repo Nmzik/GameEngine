@@ -12,12 +12,13 @@ using namespace metal;
 struct VertexIn {
     float3 position [[attribute(0)]];
     float3 normal [[attribute(1)]];
-    char4 tx [[attribute(2)]];
-    float2 test [[attribute(3)]];
+    uint colour [[attribute(2)]];
+    float2 texCoord [[attribute(3)]];
 };
 
 struct VertexOut {
     float4 position [[position]];
+    float2 texCoord;
 };
 
 struct Uniforms {
@@ -31,10 +32,17 @@ vertex VertexOut basic_vertex(const VertexIn vertex_array   [[stage_in]],
     VertexOut vertexOut;
     
     vertexOut.position = uniforms.projViewMatrix * uniforms.modelMatrix * float4(vertex_array.position, 1);
+    vertexOut.texCoord = vertex_array.texCoord;
     
     return vertexOut;
 }
 
-fragment half4 basic_fragment(VertexOut interpolated [[stage_in]]) {
-    return half4(0.5, 0.5, 0.5, 0.5);
+fragment float4 basic_fragment(VertexOut out [[stage_in]],
+                              texture2d<float> tex2d [[texture(0)]],
+                              sampler sampler2d [[sampler(0)]]) {
+    float4 texSample = tex2d.sample(sampler2d, out.texCoord);
+    //texSample.a = 1.0;
+        //discard_fragment();
+    //return texSample;
+    return texSample;
 }

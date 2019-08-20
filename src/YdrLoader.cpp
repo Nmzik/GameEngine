@@ -51,7 +51,7 @@ void YdrLoader::init(GameRenderer* _renderer, memstream& file)
             SYSTEM_BASE_PTR(drawable->ShaderGroupPointer->TextureDictionaryPointer);
             file.seekg(drawable->ShaderGroupPointer->TextureDictionaryPointer);
             ytd = GlobalPool::GetInstance()->ytdPool.create();
-            ytd->init(file);
+            ytd->init(renderer, file);
         }
 
         materials.reserve(drawable->ShaderGroupPointer->Shaders.size());
@@ -152,8 +152,7 @@ void YdrLoader::init(GameRenderer* _renderer, memstream& file)
                 }
             }
 
-            //Material newMat{false, DiffuseSampler, BumpSampler, SpecularSampler, DetailSampler};
-            Material newMat{false};
+            Material newMat{DiffuseSampler, BumpSampler, SpecularSampler, DetailSampler};
             materials.push_back(newMat);
         }
     }
@@ -207,6 +206,8 @@ void YdrLoader::init(GameRenderer* _renderer, memstream& file)
             VertexBufferHandle vertexHandle = renderer->createVertexBuffer(vertexSize, vertexPointer);
 
             IndexBufferHandle indexHandle = renderer->createIndexBuffer(indicesSize, indicesPointer);
+
+            short test = drawable->DrawableModels[0]->Get(i)->ShaderMappingPointer[j];
 
             Geometry geometry(vertexHandle, indexHandle, geom->IndexBufferPointer->IndicesCount);
             geometry.type = (VertexType)geom->VertexBufferPointer->InfoPointer->Flags;

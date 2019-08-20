@@ -15,6 +15,7 @@
 @interface ViewController ()
 {
     MTKView* _view;
+    id <MTLDevice> device;
     Game* game;
     
     CGPoint _startTouch;
@@ -27,11 +28,6 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    NSString* mainPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
-    NSString* resultString = [mainPath stringByAppendingString:@"/"];
-    
-    game = new Game([resultString UTF8String]);
-    
     CGRect ScreenSize = UIScreen.mainScreen.bounds;
     _view = [[MTKView alloc]initWithFrame:CGRectMake(0, 0, ScreenSize.size.width, ScreenSize.size.height)];
     
@@ -39,18 +35,21 @@
         NSLog(@"Not supported");
         return;
     }
-    
-    MetalRenderer* renderer = static_cast<MetalRenderer*>(game->getRenderer());
-    _view.device = renderer->device;
-    renderer->mtkView = _view;
-    
+    device = MTLCreateSystemDefaultDevice();
+    _view.device = device;
     _view.colorPixelFormat = MTLPixelFormatBGRA8Unorm;
     _view.framebufferOnly = true;
-    _view.delegate = self;
-    NSLog(@"HERE");
-    
     self.view = _view;
-    // Do any additional setup after loading the view.
+    
+    NSString* mainPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
+    NSString* resultString = [mainPath stringByAppendingString:@"/"];
+    
+    game = new Game([resultString UTF8String]);
+    MetalRenderer* renderer = static_cast<MetalRenderer*>(game->getRenderer());
+    renderer->device = device;
+    renderer->mtkView = _view;
+    renderer->initializeEngine();
+    _view.delegate = self;
 }
 
 - (void)drawInMTKView:(nonnull MTKView *)view {
@@ -65,7 +64,7 @@
     _isTouching = true;
     _startTouch = [touches.anyObject locationInView:self.view];
     
-    NSLog(@"%f %f", _startTouch.x, _startTouch.y);
+    //NSLog(@"%f %f", _startTouch.x, _startTouch.y);
     if (_startTouch.x < 250)
         game->getInput()->processButton(0, true);
     if (_startTouch.x > 650)
@@ -94,11 +93,6 @@
 -(void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
     if(_isTouching) {
         
-        game->getInput()->processButton(0, false);
-        game->getInput()->processButton(2, false);
-        game->getInput()->processButton(13, false);
-        game->getInput()->processButton(1, false);
-        
     for(UITouch* touch in touches)
     {
         CGPoint location = [touch locationInView:self.view];
@@ -107,6 +101,14 @@
         
         double deltaX = location.x - _startTouch.x;
         double deltaY = location.y - _startTouch.y;
+        
+        if (deltaX > 10 && deltaY > 10)
+        {
+            game->getInput()->processButton(0, false);
+            game->getInput()->processButton(2, false);
+            game->getInput()->processButton(13, false);
+            game->getInput()->processButton(1, false);
+        }
         
         game->getInput()->setMouseMovement(deltaX, deltaY);
     }

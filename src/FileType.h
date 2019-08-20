@@ -219,6 +219,11 @@ public:
         return (T*)pointer;
     }
 
+    T operator[](int i) const
+    {
+        return *((T*)&pointer[i]);
+    }
+
     pgPtr operator=(T* other)
     {
         pointer = other;
@@ -313,128 +318,128 @@ public:
 };
 
 /*template<typename TValue>
-class pgDictionary
-{
-private:
+ class pgDictionary
+ {
+ private:
  pgPtr<pgBase> m_parent;
  uint32_t m_usageCount;
  pgArray<uint32_t> m_hashes;
  pgObjectArray<TValue> m_values;
-
-public:
+ 
+ public:
  struct iterator : public std::iterator<std::forward_iterator_tag, std::pair<uint32_t, TValue*>>
  {
  private:
-  pgDictionary* m_base;
-  int m_index;
-
-  std::pair<uint32_t, TValue*> m_value;
-
+ pgDictionary* m_base;
+ int m_index;
+ 
+ std::pair<uint32_t, TValue*> m_value;
+ 
  private:
-  inline std::pair<uint32_t, TValue*> GetValue()
-  {
-   return std::make_pair(m_base->m_hashes.Get(m_index), m_base->m_values.Get(m_index));
-  }
-
+ inline std::pair<uint32_t, TValue*> GetValue()
+ {
+ return std::make_pair(m_base->m_hashes.Get(m_index), m_base->m_values.Get(m_index));
+ }
+ 
  public:
-  inline iterator(pgDictionary* base, int index)
-   : m_base(base), m_index(index)
-  {
-   m_value = GetValue();
-  }
-
-  inline std::pair<uint32_t, TValue*> operator*() const
-  {
-   return m_value;
-  }
-
-  inline const std::pair<uint32_t, TValue*>* operator->() const
-  {
-   return &m_value;
-  }
-
-  inline const iterator& operator++()
-  {
-   m_index++;
-   m_value = GetValue();
-
-   return *this;
-  }
-
-  inline friend bool operator!=(const iterator& left, const iterator& right)
-  {
-   return (left.m_base != right.m_base || left.m_index != right.m_index);
-  }
-
-  inline friend bool operator==(const iterator& left, const iterator& right)
-  {
-   return !(left != right);
-  }
+ inline iterator(pgDictionary* base, int index)
+ : m_base(base), m_index(index)
+ {
+ m_value = GetValue();
+ }
+ 
+ inline std::pair<uint32_t, TValue*> operator*() const
+ {
+ return m_value;
+ }
+ 
+ inline const std::pair<uint32_t, TValue*>* operator->() const
+ {
+ return &m_value;
+ }
+ 
+ inline const iterator& operator++()
+ {
+ m_index++;
+ m_value = GetValue();
+ 
+ return *this;
+ }
+ 
+ inline friend bool operator!=(const iterator& left, const iterator& right)
+ {
+ return (left.m_base != right.m_base || left.m_index != right.m_index);
+ }
+ 
+ inline friend bool operator==(const iterator& left, const iterator& right)
+ {
+ return !(left != right);
+ }
  };
-
-public:
+ 
+ public:
  pgDictionary()
  {
-  m_usageCount = 1;
+ m_usageCount = 1;
  }
-
+ 
  inline iterator begin()
  {
-  return iterator(this, 0);
+ return iterator(this, 0);
  }
-
+ 
  inline iterator end()
  {
-  return iterator(this, m_hashes.GetCount());
+ return iterator(this, m_hashes.GetCount());
  }
-
+ 
  inline void Add(uint32_t keyHash, TValue* value)
  {
-  m_hashes.Set(m_hashes.GetCount(), keyHash);
-  m_values.Set(m_values.GetCount(), value);
+ m_hashes.Set(m_hashes.GetCount(), keyHash);
+ m_values.Set(m_values.GetCount(), value);
  }
-
+ 
  inline void Add(const char* key, TValue* value)
  {
-  Add(HashString(key), value);
+ Add(HashString(key), value);
  }
-
+ 
  inline TValue* Get(uint32_t keyHash)
  {
-  for (int i = 0; i < m_hashes.GetCount(); i++)
-  {
-   if (m_hashes.Get(i) == keyHash)
-   {
+ for (int i = 0; i < m_hashes.GetCount(); i++)
+ {
+ if (m_hashes.Get(i) == keyHash)
+ {
  return m_values.Get(i);
-   }
-  }
-
-  return nullptr;
  }
-
+ }
+ 
+ return nullptr;
+ }
+ 
  inline TValue* Get(const char* key)
  {
-  return Get(HashString(key));
+ return Get(HashString(key));
  }
-
+ 
  inline TValue* GetAt(uint16_t index)
  {
-  return m_values.Get(index);
+ return m_values.Get(index);
  }
-
+ 
  inline uint16_t GetCount() const
  {
-  return m_hashes.GetCount();
+ return m_hashes.GetCount();
  }
-
+ 
  inline void Resolve(memstream& file)
  {
-  m_parent.Resolve(file);
-  m_hashes.Resolve(file);
-  m_values.Resolve(file);
+ m_parent.Resolve(file);
+ m_hashes.Resolve(file);
+ m_values.Resolve(file);
  }
-};
-*/
+ };
+ */
 
 #include "GameRenderer.h"
 

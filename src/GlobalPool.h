@@ -20,12 +20,6 @@ class BasicPool
         return place;
     }
 
-    //mark some memory as available (no longer used):
-    void deallocate(void* o)
-    {
-        free.push(static_cast<Type*>(o));
-    }
-
 public:
     BasicPool() {}
 

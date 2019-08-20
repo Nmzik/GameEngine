@@ -17,9 +17,9 @@
 // 50MB for BULLET PHYSICS
 // 50MB for ResourceLoader
 
-ResourceManager::ResourceManager(GameWorld* world)
+ResourceManager::ResourceManager(GameData* gameData)
     : running(true)
-    , gameworld{world}
+    , data{*gameData}
 {
     // printf("RESOURCE MANAGER loaded!\n");
 
@@ -34,7 +34,7 @@ ResourceManager::ResourceManager(GameWorld* world)
 
     resource_allocator = std::make_unique<ThreadSafeAllocator>(50 * 1024 * 1024);
 
-    resourcesThread = std::thread(&ResourceManager::update, this);
+    loadThread = std::thread(&ResourceManager::update, this);
 }
 
 ResourceManager::~ResourceManager()
@@ -42,7 +42,7 @@ ResourceManager::~ResourceManager()
     Resource* exitResource = GlobalPool::GetInstance()->resourcesPool.create(Type::null, 0, nullptr);
     addToWaitingList(exitResource);
 
-    resourcesThread.join();
+    loadThread.join();
 }
 
 void ResourceManager::getGtxd(uint32_t hash)
@@ -105,8 +105,8 @@ YtdLoader* ResourceManager::getYtd(uint32_t hash)
     }
     else
     {
-        /*auto iter = gameworld->getGameData()->GtxdEntries.find(hash);
-		if (iter != gameworld->getGameData()->GtxdEntries.end())
+        /*auto iter = data.GtxdEntries.find(hash);
+		if (iter != data.GtxdEntries.end())
 		{
 		 getYtd(iter->second);
 		}*/
@@ -114,8 +114,8 @@ YtdLoader* ResourceManager::getYtd(uint32_t hash)
         bool HDTextures = false;
         if (HDTextures)
         {
-            auto iter = gameworld->getGameData()->hdTextures.find(hash);
-            if (iter != gameworld->getGameData()->hdTextures.end())
+            auto iter = data.hdTextures.find(hash);
+            if (iter != data.hdTextures.end())
             {
                 auto it = ytdLoader.find(iter->second);
                 if (it != ytdLoader.end())
@@ -224,20 +224,20 @@ YscLoader* ResourceManager::getYsc(uint32_t hash)
 
 inline void ResourceManager::addToMainQueue(Resource* res)
 {
-    std::lock_guard<std::mutex> lock(gameworld->resources_lock);
-    gameworld->resources.push(res);
+    std::lock_guard<std::mutex> lock(mainThreadLock);
+    mainThreadResources.push(res);
 }
 
 void ResourceManager::addToWaitingList(Resource* res)
 {
-    std::lock_guard<std::mutex> lock(mylock);
+    std::lock_guard<std::mutex> lock(loadThreadLock);
     waitingList.push(res);
     loadCondition.notify_one();
 }
 
 inline Resource* ResourceManager::removeFromWaitingList()
 {
-    std::unique_lock<std::mutex> lock(mylock);
+    std::unique_lock<std::mutex> lock(loadThreadLock);
 
     loadCondition.wait(lock, [this] { return !waitingList.empty(); });
 
@@ -265,8 +265,8 @@ void ResourceManager::update()
             case ycd:
             case ysc:
             {
-                auto it = gameworld->getGameData()->entries[res->type].find(res->hash);
-                if (it != gameworld->getGameData()->entries[res->type].end())
+                auto it = data.entries[res->type].find(res->hash);
+                if (it != data.entries[res->type].end())
                 {
                     uint8_t* allocatedMemory = nullptr;
 
@@ -281,7 +281,7 @@ void ResourceManager::update()
 
                     res->buffer = allocatedMemory;
                     res->bufferSize = it->second->UncompressedFileSize;
-                    gameworld->getGameData()->extractFileResource(*(it->second), res->buffer, res->bufferSize);
+                    data.extractFileResource(*(it->second), res->buffer, res->bufferSize);
                     res->systemSize = (it->second->SystemSize);
 
                     if (res->type == ymap)
@@ -292,8 +292,8 @@ void ResourceManager::update()
 
                         for (auto& mlo : iter->CMloInstanceDefs)
                         {
-                            auto it = gameworld->getGameData()->mloDictionary.find(mlo.fwEntityDef.archetypeName);
-                            if (it != gameworld->getGameData()->mloDictionary.end())
+                            auto it = data.mloDictionary.find(mlo.fwEntityDef.archetypeName);
+                            if (it != data.mloDictionary.end())
                             {
                                 for (auto& entityDef : it->second)
                                 {
@@ -313,8 +313,8 @@ void ResourceManager::update()
 
                         for (auto& object : iter->entities)
                         {
-                            std::unordered_map<uint32_t, fwArchetype*>::iterator it = gameworld->getGameData()->archetypes.find(object.entityDef.archetypeName);
-                            if (it != gameworld->getGameData()->archetypes.end())
+                            std::unordered_map<uint32_t, fwArchetype*>::iterator it = data.archetypes.find(object.entityDef.archetypeName);
+                            if (it != data.archetypes.end())
                             {
                                 if (it->second->getType() == 2)
                                 {
@@ -366,7 +366,7 @@ void ResourceManager::removeAll()
     }
 }
 
-void ResourceManager::updateResourceCache()
+void ResourceManager::updateResourceCache(GameWorld* world)
 {
     //	printf("FREE SPACE %zd\n", _main_allocator->getSize() - _main_allocator->getUsedMemory());
     // REMOVE objects WHEN WE ARE IN ANOTHER CELL????  RUN GARBAGE COLLECTOR WHEN IN ANOTHER CEL
@@ -375,7 +375,7 @@ void ResourceManager::updateResourceCache()
         if ((it->second)->refCount == 0 && (it->second)->loaded)
         {
             if ((it->second)->getRigidBody())
-                gameworld->getPhysicsSystem()->removeRigidBody((it->second)->getRigidBody());
+                world->getPhysicsSystem()->removeRigidBody((it->second)->getRigidBody());
             GlobalPool::GetInstance()->ybnPool.remove(it->second);
             it = ybnLoader.erase(it);
         }

@@ -1382,7 +1382,7 @@ void ScriptInterpreter::executeThread(YscLoader& file)
 
 bool ScriptInterpreter::startThread(uint32_t ScriptHash)
 {
-    LoadedScripts.insert({ScriptHash, game->getWorld()->getResourceManager()->getYsc(ScriptHash)});
+    LoadedScripts.insert({ScriptHash, game->getResourceManager()->getYsc(ScriptHash)});
     return true;
 }
 

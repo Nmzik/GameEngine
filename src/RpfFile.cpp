@@ -21,7 +21,7 @@ RpfFile::RpfFile(std::ifstream* rpfFile, std::string& FullPath, std::string& Fil
 
     if (Version != 0x52504637)
     {
-        printf("SOMETHING WRONG");
+        printf("SOMETHING WRONG with RPF\n");
         return;
     }
 

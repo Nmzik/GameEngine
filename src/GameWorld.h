@@ -42,14 +42,12 @@ class GameWorld
 
     using RenderList = std::vector<RenderInstruction>;
 
-    GameData& data;
     SpaceGrid spaceGrid;
     NodeGrid nodeGrid;
     NavGrid navGrid;
+    ResourceManager* resourceManager;
     GameRenderer& renderer;
-
     PhysicsSystem physicsSystem;
-    std::unique_ptr<ResourceManager> resourceManager;
     //	SoundManager sound;
 
     float accumulatedTime = 0.0f;
@@ -73,11 +71,6 @@ public:
     //std::unordered_map<uint32_t, CarHandling> vehiclesPool;
     std::vector<CPed*> peds;
     std::vector<CVehicle*> vehicles;
-
-    std::mutex resources_lock;
-    std::queue<Resource*> resources;
-    std::queue<Resource*> resourcesThread;
-
     //	RenderList renderList;
     std::vector<CEntity*> renderList;
 
@@ -87,12 +80,11 @@ public:
     uint8_t gameMinute;
     uint8_t gameHour;
 
-    GameWorld(GameData* _gameData, GameRenderer& _renderer);
+    GameWorld(ResourceManager* resManager, GameRenderer* _renderer);
     ~GameWorld();
 
     void updateObjects(Camera* camera, glm::vec3& position);
     void getVisibleYmaps(glm::vec3& playerPos);
-    void loadQueuedResources();
 
     CPed* getCurrentPlayer()
     {
@@ -102,16 +94,6 @@ public:
     PhysicsSystem* getPhysicsSystem()
     {
         return &physicsSystem;
-    }
-
-    GameData* getGameData() const
-    {
-        return &data;
-    }
-
-    ResourceManager* getResourceManager() const
-    {
-        return resourceManager.get();
     }
 
     /*PhysicsDebugDrawer& getDebugDrawer()

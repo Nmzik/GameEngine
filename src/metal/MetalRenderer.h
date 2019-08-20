@@ -9,6 +9,8 @@
 
 #include <stdio.h>
 #include "../GameRenderer.h"
+#include "../YtdLoader.h"
+#include <mutex>
 
 #if defined(__OBJC__)
 #import <CoreVideo/CoreVideo.h>
@@ -27,12 +29,15 @@ typedef id MTLViewPtr;
 
 class MetalRenderer : public GameRenderer
 {
+    uint8_t* textureDecompressedMem;
 public:
     virtual VertexBufferHandle createVertexBuffer(uint32_t size, const uint8_t* pointer) override;
     virtual IndexBufferHandle createIndexBuffer(uint32_t size, const uint8_t* pointer) override;
+    virtual TextureHandle createTexture(const uint8_t* pointer, int width, int height, int levels, TextureFormat format) override;
 
     virtual void removeVertexBuffer(VertexBufferHandle handle) override;
     virtual void removeIndexbuffer(IndexBufferHandle handle) override;
+    virtual void removeTexture(TextureHandle handle) override;
 
     virtual void renderWorld(GameWorld* world, Camera* curCamera) override;
 
@@ -44,6 +49,10 @@ public:
     MTLDevicePtr device;
     MTLViewPtr mtkView;
 
+    std::mutex bufferLoad;
+    
     MetalRenderer();
     ~MetalRenderer();
+    
+    void initializeEngine();
 };

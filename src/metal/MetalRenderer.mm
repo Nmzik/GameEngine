@@ -11,117 +11,19 @@
 #include "../Camera.h"
 #include "../Model.h"
 #include "../YdrLoader.h"
+#include "TextureDecompressor.h"
 
 #include <simd/simd.h>
 #include "glm/glm.hpp"
 //id <MTLDevice> device;
 //MTKView* metalView;
 
-struct VertexAttributes
-{
-    int index;
-    MTLVertexFormat format;
-    int stride;
-    int offset;
-};
-
-const std::vector<VertexAttributes> DefaultAttrib = {
-    {0, MTLVertexFormatFloat3, 36, 0},
-};
-/*const std::vector<VertexAttributes> DefaultExAttrib = {
- {0, 3, GL_FLOAT, 52, nullptr},
- {1, 3, GL_FLOAT, 52, (GLvoid*)12},
- {2, 4, GL_UNSIGNED_BYTE, 52, (GLvoid*)24},
- {3, 2, GL_FLOAT, 52, (GLvoid*)28}};
- 
- const std::vector<VertexAttributes> PNCCTAttrib = {
- {0, 3, GL_FLOAT, 40, nullptr}, {1, 3, GL_FLOAT, 40, (GLvoid*)12}, {2, 4, GL_UNSIGNED_BYTE, 40, (GLvoid*)24}, {3, 2, GL_FLOAT, 40, (GLvoid*)32}};
- const std::vector<VertexAttributes> PNCCTTTTAttrib = {
- {0, 3, GL_FLOAT, 64, nullptr}, {1, 3, GL_FLOAT, 64, (GLvoid*)12}, {2, 4, GL_UNSIGNED_BYTE, 64, (GLvoid*)24}, {3, 2, GL_FLOAT, 64, (GLvoid*)32}};
- const std::vector<VertexAttributes> PCCNCCTTXAttrib = {
- {0, 3, GL_FLOAT, 72, nullptr}, {1, 3, GL_FLOAT, 72, (GLvoid*)20}, {2, 4, GL_UNSIGNED_BYTE, 72, (GLvoid*)12}, {3, 2, GL_FLOAT, 72, (GLvoid*)40}};
- const std::vector<VertexAttributes> PCCNCCTAttrib = {
- {0, 3, GL_FLOAT, 48, nullptr}, {1, 3, GL_FLOAT, 48, (GLvoid*)20}, {2, 4, GL_UNSIGNED_BYTE, 48, (GLvoid*)12}, {3, 2, GL_FLOAT, 48, (GLvoid*)40}};
- const std::vector<VertexAttributes> PNCTTTXAttrib = {
- {0, 3, GL_FLOAT, 68, nullptr}, {1, 3, GL_FLOAT, 68, (GLvoid*)12}, {2, 4, GL_UNSIGNED_BYTE, 68, (GLvoid*)24}, {3, 2, GL_FLOAT, 68, (GLvoid*)28}};
- const std::vector<VertexAttributes> PNCTTXAttrib = {
- {0, 3, GL_FLOAT, 60, nullptr}, {1, 3, GL_FLOAT, 60, (GLvoid*)12}, {3, 2, GL_FLOAT, 60, (GLvoid*)28}};
- const std::vector<VertexAttributes> PNCTTTX_2Attrib = {
- {0, 3, GL_FLOAT, 68, nullptr}, {1, 3, GL_FLOAT, 68, (GLvoid*)12}, {3, 2, GL_FLOAT, 68, (GLvoid*)28}};
- const std::vector<VertexAttributes> PNCTTTX_3Attrib = {
- {0, 3, GL_FLOAT, 68, nullptr}, {1, 3, GL_FLOAT, 68, (GLvoid*)12}, {3, 2, GL_FLOAT, 68, (GLvoid*)28}};
- const std::vector<VertexAttributes> PNCCTTXAttrib = {
- {0, 3, GL_FLOAT, 64, nullptr}, {1, 3, GL_FLOAT, 64, (GLvoid*)12}, {3, 2, GL_FLOAT, 64, (GLvoid*)32}};
- const std::vector<VertexAttributes> PNCCTTX_2Attrib = {
- {0, 3, GL_FLOAT, 64, nullptr}, {1, 3, GL_FLOAT, 64, (GLvoid*)12}, {3, 2, GL_FLOAT, 64, (GLvoid*)32}};
- const std::vector<VertexAttributes> PNCCTTTXAttrib = {
- {0, 3, GL_FLOAT, 72, nullptr}, {1, 3, GL_FLOAT, 72, (GLvoid*)12}, {3, 2, GL_FLOAT, 72, (GLvoid*)32}};
- const std::vector<VertexAttributes> PCCNCCTXAttrib = {
- {0, 3, GL_FLOAT, 64, nullptr}, {1, 3, GL_FLOAT, 64, (GLvoid*)20}, {3, 2, GL_FLOAT, 64, (GLvoid*)40}};
- const std::vector<VertexAttributes> PCCNCTXAttrib = {
- {0, 3, GL_FLOAT, 60, nullptr}, {1, 3, GL_FLOAT, 60, (GLvoid*)20}, {3, 2, GL_FLOAT, 60, (GLvoid*)36}};
- const std::vector<VertexAttributes> PCCNCTAttrib = {
- {0, 3, GL_FLOAT, 44, nullptr}, {1, 3, GL_FLOAT, 44, (GLvoid*)20}, {3, 2, GL_FLOAT, 44, (GLvoid*)36}};
- const std::vector<VertexAttributes> PNCCTTAttrib = {
- {0, 3, GL_FLOAT, 48, nullptr}, {1, 3, GL_FLOAT, 48, (GLvoid*)12}, {3, 2, GL_FLOAT, 48, (GLvoid*)32}};
- const std::vector<VertexAttributes> PNCCTXAttrib = {
- {0, 3, GL_FLOAT, 56, nullptr}, {1, 3, GL_FLOAT, 56, (GLvoid*)12}, {3, 2, GL_FLOAT, 56, (GLvoid*)32}};
- const std::vector<VertexAttributes> PCTAttrib = {{0, 3, GL_FLOAT, 24, nullptr}, {2, 3, GL_FLOAT, 24, (GLvoid*)12}, {3, 2, GL_FLOAT, 24, (GLvoid*)16}};
- const std::vector<VertexAttributes> PTAttrib = {{0, 3, GL_FLOAT, 20, nullptr}, {3, 2, GL_FLOAT, 20, (GLvoid*)12}};
- const std::vector<VertexAttributes> PTTAttrib = {{0, 3, GL_FLOAT, 28, nullptr}, {3, 3, GL_FLOAT, 28, (GLvoid*)12}};
- const std::vector<VertexAttributes> PNCAttrib = {
- {0, 3, GL_FLOAT, 28, nullptr},
- {1, 3, GL_FLOAT, 28, (GLvoid*)12},
- {2, 2, GL_FLOAT, 28, (GLvoid*)24},
- };
- const std::vector<VertexAttributes> PCAttrib = {{0, 3, GL_FLOAT, 16, nullptr}};
- const std::vector<VertexAttributes> PCCAttrib = {{0, 3, GL_FLOAT, 20, nullptr}};
- const std::vector<VertexAttributes> PCCH2H4Attrib = {
- {0, 3, GL_FLOAT, 32, nullptr},
- {1, 4, GL_BYTE, 32, (GLvoid*)12},
- {2, 4, GL_UNSIGNED_BYTE, 32, (GLvoid*)16},
- {3, 2, GL_HALF_FLOAT, 32, (GLvoid*)20},  //    FIXED
- };
- const std::vector<VertexAttributes> PNCH2Attrib = {
- {0, 3, GL_FLOAT, 32, nullptr},
- {1, 3, GL_FLOAT, 32, (GLvoid*)12},
- {2, 4, GL_UNSIGNED_BYTE, 32, (GLvoid*)24},
- {3, 2, GL_HALF_FLOAT, 32, (GLvoid*)28}  //    FIXED
- };
- const std::vector<VertexAttributes> PNCTTTTXAttrib = {
- {0, 3, GL_FLOAT, 76, nullptr}, {1, 3, GL_FLOAT, 76, (GLvoid*)12}, {2, 4, GL_UNSIGNED_BYTE, 76, (GLvoid*)24}, {3, 2, GL_FLOAT, 76, (GLvoid*)28}};
- const std::vector<VertexAttributes> PNCTTTTAttrib = {
- };
- const std::vector<VertexAttributes> PCCNCCTTAttrib = {
- };
- const std::vector<VertexAttributes> PCTTAttrib = {
- };
- const std::vector<VertexAttributes> PCCCCTAttrib = {
- };
- const std::vector<VertexAttributes> PCCNCAttrib = {
- };*/
-/*const std::vector<VertexAttributes> PCCNCTTAttrib = {
- {0, 3, GL_FLOAT, 52, nullptr},
- {1, 3, GL_FLOAT, 52, (GLvoid*)20},
- {2, 4, GL_UNSIGNED_BYTE, 52, (GLvoid*)12},
- {3, 2, GL_FLOAT, 52, (GLvoid*)36},
- };
- const std::vector<VertexAttributes> PCCNCTTXAttrib = {
- {0, 3, GL_FLOAT, 68, nullptr},
- {1, 3, GL_FLOAT, 68, (GLvoid*)20},
- {2, 4, GL_UNSIGNED_BYTE, 68, (GLvoid*)12},
- {3, 2, GL_FLOAT, 68, (GLvoid*)36},
- };
- const std::vector<VertexAttributes> PCCNCTTTAttrib = {
- {0, 3, GL_FLOAT, 60, nullptr},
- {1, 3, GL_FLOAT, 60, (GLvoid*)20},
- {2, 4, GL_UNSIGNED_BYTE, 60, (GLvoid*)12},
- {3, 2, GL_FLOAT, 60, (GLvoid*)36},
- 
- */
+uint32_t texturesSize = 0;
+static int testID = 0;
 #define gpuBufferSize 16000
 id<MTLBuffer> vertexBuffers[gpuBufferSize] = {0};
 id<MTLBuffer> indexBuffers[gpuBufferSize] = {0};
+id<MTLTexture> textures[gpuBufferSize] = {0};
 uint32_t curIndex = 0;
 
 id<MTLCommandQueue> commandQueue;
@@ -155,6 +57,7 @@ id<MTLRenderPipelineState> PCCH2H4PipelineState;
 id<MTLRenderPipelineState> PNCH2PipelineState;
 id<MTLRenderPipelineState> PNCTTTTXPipelineState;
 //
+id<MTLSamplerState> samplerState;
 //id<MTLRenderPipelineState> PTTPipelineState;
 //
 id <MTLBuffer> scene_buffer;
@@ -162,6 +65,14 @@ id <MTLBuffer> scene_buffer;
 id <MTLBuffer> cubeTestBuffer;
 
 id <MTLRenderCommandEncoder> commandEncoder;
+
+id <MTLDepthStencilState> depthStencilState;
+
+//id <MTLHeap> heap;
+
+//id<MTLBuffer> tempBuffer;
+
+//id <MTLFence> fence;
 
 glm::vec3 positions[] =
 {
@@ -223,10 +134,17 @@ struct uniform_buffer_struct {
 
 MetalRenderer::MetalRenderer()
 {
-    device = MTLCreateSystemDefaultDevice();
-    commandQueue = [device newCommandQueue];
-    NSLog(@"METAL RENDERER IS READY!");
+    textureDecompressedMem = new uint8_t[20 * 1024 * 1024]; //20mb for uncompressing textures
+}
+
+MetalRenderer::~MetalRenderer()
+{
     
+}
+
+void MetalRenderer::initializeEngine()
+{
+    commandQueue = [device newCommandQueue];
     id<MTLLibrary> defaultLibrary = [device newDefaultLibrary];
     
     {
@@ -239,12 +157,22 @@ MetalRenderer::MetalRenderer()
         vertexDescriptor.attributes[0].offset = 0;
         vertexDescriptor.attributes[0].format = MTLVertexFormatFloat3;
         vertexDescriptor.attributes[0].bufferIndex = 0;
+        vertexDescriptor.attributes[1].offset = 12;
+        vertexDescriptor.attributes[1].format = MTLVertexFormatFloat3;
+        vertexDescriptor.attributes[1].bufferIndex = 0;
+        vertexDescriptor.attributes[2].offset = 24;
+        vertexDescriptor.attributes[2].format = MTLVertexFormatUInt;
+        vertexDescriptor.attributes[2].bufferIndex = 0;
+        vertexDescriptor.attributes[3].offset = 28;
+        vertexDescriptor.attributes[3].format = MTLVertexFormatFloat2;
+        vertexDescriptor.attributes[3].bufferIndex = 0;
         //
         vertexDescriptor.layouts[0].stepRate = 1;
         vertexDescriptor.layouts[0].stepFunction = MTLVertexStepFunctionPerVertex;
         vertexDescriptor.layouts[0].stride = 36;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
+        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatInvalid;
         
         DefaultPipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -259,14 +187,19 @@ MetalRenderer::MetalRenderer()
         vertexDescriptor.attributes[0].offset = 0;
         vertexDescriptor.attributes[0].format = MTLVertexFormatFloat3;
         vertexDescriptor.attributes[0].bufferIndex = 0;
+        vertexDescriptor.attributes[3].offset = 12;
+        vertexDescriptor.attributes[3].format = MTLVertexFormatFloat2;
+        vertexDescriptor.attributes[3].bufferIndex = 0;
         //
         vertexDescriptor.layouts[0].stepRate = 1;
         vertexDescriptor.layouts[0].stepFunction = MTLVertexStepFunctionPerVertex;
         vertexDescriptor.layouts[0].stride = 52;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
-        
-        DefaultExPipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
+        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
+        NSError* error;
+        DefaultExPipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:&error];
+        //NSLog([error localizedDescription]);
     }
     
     {
@@ -279,12 +212,16 @@ MetalRenderer::MetalRenderer()
         vertexDescriptor.attributes[0].offset = 0;
         vertexDescriptor.attributes[0].format = MTLVertexFormatFloat3;
         vertexDescriptor.attributes[0].bufferIndex = 0;
+        vertexDescriptor.attributes[3].offset = 12;
+        vertexDescriptor.attributes[3].format = MTLVertexFormatFloat2;
+        vertexDescriptor.attributes[3].bufferIndex = 0;
         //
         vertexDescriptor.layouts[0].stepRate = 1;
         vertexDescriptor.layouts[0].stepFunction = MTLVertexStepFunctionPerVertex;
         vertexDescriptor.layouts[0].stride = 40;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
+        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
         PNCCTPipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -299,12 +236,16 @@ MetalRenderer::MetalRenderer()
         vertexDescriptor.attributes[0].offset = 0;
         vertexDescriptor.attributes[0].format = MTLVertexFormatFloat3;
         vertexDescriptor.attributes[0].bufferIndex = 0;
+        vertexDescriptor.attributes[3].offset = 12;
+        vertexDescriptor.attributes[3].format = MTLVertexFormatFloat2;
+        vertexDescriptor.attributes[3].bufferIndex = 0;
         //
         vertexDescriptor.layouts[0].stepRate = 1;
         vertexDescriptor.layouts[0].stepFunction = MTLVertexStepFunctionPerVertex;
         vertexDescriptor.layouts[0].stride = 64;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
+        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
         PNCCTTTTPipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -319,12 +260,16 @@ MetalRenderer::MetalRenderer()
         vertexDescriptor.attributes[0].offset = 0;
         vertexDescriptor.attributes[0].format = MTLVertexFormatFloat3;
         vertexDescriptor.attributes[0].bufferIndex = 0;
+        vertexDescriptor.attributes[3].offset = 12;
+        vertexDescriptor.attributes[3].format = MTLVertexFormatFloat2;
+        vertexDescriptor.attributes[3].bufferIndex = 0;
         //
         vertexDescriptor.layouts[0].stepRate = 1;
         vertexDescriptor.layouts[0].stepFunction = MTLVertexStepFunctionPerVertex;
         vertexDescriptor.layouts[0].stride = 72;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
+        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
         PCCNCCTTXPipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -339,12 +284,16 @@ MetalRenderer::MetalRenderer()
         vertexDescriptor.attributes[0].offset = 0;
         vertexDescriptor.attributes[0].format = MTLVertexFormatFloat3;
         vertexDescriptor.attributes[0].bufferIndex = 0;
+        vertexDescriptor.attributes[3].offset = 12;
+        vertexDescriptor.attributes[3].format = MTLVertexFormatFloat2;
+        vertexDescriptor.attributes[3].bufferIndex = 0;
         //
         vertexDescriptor.layouts[0].stepRate = 1;
         vertexDescriptor.layouts[0].stepFunction = MTLVertexStepFunctionPerVertex;
         vertexDescriptor.layouts[0].stride = 68;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
+        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
         PNCTTTXPipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -359,12 +308,16 @@ MetalRenderer::MetalRenderer()
         vertexDescriptor.attributes[0].offset = 0;
         vertexDescriptor.attributes[0].format = MTLVertexFormatFloat3;
         vertexDescriptor.attributes[0].bufferIndex = 0;
+        vertexDescriptor.attributes[3].offset = 12;
+        vertexDescriptor.attributes[3].format = MTLVertexFormatFloat2;
+        vertexDescriptor.attributes[3].bufferIndex = 0;
         //
         vertexDescriptor.layouts[0].stepRate = 1;
         vertexDescriptor.layouts[0].stepFunction = MTLVertexStepFunctionPerVertex;
         vertexDescriptor.layouts[0].stride = 60;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
+        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
         PNCTTXPipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -379,12 +332,16 @@ MetalRenderer::MetalRenderer()
         vertexDescriptor.attributes[0].offset = 0;
         vertexDescriptor.attributes[0].format = MTLVertexFormatFloat3;
         vertexDescriptor.attributes[0].bufferIndex = 0;
+        vertexDescriptor.attributes[3].offset = 12;
+        vertexDescriptor.attributes[3].format = MTLVertexFormatFloat2;
+        vertexDescriptor.attributes[3].bufferIndex = 0;
         //
         vertexDescriptor.layouts[0].stepRate = 1;
         vertexDescriptor.layouts[0].stepFunction = MTLVertexStepFunctionPerVertex;
         vertexDescriptor.layouts[0].stride = 68;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
+        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
         PNCTTTX_2PipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -399,12 +356,16 @@ MetalRenderer::MetalRenderer()
         vertexDescriptor.attributes[0].offset = 0;
         vertexDescriptor.attributes[0].format = MTLVertexFormatFloat3;
         vertexDescriptor.attributes[0].bufferIndex = 0;
+        vertexDescriptor.attributes[3].offset = 12;
+        vertexDescriptor.attributes[3].format = MTLVertexFormatFloat2;
+        vertexDescriptor.attributes[3].bufferIndex = 0;
         //
         vertexDescriptor.layouts[0].stepRate = 1;
         vertexDescriptor.layouts[0].stepFunction = MTLVertexStepFunctionPerVertex;
         vertexDescriptor.layouts[0].stride = 68;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
+        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
         PNCTTTX_3PipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -419,12 +380,16 @@ MetalRenderer::MetalRenderer()
         vertexDescriptor.attributes[0].offset = 0;
         vertexDescriptor.attributes[0].format = MTLVertexFormatFloat3;
         vertexDescriptor.attributes[0].bufferIndex = 0;
+        vertexDescriptor.attributes[3].offset = 12;
+        vertexDescriptor.attributes[3].format = MTLVertexFormatFloat2;
+        vertexDescriptor.attributes[3].bufferIndex = 0;
         //
         vertexDescriptor.layouts[0].stepRate = 1;
         vertexDescriptor.layouts[0].stepFunction = MTLVertexStepFunctionPerVertex;
-        vertexDescriptor.layouts[0].stride = 68;
+        vertexDescriptor.layouts[0].stride = 64;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
+        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
         PNCCTTXPipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -439,12 +404,16 @@ MetalRenderer::MetalRenderer()
         vertexDescriptor.attributes[0].offset = 0;
         vertexDescriptor.attributes[0].format = MTLVertexFormatFloat3;
         vertexDescriptor.attributes[0].bufferIndex = 0;
+        vertexDescriptor.attributes[3].offset = 12;
+        vertexDescriptor.attributes[3].format = MTLVertexFormatFloat2;
+        vertexDescriptor.attributes[3].bufferIndex = 0;
         //
         vertexDescriptor.layouts[0].stepRate = 1;
         vertexDescriptor.layouts[0].stepFunction = MTLVertexStepFunctionPerVertex;
         vertexDescriptor.layouts[0].stride = 64;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
+        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
         PNCCTTX_2PipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -459,32 +428,16 @@ MetalRenderer::MetalRenderer()
         vertexDescriptor.attributes[0].offset = 0;
         vertexDescriptor.attributes[0].format = MTLVertexFormatFloat3;
         vertexDescriptor.attributes[0].bufferIndex = 0;
-        //
-        vertexDescriptor.layouts[0].stepRate = 1;
-        vertexDescriptor.layouts[0].stepFunction = MTLVertexStepFunctionPerVertex;
-        vertexDescriptor.layouts[0].stride = 68;
-        //
-        renderDescriptor.vertexDescriptor = vertexDescriptor;
-        
-        PNCCTTX_2PipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
-    }
-    
-    {
-        MTLRenderPipelineDescriptor* renderDescriptor = [MTLRenderPipelineDescriptor new];
-        renderDescriptor.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
-        renderDescriptor.vertexFunction = [defaultLibrary newFunctionWithName:@"basic_vertex"];
-        renderDescriptor.fragmentFunction = [defaultLibrary newFunctionWithName:@"basic_fragment"];
-        //
-        MTLVertexDescriptor* vertexDescriptor = [MTLVertexDescriptor new];
-        vertexDescriptor.attributes[0].offset = 0;
-        vertexDescriptor.attributes[0].format = MTLVertexFormatFloat3;
-        vertexDescriptor.attributes[0].bufferIndex = 0;
+        vertexDescriptor.attributes[3].offset = 12;
+        vertexDescriptor.attributes[3].format = MTLVertexFormatFloat2;
+        vertexDescriptor.attributes[3].bufferIndex = 0;
         //
         vertexDescriptor.layouts[0].stepRate = 1;
         vertexDescriptor.layouts[0].stepFunction = MTLVertexStepFunctionPerVertex;
         vertexDescriptor.layouts[0].stride = 72;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
+        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
         PNCCTTTXPipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -499,12 +452,16 @@ MetalRenderer::MetalRenderer()
         vertexDescriptor.attributes[0].offset = 0;
         vertexDescriptor.attributes[0].format = MTLVertexFormatFloat3;
         vertexDescriptor.attributes[0].bufferIndex = 0;
+        vertexDescriptor.attributes[3].offset = 12;
+        vertexDescriptor.attributes[3].format = MTLVertexFormatFloat2;
+        vertexDescriptor.attributes[3].bufferIndex = 0;
         //
         vertexDescriptor.layouts[0].stepRate = 1;
         vertexDescriptor.layouts[0].stepFunction = MTLVertexStepFunctionPerVertex;
         vertexDescriptor.layouts[0].stride = 64;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
+        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
         PCCNCCTXPipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -519,12 +476,16 @@ MetalRenderer::MetalRenderer()
         vertexDescriptor.attributes[0].offset = 0;
         vertexDescriptor.attributes[0].format = MTLVertexFormatFloat3;
         vertexDescriptor.attributes[0].bufferIndex = 0;
+        vertexDescriptor.attributes[3].offset = 12;
+        vertexDescriptor.attributes[3].format = MTLVertexFormatFloat2;
+        vertexDescriptor.attributes[3].bufferIndex = 0;
         //
         vertexDescriptor.layouts[0].stepRate = 1;
         vertexDescriptor.layouts[0].stepFunction = MTLVertexStepFunctionPerVertex;
         vertexDescriptor.layouts[0].stride = 60;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
+        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
         PCCNCTXPipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -539,12 +500,16 @@ MetalRenderer::MetalRenderer()
         vertexDescriptor.attributes[0].offset = 0;
         vertexDescriptor.attributes[0].format = MTLVertexFormatFloat3;
         vertexDescriptor.attributes[0].bufferIndex = 0;
+        vertexDescriptor.attributes[3].offset = 12;
+        vertexDescriptor.attributes[3].format = MTLVertexFormatFloat2;
+        vertexDescriptor.attributes[3].bufferIndex = 0;
         //
         vertexDescriptor.layouts[0].stepRate = 1;
         vertexDescriptor.layouts[0].stepFunction = MTLVertexStepFunctionPerVertex;
         vertexDescriptor.layouts[0].stride = 44;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
+        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
         PCCNCTPipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -559,12 +524,16 @@ MetalRenderer::MetalRenderer()
         vertexDescriptor.attributes[0].offset = 0;
         vertexDescriptor.attributes[0].format = MTLVertexFormatFloat3;
         vertexDescriptor.attributes[0].bufferIndex = 0;
+        vertexDescriptor.attributes[3].offset = 12;
+        vertexDescriptor.attributes[3].format = MTLVertexFormatFloat2;
+        vertexDescriptor.attributes[3].bufferIndex = 0;
         //
         vertexDescriptor.layouts[0].stepRate = 1;
         vertexDescriptor.layouts[0].stepFunction = MTLVertexStepFunctionPerVertex;
         vertexDescriptor.layouts[0].stride = 48;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
+        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
         PNCCTTPipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -579,12 +548,16 @@ MetalRenderer::MetalRenderer()
         vertexDescriptor.attributes[0].offset = 0;
         vertexDescriptor.attributes[0].format = MTLVertexFormatFloat3;
         vertexDescriptor.attributes[0].bufferIndex = 0;
+        vertexDescriptor.attributes[3].offset = 12;
+        vertexDescriptor.attributes[3].format = MTLVertexFormatFloat2;
+        vertexDescriptor.attributes[3].bufferIndex = 0;
         //
         vertexDescriptor.layouts[0].stepRate = 1;
         vertexDescriptor.layouts[0].stepFunction = MTLVertexStepFunctionPerVertex;
         vertexDescriptor.layouts[0].stride = 56;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
+        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
         PNCCTXPipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -599,12 +572,16 @@ MetalRenderer::MetalRenderer()
         vertexDescriptor.attributes[0].offset = 0;
         vertexDescriptor.attributes[0].format = MTLVertexFormatFloat3;
         vertexDescriptor.attributes[0].bufferIndex = 0;
+        vertexDescriptor.attributes[3].offset = 12;
+        vertexDescriptor.attributes[3].format = MTLVertexFormatFloat2;
+        vertexDescriptor.attributes[3].bufferIndex = 0;
         //
         vertexDescriptor.layouts[0].stepRate = 1;
         vertexDescriptor.layouts[0].stepFunction = MTLVertexStepFunctionPerVertex;
         vertexDescriptor.layouts[0].stride = 24;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
+        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
         PCTPipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -619,12 +596,16 @@ MetalRenderer::MetalRenderer()
         vertexDescriptor.attributes[0].offset = 0;
         vertexDescriptor.attributes[0].format = MTLVertexFormatFloat3;
         vertexDescriptor.attributes[0].bufferIndex = 0;
+        vertexDescriptor.attributes[3].offset = 12;
+        vertexDescriptor.attributes[3].format = MTLVertexFormatFloat2;
+        vertexDescriptor.attributes[3].bufferIndex = 0;
         //
         vertexDescriptor.layouts[0].stepRate = 1;
         vertexDescriptor.layouts[0].stepFunction = MTLVertexStepFunctionPerVertex;
         vertexDescriptor.layouts[0].stride = 20;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
+        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
         PTPipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -639,12 +620,16 @@ MetalRenderer::MetalRenderer()
         vertexDescriptor.attributes[0].offset = 0;
         vertexDescriptor.attributes[0].format = MTLVertexFormatFloat3;
         vertexDescriptor.attributes[0].bufferIndex = 0;
+        vertexDescriptor.attributes[3].offset = 12;
+        vertexDescriptor.attributes[3].format = MTLVertexFormatFloat2;
+        vertexDescriptor.attributes[3].bufferIndex = 0;
         //
         vertexDescriptor.layouts[0].stepRate = 1;
         vertexDescriptor.layouts[0].stepFunction = MTLVertexStepFunctionPerVertex;
         vertexDescriptor.layouts[0].stride = 28;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
+        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
         PTTPipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -659,12 +644,16 @@ MetalRenderer::MetalRenderer()
         vertexDescriptor.attributes[0].offset = 0;
         vertexDescriptor.attributes[0].format = MTLVertexFormatFloat3;
         vertexDescriptor.attributes[0].bufferIndex = 0;
+        vertexDescriptor.attributes[3].offset = 12;
+        vertexDescriptor.attributes[3].format = MTLVertexFormatFloat2;
+        vertexDescriptor.attributes[3].bufferIndex = 0;
         //
         vertexDescriptor.layouts[0].stepRate = 1;
         vertexDescriptor.layouts[0].stepFunction = MTLVertexStepFunctionPerVertex;
         vertexDescriptor.layouts[0].stride = 28;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
+        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
         PNCPipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -679,12 +668,16 @@ MetalRenderer::MetalRenderer()
         vertexDescriptor.attributes[0].offset = 0;
         vertexDescriptor.attributes[0].format = MTLVertexFormatFloat3;
         vertexDescriptor.attributes[0].bufferIndex = 0;
+        vertexDescriptor.attributes[3].offset = 8;
+        vertexDescriptor.attributes[3].format = MTLVertexFormatFloat2;
+        vertexDescriptor.attributes[3].bufferIndex = 0;
         //
         vertexDescriptor.layouts[0].stepRate = 1;
         vertexDescriptor.layouts[0].stepFunction = MTLVertexStepFunctionPerVertex;
         vertexDescriptor.layouts[0].stride = 16;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
+        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
         PCPipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -699,12 +692,16 @@ MetalRenderer::MetalRenderer()
         vertexDescriptor.attributes[0].offset = 0;
         vertexDescriptor.attributes[0].format = MTLVertexFormatFloat3;
         vertexDescriptor.attributes[0].bufferIndex = 0;
+        vertexDescriptor.attributes[3].offset = 12;
+        vertexDescriptor.attributes[3].format = MTLVertexFormatFloat2;
+        vertexDescriptor.attributes[3].bufferIndex = 0;
         //
         vertexDescriptor.layouts[0].stepRate = 1;
         vertexDescriptor.layouts[0].stepFunction = MTLVertexStepFunctionPerVertex;
         vertexDescriptor.layouts[0].stride = 20;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
+        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
         PCCPipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -719,12 +716,16 @@ MetalRenderer::MetalRenderer()
         vertexDescriptor.attributes[0].offset = 0;
         vertexDescriptor.attributes[0].format = MTLVertexFormatFloat3;
         vertexDescriptor.attributes[0].bufferIndex = 0;
+        vertexDescriptor.attributes[3].offset = 12;
+        vertexDescriptor.attributes[3].format = MTLVertexFormatFloat2;
+        vertexDescriptor.attributes[3].bufferIndex = 0;
         //
         vertexDescriptor.layouts[0].stepRate = 1;
         vertexDescriptor.layouts[0].stepFunction = MTLVertexStepFunctionPerVertex;
         vertexDescriptor.layouts[0].stride = 32;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
+        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
         PCCH2H4PipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -739,12 +740,16 @@ MetalRenderer::MetalRenderer()
         vertexDescriptor.attributes[0].offset = 0;
         vertexDescriptor.attributes[0].format = MTLVertexFormatFloat3;
         vertexDescriptor.attributes[0].bufferIndex = 0;
+        vertexDescriptor.attributes[3].offset = 12;
+        vertexDescriptor.attributes[3].format = MTLVertexFormatFloat2;
+        vertexDescriptor.attributes[3].bufferIndex = 0;
         //
         vertexDescriptor.layouts[0].stepRate = 1;
         vertexDescriptor.layouts[0].stepFunction = MTLVertexStepFunctionPerVertex;
         vertexDescriptor.layouts[0].stride = 32;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
+        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
         PNCH2PipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -759,12 +764,16 @@ MetalRenderer::MetalRenderer()
         vertexDescriptor.attributes[0].offset = 0;
         vertexDescriptor.attributes[0].format = MTLVertexFormatFloat3;
         vertexDescriptor.attributes[0].bufferIndex = 0;
+        vertexDescriptor.attributes[3].offset = 12;
+        vertexDescriptor.attributes[3].format = MTLVertexFormatFloat2;
+        vertexDescriptor.attributes[3].bufferIndex = 0;
         //
         vertexDescriptor.layouts[0].stepRate = 1;
         vertexDescriptor.layouts[0].stepFunction = MTLVertexStepFunctionPerVertex;
         vertexDescriptor.layouts[0].stride = 76;
         //
         renderDescriptor.vertexDescriptor = vertexDescriptor;
+        //renderDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
         PNCTTTTXPipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
@@ -775,51 +784,85 @@ MetalRenderer::MetalRenderer()
     mainPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
     mainPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0, 104/255, 55/255, 1.0);
     mainPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
+    mainPassDescriptor.depthAttachment.loadAction = MTLLoadActionClear;
+    mainPassDescriptor.depthAttachment.clearDepth = 1.0f;
+    //mainPassDescriptor.depthAttachment.loadAction = MTLLoadActionClear;
+    //mainPassDescriptor.depthAttachment.clearDepth = 1.0f;
     
     scene_buffer = [device newBufferWithLength:sizeof(uniform_buffer_struct) options:MTLResourceStorageModeShared];
     
     cubeTestBuffer = [device newBufferWithBytes:&cubeVertices[0] length:sizeof(cubeVertices)  options:MTLResourceStorageModeShared];
+    
+    MTLSamplerDescriptor *samplerDescriptor = [MTLSamplerDescriptor new];
+    samplerDescriptor.minFilter = MTLSamplerMinMagFilterNearest;
+    samplerDescriptor.magFilter = MTLSamplerMinMagFilterLinear;
+    samplerDescriptor.sAddressMode = MTLSamplerAddressModeRepeat;
+    samplerDescriptor.tAddressMode = MTLSamplerAddressModeRepeat;
+    
+    samplerState = [device newSamplerStateWithDescriptor:samplerDescriptor];
+    
+    /*MTLHeapDescriptor *heapDescriptor = [MTLHeapDescriptor new];
+     heapDescriptor.storageMode = MTLStorageModePrivate;
+     heapDescriptor.cpuCacheMode = MTLCPUCacheModeDefaultCache;
+     heapDescriptor.size = 300 * 1024 * 1024; //300mb
+     
+     heap = [device newHeapWithDescriptor:heapDescriptor];
+     
+     tempBuffer = [device newBufferWithLength:15 * 1024 * 1024 options:MTLStorageModeShared];
+     
+     fence = [device newFence];*/
+    MTLDepthStencilDescriptor* depthDescriptor = [MTLDepthStencilDescriptor new];
+    depthDescriptor.depthCompareFunction = MTLCompareFunctionLess;
+    depthDescriptor.depthWriteEnabled = true;
+    depthStencilState = [device newDepthStencilStateWithDescriptor:depthDescriptor];
 }
 
-MTLRenderPipelineDescriptor* createRenderDescriptor(MTLDevicePtr device, std::vector<VertexAttributes>& attributes)
-{
-    id<MTLLibrary> defaultLibrary = [device newDefaultLibrary];
-    
-    MTLRenderPipelineDescriptor* descriptor = [MTLRenderPipelineDescriptor new];
-    descriptor.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
-    descriptor.vertexFunction = [defaultLibrary newFunctionWithName:@"basic_vertex"];
-    descriptor.fragmentFunction = [defaultLibrary newFunctionWithName:@"basic_fragment"];
-    //
-    MTLVertexDescriptor* vertexDescriptor = [MTLVertexDescriptor new];
-    
-    for (auto attribute : attributes) {
-        vertexDescriptor.attributes[attribute.index].offset = attribute.offset;
-        vertexDescriptor.attributes[attribute.index].format = attribute.format;
-        vertexDescriptor.attributes[attribute.index].bufferIndex = 0;
-    }
-    //
-    vertexDescriptor.layouts[0].stepRate = 1;
-    vertexDescriptor.layouts[0].stepFunction = MTLVertexStepFunctionPerVertex;
-    vertexDescriptor.layouts[0].stride = attributes[0].stride;
-    //
-    descriptor.vertexDescriptor = vertexDescriptor;
-    
-    return descriptor;
-}
-
-MetalRenderer::~MetalRenderer()
-{
-    
-}
+/*MTLRenderPipelineDescriptor* createRenderDescriptor(MTLDevicePtr device, std::vector<VertexAttributes>& attributes)
+ {
+ id<MTLLibrary> defaultLibrary = [device newDefaultLibrary];
+ 
+ MTLRenderPipelineDescriptor* descriptor = [MTLRenderPipelineDescriptor new];
+ descriptor.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
+ descriptor.vertexFunction = [defaultLibrary newFunctionWithName:@"basic_vertex"];
+ descriptor.fragmentFunction = [defaultLibrary newFunctionWithName:@"basic_fragment"];
+ //
+ MTLVertexDescriptor* vertexDescriptor = [MTLVertexDescriptor new];
+ 
+ for (auto attribute : attributes) {
+ vertexDescriptor.attributes[attribute.index].offset = attribute.offset;
+ vertexDescriptor.attributes[attribute.index].format = attribute.format;
+ vertexDescriptor.attributes[attribute.index].bufferIndex = 0;
+ }
+ //
+ vertexDescriptor.layouts[0].stepRate = 1;
+ vertexDescriptor.layouts[0].stepFunction = MTLVertexStepFunctionPerVertex;
+ vertexDescriptor.layouts[0].stride = attributes[0].stride;
+ //
+ descriptor.vertexDescriptor = vertexDescriptor;
+ 
+ return descriptor;
+ }*/
 
 VertexBufferHandle MetalRenderer::createVertexBuffer(uint32_t size, const uint8_t* pointer)
 {
-    
-    //PERFORMANCE!!!
     id<MTLBuffer> buffer = [device newBufferWithBytes:pointer length:size options:MTLResourceStorageModeShared];
-    
-    float testing[20];
-    memcpy(&testing[0], pointer, sizeof(float) * 20);
+    /*if (size > 15 * 1024 * 1024)
+     printf("ERROR\n");
+     //PERFORMANCE!!!
+     memcpy([tempBuffer contents], &pointer[0], size);
+     
+     id<MTLBuffer> buffer = [device newBufferWithLength:size options:MTLResourceStorageModePrivate];
+     
+     id <MTLCommandBuffer> commandBuffer = [commandQueue commandBuffer];
+     
+     id <MTLBlitCommandEncoder> blitEncoder = [commandBuffer blitCommandEncoder];
+     
+     [blitEncoder copyFromBuffer:tempBuffer sourceOffset:0 toBuffer:buffer destinationOffset:0 size:size];
+     
+     [blitEncoder endEncoding];
+     
+     [commandBuffer commit];
+     [commandBuffer waitUntilCompleted];*/
     
     VertexBufferHandle handle;
     
@@ -842,9 +885,34 @@ VertexBufferHandle MetalRenderer::createVertexBuffer(uint32_t size, const uint8_
 
 IndexBufferHandle MetalRenderer::createIndexBuffer(uint32_t size, const uint8_t* pointer)
 {
+    // if (size >= 15 * 1024 * 1024)
+    //    printf("ERROR\n");
     //PERFORMANCE
+    
+    //memcpy([tempBuffer contents], &pointer[0], size);
+    
     id<MTLBuffer> buffer = [device newBufferWithBytes:pointer length:size options:MTLResourceStorageModeShared];
     
+    //id<MTLBuffer> buffer = [heap newBufferWithLength:size options:MTLResourceCPUCacheModeDefaultCache | MTLResourceStorageModePrivate];
+    /*id<MTLBuffer> buffer = [device newBufferWithLength:size options:MTLResourceStorageModePrivate];
+     
+     id <MTLCommandBuffer> commandBuffer = [commandQueue commandBuffer];
+     
+     id <MTLBlitCommandEncoder> blitEncoder = [commandBuffer blitCommandEncoder];
+     
+     [blitEncoder copyFromBuffer:tempBuffer sourceOffset:0 toBuffer:buffer destinationOffset:0 size:size];
+     
+     [blitEncoder endEncoding];
+     
+     [commandBuffer commit];
+     [commandBuffer waitUntilCompleted];
+     
+     
+     NSLog(@"HEAP SIZE %lu MB", (unsigned long)[heap usedSize] / 1024 / 1024);
+     //id<MTLBuffer> buffer = [device newBufferWithLength:size options:MTLResourceStorageModeShared];
+     //memcpy([buffer contents], &pointer[0], size);
+     //id<MTLBuffer> buffer = [device newBufferWithBytes:pointer length:size options:MTLResourceStorageModeShared];
+     */
     IndexBufferHandle handle;
     
     //find free
@@ -864,6 +932,135 @@ IndexBufferHandle MetalRenderer::createIndexBuffer(uint32_t size, const uint8_t*
     return handle;
 }
 
+//#define MACOS_SUPPORT
+
+TextureHandle MetalRenderer::createTexture(const uint8_t* pointer, int width, int height, int levels, TextureFormat format)
+{
+    bool convert = true;
+    MTLPixelFormat textureFormat = MTLPixelFormatInvalid;
+    
+    switch (format) {
+        case D3DFMT_A8R8G8B8:
+            textureFormat = MTLPixelFormatR8Uint;
+            break;
+        case D3DFMT_A1R5G5B5:
+            textureFormat = MTLPixelFormatR8Uint;
+            break;
+        case D3DFMT_A8:
+            textureFormat = MTLPixelFormatR8Uint;
+            break;
+        case D3DFMT_A8B8G8R8:
+            textureFormat = MTLPixelFormatR8Uint;
+            break;
+        case D3DFMT_L8:
+            textureFormat = MTLPixelFormatR8Uint;
+            break;
+#ifdef MACOS_SUPPORT
+        case D3DFMT_DXT1:
+            textureFormat = MTLPixelFormatBC1_RGBA;
+            break;
+        case D3DFMT_DXT3:
+            textureFormat = MTLPixelFormatBC2_RGBA;
+            break;
+        case D3DFMT_DXT5:
+            textureFormat = MTLPixelFormatBC3_RGBA;
+            break;
+        case D3DFMT_ATI1:
+            textureFormat = MTLPixelFormatBC4_RUnorm;
+            break;
+        case D3DFMT_ATI2:
+            textureFormat = MTLPixelFormatBC4_RUnorm;
+            break;
+        case D3DFMT_BC7:
+            textureFormat = MTLPixelFormatBC7_RGBAUnorm;
+            break;
+#else
+        case D3DFMT_DXT1:
+        case D3DFMT_DXT3:
+        case D3DFMT_DXT5:
+        case D3DFMT_ATI1:
+        case D3DFMT_ATI2:
+        case D3DFMT_BC7:
+            textureFormat = MTLPixelFormatRGBA8Unorm;
+            break;
+#endif
+        default:
+            //printf("UNDEFINED TEXTURE FORMAT");
+            textureFormat = MTLPixelFormatInvalid;
+    }
+    
+    //if (compatFormat != MTLPixelFormatBC3_RGBA && width < 2048)
+    if (format != D3DFMT_DXT5 && format != D3DFMT_DXT1 && format != D3DFMT_DXT3)
+        return TextureHandle{0};
+    
+    if (convert && (width * height * 4) > 20 * 1024 * 1024)
+        printf("ERROR IN DECOMPRESSING TEXTURE\n");
+    
+    MTLTextureDescriptor* descriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:textureFormat width:width height:height mipmapped:true];
+    
+    id <MTLTexture> texture = [device newTextureWithDescriptor:descriptor];
+    if (convert)
+    {
+        for (int i = 0; i < levels; i++) {
+            int offset = 0;
+            int blockSize = (format == D3DFMT_DXT1) ? 8 : 16;
+            
+            unsigned int size = ((width + 3) / 4) * ((height + 3) / 4) * blockSize;
+            
+            Decompressor::imageDecodeToBgra8(textureDecompressedMem, pointer + offset, width, height, width * 4, format);
+            
+            MTLRegion region = MTLRegionMake2D(0, 0, width, height);
+            [texture replaceRegion:region mipmapLevel:i slice:0 withBytes:textureDecompressedMem bytesPerRow:width * 32 / 8 bytesPerImage:0];
+            
+            offset += size;
+            width = std::max(width / 2, 1);
+            height = std::max(height / 2, 1);
+        }
+    } else {
+        for (int i = 0; i < levels; i++) {
+            int offset = 0;
+            int bytesPerBlock = (format == D3DFMT_DXT1) ? 8 : 16;
+            int blockWidth = 4;
+            
+            unsigned int size = ((width + 3) / 4) * ((height + 3) / 4) * bytesPerBlock;
+            
+            int blocksPerRow = (width + (blockWidth - 1)) / blockWidth;
+            int bytesPerRow = blocksPerRow * bytesPerBlock;
+            
+            MTLRegion region = MTLRegionMake2D(0, 0, width, height);
+            [texture replaceRegion:region mipmapLevel:i withBytes:pointer + offset bytesPerRow:bytesPerRow];
+            
+            offset += size;
+            width = std::max(width / 2, 1);
+            height = std::max(height / 2, 1);
+        }
+        
+    }
+    
+    TextureHandle handle;
+    
+    //find free
+    BOOL found = false;
+    for (int i = 0; i < gpuBufferSize; i++) {
+        if (textures[i] == 0)
+        {
+            if (testID == 0)
+                testID = i;
+            textures[i] = texture;
+            handle.id = i;
+            found = true;
+            break;
+        }
+    }
+    
+    texturesSize += [textures[handle.id] allocatedSize];
+    NSLog(@"%uMB", texturesSize/1024/1024);
+    assert(found);
+    
+    return handle;
+    
+}
+
 void MetalRenderer::removeVertexBuffer(VertexBufferHandle handle)
 {
     assert(vertexBuffers[handle.id] != 0);
@@ -877,6 +1074,14 @@ void MetalRenderer::removeIndexbuffer(IndexBufferHandle handle)
 {
     assert(indexBuffers[handle.id] != 0);
     indexBuffers[handle.id] = nil;
+}
+
+void MetalRenderer::removeTexture(TextureHandle handle)
+{
+    texturesSize -= [textures[handle.id] allocatedSize];
+    //assert(textures[handle.id] != 0);
+    if (handle.id != 0)
+        textures[handle.id] = nil;
 }
 
 template <typename T, typename U >
@@ -938,9 +1143,9 @@ void MetalRenderer::renderDrawable(YdrLoader* drawable)
                 case PNCCTTX:
                     [commandEncoder setRenderPipelineState:PNCCTTXPipelineState];
                     break;
-                /*case PNCCTTX_2:
+                case PNCCTTX_2:
                     [commandEncoder setRenderPipelineState:PNCCTTX_2PipelineState];
-                    break;*/
+                    break;
                 case PNCCTTTX:
                     [commandEncoder setRenderPipelineState:PNCCTTTXPipelineState];
                     break;
@@ -989,14 +1194,21 @@ void MetalRenderer::renderDrawable(YdrLoader* drawable)
                 default:
                     continue;
             }
-            
+            //
+            //[commandEncoder setDepthStencilState:depthStencilState];
+            [commandEncoder setCullMode:MTLCullModeBack];
             //if (geometry.type != VertexType::Default)
-               // continue;
+            // continue;
             //[commandEncoder setRenderPipelineState:DefaultPipelineState];
             //[commandEncoder setVertexBuffer:cubeTestBuffer offset:0 atIndex:0];
             //[commandEncoder setVertexBuffer:vertexBuffers[0] offset:0 atIndex:0];
+            if (testID != 0) {
+                [commandEncoder setFragmentTexture:textures[testID] atIndex:0];
+            }
+            
+            [commandEncoder setFragmentSamplerState:samplerState atIndex:0];
+            
             [commandEncoder setVertexBuffer:vertexBuffers[geometry.getVertexBufferHandle().id] offset:0 atIndex:0];
-            [commandEncoder setVertexBytes:&scene_matrices length:sizeof(uniform_buffer_struct) atIndex:1];
             //memcpy([scene_buffer contents], &scene_matrices, sizeof(uniform_buffer_struct));
             
             //[commandEncoder setVertexBuffer:scene_buffer offset:0 atIndex:1];
@@ -1057,6 +1269,7 @@ void MetalRenderer::renderWorld(GameWorld* world, Camera* curCamera)
     for (auto& object : world->renderList)
     {
         scene_matrices.modelMatrix = toMtl(object->getMatrix());
+        [commandEncoder setVertexBytes:&scene_matrices length:sizeof(uniform_buffer_struct) atIndex:1];
         switch (object->getType())
         {
             case ObjectType::Building:

@@ -24,19 +24,19 @@ GameData::~GameData()
 
 void GameData::load()
 {
-    std::array<std::string, 12> RpfsFiles = {
+    std::array<std::string, 25> rpfFileNames = {
         "common.rpf",
         "x64a.rpf",
         "x64b.rpf",
-        /*"x64c.rpf",
+        "x64c.rpf",
         "x64d.rpf",
         "x64e.rpf",
-        "x64f.rpf",*/
-        /*"x64g.rpf",
-        "x64h.rpf",*/
+        "x64f.rpf",
+        "x64g.rpf",
+        "x64h.rpf",
         "x64i.rpf",
-        "x64j.rpf"
-        /*"x64k.rpf",
+        "x64j.rpf",
+        "x64k.rpf",
         "x64l.rpf",
         "x64m.rpf",
         "x64n.rpf",
@@ -49,10 +49,9 @@ void GameData::load()
         "x64u.rpf",
         "x64v.rpf",
         "x64w.rpf",
-        "update\\update.rpf"*/
-    };
+        "update\\update.rpf"};
 
-    for (std::string& rpfFile : RpfsFiles)
+    for (std::string rpfFile : rpfFileNames)
     {
         std::string FilePath = mainDirPath + rpfFile;
 
@@ -60,7 +59,7 @@ void GameData::load()
 
         if (!rpf->is_open())
         {
-            printf("NOT FOUND RPF %s!\n", (FilePath).c_str());
+            printf("File %s wasn't found!\n", rpfFile.c_str());
             continue;
         }
 
@@ -71,6 +70,8 @@ void GameData::load()
         loadRpf(*rpf, rpfFile, rpfFile, FileSize, 0);
 
         openedFiles.push_back(std::move(rpf));
+
+        printf("File %s was succesfully loaded!\n", rpfFile.c_str());
     }
 
     loadGtxd();
@@ -149,7 +150,7 @@ void GameData::load()
                 memstream stream(outputBuffer.data(), outputBuffer.size());
 
                 YtypLoader file(stream);
-                for (auto& def : file.ArchetypeDefs)
+                for (auto& def : file.archetypeDefs)
                 {
                     if (def->getType() == 2)  //MLO
                     {
@@ -422,11 +423,11 @@ void GameData::loadRpf(std::ifstream& rpf, std::string& FullPath_, std::string& 
 
     for (auto& BinaryFileEntry : file->binaryEntries)
     {
-        if (BinaryFileEntry.FileName == "chinesesimp.rpf")
+        /*if (BinaryFileEntry.FileName == "chinesesimp.rpf")
         {
             printf("");
             continue;
-        }
+        }*/
 
         if (BinaryFileEntry.FileName.substr(BinaryFileEntry.FileName.length() - 4) == ".rpf")
         {
@@ -462,7 +463,7 @@ void GameData::extractFileBinary(RpfBinaryFileEntry& entry, std::vector<uint8_t>
 void GameData::extractFileResource(RpfResourceFileEntry& entry, uint8_t* AllocatedMem, uint64_t AllocatedSize)
 {
     auto& rpf = entry.File->rpf;
-    printf("%s\n", entry.File->path.c_str());
+    //printf("%s\n", entry.File->path.c_str());
     rpf.seekg(entry.FileOffset);
 
     if (entry.FileSize > 40 * 1024 * 1024)

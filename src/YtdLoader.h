@@ -3,25 +3,6 @@
 #include "FileType.h"
 #include "Texture.h"
 
-enum TextureFormat
-{
-    D3DFMT_A8R8G8B8 = 21,
-    D3DFMT_A1R5G5B5 = 25,
-    D3DFMT_A8 = 28,
-    D3DFMT_A8B8G8R8 = 32,
-    D3DFMT_L8 = 50,
-
-    // fourCC
-    D3DFMT_DXT1 = 0x31545844,  //
-    D3DFMT_DXT3 = 0x33545844,  //
-    D3DFMT_DXT5 = 0x35545844,  //
-    D3DFMT_ATI1 = 0x31495441,
-    D3DFMT_ATI2 = 0x32495441,
-    D3DFMT_BC7 = 0x20374342,
-
-    //	UNKNOWN
-};
-
 struct TextureBase : datBase
 {
     uint32_t Unknown_8h;   // 0x00000000
@@ -88,8 +69,13 @@ struct TextureDictionary : ResourceFileBase
 
 class YtdLoader : public FileType
 {
-public:
-    std::unordered_map<uint32_t, Texture> Textures;
+    GameRenderer* renderer = nullptr;
 
-    void init(memstream& file) override;
+public:
+    std::unordered_map<uint32_t, Texture> textures;
+
+    void init(GameRenderer* _renderer, memstream& file) override;
+
+    YtdLoader() = default;
+    ~YtdLoader();
 };
