@@ -15,8 +15,6 @@
 
 #include <simd/simd.h>
 #include "glm/glm.hpp"
-//id <MTLDevice> device;
-//MTKView* metalView;
 
 uint32_t texturesSize = 0;
 static int testID = 0;
@@ -59,13 +57,9 @@ id<MTLRenderPipelineState> PNCTTTTXPipelineState;
 //
 id<MTLSamplerState> samplerState;
 //id<MTLRenderPipelineState> PTTPipelineState;
-//
 id <MTLBuffer> scene_buffer;
-
 id <MTLBuffer> cubeTestBuffer;
-
 id <MTLRenderCommandEncoder> commandEncoder;
-
 id <MTLDepthStencilState> depthStencilState;
 
 //id <MTLHeap> heap;
@@ -134,7 +128,7 @@ struct uniform_buffer_struct {
 
 MetalRenderer::MetalRenderer()
 {
-    textureDecompressedMem = new uint8_t[20 * 1024 * 1024]; //20mb for uncompressing textures
+    textureDecompressedMem = std::make_unique<uint8_t[]>(20 * 1024 * 1024); //20mb for uncompressing textures
 }
 
 MetalRenderer::~MetalRenderer()
@@ -145,6 +139,48 @@ MetalRenderer::~MetalRenderer()
 void MetalRenderer::initializeEngine()
 {
     commandQueue = [device newCommandQueue];
+    
+    createRenderPipelines();
+    //
+    mainPassDescriptor = [MTLRenderPassDescriptor new];
+    mainPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
+    mainPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0, 104/255, 55/255, 1.0);
+    mainPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
+    mainPassDescriptor.depthAttachment.loadAction = MTLLoadActionClear;
+    mainPassDescriptor.depthAttachment.clearDepth = 1.0f;
+    //mainPassDescriptor.depthAttachment.loadAction = MTLLoadActionClear;
+    //mainPassDescriptor.depthAttachment.clearDepth = 1.0f;
+    
+    scene_buffer = [device newBufferWithLength:sizeof(uniform_buffer_struct) options:MTLResourceStorageModeShared];
+    
+    cubeTestBuffer = [device newBufferWithBytes:&cubeVertices[0] length:sizeof(cubeVertices)  options:MTLResourceStorageModeShared];
+    
+    MTLSamplerDescriptor *samplerDescriptor = [MTLSamplerDescriptor new];
+    samplerDescriptor.minFilter = MTLSamplerMinMagFilterNearest;
+    samplerDescriptor.magFilter = MTLSamplerMinMagFilterLinear;
+    samplerDescriptor.sAddressMode = MTLSamplerAddressModeRepeat;
+    samplerDescriptor.tAddressMode = MTLSamplerAddressModeRepeat;
+    
+    samplerState = [device newSamplerStateWithDescriptor:samplerDescriptor];
+    
+    /*MTLHeapDescriptor *heapDescriptor = [MTLHeapDescriptor new];
+     heapDescriptor.storageMode = MTLStorageModePrivate;
+     heapDescriptor.cpuCacheMode = MTLCPUCacheModeDefaultCache;
+     heapDescriptor.size = 300 * 1024 * 1024; //300mb
+     
+     heap = [device newHeapWithDescriptor:heapDescriptor];
+     
+     tempBuffer = [device newBufferWithLength:15 * 1024 * 1024 options:MTLStorageModeShared];
+     
+     fence = [device newFence];*/
+    MTLDepthStencilDescriptor* depthDescriptor = [MTLDepthStencilDescriptor new];
+    depthDescriptor.depthCompareFunction = MTLCompareFunctionLess;
+    depthDescriptor.depthWriteEnabled = true;
+    depthStencilState = [device newDepthStencilStateWithDescriptor:depthDescriptor];
+}
+
+void MetalRenderer::createRenderPipelines()
+{
     id<MTLLibrary> defaultLibrary = [device newDefaultLibrary];
     
     {
@@ -777,44 +813,6 @@ void MetalRenderer::initializeEngine()
         
         PNCTTTTXPipelineState = [device newRenderPipelineStateWithDescriptor:renderDescriptor error:nil];
     }
-    
-    //
-    
-    mainPassDescriptor = [MTLRenderPassDescriptor new];
-    mainPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
-    mainPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0, 104/255, 55/255, 1.0);
-    mainPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
-    mainPassDescriptor.depthAttachment.loadAction = MTLLoadActionClear;
-    mainPassDescriptor.depthAttachment.clearDepth = 1.0f;
-    //mainPassDescriptor.depthAttachment.loadAction = MTLLoadActionClear;
-    //mainPassDescriptor.depthAttachment.clearDepth = 1.0f;
-    
-    scene_buffer = [device newBufferWithLength:sizeof(uniform_buffer_struct) options:MTLResourceStorageModeShared];
-    
-    cubeTestBuffer = [device newBufferWithBytes:&cubeVertices[0] length:sizeof(cubeVertices)  options:MTLResourceStorageModeShared];
-    
-    MTLSamplerDescriptor *samplerDescriptor = [MTLSamplerDescriptor new];
-    samplerDescriptor.minFilter = MTLSamplerMinMagFilterNearest;
-    samplerDescriptor.magFilter = MTLSamplerMinMagFilterLinear;
-    samplerDescriptor.sAddressMode = MTLSamplerAddressModeRepeat;
-    samplerDescriptor.tAddressMode = MTLSamplerAddressModeRepeat;
-    
-    samplerState = [device newSamplerStateWithDescriptor:samplerDescriptor];
-    
-    /*MTLHeapDescriptor *heapDescriptor = [MTLHeapDescriptor new];
-     heapDescriptor.storageMode = MTLStorageModePrivate;
-     heapDescriptor.cpuCacheMode = MTLCPUCacheModeDefaultCache;
-     heapDescriptor.size = 300 * 1024 * 1024; //300mb
-     
-     heap = [device newHeapWithDescriptor:heapDescriptor];
-     
-     tempBuffer = [device newBufferWithLength:15 * 1024 * 1024 options:MTLStorageModeShared];
-     
-     fence = [device newFence];*/
-    MTLDepthStencilDescriptor* depthDescriptor = [MTLDepthStencilDescriptor new];
-    depthDescriptor.depthCompareFunction = MTLCompareFunctionLess;
-    depthDescriptor.depthWriteEnabled = true;
-    depthStencilState = [device newDepthStencilStateWithDescriptor:depthDescriptor];
 }
 
 /*MTLRenderPipelineDescriptor* createRenderDescriptor(MTLDevicePtr device, std::vector<VertexAttributes>& attributes)
@@ -1007,10 +1005,10 @@ TextureHandle MetalRenderer::createTexture(const uint8_t* pointer, int width, in
             
             unsigned int size = ((width + 3) / 4) * ((height + 3) / 4) * blockSize;
             
-            Decompressor::imageDecodeToBgra8(textureDecompressedMem, pointer + offset, width, height, width * 4, format);
+            Decompressor::imageDecodeToBgra8(textureDecompressedMem.get(), pointer + offset, width, height, width * 4, format);
             
             MTLRegion region = MTLRegionMake2D(0, 0, width, height);
-            [texture replaceRegion:region mipmapLevel:i slice:0 withBytes:textureDecompressedMem bytesPerRow:width * 32 / 8 bytesPerImage:0];
+            [texture replaceRegion:region mipmapLevel:i slice:0 withBytes:textureDecompressedMem.get() bytesPerRow:width * 32 / 8 bytesPerImage:0];
             
             offset += size;
             width = std::max(width / 2, 1);

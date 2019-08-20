@@ -8,16 +8,13 @@
 #pragma once
 
 #include <stdio.h>
+#include <memory>
 #include "../GameRenderer.h"
-#include "../YtdLoader.h"
-#include <mutex>
+#include "../Texture.h"
 
 #if defined(__OBJC__)
-#import <CoreVideo/CoreVideo.h>
-#import <GLKit/GLKit.h>
 #import <Metal/Metal.h>
 #import <MetalKit/MetalKit.h>
-#import <QuartzCore/QuartzCore.h>
 typedef id<MTLDevice> MTLDevicePtr;
 typedef MTKView* MTLViewPtr;
 #else
@@ -29,7 +26,7 @@ typedef id MTLViewPtr;
 
 class MetalRenderer : public GameRenderer
 {
-    uint8_t* textureDecompressedMem;
+    std::unique_ptr<uint8_t[]> textureDecompressedMem;
 public:
     virtual VertexBufferHandle createVertexBuffer(uint32_t size, const uint8_t* pointer) override;
     virtual IndexBufferHandle createIndexBuffer(uint32_t size, const uint8_t* pointer) override;
@@ -48,11 +45,10 @@ public:
 
     MTLDevicePtr device;
     MTLViewPtr mtkView;
-
-    std::mutex bufferLoad;
     
     MetalRenderer();
     ~MetalRenderer();
     
     void initializeEngine();
+    void createRenderPipelines();
 };
