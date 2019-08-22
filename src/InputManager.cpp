@@ -1,7 +1,10 @@
 #include "InputManager.h"
 
 InputManager::InputManager()
+    : mouseMovement({0, 0})
 {
+    memset(&currentInput[0], 0, ActionsKeySize);
+    memset(&previousInput[0], 0, ActionsKeySize);
 #if (WIN32)
     keyMapping.emplace_back(0x1B, button_ESCAPE);
     keyMapping.emplace_back(0x45, Actions::button_E);

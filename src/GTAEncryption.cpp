@@ -1,5 +1,9 @@
 #include "GTAEncryption.h"
 
+#ifdef __APPLE__
+#include "TargetConditionals.h"
+#endif
+
 GTAEncryption GTAEncryption::gtaEncryption;
 
 GTAEncryption::GTAEncryption()
@@ -12,10 +16,7 @@ GTAEncryption::GTAEncryption()
     strm.avail_in = 0;
 
     int ret = inflateInit2(&strm, -MAX_WBITS);
-    if (ret != Z_OK)
-    {
-        printf("ERROR IN ZLIB");
-    }
+    assert(ret == Z_OK);
 }
 
 GTAEncryption::~GTAEncryption()
@@ -45,12 +46,14 @@ void GTAEncryption::loadKeys(std::string keyPath)
         0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF};
     std::memcpy(&LUT[0], &lutkey[0], 256);
 
+#if TARGET_OS_IPHONE
     std::ifstream ngkeys(keyPath + "assets/gtav_ng_key.dat", std::ios::binary);
-    //std::ifstream ngkeys("assets/gtav_ng_key.dat", std::ios::binary);
+#else
+    std::ifstream ngkeys("assets/gtav_ng_key.dat", std::ios::binary);
+#endif
 
     if (!ngkeys.is_open())
     {
-        printf("NOT FOUND NG!");
         throw std::runtime_error("NG KEY MISSING");
     }
 
@@ -60,12 +63,14 @@ void GTAEncryption::loadKeys(std::string keyPath)
     }
     ngkeys.close();
 
+#if TARGET_OS_IPHONE
     std::ifstream ngtables(keyPath + "assets/gtav_ng_decrypt_tables.dat", std::ios::binary);
-    //std::ifstream ngtables("assets/gtav_ng_decrypt_tables.dat", std::ios::binary);
+#else
+    std::ifstream ngtables("assets/gtav_ng_decrypt_tables.dat", std::ios::binary);
+#endif
 
     if (!ngtables.is_open())
     {
-        printf("NOT FOUND NG TABLES!");
         throw std::runtime_error("NG TABLES MISSING");
     }
 
@@ -211,12 +216,12 @@ void GTAEncryption::decryptNGRoundB(uint8_t* data, uint32_t* key, uint32_t table
     data[15] = (uint8_t)((x4 >> 24) & 0xFF);
 }
 
-void GTAEncryption::decompressBytes(uint8_t* data, uint32_t dataLength, uint8_t* AllocatedMem, uint64_t AllocatedSize)
+void GTAEncryption::decompressBytes(uint8_t* data, uint32_t dataLength, uint8_t* allocatedMem, uint32_t allocatedSize)
 {
     strm.avail_in = dataLength;
     strm.next_in = data;
-    strm.avail_out = AllocatedSize;
-    strm.next_out = &AllocatedMem[0];
+    strm.avail_out = allocatedSize;
+    strm.next_out = &allocatedMem[0];
 
     int ret = inflate(&strm, Z_FINISH);
 

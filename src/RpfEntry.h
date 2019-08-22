@@ -64,7 +64,7 @@ class RpfResourceFileEntry : public RpfFileEntry
 public:
     int32_t SystemSize;
     int32_t GraphicsSize;
-    uint64_t UncompressedFileSize;
+    uint32_t UncompressedFileSize;
 
     RpfResourceFileEntry(memstream& stream, std::istream& originalFile, uint64_t startPos, memstream& namesStream);
 };

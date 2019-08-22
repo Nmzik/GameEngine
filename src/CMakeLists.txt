@@ -55,13 +55,17 @@ endif()
 if(METAL)
 	add_compile_definitions(GLM_FORCE_LEFT_HANDED)
 
-	file(GLOB METAL_SOURCES
-		metal/*.h
-		metal/*.mm
-		metal/*.cpp
-		metal/*.metal
+	list (APPEND METAL_SOURCES
+		metal/MetalRenderer.h
+		metal/MetalRenderer.mm
+		metal/DebugDrawer.h
+		metal/DebugDrawer.cpp
+		metal/TextureDecompressor.h
+		metal/TextureDecompressor.cpp
+		metal/Shaders.metal
 	)
 	list (APPEND SOURCES ${METAL_SOURCES})
+	set_source_files_properties(metal/MetalRenderer.mm PROPERTIES COMPILE_FLAGS -fobjc-arc)
 endif()
 
 if(APPLE)

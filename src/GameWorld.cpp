@@ -716,11 +716,11 @@ void GameWorld::updateWorld(float delta_time, Camera* camera)
     {
         renderList.clear();
 
-        glm::vec3 PlayerPos = getCurrentPlayer()->getPosition();
+        glm::vec3 playerPos = getCurrentPlayer()->getPosition();
         //glm::vec3 PlayerPos = camera->position;
 
-        getVisibleYmaps(PlayerPos);
-        updateObjects(camera, PlayerPos);
+        getVisibleYmaps(playerPos);
+        updateObjects(camera, playerPos);
     }
 }
 

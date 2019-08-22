@@ -30,7 +30,7 @@
     renderer->device = device;
     renderer->mtkView = _view;
     
-    renderer->initializeEngine();
+    renderer->initializeRenderEngine();
     
     _view.delegate = self;
 }
@@ -79,6 +79,12 @@
 - (void)keyDown:(NSEvent *)event
 {
     game->getInput()->processButton(event.keyCode, true);
+}
+
+- (void) flagsChanged:(NSEvent *) event {
+    if ([event modifierFlags] & NSEventModifierFlagShift) {
+        game->getInput()->processButton(event.keyCode, true);
+    }
 }
 
 -(void)keyUp:(NSEvent *)event

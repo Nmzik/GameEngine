@@ -10,10 +10,12 @@
 
 #include <pugixml.hpp>
 
+#define tempBufferSize 40 * 1024 * 1024
+
 GameData::GameData(std::string path)
     : mainDirPath(path)
 {
-    tempBuffer = new uint8_t[40 * 1024 * 1024];
+    tempBuffer = new uint8_t[tempBufferSize];
     nodes.resize(32 * 32);
     GTAEncryption::getInstance().loadKeys(path);
 }
@@ -444,10 +446,7 @@ void GameData::extractFileBinary(RpfBinaryFileEntry& entry, std::vector<uint8_t>
 
     rpf.seekg(entry.FileOffset);
 
-    if (entry.FileSize > 40 * 1024 * 1024)
-    {
-        printf("ERROR BUFFER SIZE\n");
-    }
+    assert(entry.FileSize < tempBufferSize);
 
     rpf.read((char*)&tempBuffer[0], entry.FileSize);
 
@@ -460,16 +459,13 @@ void GameData::extractFileBinary(RpfBinaryFileEntry& entry, std::vector<uint8_t>
         GTAEncryption::getInstance().decompressBytes(&tempBuffer[0], entry.FileSize, output.data(), output.size());
 }
 
-void GameData::extractFileResource(RpfResourceFileEntry& entry, uint8_t* AllocatedMem, uint64_t AllocatedSize)
+void GameData::extractFileResource(RpfResourceFileEntry& entry, uint8_t* allocatedMem, uint32_t allocatedSize)
 {
     auto& rpf = entry.File->rpf;
     //printf("%s\n", entry.File->path.c_str());
     rpf.seekg(entry.FileOffset);
 
-    if (entry.FileSize > 40 * 1024 * 1024)
-    {
-        printf("ERROR BUFFER SIZE\n");
-    }
+    assert(entry.FileSize < tempBufferSize);
 
     rpf.read((char*)&tempBuffer[0], entry.FileSize);
 
@@ -481,5 +477,5 @@ void GameData::extractFileResource(RpfResourceFileEntry& entry, uint8_t* Allocat
             GTAEncryption::getInstance().decryptNG(&tempBuffer[0], entry.FileSize, entry.FileName, entry.FileSize + 0x10);
     }
 
-    GTAEncryption::getInstance().decompressBytes(&tempBuffer[0], entry.FileSize, AllocatedMem, AllocatedSize);
+    GTAEncryption::getInstance().decompressBytes(&tempBuffer[0], entry.FileSize, allocatedMem, allocatedSize);
 }

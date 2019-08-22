@@ -24,6 +24,10 @@
 
 #include "InputActions.h"
 
+#ifdef __APPLE__
+#include "TargetConditionals.h"
+#endif
+
 extern FreeListAllocator* physicsAllocator;
 
 Game::Game(const char* GamePath)
@@ -250,7 +254,11 @@ void Game::updateFPS(float delta_time, float cpuThreadTime, float gpuThreadTime)
 
 void Game::tick(float delta_time)
 {
+#if TARGET_OS_IPHONE
     camera->lookCamera += getInput()->getMouseMovement();
+#else
+    camera->lookCamera = getInput()->getMouseMovement();
+#endif
 
     if (getInput()->isKeyTriggered(Actions::button_E))
     {
@@ -343,7 +351,7 @@ void Game::tick(float delta_time)
         }
     }
 
-    float speed = getInput()->isKeyPressed(Actions::button_LSHIFT) ? 30.0f : 20.0f;
+    float speed = getInput()->isKeyPressed(Actions::button_LSHIFT) ? 80.0f : 40.0f;
 
     glm::vec3 movement{};
     movement.x = (float)getInput()->isKeyPressed(Actions::button_Forward) - getInput()->isKeyPressed(Actions::button_Backward);
@@ -433,7 +441,7 @@ void Game::tick(float delta_time)
              }
              else*/
 
-            player->setMovementDirection(movement * 2);
+            player->setMovementDirection(movement);
 
             if (getInput()->isKeyTriggered(Actions::button_SPACE))
             {

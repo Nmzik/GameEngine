@@ -89,7 +89,7 @@ public:
     int32_t systemSize;
     FileType* file;
     uint8_t* buffer;
-    uint64_t bufferSize;
+    uint32_t bufferSize;
 
     Resource(Type t, uint32_t resHash, FileType* _file)
         : type(t)

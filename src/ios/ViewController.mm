@@ -48,7 +48,7 @@
     MetalRenderer* renderer = static_cast<MetalRenderer*>(game->getRenderer());
     renderer->device = device;
     renderer->mtkView = _view;
-    renderer->initializeEngine();
+    renderer->initializeRenderEngine();
     _view.delegate = self;
 }
 
