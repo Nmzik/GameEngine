@@ -21,7 +21,7 @@ void Camera::updateThirdPersonCamera(CPed* player)
         targetPosition = player->getPosition();
     }
 
-    auto look = glm::vec2(lookCamera.x * 0.01f, lookCamera.y * 0.01f);
+    auto look = glm::vec2(lookDirection.x * 0.01f, lookDirection.y * 0.01f);
     // Determine the "ideal" camera position for the current view angles
     auto yaw = glm::angleAxis(-look.x - glm::half_pi<float>(), glm::vec3(0.f, 0.f, 1.f));
     auto pitch = glm::angleAxis(look.y, glm::vec3(0.f, 1.f, 0.f));
@@ -48,7 +48,7 @@ void Camera::updateThirdPersonCamera(CPed* player)
 
 void Camera::updateFreeCamera()
 {
-    auto look = glm::vec2(lookCamera.x * 0.01f, lookCamera.y * 0.01f);
+    auto look = glm::vec2(lookDirection.x * 0.01f, lookDirection.y * 0.01f);
     // Determine the "ideal" camera position for the current view angles
     auto yaw = glm::angleAxis(-look.x - glm::half_pi<float>(), glm::vec3(0.f, 0.f, 1.f));
     auto pitch = glm::angleAxis(look.y, glm::vec3(0.f, 1.f, 0.f));

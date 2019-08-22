@@ -255,9 +255,9 @@ void Game::updateFPS(float delta_time, float cpuThreadTime, float gpuThreadTime)
 void Game::tick(float delta_time)
 {
 #if TARGET_OS_IPHONE
-    camera->lookCamera += getInput()->getMouseMovement();
+    camera->setLookDirection(camera->getLookDirection + getInput()->getMouseMovement());
 #else
-    camera->lookCamera = getInput()->getMouseMovement();
+    camera->setLookDirection(getInput()->getMouseMovement());
 #endif
 
     if (getInput()->isKeyTriggered(Actions::button_E))

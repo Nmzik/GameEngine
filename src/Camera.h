@@ -24,6 +24,8 @@ class Camera
 
     glm::vec3 position;
     glm::quat rotation;
+    
+    glm::i32vec2 lookDirection;
 
     glm::mat4 projection;
     glm::mat4 viewMatrix;
@@ -40,8 +42,6 @@ public:
         , cameraMode(CameraMode::ThirdPerson)
     {
     }
-
-    glm::i32vec2 lookCamera;
 
     CameraMode getCameraMode() const
     {
@@ -72,6 +72,16 @@ public:
     void setPosition(glm::vec3 pos)
     {
         position = pos;
+    }
+    
+    void setLookDirection(glm::i32vec2 direction)
+    {
+        lookDirection = direction;
+    }
+    
+    glm::i32vec2 getLookDirection() const
+    {
+        return lookDirection;
     }
 
     void updateThirdPersonCamera(CPed* player);
