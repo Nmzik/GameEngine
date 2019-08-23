@@ -1,37 +1,27 @@
 #include "YddLoader.h"
 #include "YdrLoader.h"
 
-void YddLoader::init(GameRenderer* renderer, memstream& file)
+void YddLoader::init(memstream& file)
+{
+    drawableDictionary = (DrawableDictionary*)file.read(sizeof(DrawableDictionary));
+    drawableDictionary->Resolve(file);
+
+    ydrFiles.reserve(drawableDictionary->drawables.size());
+}
+
+void YddLoader::finalize(GameRenderer* _renderer, memstream& file)
 {
     loaded = true;
-
-    DrawableDictionary* drawableDictionary = (DrawableDictionary*)file.read(sizeof(DrawableDictionary));
-
-    ydrFiles.reserve(drawableDictionary->DrawablesCount1);
-
-    SYSTEM_BASE_PTR(drawableDictionary->HashesPointer);
-    file.seekg(drawableDictionary->HashesPointer);
-    uint32_t* YdrHashes = (uint32_t*)file.read(sizeof(uint32_t) * drawableDictionary->HashesCount1);
-
-    SYSTEM_BASE_PTR(drawableDictionary->DrawablesPointer);
-    file.seekg(drawableDictionary->DrawablesPointer);
-
-    for (int i = 0; i < drawableDictionary->DrawablesCount1; i++)
+    for (int i = 0; i < drawableDictionary->drawables.size(); i++)
     {
-        uint64_t* data_pointer = (uint64_t*)file.read(sizeof(uint64_t));
-
-        uint64_t DrawablePointer = file.tellg();
-
-        SYSTEM_BASE_PTR(data_pointer[0]);
-
-        file.seekg(data_pointer[0]);
-
         YdrLoader* ydr = GlobalPool::GetInstance()->ydrPool.create();
-        ydr->init(renderer, file);
+        rmcDrawable* drawable = (rmcDrawable*)drawableDictionary->drawables[i];
+        ydr->loadDrawable(drawable, _renderer, file);
         gpuMemory += ydr->gpuMemory;
-        ydrFiles.insert({YdrHashes[i], ydr});
 
-        file.seekg(DrawablePointer);
+        uint32_t hash = drawableDictionary->hashes[i];
+
+        ydrFiles.insert({hash, ydr});
     }
 }
 

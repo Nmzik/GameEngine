@@ -1,12 +1,15 @@
 #include "YtdLoader.h"
 
-void YtdLoader::init(GameRenderer* _renderer, memstream& file)
+void YtdLoader::init(memstream& file)
+{
+    texDictionary = (TextureDictionary*)file.read(sizeof(TextureDictionary));
+    texDictionary->Resolve(file);
+}
+
+void YtdLoader::finalize(GameRenderer* _renderer, memstream& file)
 {
     renderer = _renderer;
     loaded = true;
-
-    TextureDictionary* texDictionary = (TextureDictionary*)file.read(sizeof(TextureDictionary));
-    texDictionary->Resolve(file);
 
     if (texDictionary->Textures.size() != 0)
     {
@@ -28,8 +31,9 @@ void YtdLoader::init(GameRenderer* _renderer, memstream& file)
             }
 
             TextureHandle handle = renderer->createTexture(&file.data[texture->DataPointer], texture->Width, texture->Height, texture->Levels, texture->Format);
-            Texture tex(handle);
 
+            renderer->getTextureManager()->addTexture(TexturesHashes[i], handle);
+            Texture tex(handle);
             textures.insert({TexturesHashes[i], tex});
         }
     }
@@ -39,6 +43,7 @@ YtdLoader::~YtdLoader()
 {
     for (auto& tex : textures)
     {
+        renderer->getTextureManager()->removeTexture(tex.first);
         renderer->removeTexture(tex.second.getHandle());
     }
 }

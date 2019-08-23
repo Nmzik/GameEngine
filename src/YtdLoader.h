@@ -70,11 +70,13 @@ struct TextureDictionary : ResourceFileBase
 class YtdLoader : public FileType
 {
     GameRenderer* renderer = nullptr;
+    TextureDictionary* texDictionary;
 
 public:
     std::unordered_map<uint32_t, Texture> textures;
 
-    void init(GameRenderer* _renderer, memstream& file) override;
+    void init(memstream& file) override;
+    void finalize(GameRenderer* _renderer, memstream& file) override;
 
     YtdLoader() = default;
     ~YtdLoader();

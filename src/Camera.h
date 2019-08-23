@@ -24,7 +24,7 @@ class Camera
 
     glm::vec3 position;
     glm::quat rotation;
-    
+
     glm::i32vec2 lookDirection;
 
     glm::mat4 projection;
@@ -73,12 +73,12 @@ public:
     {
         position = pos;
     }
-    
+
     void setLookDirection(glm::i32vec2 direction)
     {
         lookDirection = direction;
     }
-    
+
     glm::i32vec2 getLookDirection() const
     {
         return lookDirection;

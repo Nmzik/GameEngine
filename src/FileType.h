@@ -460,7 +460,7 @@ public:
     virtual void init(memstream& file)
     {
     }
-    virtual void init(GameRenderer* renderer, memstream& file)
+    virtual void finalize(GameRenderer* renderer, memstream& file)
     {
     }
 };

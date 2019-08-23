@@ -2,6 +2,7 @@
 
 #include "Geometry.h"
 #include "Texture.h"
+#include "TextureManager.h"
 
 class GameWorld;
 class Camera;
@@ -246,9 +247,13 @@ static VertexLayout PCCNCTTTAttrib = {
     60,
     4};
 
+#define gpuBufferSize 18000
+
 class GameRenderer
 {
     int numDrawCalls;
+
+    TextureManager textureManager;
 
 public:
     GameRenderer(/*NativeWindow* window*/);
@@ -272,6 +277,11 @@ public:
      void renderPed(CPed* ped);
      void renderVehicle(CVehicle* vehicle);*/
     //
+    TextureManager* getTextureManager()
+    {
+        return &textureManager;
+    }
+
     virtual void renderWorld(GameWorld* world, Camera* curCamera) = 0;
 
     int getNumDrawCalls() const

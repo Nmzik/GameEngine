@@ -65,11 +65,11 @@
     _startTouch = [touches.anyObject locationInView:self.view];
     
     //NSLog(@"%f %f", _startTouch.x, _startTouch.y);
-    if (_startTouch.x < 250)
+    if (_startTouch.x < 200)
         game->getInput()->processButton(0, true);
-    if (_startTouch.x > 650)
+    if (_startTouch.x > 700)
         game->getInput()->processButton(2, true);
-    if (_startTouch.y < 130)
+    if (_startTouch.y < 100)
         game->getInput()->processButton(13, true);
     if (_startTouch.y > 320)
         game->getInput()->processButton(1, true);

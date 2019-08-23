@@ -1,6 +1,14 @@
 #pragma once
 #include <cstdint>
 
+#include "Texture.h"
+
+enum Hash : uint32_t
+{
+    DiffuseSampler = 4059966321,
+    PlateBgSampler = 1342317448,
+};
+
 enum VertexType : uint32_t
 {
     Default = 89,       // PNCT
@@ -81,12 +89,13 @@ class Geometry
 {
     VertexBufferHandle vertexBufferHandle;
     IndexBufferHandle indexBufferHandle;
+    TextureHandle textureHandle;
     uint32_t indexCount;
 
 public:
     VertexType type;
     //Geometry(const uint8_t* meshData, grmGeometry* drawGeom, uint16_t _materialID, uint32_t Shader);
-    Geometry(VertexBufferHandle vert_handle, IndexBufferHandle index_handle, uint32_t countIndices);
+    Geometry(VertexBufferHandle vert_handle, IndexBufferHandle index_handle, uint32_t countIndices, TextureHandle tex_handle);
     ~Geometry();
 
     VertexBufferHandle getVertexBufferHandle() const
@@ -97,6 +106,11 @@ public:
     IndexBufferHandle getIndexBufferHandle() const
     {
         return indexBufferHandle;
+    }
+
+    TextureHandle getTextureHandle() const
+    {
+        return textureHandle;
     }
 
     uint32_t getIndexCount() const

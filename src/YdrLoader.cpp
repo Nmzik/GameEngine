@@ -2,45 +2,32 @@
 #include <algorithm>
 #include "GTAEncryption.h"
 
-void YdrLoader::init(GameRenderer* _renderer, memstream& file)
+void YdrLoader::init(memstream& file)
+{
+    gtaDrawable* GTAdrawable = (gtaDrawable*)file.read(sizeof(gtaDrawable));
+    GTAdrawable->Resolve(file);
+
+    if (GTAdrawable->BoundPointer)
+    {
+        /*file.seekg(GTAdrawable->BoundPointer);
+         
+         ybn = std::make_unique<YbnLoader>();
+         ybn->Init(file);*/
+    }
+    drawable = (rmcDrawable*)GTAdrawable;
+    //loadDrawable(GTAdrawable, _renderer, file);
+}
+
+void YdrLoader::finalize(GameRenderer* _renderer, memstream& file)
+{
+    loadDrawable(drawable, _renderer, file);
+}
+
+void YdrLoader::loadDrawable(rmcDrawable* drawable, GameRenderer* _renderer, memstream& file)
 {
     renderer = _renderer;
     loaded = true;
-
-    rmcDrawable* drawable = nullptr;
     //	READ COLLISION DATA FROM YDR
-    if (isYft)
-    {
-        FragDrawable* fragDrawable = (FragDrawable*)file.read(sizeof(FragDrawable));
-        fragDrawable->Resolve(file);
-
-        drawable = (rmcDrawable*)fragDrawable;
-
-        if (fragDrawable->BoundPointer != 0)
-        {
-            /*file.seekg(fragDrawable->BoundPointer);
-
-            ybn = std::make_unique<YbnLoader>();
-            ybn->Init(file);*/
-        }
-    }
-    else
-    {
-        gtaDrawable* GTAdrawable = (gtaDrawable*)file.read(sizeof(gtaDrawable));
-        GTAdrawable->Resolve(file);
-
-        drawable = (rmcDrawable*)GTAdrawable;
-
-        if (GTAdrawable->BoundPointer)
-        {
-            /*file.seekg(GTAdrawable->BoundPointer);
-
-            ybn = std::make_unique<YbnLoader>();
-            ybn->Init(file);*/
-        }
-    }
-
-    materials.resize(drawable->ShaderGroupPointer->Shaders.size());
 
     //	Shader stuff
     if (drawable->ShaderGroupPointer.pointer)
@@ -51,7 +38,8 @@ void YdrLoader::init(GameRenderer* _renderer, memstream& file)
             SYSTEM_BASE_PTR(drawable->ShaderGroupPointer->TextureDictionaryPointer);
             file.seekg(drawable->ShaderGroupPointer->TextureDictionaryPointer);
             ytd = GlobalPool::GetInstance()->ytdPool.create();
-            ytd->init(renderer, file);
+            ytd->init(file);
+            ytd->finalize(renderer, file);
         }
 
         materials.reserve(drawable->ShaderGroupPointer->Shaders.size());
@@ -204,12 +192,10 @@ void YdrLoader::init(GameRenderer* _renderer, memstream& file)
             const uint8_t* indicesPointer = &file.data[geom->IndexBufferPointer->IndicesPointer];
 
             VertexBufferHandle vertexHandle = renderer->createVertexBuffer(vertexSize, vertexPointer);
-
             IndexBufferHandle indexHandle = renderer->createIndexBuffer(indicesSize, indicesPointer);
+            TextureHandle texHandle = renderer->getTextureManager()->getTexture(materials[drawable->DrawableModels[0]->Get(i)->ShaderMappingPointer[j]].DiffuseSampler);
 
-            short test = drawable->DrawableModels[0]->Get(i)->ShaderMappingPointer[j];
-
-            Geometry geometry(vertexHandle, indexHandle, geom->IndexBufferPointer->IndicesCount);
+            Geometry geometry(vertexHandle, indexHandle, geom->IndexBufferPointer->IndicesCount, texHandle);
             geometry.type = (VertexType)geom->VertexBufferPointer->InfoPointer->Flags;
             models[i].geometries.push_back(geometry);
 

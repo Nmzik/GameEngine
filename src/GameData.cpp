@@ -90,6 +90,7 @@ void GameData::load()
 
     for (auto& rpfFile : rpfFiles)
     {
+        std::vector<uint8_t> buffer(10 * 1024);
         for (auto& entry : rpfFile->resourceEntries)
         {
             //    NO FILES DETECTED WITH uppercase in their names
@@ -146,10 +147,10 @@ void GameData::load()
                 //    Ytypentries[entry.FileNameHash] = &entry;
                 //    Ytypentries[entry.ShortNameHash] = &entry;
 
-                std::vector<uint8_t> outputBuffer(entry.UncompressedFileSize);
-                extractFileResource(entry, outputBuffer.data(), outputBuffer.size());
+                buffer.resize(entry.UncompressedFileSize);
+                extractFileResource(entry, buffer.data(), buffer.size());
 
-                memstream stream(outputBuffer.data(), outputBuffer.size());
+                memstream stream(buffer.data(), buffer.size());
 
                 YtypLoader file(stream);
                 for (auto& def : file.archetypeDefs)
@@ -163,10 +164,10 @@ void GameData::load()
             }
             else if (extension == ".ynd")
             {
-                std::vector<uint8_t> Buffer(entry.SystemSize + entry.GraphicsSize);
-                extractFileResource(entry, &Buffer[0], Buffer.size());
+                buffer.resize(entry.SystemSize + entry.GraphicsSize);
+                extractFileResource(entry, buffer.data(), buffer.size());
 
-                memstream stream(Buffer.data(), Buffer.size());
+                memstream stream(buffer.data(), buffer.size());
                 std::unique_ptr<YndLoader> loader = std::make_unique<YndLoader>(stream);
 
                 FileNameNoExtension.remove_prefix(5);
@@ -204,10 +205,10 @@ void GameData::load()
 
             if (extension == ".ymf")
             {
-                std::vector<uint8_t> outputBuffer(entry.FileUncompressedSize);
-                extractFileBinary(entry, outputBuffer);
+                buffer.resize(entry.FileUncompressedSize);
+                extractFileBinary(entry, buffer);
 
-                memstream stream(outputBuffer.data(), outputBuffer.size());
+                memstream stream(buffer.data(), buffer.size());
                 YmfLoader loader(stream);
 
                 for (auto texture : loader.HDtextures)
@@ -238,28 +239,28 @@ void GameData::load()
 
             else if (entry.FileName == "handling.meta")
             {
-                std::vector<uint8_t> Buffer(entry.FileUncompressedSize);
-                extractFileBinary(entry, Buffer);
-                loadHandlingData(Buffer);
+                buffer.resize(entry.FileUncompressedSize);
+                extractFileBinary(entry, buffer);
+                loadHandlingData(buffer);
             }
             else if (entry.FileName == "gta5_cache_y.dat")
             {
-                std::vector<uint8_t> Buffer(entry.FileUncompressedSize);
-                extractFileBinary(entry, Buffer);
+                buffer.resize(entry.FileUncompressedSize);
+                extractFileBinary(entry, buffer);
 
-                cacheFile = std::make_unique<CacheDatFile>(Buffer);
+                cacheFile = std::make_unique<CacheDatFile>(buffer);
             }
             else if (entry.FileName == "water.xml")
             {
-                std::vector<uint8_t> Buffer(entry.FileUncompressedSize);
-                extractFileBinary(entry, Buffer);
-                loadWaterQuads(Buffer);
+                buffer.resize(entry.FileUncompressedSize);
+                extractFileBinary(entry, buffer);
+                loadWaterQuads(buffer);
             }
             else if (entry.FileName == "playerswitchestablishingshots.meta")
             {
-                std::vector<uint8_t> Buffer(entry.FileUncompressedSize);
-                extractFileBinary(entry, Buffer);
-                loadScenesSwitch(Buffer);
+                buffer.resize(entry.FileUncompressedSize);
+                extractFileBinary(entry, buffer);
+                loadScenesSwitch(buffer);
             }
         }
     }

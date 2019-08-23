@@ -23,7 +23,7 @@
 uint32_t texturesSize = 0;
 uint32_t vertexBufferSize = 0;
 static int testID = 0;
-#define gpuBufferSize 16000
+
 id<MTLBuffer> vertexBuffers[gpuBufferSize] = {0};
 id<MTLBuffer> indexBuffers[gpuBufferSize] = {0};
 id<MTLTexture> textures[gpuBufferSize] = {0};
@@ -182,6 +182,8 @@ void MetalRenderer::createWarningTexture()
     
     MTLRegion region = MTLRegionMake2D(0, 0, 8, 8);
     [errorTexture replaceRegion:region mipmapLevel:0 withBytes:&data[0] bytesPerRow:8 * 4];
+    
+    textures[0] = errorTexture;
 }
 
 void MetalRenderer::createRenderPipelines()
@@ -337,6 +339,7 @@ IndexBufferHandle MetalRenderer::createIndexBuffer(uint32_t size, const uint8_t*
 
 TextureHandle MetalRenderer::createTexture(const uint8_t* pointer, int width, int height, int levels, TextureFormat format)
 {
+    bool compressed = true;
 #if TARGET_OS_IPHONE
     bool convert = true;
 #else
@@ -346,19 +349,25 @@ TextureHandle MetalRenderer::createTexture(const uint8_t* pointer, int width, in
     
     switch (format) {
         case D3DFMT_A8R8G8B8:
-        textureFormat = MTLPixelFormatR8Uint;
+        textureFormat = MTLPixelFormatRGBA8Unorm;
+        compressed = false;
         break;
         case D3DFMT_A1R5G5B5:
-        textureFormat = MTLPixelFormatR8Uint;
+        //textureFormat = MTLPixelFormat(41);
+        textureFormat = MTLPixelFormatInvalid;
+        compressed = false;
         break;
         case D3DFMT_A8:
-        textureFormat = MTLPixelFormatR8Uint;
+        textureFormat = MTLPixelFormatA8Unorm;
+        compressed = false;
         break;
         case D3DFMT_A8B8G8R8:
-        textureFormat = MTLPixelFormatR8Uint;
+        textureFormat = MTLPixelFormatRGBA8Unorm;
+        compressed = false;
         break;
         case D3DFMT_L8:
         textureFormat = MTLPixelFormatR8Uint;
+        compressed = false;
         break;
 #if TARGET_OS_IPHONE
         case D3DFMT_DXT1:
@@ -395,8 +404,8 @@ TextureHandle MetalRenderer::createTexture(const uint8_t* pointer, int width, in
     }
     
     //if (compatFormat != MTLPixelFormatBC3_RGBA && width < 2048)
-    if (format != D3DFMT_DXT5 && format != D3DFMT_DXT1 && format != D3DFMT_DXT3)
-    return TextureHandle{0};
+    if (textureFormat == MTLPixelFormatInvalid)
+        return TextureHandle{0};
     
     //check uncompressed texture size
 #if TARGET_OS_IPHONE
@@ -423,7 +432,24 @@ TextureHandle MetalRenderer::createTexture(const uint8_t* pointer, int width, in
             width = std::max(width / 2, 1);
             height = std::max(height / 2, 1);
         }
-    } else {
+    } else if (!compressed){
+        for (int i = 0; i < levels; i++) {
+            
+            int offset = 0;
+            
+            unsigned int size =
+            ((width + 1) >> 1) * ((height + 1) >> 1) * 4;
+            
+            MTLRegion region = MTLRegionMake2D(0, 0, width, height);
+            [texture replaceRegion:region mipmapLevel:i withBytes:pointer + offset bytesPerRow:width * 4];
+            
+            offset += size;
+            width = std::max(width / 2, 1);
+            height = std::max(height / 2, 1);
+        }
+    }
+    #if !TARGET_OS_IPHONE
+    else {
         for (int i = 0; i < levels; i++) {
             int offset = 0;
             int bytesPerBlock = (format == D3DFMT_DXT1) ? 8 : 16;
@@ -441,8 +467,8 @@ TextureHandle MetalRenderer::createTexture(const uint8_t* pointer, int width, in
             width = std::max(width / 2, 1);
             height = std::max(height / 2, 1);
         }
-        
     }
+#endif
     
     TextureHandle handle;
     
@@ -451,8 +477,8 @@ TextureHandle MetalRenderer::createTexture(const uint8_t* pointer, int width, in
     for (int i = 0; i < gpuBufferSize; i++) {
         if (textures[i] == 0)
         {
-            if (testID == 0)
-            testID = i;
+            //if (format == D3DFMT_A8R8G8B8 && testID == 0)
+             //   testID = i;
             //}
             textures[i] = texture;
             handle.id = i;
@@ -607,10 +633,15 @@ void MetalRenderer::renderDrawable(YdrLoader* drawable)
             [commandEncoder setCullMode:MTLCullModeBack];
             //if (geometry.type != VertexType::Default)
             // continue;
-            if (testID != 0)
-            [commandEncoder setFragmentTexture:textures[testID] atIndex:0];
+            //if (testID != 0)
+            //[commandEncoder setFragmentTexture:textures[testID] atIndex:0];
+            //else
+            
+            //fix TextureManager
+            if (textures[geometry.getTextureHandle().id] == 0)
+                [commandEncoder setFragmentTexture:textures[0] atIndex:0];
             else
-            [commandEncoder setFragmentTexture:errorTexture atIndex:0];
+                [commandEncoder setFragmentTexture:textures[geometry.getTextureHandle().id] atIndex:0];
             [commandEncoder setFragmentSamplerState:samplerState atIndex:0];
             
             [commandEncoder setVertexBuffer:vertexBuffers[geometry.getVertexBufferHandle().id] offset:0 atIndex:0];

@@ -75,9 +75,9 @@ GameWorld::GameWorld(ResourceManager* resManager, GameRenderer* _renderer)
     resourceManager->getYtd(GenHash("vehshare_army"));
     resourceManager->getYtd(GenHash("vehshare_truck"));
 
-    /*for (auto& ytd : data.GtxdEntries)
+    /*for (auto& ytd : resourceManager->getGameData()->gtxdEntries)
 	{
-	 resourceManager->getYtd(ytd.second);
+        resourceManager->getYtd(ytd.second);
 	}*/
 
     addPedToWorld(glm::vec3(-19.09, -407.75, 48.77), playerYDD);

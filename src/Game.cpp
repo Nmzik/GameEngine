@@ -10,6 +10,8 @@
 #include "ResourceManager.h"
 
 #include "YbnLoader.h"
+#include "YdrLoader.h"
+#include "YtdLoader.h"
 
 #ifdef WIN32
 #include "windows/GameRenderer.h"
@@ -50,6 +52,13 @@ Game::Game(const char* GamePath)
     //window->AddListener(input.get());
 
     camera = std::make_unique<Camera>(glm::vec3(0.0, 0.0, 50.0), gameWorld.get());
+
+    /*for (auto& ytd : resourceManager->getGameData()->gtxdEntries)
+    {
+        while (resourceManager->getYtd(ytd.second)->loaded) {
+            loadQueuedResources();
+        }
+    }*/
 
     //	FT_Library library;
     //	FT_Init_FreeType(&library);
@@ -189,7 +198,7 @@ void Game::loadQueuedResources()
                 case ydd:
                 case yft:
                 {
-                    res->file->init(getRenderer(), stream);
+                    res->file->finalize(getRenderer(), stream);
                     resourceManager->GlobalGpuMemory += res->file->gpuMemory;
                     break;
                 }
@@ -255,7 +264,7 @@ void Game::updateFPS(float delta_time, float cpuThreadTime, float gpuThreadTime)
 void Game::tick(float delta_time)
 {
 #if TARGET_OS_IPHONE
-    camera->setLookDirection(camera->getLookDirection + getInput()->getMouseMovement());
+    camera->setLookDirection(camera->getLookDirection() + getInput()->getMouseMovement());
 #else
     camera->setLookDirection(getInput()->getMouseMovement());
 #endif

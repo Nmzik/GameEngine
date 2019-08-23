@@ -2,19 +2,13 @@
 #include "YbnLoader.h"
 #include "YdrLoader.h"
 
-void YftLoader::init(GameRenderer* renderer, memstream& file)
+void YftLoader::init(memstream& file)
 {
-    loaded = true;
+    fragType = (FragType*)file.read(sizeof(FragType));
+    fragType->Resolve(file);
 
-    FragType* fragType = (FragType*)file.read(sizeof(FragType));
-
-    SYSTEM_BASE_PTR(fragType->DrawablePointer);
+    /*SYSTEM_BASE_PTR(fragType->DrawablePointer);
     file.seekg(fragType->DrawablePointer);
-
-    ydr = GlobalPool::GetInstance()->ydrPool.create();
-    ydr->isYft = true;
-    ydr->init(renderer, file);
-    gpuMemory += ydr->gpuMemory;
 
     SYSTEM_BASE_PTR(fragType->PhysicsLODGroupPointer);
     file.seekg(fragType->PhysicsLODGroupPointer);
@@ -54,15 +48,26 @@ void YftLoader::init(GameRenderer* renderer, memstream& file)
 	 file.seekg(ChildrenPointer);
 	}*/
 
-    SYSTEM_BASE_PTR(fragPhysicsLOD->BoundPointer);
+    /*SYSTEM_BASE_PTR(fragPhysicsLOD->BoundPointer);
     file.seekg(fragPhysicsLOD->BoundPointer);
 
     ybn = GlobalPool::GetInstance()->ybnPool.create();
-    ybn->init(file);
+    ybn->init(file);*/
+}
+
+void YftLoader::finalize(GameRenderer* _renderer, memstream& file)
+{
+    loaded = true;
+    rmcDrawable* drawable = (rmcDrawable*)fragType->drawable.operator*();
+    ydr = GlobalPool::GetInstance()->ydrPool.create();
+    ydr->isYft = true;
+    ydr->loadDrawable(drawable, _renderer, file);
+    gpuMemory += ydr->gpuMemory;
 }
 
 YftLoader::~YftLoader()
 {
-    GlobalPool::GetInstance()->ybnPool.remove(ybn);
+    if (ybn)
+        GlobalPool::GetInstance()->ybnPool.remove(ybn);
     GlobalPool::GetInstance()->ydrPool.remove(ydr);
 }

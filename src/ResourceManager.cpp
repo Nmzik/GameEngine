@@ -105,11 +105,11 @@ YtdLoader* ResourceManager::getYtd(uint32_t hash)
     }
     else
     {
-        /*auto iter = data.GtxdEntries.find(hash);
-		if (iter != data.GtxdEntries.end())
-		{
-		 getYtd(iter->second);
-		}*/
+        auto iter = data.gtxdEntries.find(hash);
+        if (iter != data.gtxdEntries.end())
+        {
+            return getYtd(iter->second);
+        }
 
         bool HDTextures = false;
         if (HDTextures)
@@ -284,64 +284,78 @@ void ResourceManager::update()
                     data.extractFileResource(*(it->second), res->buffer, res->bufferSize);
                     res->systemSize = (it->second->SystemSize);
 
-                    if (res->type == ymap)
+                    switch (res->type)
                     {
-                        YmapLoader* iter = static_cast<YmapLoader*>(res->file);
-                        memstream stream(&res->buffer[0], res->bufferSize);
-                        iter->init(stream);
-
-                        for (auto& mlo : iter->CMloInstanceDefs)
+                        case ymap:
                         {
-                            auto it = data.mloDictionary.find(mlo.fwEntityDef.archetypeName);
-                            if (it != data.mloDictionary.end())
+                            YmapLoader* iter = static_cast<YmapLoader*>(res->file);
+                            memstream stream(&res->buffer[0], res->bufferSize);
+                            iter->init(stream);
+
+                            for (auto& mlo : iter->CMloInstanceDefs)
                             {
-                                for (auto& entityDef : it->second)
+                                auto it = data.mloDictionary.find(mlo.fwEntityDef.archetypeName);
+                                if (it != data.mloDictionary.end())
                                 {
-                                    glm::quat rotmultiply = entityDef.rotation * mlo.fwEntityDef.rotation;
-                                    rotmultiply.w = -rotmultiply.w;
-                                    glm::mat4 matrix = glm::translate(glm::mat4(1.0f), mlo.fwEntityDef.position + entityDef.position) *
-                                                       glm::mat4_cast(glm::quat(-mlo.fwEntityDef.rotation.w, -mlo.fwEntityDef.rotation.x,
-                                                                                -mlo.fwEntityDef.rotation.y, -mlo.fwEntityDef.rotation.z)) *
-                                                       glm::scale(glm::mat4(1.0f),
-                                                                  glm::vec3(entityDef.scaleXY, entityDef.scaleXY, entityDef.scaleZ));
-                                    entityDef.position = mlo.fwEntityDef.position + entityDef.position;
-                                    entityDef.rotation = rotmultiply;
-                                    iter->entities.emplace_back(entityDef);
+                                    for (auto& entityDef : it->second)
+                                    {
+                                        glm::quat rotmultiply = entityDef.rotation * mlo.fwEntityDef.rotation;
+                                        rotmultiply.w = -rotmultiply.w;
+                                        glm::mat4 matrix = glm::translate(glm::mat4(1.0f), mlo.fwEntityDef.position + entityDef.position) *
+                                                           glm::mat4_cast(glm::quat(-mlo.fwEntityDef.rotation.w, -mlo.fwEntityDef.rotation.x,
+                                                                                    -mlo.fwEntityDef.rotation.y, -mlo.fwEntityDef.rotation.z)) *
+                                                           glm::scale(glm::mat4(1.0f),
+                                                                      glm::vec3(entityDef.scaleXY, entityDef.scaleXY, entityDef.scaleZ));
+                                        entityDef.position = mlo.fwEntityDef.position + entityDef.position;
+                                        entityDef.rotation = rotmultiply;
+                                        iter->entities.emplace_back(entityDef);
+                                    }
                                 }
                             }
-                        }
 
-                        for (auto& object : iter->entities)
-                        {
-                            std::unordered_map<uint32_t, fwArchetype*>::iterator it = data.archetypes.find(object.entityDef.archetypeName);
-                            if (it != data.archetypes.end())
+                            for (auto& object : iter->entities)
                             {
-                                if (it->second->getType() == 2)
+                                std::unordered_map<uint32_t, fwArchetype*>::iterator it = data.archetypes.find(object.entityDef.archetypeName);
+                                if (it != data.archetypes.end())
                                 {
-                                    printf("");
+                                    if (it->second->getType() == 2)
+                                    {
+                                        printf("");
+                                    }
+
+                                    object.archetype = it->second;
+
+                                    object.boundPos = object.entityDef.position - object.archetype->BaseArchetypeDef.bsCentre;
+                                    object.boundRadius = object.archetype->BaseArchetypeDef
+                                                             .bsRadius;  //* std::max(object.CEntity.scaleXY, object.CEntity.scaleZ); TREES doesnt render with multiplying by scale
+
+                                    if (object.entityDef.lodDist <= 0)
+                                        object.entityDef.lodDist = it->second->BaseArchetypeDef.lodDist;
+                                    if (object.entityDef.childLodDist <= 0)
+                                        object.entityDef.childLodDist = it->second->BaseArchetypeDef.lodDist;
+                                }
+                                else
+                                {
+                                    //    printf("ERROR\n"); ACTUALLY IT CAN HAPPEN
+                                    object.archetype = nullptr;
+                                    object.entityDef.lodDist = 0.f;  //    HACK = DONT RENDER objects WITH UNKNOWN ARCHETYPE
                                 }
 
-                                object.archetype = it->second;
-
-                                object.boundPos = object.entityDef.position - object.archetype->BaseArchetypeDef.bsCentre;
-                                object.boundRadius = object.archetype->BaseArchetypeDef
-                                                         .bsRadius;  //* std::max(object.CEntity.scaleXY, object.CEntity.scaleZ); TREES doesnt render with multiplying by scale
-
-                                if (object.entityDef.lodDist <= 0)
-                                    object.entityDef.lodDist = it->second->BaseArchetypeDef.lodDist;
-                                if (object.entityDef.childLodDist <= 0)
-                                    object.entityDef.childLodDist = it->second->BaseArchetypeDef.lodDist;
+                                object.entityDef.lodDist *= object.entityDef.lodDist;            // glm::length2
+                                object.entityDef.childLodDist *= object.entityDef.childLodDist;  // glm::length2
                             }
-                            else
-                            {
-                                //    printf("ERROR\n"); ACTUALLY IT CAN HAPPEN
-                                object.archetype = nullptr;
-                                object.entityDef.lodDist = 0.f;  //    HACK = DONT RENDER objects WITH UNKNOWN ARCHETYPE
-                            }
-
-                            object.entityDef.lodDist *= object.entityDef.lodDist;            // glm::length2
-                            object.entityDef.childLodDist *= object.entityDef.childLodDist;  // glm::length2
+                            break;
                         }
+                        case ydr:
+                        case ydd:
+                        case yft:
+                        {
+                            memstream stream(&res->buffer[0], res->bufferSize);
+                            res->file->init(stream);
+                            break;
+                        }
+                        default:
+                            break;
                     }
                 }
                 addToMainQueue(res);

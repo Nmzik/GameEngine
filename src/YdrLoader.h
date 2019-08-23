@@ -358,6 +358,7 @@ class YdrLoader : public FileType
 {
     YtdLoader* ytd;
     GameRenderer* renderer = nullptr;
+    rmcDrawable* drawable;
 
 public:
     std::vector<Material> materials;
@@ -372,5 +373,7 @@ public:
     }
     ~YdrLoader();
 
-    void init(GameRenderer* _renderer, memstream& file) override;
+    void loadDrawable(rmcDrawable* drawable, GameRenderer* _renderer, memstream& file);
+    void init(memstream& file) override;
+    void finalize(GameRenderer* _renderer, memstream& file) override;
 };

@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include "FileType.h"
+#include "YdrLoader.h"
 
 struct FragType : ResourceFileBase
 {
@@ -12,7 +13,7 @@ struct FragType : ResourceFileBase
     uint32_t Unknown_24h;
     uint32_t Unknown_28h;
     uint32_t Unknown_2Ch;
-    uint64_t DrawablePointer;
+    pgPtr<FragDrawable> drawable;
     uint64_t Unknown_28h_Pointer;
     uint64_t Unknown_30h_Pointer;
     uint32_t Count0;
@@ -63,6 +64,12 @@ struct FragType : ResourceFileBase
     uint64_t Unknown_120h_Pointer;
     uint32_t Unknown_128h;  // 0x00000000
     uint32_t Unknown_12Ch;  // 0x00000000
+
+    inline void Resolve(memstream& file)
+    {
+        drawable.Resolve(file);
+        drawable->Resolve(file);
+    };
 };
 
 struct FragPhysicsLODGroup : datBase
@@ -188,12 +195,15 @@ class YbnLoader;
 
 class YftLoader : public FileType
 {
+    FragType* fragType;
+
 public:
     YdrLoader* ydr;
     YbnLoader* ybn;
     std::vector<YdrLoader*> fragPhysicsLODs;
 
-    void init(GameRenderer* renderer, memstream& file) override;
+    void init(memstream& file) override;
+    void finalize(GameRenderer* _renderer, memstream& file) override;
 
     YftLoader()
         : ydr(nullptr)
