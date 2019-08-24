@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include "common.h"
+#include "../common.h"
 
 inline int GetSizeFromFlags(uint32_t flags)
 {

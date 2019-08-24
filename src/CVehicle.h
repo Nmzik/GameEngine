@@ -4,7 +4,7 @@
 #include <btBulletDynamicsCommon.h>
 #include "BulletCollision/CollisionDispatch/btGhostObject.h"
 
-#include "YftLoader.h"
+#include "loaders/YftLoader.h"
 
 class CVehicle : public CEntity
 {

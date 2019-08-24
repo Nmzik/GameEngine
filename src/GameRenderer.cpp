@@ -2,7 +2,6 @@
 #include "CBuilding.h"
 #include "Camera.h"
 #include "Model.h"
-#include "YdrLoader.h"
 
 GameRenderer::GameRenderer(/*NativeWindow* window*/)
     : /*nativeWindow(window)

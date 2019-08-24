@@ -9,9 +9,9 @@
 #include "GameRenderer.h"
 #include "ResourceManager.h"
 
-#include "YbnLoader.h"
-#include "YdrLoader.h"
-#include "YtdLoader.h"
+#include "loaders/YbnLoader.h"
+#include "loaders/YdrLoader.h"
+#include "loaders/YtdLoader.h"
 
 #ifdef WIN32
 #include "windows/GameRenderer.h"
@@ -44,7 +44,7 @@ Game::Game(const char* GamePath)
 #endif
     rendering_system = std::make_unique<MetalRenderer>();
     //rendering_system = std::make_unique<GameRenderer>(/*window.get()*/);
-    gameWorld = std::make_unique<GameWorld>(resourceManager.get(), rendering_system.get());
+    gameWorld = std::make_unique<GameWorld>(resourceManager.get());
     input = std::make_unique<InputManager>();
     scriptMachine = std::make_unique<ScriptInterpreter>(gameData.get(), this);
 
@@ -220,6 +220,12 @@ void Game::loadQueuedResources()
                     res->file->init(stream);
                     break;
                 }
+                case ynd:
+                case ynv:
+                case ycd:
+                case awc:
+                case null:
+                    break;
             }
 
             resourceManager->resource_allocator->deallocate(res->buffer);

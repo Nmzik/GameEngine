@@ -12,7 +12,7 @@ using namespace metal;
 struct VertexIn {
     float3 position [[attribute(0)]];
     float3 normal [[attribute(1)]];
-    uint colour [[attribute(2)]];
+    uchar4 colour [[attribute(2)]];
     float2 texCoord [[attribute(3)]];
 };
 
@@ -20,6 +20,7 @@ struct VertexOut {
     float4 position [[position]];
     float3 fragmentPosition;
     float3 normal;
+    uchar4 color;
     float2 texCoord;
 };
 

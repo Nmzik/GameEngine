@@ -7,6 +7,12 @@ file(GLOB SOURCES
 *.cpp
 )
 
+file(GLOB LOADERS
+loaders/*.h
+loaders/*.cpp
+)
+list (APPEND SOURCES ${LOADERS})
+
 if(WIN32)
 	find_package(GLEW REQUIRED)
 	if (GLEW_FOUND)
@@ -85,7 +91,7 @@ endforeach()
 target_link_libraries(MyGameEngine BulletDynamics)
 target_link_libraries(MyGameEngine BulletCollision)
 target_link_libraries(MyGameEngine LinearMath)
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+if (MSVC)
 	target_link_libraries(MyGameEngine opengl32.lib)
 endif()
 target_link_libraries(MyGameEngine zlibstatic)

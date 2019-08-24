@@ -2,16 +2,16 @@
 #include "CBuilding.h"
 #include "GameData.h"
 #include "GameWorld.h"
-#include "RpfEntry.h"
-#include "YbnLoader.h"
-#include "YddLoader.h"
-#include "YdrLoader.h"
-#include "YftLoader.h"
-#include "YmapLoader.h"
-#include "YndLoader.h"
-#include "YscLoader.h"
-#include "YtdLoader.h"
-#include "YtypLoader.h"
+#include "loaders/RpfEntry.h"
+#include "loaders/YbnLoader.h"
+#include "loaders/YddLoader.h"
+#include "loaders/YdrLoader.h"
+#include "loaders/YftLoader.h"
+#include "loaders/YmapLoader.h"
+#include "loaders/YndLoader.h"
+#include "loaders/YscLoader.h"
+#include "loaders/YtdLoader.h"
+#include "loaders/YtypLoader.h"
 
 // OVERALL
 // 50MB for BULLET PHYSICS
@@ -111,7 +111,7 @@ YtdLoader* ResourceManager::getYtd(uint32_t hash)
             return getYtd(iter->second);
         }
 
-        bool HDTextures = false;
+        /*bool HDTextures = false;
         if (HDTextures)
         {
             auto iter = data.hdTextures.find(hash);
@@ -137,7 +137,7 @@ YtdLoader* ResourceManager::getYtd(uint32_t hash)
             {
                 printf("HD Texture not found\n");
             }
-        }
+        }*/
 
         YtdLoader* loader = GlobalPool::GetInstance()->ytdPool.create();
         addToWaitingList(GlobalPool::GetInstance()->resourcesPool.create(ytd, hash, loader));
@@ -210,14 +210,14 @@ YscLoader* ResourceManager::getYsc(uint32_t hash)
     if (iter != yscLoader.end())
     {
         iter->second->refCount++;
-        return iter->second.get();
+        return iter->second;
     }
     else
     {
         YscLoader* loader = new YscLoader();
         addToWaitingList(GlobalPool::GetInstance()->resourcesPool.create(ysc, hash, loader));
         loader->refCount++;
-        yscLoader.insert({hash, std::unique_ptr<YscLoader>(loader)});
+        yscLoader.insert({hash, loader});
         return loader;
     }
 }
@@ -361,6 +361,8 @@ void ResourceManager::update()
                 addToMainQueue(res);
             }
             break;
+            case awc:
+                break;
             case null:
             {
                 printf("EXIT HAS BEEN CALLED\n");

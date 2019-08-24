@@ -1,6 +1,6 @@
 #include "YdrLoader.h"
 #include <algorithm>
-#include "GTAEncryption.h"
+#include "../GTAEncryption.h"
 
 void YdrLoader::init(memstream& file)
 {

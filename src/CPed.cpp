@@ -3,8 +3,8 @@
 #include "CVehicle.h"
 
 #include "PhysicsSystem.h"
-#include "YddLoader.h"
-#include "YdrLoader.h"
+#include "loaders/YddLoader.h"
+#include "loaders/YdrLoader.h"
 
 CPed::CPed(glm::vec3 position, YddLoader* ydd)
     : CEntity(position, glm::quat(0.0f, 0.0f, 0.0f, -1.0f), glm::vec3(1.0f), ObjectType::Ped)

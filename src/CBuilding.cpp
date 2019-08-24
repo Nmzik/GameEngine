@@ -1,8 +1,8 @@
 #include "CBuilding.h"
-#include "YddLoader.h"
-#include "YdrLoader.h"
-#include "YftLoader.h"
-#include "YtdLoader.h"
+#include "loaders/YddLoader.h"
+#include "loaders/YdrLoader.h"
+#include "loaders/YftLoader.h"
+#include "loaders/YtdLoader.h"
 
 #include <btBulletDynamicsCommon.h>
 
@@ -34,6 +34,9 @@ CBuilding::~CBuilding()
             case ASSET_TYPE_FRAGMENT:
                 if (yft)
                     yft->refCount--;
+                break;
+            case ASSET_TYPE_UNINITIALIZED:
+            case ASSET_TYPE_ASSETLESS:
                 break;
         }
     }

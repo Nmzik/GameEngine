@@ -1,12 +1,12 @@
 #include "GameData.h"
-#include "AwcLoader.h"
-#include "CacheDatFile.h"
 #include "GTAEncryption.h"
-#include "RpfFile.h"
-#include "YmfLoader.h"
-#include "YndLoader.h"
-#include "YnvLoader.h"
-#include "YtypLoader.h"
+#include "loaders/AwcLoader.h"
+#include "loaders/CacheDatFile.h"
+#include "loaders/RpfFile.h"
+#include "loaders/YmfLoader.h"
+#include "loaders/YndLoader.h"
+#include "loaders/YnvLoader.h"
+#include "loaders/YtypLoader.h"
 
 #include <pugixml.hpp>
 
@@ -206,7 +206,7 @@ void GameData::load()
             if (extension == ".ymf")
             {
                 buffer.resize(entry.FileUncompressedSize);
-                extractFileBinary(entry, buffer);
+                extractFileBinary(entry, buffer.data(), buffer.size());
 
                 memstream stream(buffer.data(), buffer.size());
                 YmfLoader loader(stream);
@@ -240,26 +240,26 @@ void GameData::load()
             else if (entry.FileName == "handling.meta")
             {
                 buffer.resize(entry.FileUncompressedSize);
-                extractFileBinary(entry, buffer);
+                extractFileBinary(entry, buffer.data(), buffer.size());
                 loadHandlingData(buffer);
             }
             else if (entry.FileName == "gta5_cache_y.dat")
             {
                 buffer.resize(entry.FileUncompressedSize);
-                extractFileBinary(entry, buffer);
+                extractFileBinary(entry, buffer.data(), buffer.size());
 
                 cacheFile = std::make_unique<CacheDatFile>(buffer);
             }
             else if (entry.FileName == "water.xml")
             {
                 buffer.resize(entry.FileUncompressedSize);
-                extractFileBinary(entry, buffer);
+                extractFileBinary(entry, buffer.data(), buffer.size());
                 loadWaterQuads(buffer);
             }
             else if (entry.FileName == "playerswitchestablishingshots.meta")
             {
                 buffer.resize(entry.FileUncompressedSize);
-                extractFileBinary(entry, buffer);
+                extractFileBinary(entry, buffer.data(), buffer.size());
                 loadScenesSwitch(buffer);
             }
         }
@@ -441,7 +441,7 @@ void GameData::loadRpf(std::ifstream& rpf, std::string& FullPath_, std::string& 
     rpfFiles.push_back(std::move(file));
 }
 
-void GameData::extractFileBinary(RpfBinaryFileEntry& entry, std::vector<uint8_t>& output)
+void GameData::extractFileBinary(RpfBinaryFileEntry& entry, uint8_t* allocatedMem, uint32_t allocatedSize)
 {
     auto& rpf = entry.File->rpf;
 
@@ -457,7 +457,7 @@ void GameData::extractFileBinary(RpfBinaryFileEntry& entry, std::vector<uint8_t>
         GTAEncryption::getInstance().decryptNG(&tempBuffer[0], entry.FileSize, entry.FileName, entry.FileUncompressedSize);
 
     if (entry.FileSize > 0)  //awc
-        GTAEncryption::getInstance().decompressBytes(&tempBuffer[0], entry.FileSize, output.data(), output.size());
+        GTAEncryption::getInstance().decompressBytes(&tempBuffer[0], entry.FileSize, allocatedMem, allocatedSize);
 }
 
 void GameData::extractFileResource(RpfResourceFileEntry& entry, uint8_t* allocatedMem, uint32_t allocatedSize)

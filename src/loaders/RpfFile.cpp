@@ -1,5 +1,5 @@
 #include "RpfFile.h"
-#include "GTAEncryption.h"
+#include "../GTAEncryption.h"
 
 RpfFile::RpfFile(std::ifstream* rpfFile, std::string& FullPath, std::string& FileName, uint32_t FileSize, uint64_t FileOffset)
     : rpf(*rpfFile)

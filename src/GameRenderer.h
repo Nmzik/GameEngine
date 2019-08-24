@@ -3,6 +3,8 @@
 #include "Geometry.h"
 #include "Texture.h"
 #include "TextureManager.h"
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/mat4x4.hpp>
 
 class GameWorld;
 class Camera;

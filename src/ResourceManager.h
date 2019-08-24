@@ -38,7 +38,7 @@ class ResourceManager
     std::unordered_map<uint32_t, YtdLoader*> ytdLoader;
     std::unordered_map<uint32_t, YbnLoader*> ybnLoader;
     std::unordered_map<uint32_t, YmapLoader*> ymapLoader;
-    std::unordered_map<uint32_t, std::unique_ptr<YscLoader>> yscLoader;
+    std::unordered_map<uint32_t, YscLoader*> yscLoader;
 
     void update();
 

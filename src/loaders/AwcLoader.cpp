@@ -1,5 +1,5 @@
 #include "AwcLoader.h"
-#include "GTAEncryption.h"
+#include "../GTAEncryption.h"
 
 #ifdef WIN32
 #include <xaudio2.h>

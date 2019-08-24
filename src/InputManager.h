@@ -3,7 +3,7 @@
 #include <memory>
 #include <vector>
 #include "InputActions.h"
-#include "glm/glm.hpp"
+#include <glm/gtc/type_precision.hpp>
 
 class InputManager
 {

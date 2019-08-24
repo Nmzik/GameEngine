@@ -1,6 +1,5 @@
 #pragma once
 #include <vector>
-#include "FileType.h"
 #include "YdrLoader.h"
 
 struct FragType : ResourceFileBase

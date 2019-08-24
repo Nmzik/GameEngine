@@ -1,6 +1,6 @@
 #include "YmapLoader.h"
-#include "CBuilding.h"
 #include "Meta.h"
+#include "../CBuilding.h"
 #include <btBulletDynamicsCommon.h>
 
 void YmapLoader::init(memstream& file)

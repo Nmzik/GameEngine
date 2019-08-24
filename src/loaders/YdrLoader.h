@@ -1,7 +1,7 @@
 #pragma once
 #include "FileType.h"
 
-#include "Model.h"
+#include "../Model.h"
 #include "YbnLoader.h"
 #include "YtdLoader.h"
 

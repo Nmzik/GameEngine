@@ -2,9 +2,10 @@
 #include <array>
 #include <cstdint>
 #include <memory>
-#include "common.h"
-#include "glm/glm.hpp"
-#include "glm/gtc/quaternion.hpp"
+#include "../common.h"
+#include "../GameRenderer.h"
+#include <glm/gtc/type_precision.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 #define SYSTEM_BASE 0x50000000
 #define GRAPHICS_BASE 0x60000000
@@ -440,8 +441,6 @@ public:
  }
  };
  */
-
-#include "GameRenderer.h"
 
 class FileType
 {

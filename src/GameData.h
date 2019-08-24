@@ -5,7 +5,7 @@
 #include <string_view>
 #include <unordered_map>
 #include <vector>
-#include "glm/glm.hpp"
+#include <glm/vec3.hpp>
 
 class RpfFile;
 class RpfBinaryFileEntry;
@@ -80,6 +80,6 @@ public:
 
     void loadRpf(std::ifstream& rpf, std::string& FullPath_, std::string& FileName_, uint32_t FileSize_, uint64_t FileOffset);
 
-    void extractFileBinary(RpfBinaryFileEntry& entry, std::vector<uint8_t>& output);
+    void extractFileBinary(RpfBinaryFileEntry& entry, uint8_t* allocatedMem, uint32_t allocatedSize);
     void extractFileResource(RpfResourceFileEntry& entry, uint8_t* allocatedMem, uint32_t allocatedSize);
 };

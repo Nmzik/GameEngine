@@ -6,24 +6,23 @@ project(MyGameEngine)
 set(CMAKE_SUPPRESS_REGENERATION true)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-#set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
 
 if(WIN32)
 	add_definitions(-DUNICODE)
-    add_definitions(-DNOMINMAX)
+	add_definitions(-DNOMINMAX)
 	add_definitions (/D "_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS")
-	if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC") # MSVC
-		set(CMAKE_C_FLAGS_DEBUG "-DDEBUG=1 /MTd /Od")
-		set(CMAKE_C_FLAGS_RELEASE "/MT")
-		set(CMAKE_CXX_FLAGS_DEBUG "-DDEBUG=1 /Zi /MTd /Od")
-		set(CMAKE_CXX_FLAGS_RELEASE "/MT /GS-")
-	endif()
-endif()
 
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-	# using Clang
+	add_compile_options(
+		/Zi
+		/Zo
+		/permissive-
+		/MP
+	)
+
+	# /GS- - No stack buffer overflow checks
+	add_compile_options("$<$<CONFIG:Release>:/GS->")
 endif()
 
 #Recast

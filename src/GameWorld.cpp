@@ -6,18 +6,17 @@
 #include "GTAEncryption.h"
 #include "GameData.h"
 #include "ResourceManager.h"
-#include "YbnLoader.h"
-#include "YddLoader.h"
-#include "YftLoader.h"
-#include "YmapLoader.h"
-#include "YndLoader.h"
-#include "YnvLoader.h"
-#include "YtdLoader.h"
-#include "YtypLoader.h"
+#include "loaders/YbnLoader.h"
+#include "loaders/YddLoader.h"
+#include "loaders/YftLoader.h"
+#include "loaders/YmapLoader.h"
+#include "loaders/YndLoader.h"
+#include "loaders/YnvLoader.h"
+#include "loaders/YtdLoader.h"
+#include "loaders/YtypLoader.h"
 
-GameWorld::GameWorld(ResourceManager* resManager, GameRenderer* _renderer)
+GameWorld::GameWorld(ResourceManager* resManager)
     : resourceManager(resManager)
-    , renderer(*_renderer)
     , curNode(nullptr)
     , dirLight(glm::vec3(0.1f, 0.8f, 0.1f), glm::vec3(0.2f, 0.2f, 0.2f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1.0f, 1.0f, 1.0f), true)
 {
@@ -80,7 +79,7 @@ GameWorld::GameWorld(ResourceManager* resManager, GameRenderer* _renderer)
         resourceManager->getYtd(ytd.second);
 	}*/
 
-    addPedToWorld(glm::vec3(-19.09, -407.75, 48.77), playerYDD);
+    addPedToWorld(glm::vec3(-19.09, -407.75, 150.77), playerYDD);
     //addPedToWorld(glm::vec3(1705.95, 3746.39, 37.64), playerYDD);
     addPedToWorld(glm::vec3(9.66, -1184.98, 75.74), playerYDD);
     addPedToWorld(glm::vec3(2250.18f, 3471.40f, 56.50f), playerYDD);
@@ -238,6 +237,9 @@ void GameWorld::updateObjects(Camera* camera, glm::vec3& position)
                                 }
                                 break;
                             }
+                            case ASSET_TYPE_UNINITIALIZED:
+                            case ASSET_TYPE_ASSETLESS:
+                                break;
                         }
                     }
                     else

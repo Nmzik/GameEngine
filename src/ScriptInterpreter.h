@@ -1,8 +1,8 @@
 #pragma once
 #include <functional>
 #include <unordered_map>
-#include "YscLoader.h"
-#include "glm/ext.hpp"
+#include "loaders/YscLoader.h"
+#include <glm/ext.hpp>
 
 class GameData;
 

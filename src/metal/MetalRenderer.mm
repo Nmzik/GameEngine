@@ -14,11 +14,10 @@
 #include "../CBuilding.h"
 #include "../Camera.h"
 #include "../Model.h"
-#include "../YdrLoader.h"
+#include "../loaders/YdrLoader.h"
 #include "TextureDecompressor.h"
 
 #include <simd/simd.h>
-#include "glm/glm.hpp"
 
 uint32_t texturesSize = 0;
 uint32_t vertexBufferSize = 0;

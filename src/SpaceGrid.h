@@ -1,5 +1,6 @@
 #pragma once
-#include "CacheDatFile.h"
+#include "loaders/CacheDatFile.h"
+#include <glm/gtc/type_precision.hpp>
 
 class YndLoader;
 class YnvLoader;

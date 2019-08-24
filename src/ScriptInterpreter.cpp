@@ -5,9 +5,9 @@
 #include "GameData.h"
 #include "GameWorld.h"
 #include "ResourceManager.h"
-#include "YscLoader.h"
+#include "loaders/YscLoader.h"
 
-#define DEBUG_PRINTF
+//#define DEBUG_PRINTF
 
 #ifdef DEBUG_PRINTF
 #define printf printf

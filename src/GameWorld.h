@@ -9,8 +9,8 @@
 #include "SoundManager.h"
 #include "SpaceGrid.h"
 //////////
-#include "glm/gtc/matrix_transform.hpp"
-#include "glm/gtx/norm.hpp"
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/norm.hpp>
 
 class ResourceManager;
 class YmapLoader;
@@ -46,7 +46,6 @@ class GameWorld
     NodeGrid nodeGrid;
     NavGrid navGrid;
     ResourceManager* resourceManager;
-    GameRenderer& renderer;
     PhysicsSystem physicsSystem;
     //	SoundManager sound;
 
@@ -80,7 +79,7 @@ public:
     uint8_t gameMinute;
     uint8_t gameHour;
 
-    GameWorld(ResourceManager* resManager, GameRenderer* _renderer);
+    GameWorld(ResourceManager* resManager);
     ~GameWorld();
 
     void updateObjects(Camera* camera, glm::vec3& position);

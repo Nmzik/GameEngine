@@ -29,7 +29,7 @@ void YtdLoader::finalize(GameRenderer* _renderer, memstream& file)
                 gpuMemory += length;
                 length /= 4;
             }
-
+            
             TextureHandle handle = renderer->createTexture(&file.data[texture->DataPointer], texture->Width, texture->Height, texture->Levels, texture->Format);
 
             renderer->getTextureManager()->addTexture(TexturesHashes[i], handle);

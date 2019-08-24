@@ -1,5 +1,4 @@
 #include "CVehicle.h"
-//#include "../3rdparty/glm/glm/gtx/quaternion.hpp"
 
 #define CUBE_HALF_EXTENTS 1
 

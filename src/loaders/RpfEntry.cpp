@@ -1,6 +1,5 @@
 #include "RpfEntry.h"
 #include <istream>
-#include "common.h"
 
 RpfDirectoryEntry::RpfDirectoryEntry(memstream& stream, memstream& NamesStream)
 {

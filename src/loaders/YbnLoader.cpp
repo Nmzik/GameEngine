@@ -1,5 +1,5 @@
 #include "YbnLoader.h"
-#include "PhysicsSystem.h"
+#include "../PhysicsSystem.h"
 
 void YbnLoader::addBoxShape(btCompoundShape* compound, btVector3 pos, btVector3 halfExtents)
 {
