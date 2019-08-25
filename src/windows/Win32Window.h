@@ -18,8 +18,8 @@ public:
     {
         return L"OpenGL Program";
     }
-    virtual void InitializeContext();
+    virtual void initializeContext();
     virtual void setTitle(std::string& osstr);
-    virtual void ProcessEvents();
-    virtual void SwapBuffers();
+    virtual void processEvents();
+    virtual void swapBuffers();
 };

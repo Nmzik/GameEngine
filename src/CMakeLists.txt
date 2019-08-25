@@ -14,6 +14,7 @@ loaders/*.cpp
 list (APPEND SOURCES ${LOADERS})
 
 if(WIN32)
+	set	(OPENGL 1)
 	find_package(GLEW REQUIRED)
 	if (GLEW_FOUND)
 		include_directories(${GLEW_INCLUDE_DIRS})
@@ -26,13 +27,15 @@ if(WIN32)
 	)
 
 	list (APPEND SOURCES ${WIN_SOURCES})
+endif()
 
-	#file(GLOB OpenGL
-	#OpenGL/*.h
-	#OpenGL/*.cpp
-	#)
-
-	#list (APPEND SOURCES ${OpenGL})
+if(OPENGL)
+	file(GLOB OpenGL
+	OpenGL/*.h
+	OpenGL/*.cpp
+	)
+	
+	list (APPEND SOURCES ${OpenGL})
 endif()
 
 if(CMAKE_SYSTEM_NAME STREQUAL iOS)

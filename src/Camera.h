@@ -34,10 +34,10 @@ class Camera
 
 public:
     // Constructor with vectors
-    Camera(glm::vec3 pos, GameWorld* gameworld)
+    Camera(glm::vec3 pos, glm::mat4 proj)
         : position(pos)
         , rotation(1.0f, 0.0f, 0.0f, 0.0f)
-        , projection(glm::perspective(glm::radians(45.0f), (float)1280 / (float)720, 0.1f, 10000.0f))
+        , projection(proj)
         , cameraMode(CameraMode::ThirdPerson)
     {
     }

@@ -2,7 +2,7 @@
 #include <memory>
 #include "FreeListAllocator.h"
 #ifdef WIN32
-#include "windows/DebugDrawer.h"
+#include "OpenGL/DebugDrawer.h"
 #else
 #include "metal/DebugDrawer.h"
 #endif

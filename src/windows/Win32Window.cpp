@@ -20,7 +20,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         {
             if (auto window = GetWindowFromUserData(hwnd))
             {
-                window->ProcessButtonPress(static_cast<uint32_t>(wParam), true);
+                window->processButtonEvent(static_cast<uint32_t>(wParam), true);
             }
             return 0;
         }
@@ -28,7 +28,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         {
             if (auto window = GetWindowFromUserData(hwnd))
             {
-                window->ProcessButtonPress(static_cast<uint32_t>(wParam), false);
+                window->processButtonEvent(static_cast<uint32_t>(wParam), false);
             }
             return 0;
         }
@@ -41,7 +41,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 int y = GET_Y_LPARAM(lParam);
 
                 /*Post local mouse motion event */
-                window->ProcessMouseEvents(x, y);
+                window->processMouseEvents(x, y);
             }
             return 0;
         }
@@ -92,7 +92,7 @@ Win32Window::~Win32Window()
     UnregisterClass(getName(), GetModuleHandle(nullptr));
 }
 
-void Win32Window::InitializeContext()
+void Win32Window::initializeContext()
 {
     PIXELFORMATDESCRIPTOR pfd;
     memset(&pfd, 0, sizeof(PIXELFORMATDESCRIPTOR));
@@ -163,7 +163,7 @@ void Win32Window::setTitle(std::string& osstr)
     SetWindowText(hwnd, get_utf16(osstr, CP_ACP).c_str());
 }
 
-void Win32Window::ProcessEvents()
+void Win32Window::processEvents()
 {
     MSG message;
 
@@ -174,7 +174,7 @@ void Win32Window::ProcessEvents()
     }
 }
 
-void Win32Window::SwapBuffers()
+void Win32Window::swapBuffers()
 {
     ::SwapBuffers(m_HDC);
 }

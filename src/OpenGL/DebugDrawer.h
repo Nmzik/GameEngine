@@ -1,21 +1,21 @@
 #pragma once
 #include <vector>
 #include "LinearMath/btIDebugDraw.h"
-#include "glm/glm.hpp"
-#include <GL/glew.h>
+//#include "glm/glm.hpp"
+//#include <GL/glew.h>
 
-class PhysicsDebugDrawer : public btIDebugDraw
+class DebugDrawer : public btIDebugDraw
 {
-    GLuint m_vao;
+    /*GLuint m_vao;
     GLuint m_vboPositions;
     GLuint m_vboColors;
 
     std::vector<glm::vec3> m_points;
-    std::vector<glm::vec3> m_colors;
+    std::vector<glm::vec3> m_colors;*/
 
 public:
-    PhysicsDebugDrawer();
-    ~PhysicsDebugDrawer();
+    DebugDrawer();
+    ~DebugDrawer();
 
     void drawLine(const btVector3& from, const btVector3& to, const btVector3& color) override;
     void drawContactPoint(const btVector3& pointOnB, const btVector3& normalOnB, btScalar distance, int lifeTime, const btVector3& color) override;

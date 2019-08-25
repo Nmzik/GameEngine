@@ -15,11 +15,18 @@ class CBuilding;
 class CPed;
 class CVehicle;
 
+enum class Attribute
+{
+    UINT8 = 0,
+    HALFFLOAT = 1,
+    FLOAT = 2
+};
+
 struct VertexAttributes
 {
     int index;
     int size;
-    int type;
+    Attribute type;
     int offset;
 };
 
@@ -28,13 +35,6 @@ struct VertexLayout
     VertexAttributes attributes[5];
     int stride;
     int size;
-};
-
-enum Attribute
-{
-    UINT8 = 0,
-    HALFFLOAT = 1,
-    FLOAT = 2
 };
 
 static VertexLayout DefaultAttrib = {

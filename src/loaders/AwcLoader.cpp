@@ -1,9 +1,9 @@
 #include "AwcLoader.h"
 #include "../GTAEncryption.h"
 
-#ifdef WIN32
-#include <xaudio2.h>
-#endif
+//#ifdef WIN32
+//#include <xaudio2.h>
+//#endif
 
 struct AwcChunkInfo
 {

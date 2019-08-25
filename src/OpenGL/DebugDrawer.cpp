@@ -1,8 +1,8 @@
-#include "PhysicsDebugDrawer.h"
+#include "DebugDrawer.h"
 
-PhysicsDebugDrawer::PhysicsDebugDrawer()
+DebugDrawer::DebugDrawer()
 {
-    glGenVertexArrays(1, &m_vao);
+    /*glGenVertexArrays(1, &m_vao);
     glBindVertexArray(m_vao);
 
     glGenBuffers(1, &m_vboPositions);
@@ -16,47 +16,47 @@ PhysicsDebugDrawer::PhysicsDebugDrawer()
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)nullptr);
 
     glBindVertexArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);*/
 }
 
-PhysicsDebugDrawer::~PhysicsDebugDrawer()
+DebugDrawer::~DebugDrawer()
 {
 }
 
-void PhysicsDebugDrawer::drawLine(const btVector3& from, const btVector3& to, const btVector3& color)
+void DebugDrawer::drawLine(const btVector3& from, const btVector3& to, const btVector3& color)
 {
-    m_points.push_back(glm::vec3(from.getX(), from.getY(), from.getZ()));
+    /*m_points.push_back(glm::vec3(from.getX(), from.getY(), from.getZ()));
     m_colors.push_back(glm::vec3(color.getX(), color.getY(), color.getZ()));
     m_points.push_back(glm::vec3(to.getX(), to.getY(), to.getZ()));
-    m_colors.push_back(glm::vec3(color.getX(), color.getY(), color.getZ()));
+    m_colors.push_back(glm::vec3(color.getX(), color.getY(), color.getZ()));*/
 }
 
-void PhysicsDebugDrawer::drawContactPoint(
+void DebugDrawer::drawContactPoint(
     const btVector3& pointOnB, const btVector3& normalOnB, btScalar distance, int lifeTime, const btVector3& color)
 {
 }
 
-void PhysicsDebugDrawer::reportErrorWarning(const char* warningString)
+void DebugDrawer::reportErrorWarning(const char* warningString)
 {
 }
 
-void PhysicsDebugDrawer::draw3dText(const btVector3& location, const char* textString)
+void DebugDrawer::draw3dText(const btVector3& location, const char* textString)
 {
 }
 
-void PhysicsDebugDrawer::setDebugMode(int debugMode)
+void DebugDrawer::setDebugMode(int debugMode)
 {
     this->debugMode = debugMode;
 }
 
-int PhysicsDebugDrawer::getDebugMode() const
+int DebugDrawer::getDebugMode() const
 {
     return debugMode;
 }
 
-void PhysicsDebugDrawer::render()
+void DebugDrawer::render()
 {
-    glBindVertexArray(m_vao);
+    /*glBindVertexArray(m_vao);
 
     glBindBuffer(GL_ARRAY_BUFFER, m_vboPositions);
     glBufferData(GL_ARRAY_BUFFER, m_points.size() * sizeof(glm::vec3), &m_points[0], GL_DYNAMIC_DRAW);
@@ -67,5 +67,5 @@ void PhysicsDebugDrawer::render()
     glDrawArrays(GL_LINES, 0, m_points.size());
 
     m_points.clear();
-    m_colors.clear();
+    m_colors.clear();*/
 }

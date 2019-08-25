@@ -3,6 +3,7 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
+#include <cassert>
 #include "aes.hpp"
 #include "zlib.h"
 

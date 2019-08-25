@@ -14,7 +14,8 @@
 #include "loaders/YtdLoader.h"
 
 #ifdef WIN32
-#include "windows/GameRenderer.h"
+#include "OpenGL/OpenGLRenderer.h"
+#include "windows/Win32Window.h"
 #else
 #include "metal/MetalRenderer.h"
 #endif
@@ -41,9 +42,10 @@ Game::Game(const char* GamePath)
     resourceManager = std::make_unique<ResourceManager>(gameData.get());
 #ifdef WIN32
     window = std::make_unique<Win32Window>();
-#endif
+    rendering_system = std::make_unique<OpenGLRenderer>(window.get());
+#else
     rendering_system = std::make_unique<MetalRenderer>();
-    //rendering_system = std::make_unique<GameRenderer>(/*window.get()*/);
+#endif
     gameWorld = std::make_unique<GameWorld>(resourceManager.get());
     input = std::make_unique<InputManager>();
     scriptMachine = std::make_unique<ScriptInterpreter>(gameData.get(), this);
@@ -51,7 +53,7 @@ Game::Game(const char* GamePath)
     //scriptMachine->startThread(GenHash("startup_install"));
     //window->AddListener(input.get());
 
-    camera = std::make_unique<Camera>(glm::vec3(0.0, 0.0, 50.0), gameWorld.get());
+    camera = std::make_unique<Camera>(glm::vec3(0.0, 0.0, 50.0), glm::perspective(glm::radians(45.0f), (float)1280 / (float)720, 0.1f, 10000.0f));
 
     /*for (auto& ytd : resourceManager->getGameData()->gtxdEntries)
     {
