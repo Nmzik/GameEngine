@@ -179,10 +179,6 @@ void YdrLoader::loadDrawable(rmcDrawable* drawable, GameRenderer* _renderer, mem
                 }
             }
 
-            gpuMemory += drawable->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->VertexCount *
-                         drawable->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->VertexStride;
-            gpuMemory += drawable->DrawableModels[0]->Get(i)->m_geometries.Get(j)->IndexBufferPointer->IndicesCount * sizeof(uint16_t);
-
             grmGeometry* geom = drawable->DrawableModels[0]->Get(i)->m_geometries.Get(j);
 
             int vertexSize = geom->VertexBufferPointer->VertexCount * geom->VertexBufferPointer->VertexStride;

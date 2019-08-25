@@ -52,9 +52,6 @@ public:
     ResourceManager(GameData* gameData);
     ~ResourceManager();
 
-    uint64_t GlobalGpuMemory = 0;
-    uint64_t TextureMemory = 0;
-
     std::mutex mainThreadLock;
     std::queue<Resource*> mainThreadResources;
     std::queue<Resource*> tempMainThreadResources;

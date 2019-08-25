@@ -411,38 +411,48 @@ TextureHandle MetalRenderer::createTexture(const uint8_t* pointer, int width, in
     assert(convert && (width * height * 4) <= 20 * 1024 * 1024);
 #endif
     
+    if (compressed || convert) {
+        int minMipMap = 3; //min mipmap to load
+        minMipMap = levels > minMipMap? minMipMap : levels - 1;
+        
+        int blockSize = (format == D3DFMT_DXT1) ? 8 : 16;
+        for (int i = 0; i < minMipMap; i++) {
+            unsigned int size = ((width + 3) / 4) * ((height + 3) / 4) * blockSize;
+            pointer += size;
+            width = std::max(width / 2, 1);
+            height = std::max(height / 2, 1);
+        }
+        levels -= minMipMap;
+    }
+    
     MTLTextureDescriptor* descriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:textureFormat width:width height:height mipmapped:true];
     
     id <MTLTexture> texture = [device newTextureWithDescriptor:descriptor];
     if (convert)
     {
         for (int i = 0; i < levels; i++) {
-            int offset = 0;
             int blockSize = (format == D3DFMT_DXT1) ? 8 : 16;
             
             unsigned int size = ((width + 3) / 4) * ((height + 3) / 4) * blockSize;
             
-            Decompressor::imageDecodeToBgra8(textureDecompressedMem.get(), pointer + offset, width, height, width * 4, format);
+            Decompressor::imageDecodeToBgra8(textureDecompressedMem.get(), pointer, width, height, width * 4, format);
             
             MTLRegion region = MTLRegionMake2D(0, 0, width, height);
             [texture replaceRegion:region mipmapLevel:i slice:0 withBytes:textureDecompressedMem.get() bytesPerRow:width * 32 / 8 bytesPerImage:0];
             
-            offset += size;
+            pointer += size;
             width = std::max(width / 2, 1);
             height = std::max(height / 2, 1);
         }
     } else if (!compressed){
         for (int i = 0; i < levels; i++) {
-            
-            int offset = 0;
-            
             unsigned int size =
             ((width + 1) >> 1) * ((height + 1) >> 1) * 4;
             
             MTLRegion region = MTLRegionMake2D(0, 0, width, height);
-            [texture replaceRegion:region mipmapLevel:i withBytes:pointer + offset bytesPerRow:width * 4];
+            [texture replaceRegion:region mipmapLevel:i withBytes:pointer bytesPerRow:width * 4];
             
-            offset += size;
+            pointer += size;
             width = std::max(width / 2, 1);
             height = std::max(height / 2, 1);
         }
@@ -450,7 +460,6 @@ TextureHandle MetalRenderer::createTexture(const uint8_t* pointer, int width, in
     #if !TARGET_OS_IPHONE
     else {
         for (int i = 0; i < levels; i++) {
-            int offset = 0;
             int bytesPerBlock = (format == D3DFMT_DXT1) ? 8 : 16;
             int blockWidth = 4;
             
@@ -460,9 +469,9 @@ TextureHandle MetalRenderer::createTexture(const uint8_t* pointer, int width, in
             int bytesPerRow = blocksPerRow * bytesPerBlock;
             
             MTLRegion region = MTLRegionMake2D(0, 0, width, height);
-            [texture replaceRegion:region mipmapLevel:i withBytes:pointer + offset bytesPerRow:bytesPerRow];
+            [texture replaceRegion:region mipmapLevel:i withBytes:pointer bytesPerRow:bytesPerRow];
             
-            offset += size;
+            pointer += size;
             width = std::max(width / 2, 1);
             height = std::max(height / 2, 1);
         }

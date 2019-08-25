@@ -197,15 +197,9 @@ void Game::loadQueuedResources()
                 case ydr:
                 case ydd:
                 case yft:
-                {
-                    res->file->finalize(getRenderer(), stream);
-                    resourceManager->GlobalGpuMemory += res->file->gpuMemory;
-                    break;
-                }
                 case ytd:
                 {
-                    res->file->init(stream);
-                    resourceManager->TextureMemory += res->file->gpuMemory;
+                    res->file->finalize(getRenderer(), stream);
                     break;
                 }
                 case ybn:
@@ -260,8 +254,8 @@ void Game::updateFPS(float delta_time, float cpuThreadTime, float gpuThreadTime)
               << gameWorld->culledYmaps << " Culled ymaps, "
               << gameWorld->renderList.size() << " Objects, "
               << rendering_system->getNumDrawCalls() << " Draw Calls, "
-              << resourceManager->GlobalGpuMemory / 1024 / 1024 << " MB GPU Mem, "
-              << resourceManager->TextureMemory / 1024 / 1024 << " MB Texture Mem, "
+              //<< resourceManager->GlobalGpuMemory / 1024 / 1024 << " MB GPU Mem, "
+              //<< resourceManager->TextureMemory / 1024 / 1024 << " MB Texture Mem, "
               << (physicsAllocator->getSize() - physicsAllocator->getUsedMemory()) / 1024 / 1024 << " MB Bullet Free Mem ";
         //window->setTitle(osstr.str());
     }

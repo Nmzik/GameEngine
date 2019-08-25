@@ -25,7 +25,7 @@ CPed::CPed(glm::vec3 position, YddLoader* ydd)
     btTransform transform;
     transform.setIdentity();
     transform.setOrigin(btVector3(position.x, position.y, position.z));
-    transform.setRotation(btQuaternion(0.0f, 0.0f, 0.0f, -1.0f));
+    transform.setRotation(btQuaternion(0.0f, 0.0f, 0.0f, 1.0f));
 
     btDefaultMotionState* myMotionState = new btDefaultMotionState(transform);
     btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, physShape.get(), localInertia);

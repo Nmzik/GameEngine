@@ -7,7 +7,7 @@
 #include <btBulletDynamicsCommon.h>
 
 CBuilding::CBuilding(fwEntityDef def)
-    : CEntity(def.position, def.rotation, glm::vec3(def.scaleXY, def.scaleXY, def.scaleZ), ObjectType::Building)
+    : CEntity(def.position, glm::quat(def.rotation.w, def.rotation.x, def.rotation.y, def.rotation.z), glm::vec3(def.scaleXY, def.scaleXY, def.scaleZ), ObjectType::Building)
     , entityDef(def)
 {
 }

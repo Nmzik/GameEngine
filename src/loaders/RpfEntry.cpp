@@ -28,7 +28,7 @@ RpfBinaryFileEntry::RpfBinaryFileEntry(memstream& stream, uint64_t StartPos, mem
 
     FileSize = (uint32_t)(buf >> 16) & 0xFFFFFF;
     FileOffset = (uint32_t)(buf >> 40) & 0xFFFFFF;
-    stream.read((char*)&FileUncompressedSize, sizeof(uint32_t));
+    stream.read((char*)&UncompressedFileSize, sizeof(uint32_t));
 
     stream.read((char*)&EncryptionType, sizeof(uint32_t));
 

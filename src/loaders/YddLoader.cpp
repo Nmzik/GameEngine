@@ -17,7 +17,6 @@ void YddLoader::finalize(GameRenderer* _renderer, memstream& file)
         YdrLoader* ydr = GlobalPool::GetInstance()->ydrPool.create();
         rmcDrawable* drawable = (rmcDrawable*)drawableDictionary->drawables[i];
         ydr->loadDrawable(drawable, _renderer, file);
-        gpuMemory += ydr->gpuMemory;
 
         uint32_t hash = drawableDictionary->hashes[i];
 

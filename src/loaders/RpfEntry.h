@@ -46,14 +46,13 @@ public:
     RpfFile* File;
     uint64_t FileOffset;
     uint32_t FileSize;
-
+    uint32_t UncompressedFileSize;
     bool IsEncrypted;
 };
 
 class RpfBinaryFileEntry : public RpfFileEntry
 {
 public:
-    uint32_t FileUncompressedSize;
     uint32_t EncryptionType;
 
     RpfBinaryFileEntry(memstream& stream, uint64_t startPos, memstream& namesStream);
@@ -64,7 +63,6 @@ class RpfResourceFileEntry : public RpfFileEntry
 public:
     int32_t SystemSize;
     int32_t GraphicsSize;
-    uint32_t UncompressedFileSize;
 
     RpfResourceFileEntry(memstream& stream, std::istream& originalFile, uint64_t startPos, memstream& namesStream);
 };

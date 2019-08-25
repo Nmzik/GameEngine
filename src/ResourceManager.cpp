@@ -299,7 +299,7 @@ void ResourceManager::update()
                                 {
                                     for (auto& entityDef : it->second)
                                     {
-                                        glm::quat rotmultiply = entityDef.rotation * mlo.fwEntityDef.rotation;
+                                        /*glm::quat rotmultiply = entityDef.rotation * mlo.fwEntityDef.rotation;
                                         rotmultiply.w = -rotmultiply.w;
                                         glm::mat4 matrix = glm::translate(glm::mat4(1.0f), mlo.fwEntityDef.position + entityDef.position) *
                                                            glm::mat4_cast(glm::quat(-mlo.fwEntityDef.rotation.w, -mlo.fwEntityDef.rotation.x,
@@ -308,7 +308,7 @@ void ResourceManager::update()
                                                                       glm::vec3(entityDef.scaleXY, entityDef.scaleXY, entityDef.scaleZ));
                                         entityDef.position = mlo.fwEntityDef.position + entityDef.position;
                                         entityDef.rotation = rotmultiply;
-                                        iter->entities.emplace_back(entityDef);
+                                        iter->entities.emplace_back(entityDef);*/
                                     }
                                 }
                             }
@@ -349,6 +349,7 @@ void ResourceManager::update()
                         case ydr:
                         case ydd:
                         case yft:
+                        case ytd:
                         {
                             memstream stream(&res->buffer[0], res->bufferSize);
                             res->file->init(stream);
@@ -377,7 +378,6 @@ void ResourceManager::removeAll()
 {
     for (auto it = ytdLoader.begin(); it != ytdLoader.end();)
     {
-        TextureMemory -= it->second->gpuMemory;
         it = ytdLoader.erase(it);
     }
 }
@@ -418,7 +418,6 @@ void ResourceManager::updateResourceCache(GameWorld* world)
     {
         if ((it->second)->refCount == 0 && (it->second)->loaded)
         {
-            GlobalGpuMemory -= it->second->gpuMemory;
             GlobalPool::GetInstance()->ydrPool.remove(it->second);
             it = ydrLoader.erase(it);
         }
@@ -432,7 +431,6 @@ void ResourceManager::updateResourceCache(GameWorld* world)
     {
         if ((it->second)->refCount == 0 && (it->second)->loaded)
         {
-            GlobalGpuMemory -= it->second->gpuMemory;
             GlobalPool::GetInstance()->yddPool.remove(it->second);
             it = yddLoader.erase(it);
         }
@@ -446,7 +444,6 @@ void ResourceManager::updateResourceCache(GameWorld* world)
     {
         if ((it->second)->refCount == 0 && (it->second)->loaded)
         {
-            GlobalGpuMemory -= it->second->gpuMemory;
             GlobalPool::GetInstance()->yftPool.remove(it->second);
             it = yftLoader.erase(it);
         }
@@ -460,7 +457,6 @@ void ResourceManager::updateResourceCache(GameWorld* world)
     {
         if ((it->second)->refCount == 0 && (it->second)->loaded)
         {
-            TextureMemory -= it->second->gpuMemory;
             GlobalPool::GetInstance()->ytdPool.remove(it->second);
             it = ytdLoader.erase(it);
         }

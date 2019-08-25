@@ -62,7 +62,6 @@ void YftLoader::finalize(GameRenderer* _renderer, memstream& file)
     ydr = GlobalPool::GetInstance()->ydrPool.create();
     ydr->isYft = true;
     ydr->loadDrawable(drawable, _renderer, file);
-    gpuMemory += ydr->gpuMemory;
 }
 
 YftLoader::~YftLoader()

@@ -5,7 +5,6 @@
 #include "../common.h"
 #include "../GameRenderer.h"
 #include <glm/gtc/type_precision.hpp>
-#include <glm/gtc/quaternion.hpp>
 
 #define SYSTEM_BASE 0x50000000
 #define GRAPHICS_BASE 0x60000000
@@ -119,6 +118,15 @@ enum Unk_648413703  // entity priorityLevel
     PRI_OPTIONAL_LOW = 3,     // 329627604
 };
 
+
+struct quat_XYZW
+{
+    float x;
+    float y;
+    float z;
+    float w;
+};
+
 struct fwEntityDef  // 128 bytes, Key:1825799514
 {
     uint32_t Unused0;                    //	0
@@ -131,7 +139,7 @@ struct fwEntityDef  // 128 bytes, Key:1825799514
     uint32_t Unused4;                    //	28
     glm::vec3 position;                  //	32   32: Float_XYZ: 0: position
     float Unused5;                       //	44
-    glm::quat rotation;                  //	48   48: Float_XYZW: 0: rotation
+    quat_XYZW rotation;                  //	48   48: Float_XYZW: 0: rotation
     float scaleXY;                       //	64   64: Float: 0: 2627937847
     float scaleZ;                        //	68   68: Float: 0: 284916802
     int32_t parentIndex;                 //	72   72: SignedInt: 0: parentIndex
@@ -446,7 +454,6 @@ class FileType
 {
 public:
     uint32_t refCount = 0;
-    uint64_t gpuMemory = 0;
     bool loaded = false;
 
     FileType()

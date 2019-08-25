@@ -262,6 +262,8 @@ public:
     virtual ~GameRenderer();
 
     bool renderDebugWorld;
+    uint64_t GlobalGpuMemory = 0;
+    uint64_t TextureMemory = 0;
 
     virtual TextureHandle createTexture(const uint8_t* pointer, int width, int height, int levels, TextureFormat format) = 0;
     virtual VertexBufferHandle createVertexBuffer(uint32_t size, const uint8_t* pointer) = 0;
