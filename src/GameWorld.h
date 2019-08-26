@@ -51,7 +51,7 @@ class GameWorld
 
     float accumulatedTime = 0.0f;
 
-    glm::i32vec2 curCell;
+    glm::i32vec2 curCell = {500, 500};
     glm::i32vec2 curNodeCell;
     glm::i32vec2 curNavCell;
     std::vector<YmapLoader*> curYmaps;

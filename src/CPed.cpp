@@ -10,6 +10,7 @@ CPed::CPed(glm::vec3 position, YddLoader* ydd)
     : CEntity(position, glm::quat(0.0f, 0.0f, 0.0f, -1.0f), glm::vec3(1.0f), ObjectType::Ped)
     , player(ydd)
     , vehicle(nullptr)
+    , movementDirection(0, 0, 0)
 {
     health = 200;
     playerModel.push_back(ydd->ydrFiles[121241095]);
@@ -72,8 +73,7 @@ void CPed::takeDamage(float dmg)
 
 void CPed::physicsTick()
 {
-    body->setLinearVelocity(
-        btVector3(movementDirection.x, movementDirection.y, body->getLinearVelocity().z()));
+    body->setLinearVelocity(btVector3(movementDirection.x, movementDirection.y, body->getLinearVelocity().z()));
     position = glm::vec3(body->getWorldTransform().getOrigin().x(), body->getWorldTransform().getOrigin().y(), body->getWorldTransform().getOrigin().z());
     body->getWorldTransform().getOpenGLMatrix(&modelMatrix[0][0]);
 }
