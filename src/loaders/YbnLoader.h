@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
-#include <btBulletDynamicsCommon.h>
 #include "FileType.h"
+#include <btBulletDynamicsCommon.h>
 
 struct Bounds : ResourceFileBase
 {

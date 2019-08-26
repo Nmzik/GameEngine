@@ -22,7 +22,7 @@ void YtdLoader::finalize(GameRenderer* _renderer, memstream& file)
             grcTexture* texture = texDictionary->Textures.Get(i);
 
             texture->DataPointer += file.systemSize;
-            
+
             TextureHandle handle = renderer->createTexture(&file.data[texture->DataPointer], texture->Width, texture->Height, texture->Levels, texture->Format);
 
             renderer->getTextureManager()->addTexture(TexturesHashes[i], handle);

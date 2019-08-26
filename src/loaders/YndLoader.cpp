@@ -41,8 +41,8 @@ YndLoader::YndLoader(memstream& file)
     TranslatePTR(nodeDictionary.JunctionHeightmapBytesPtr);
 
     file.seekg(nodeDictionary.JunctionHeightmapBytesPtr);
-    junctionHeightmapBytes.resize(nodeDictionary.JunctionHeightmapBytesCount);
-    file.read((char*)&junctionHeightmapBytes[0], nodeDictionary.JunctionHeightmapBytesCount);
+    //junctionHeightmapBytes.resize(nodeDictionary.JunctionHeightmapBytesCount);
+    //file.read((char*)&junctionHeightmapBytes[0], nodeDictionary.JunctionHeightmapBytesCount);
 
     ///////////////////
     TranslatePTR(nodeDictionary.JunctionRefsPtr);

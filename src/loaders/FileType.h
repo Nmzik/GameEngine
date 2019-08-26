@@ -2,8 +2,8 @@
 #include <array>
 #include <cstdint>
 #include <memory>
-#include "../common.h"
 #include "../GameRenderer.h"
+#include "../common.h"
 #include <glm/gtc/type_precision.hpp>
 
 #define SYSTEM_BASE 0x50000000
@@ -117,7 +117,6 @@ enum Unk_648413703  // entity priorityLevel
     PRI_OPTIONAL_MEDIUM = 2,  //	515598709
     PRI_OPTIONAL_LOW = 3,     // 329627604
 };
-
 
 struct quat_XYZW
 {

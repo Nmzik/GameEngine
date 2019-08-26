@@ -1,6 +1,6 @@
 #pragma once
-#include "../Windows/Win32Window.h"
 #include "../GameRenderer.h"
+#include "../Windows/Win32Window.h"
 
 class GameWorld;
 class Camera;
@@ -14,17 +14,17 @@ class CVehicle;
 class OpenGLRenderer : public GameRenderer
 {
     NativeWindow* nativeWindow;
-	//
+    //
     GLuint uboGlobal;
     GLuint uboModel;
 
     Shader* mainShader;
-
-	//
-    GLuint vertexArrays[gpuBufferSize];
-    GLuint vertexBuffers[gpuBufferSize];
-    GLuint indexBuffers[gpuBufferSize];
-    GLuint textures[gpuBufferSize];
+    GLuint VAO;
+    //
+    GLuint vertexArrays[gpuBufferSize] = {0};
+    GLuint vertexBuffers[gpuBufferSize] = {0};
+    GLuint indexBuffers[gpuBufferSize] = {0};
+    GLuint textures[gpuBufferSize] = {0};
 
 public:
     OpenGLRenderer(NativeWindow* window);

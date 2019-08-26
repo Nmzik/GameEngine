@@ -51,7 +51,9 @@ Game::Game(const char* GamePath)
     scriptMachine = std::make_unique<ScriptInterpreter>(gameData.get(), this);
 
     //scriptMachine->startThread(GenHash("startup_install"));
-    //window->AddListener(input.get());
+#if (WIN32)
+    window->addListener(input.get());
+#endif
 
     camera = std::make_unique<Camera>(glm::vec3(0.0, 0.0, 50.0), glm::perspective(glm::radians(45.0f), (float)1280 / (float)720, 0.1f, 10000.0f));
 
@@ -131,7 +133,9 @@ void Game::frame()
     gameTime += delta_time;
 
     input->update();
-    //window->ProcessEvents();
+#if (WIN32)
+    window->processEvents();
+#endif
 
     /*if (input->isKeyPressed(Actions::button_ESCAPE))
         break;*/

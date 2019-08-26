@@ -39,7 +39,7 @@ class Game
     std::chrono::steady_clock::time_point current_time;
 #ifdef WIN32
     std::unique_ptr<NativeWindow> window;
-	#endif
+#endif
 public:
     Game(const char* gamePath);
     ~Game();
