@@ -48,7 +48,7 @@ struct CarHandling
 
 class GameData
 {
-    uint8_t* tempBuffer;
+    std::unique_ptr<uint8_t[]> tempBuffer;
     std::string mainDirPath;
     std::vector<std::unique_ptr<RpfFile>> rpfFiles;
     std::vector<std::unique_ptr<std::ifstream>> openedFiles;

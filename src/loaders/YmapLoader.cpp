@@ -28,39 +28,29 @@ void YmapLoader::init(memstream& file)
         {
             case 3461354627:
             {
+                fwEntityDef* def = (fwEntityDef*)&file.data[meta->DataBlocks[j].DataPointer];
                 for (int i = 0; i < meta->DataBlocks[j].DataLength / sizeof(fwEntityDef); i++)
                 {
-                    fwEntityDef def;
-                    std::memcpy(&def, &file.data[meta->DataBlocks[j].DataPointer + i * sizeof(fwEntityDef)], sizeof(fwEntityDef));
-
-                    //	FIX OPENGL
-                    def.rotation.w = -def.rotation.w;
-
+                    def[i].rotation.w = -def[i].rotation.w;
                     //	if (def.lodLevel == Unk_1264241711::LODTYPES_DEPTH_ORPHANHD) def.lodDist *= 1.5f;
-
-                    entities.emplace_back(def);
+                    entities.emplace_back(def[i]);
                 }
                 break;
             }
             case 1860713439:
             {  //	CAR GENERATORS
-                for (int i = 0; i < meta->DataBlocks[j].DataLength / sizeof(fwEntityDef); i++)
-                {
-                    CCarGen CarGenerator;
-                    memcpy(&CarGenerator, &file.data[meta->DataBlocks[j].DataPointer + i * sizeof(CCarGen)], sizeof(CCarGen));
-
-                    carGenerators.push_back(CarGenerator);
+                CCarGen* carGens = (CCarGen*)&file.data[meta->DataBlocks[j].DataPointer];
+                for (int i = 0; i < meta->DataBlocks[j].DataLength / sizeof(fwEntityDef); i++) {
+                    carGenerators.push_back(carGens[i]);
                 }
                 break;
             }
             case 164374718:  //CMloInstanceDef
             {
+                CMloInstanceDef* MloInstanceDef = (CMloInstanceDef*)&file.data[meta->DataBlocks[j].DataPointer];;
                 for (int i = 0; i < meta->DataBlocks[j].DataLength / sizeof(CMloInstanceDef); i++)
                 {
-                    CMloInstanceDef MloInstanceDef;
-                    memcpy(&MloInstanceDef, &file.data[meta->DataBlocks[j].DataPointer + i * sizeof(CMloInstanceDef)], sizeof(CMloInstanceDef));
-
-                    CMloInstanceDefs.push_back(MloInstanceDef);
+                    CMloInstanceDefs.push_back(MloInstanceDef[i]);
                 }
                 break;
             }

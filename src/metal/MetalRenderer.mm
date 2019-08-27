@@ -231,7 +231,7 @@ MTLRenderPipelineState MetalRenderer::createRenderDescriptor(VertexLayout& attri
     for (int i = 0; i < attributes.size; i++) {
         int index = attributes.attributes[i].index;
         vertexDescriptor.attributes[index].offset = attributes.attributes[i].offset;
-        vertexDescriptor.attributes[index].format = attribType[attributes.attributes[i].type][attributes.attributes[i].size - 1];
+        vertexDescriptor.attributes[index].format = attribType[(int)attributes.attributes[i].type][attributes.attributes[i].size - 1];
         vertexDescriptor.attributes[index].bufferIndex = 0;
     }
     //

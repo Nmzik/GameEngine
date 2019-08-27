@@ -364,7 +364,6 @@ public:
     std::vector<Material> materials;
     std::vector<Model> models;
     YbnLoader* ybn;
-    bool isYft = false;
 
     YdrLoader()
         : ytd(nullptr)

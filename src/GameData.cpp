@@ -15,7 +15,7 @@
 GameData::GameData(std::string path)
     : mainDirPath(path)
 {
-    tempBuffer = new uint8_t[tempBufferSize];
+    tempBuffer = std::make_unique<uint8_t[]>(tempBufferSize);
     nodes.resize(32 * 32);
     GTAEncryption::getInstance().loadKeys(path);
 }

@@ -15,7 +15,7 @@ inline void TranslatePTR(uint64_t& pointer)
     {
         pointer = pointer & ~0x50000000;
     }
-    if ((pointer & GRAPHICS_BASE) == GRAPHICS_BASE)
+    else if ((pointer & GRAPHICS_BASE) == GRAPHICS_BASE)
     {
         pointer = pointer & ~0x60000000;
     }
