@@ -322,11 +322,119 @@ void OpenGLRenderer::renderDrawable(YdrLoader* drawable)
 
             switch (geometry.type)
             {
-                case VertexType::Default:
+                case Default:
                     layout = DefaultAttrib;
                     break;
+                case DefaultEx:
+                    layout = DefaultExAttrib;
+                    break;
+                case PNCCT:
+                    layout = PNCCTAttrib;
+                    break;
+                case PNCCTTTT:
+                    layout = PNCCTTTTAttrib;
+                    break;
+                case PCCNCCTTX:
+                    layout = PCCNCCTTXAttrib;
+                    break;
+                case PCCNCCT:
+                    layout = PCCNCCTAttrib;
+                    break;
+                case PNCTTTX:
+                    layout = PNCTTTXAttrib;
+                    break;
+                case PNCTTX:
+                    layout = PNCTTXAttrib;
+                    break;
+                case PNCTTTX_2:
+                    layout = PNCTTTX_2Attrib;
+                    break;
+                case PNCTTTX_3:
+                    layout = PNCTTTX_3Attrib;
+                    break;
+                case PNCCTTX:
+                    layout = PNCCTTXAttrib;
+                    break;
+                case PNCCTTX_2:
+                    layout = PNCCTTX_2Attrib;
+                    break;
+                case PNCCTTTX:
+                    layout = PNCCTTTXAttrib;
+                    break;
+                case PCCNCCTX:
+                    layout = PCCNCCTXAttrib;
+                    break;
+                case PCCNCTX:
+                    layout = PCCNCTXAttrib;
+                    break;
+                case PCCNCT:
+                    layout = PCCNCTAttrib;
+                    break;
+                case PNCCTT:
+                    layout = PNCCTTAttrib;
+                    break;
+                case PNCCTX:
+                    layout = PNCCTXAttrib;
+                    break;
+                case PCT:
+                    layout = PCTAttrib;
+                    break;
+                case PT:
+                    layout = PTAttrib;
+                    break;
+                case PTT:
+                    layout = PTTAttrib;
+                    break;
+                case PNC:
+                    layout = PNCAttrib;
+                    break;
+                case PC:
+                    layout = PCAttrib;
+                    break;
+                case PCC:
+                    layout = PCCAttrib;
+                    break;
+                case PCCH2H4:
+                    layout = PCCH2H4Attrib;
+                    break;
+                case PNCH2:
+                    layout = PNCH2Attrib;
+                    break;
+                case PNCTTTTX:
+                    layout = PNCTTTTXAttrib;
+                    break;
+                /*case PNCTTTT:
+                    layout = PNCTTTTAttrib;
+                    break;
+                case PCCNCCTT:
+                    layout = PCCNCCTTAttrib;
+                    break;
+                case PCTT:
+                    layout = PCTTAttrib;
+                    break;
+                case PCCCCT:
+                    layout = PCCCCTAttrib;
+                    break;
+                case PCCNC:
+                    layout = PCCNCAttrib;
+                    break;*/
+                case PCCNCTT:
+                    layout = PCCNCTTAttrib;
+                    break;
+                case PCCNCTTX:
+                    layout = PCCNCTTXAttrib;
+                    break;
+                case PCCNCTTT:
+                    layout = PCCNCTTTAttrib;
+                    break;
+                /*case PNCTT:
+                    layout = PNCTTAttrib;
+                    break;
+                case PNCTTT:
+                    layout = PNCTTTAttrib;
+                    break;*/
                 default:
-                    continue;
+                    break;
             }
 
             for (int i = 0; i < layout.size; i++)

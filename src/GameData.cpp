@@ -205,15 +205,18 @@ void GameData::load()
 
             if (extension == ".ymf")
             {
-                buffer.resize(entry.UncompressedFileSize);
-                extractFileBinary(entry, buffer.data(), buffer.size());
-
-                memstream stream(buffer.data(), buffer.size());
-                YmfLoader loader(stream);
-
-                for (auto texture : loader.HDtextures)
+                if (entry.FileName == "gtxd.ymf")
                 {
-                    hdTextures[GenHash(texture->targetAsset)] = GenHash(texture->HDTxd);
+                    buffer.resize(entry.UncompressedFileSize);
+                    extractFileBinary(entry, buffer.data(), buffer.size());
+
+                    memstream stream(buffer.data(), buffer.size());
+                    YmfLoader loader(stream);
+
+                    for (auto texture : loader.HDtextures)
+                    {
+                        hdTextures[GenHash(texture->targetAsset)] = GenHash(texture->HDTxd);
+                    }
                 }
             }
 

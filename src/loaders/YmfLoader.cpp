@@ -3,8 +3,6 @@
 
 uint8_t YmfLoader::DetectType(memstream& stream)
 {
-    stream.seekg(0);
-
     uint32_t signature = *(uint32_t*)stream.read(sizeof(uint32_t));
     endSwap(&signature);
 

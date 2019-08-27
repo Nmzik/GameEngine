@@ -6,15 +6,15 @@
 void YmapLoader::init(memstream& file)
 {
     //	Could be an additional extraction code here
-
-    Meta meta(file);
+    Meta* meta = (Meta*)file.read(sizeof(Meta));
+    meta->Resolve(file);
 
     //	FIND CMAPDATA FIRST OF ALL
-    for (auto& Block : meta.MetaBlocks)
+    for (int j = 0; j < meta->DataBlocksCount; j++)
     {
-        if (Block.MetaDataBlock_struct->StructureNameHash == 3545841574)
+        if (meta->DataBlocks[j].StructureNameHash == 3545841574)
         {
-            std::memcpy(&_CMapData, &file.data[Block.MetaDataBlock_struct->DataPointer], sizeof(CMapData));
+            std::memcpy(&_CMapData, &file.data[meta->DataBlocks[j].DataPointer], sizeof(CMapData));
 
             //	Optimization
             entities.reserve(_CMapData.entities.Count1);
@@ -22,16 +22,16 @@ void YmapLoader::init(memstream& file)
         }
     }
 
-    for (auto& Block : meta.MetaBlocks)
+    for (int j = 0; j < meta->DataBlocksCount; j++)
     {
-        switch (Block.MetaDataBlock_struct->StructureNameHash)
+        switch (meta->DataBlocks[j].StructureNameHash)
         {
             case 3461354627:
             {
-                for (int i = 0; i < Block.MetaDataBlock_struct->DataLength / sizeof(fwEntityDef); i++)
+                for (int i = 0; i < meta->DataBlocks[j].DataLength / sizeof(fwEntityDef); i++)
                 {
                     fwEntityDef def;
-                    std::memcpy(&def, &file.data[Block.MetaDataBlock_struct->DataPointer + i * sizeof(fwEntityDef)], sizeof(fwEntityDef));
+                    std::memcpy(&def, &file.data[meta->DataBlocks[j].DataPointer + i * sizeof(fwEntityDef)], sizeof(fwEntityDef));
 
                     //	FIX OPENGL
                     def.rotation.w = -def.rotation.w;
@@ -44,10 +44,10 @@ void YmapLoader::init(memstream& file)
             }
             case 1860713439:
             {  //	CAR GENERATORS
-                for (int i = 0; i < Block.MetaDataBlock_struct->DataLength / sizeof(fwEntityDef); i++)
+                for (int i = 0; i < meta->DataBlocks[j].DataLength / sizeof(fwEntityDef); i++)
                 {
                     CCarGen CarGenerator;
-                    memcpy(&CarGenerator, &file.data[Block.MetaDataBlock_struct->DataPointer + i * sizeof(CCarGen)], sizeof(CCarGen));
+                    memcpy(&CarGenerator, &file.data[meta->DataBlocks[j].DataPointer + i * sizeof(CCarGen)], sizeof(CCarGen));
 
                     carGenerators.push_back(CarGenerator);
                 }
@@ -55,10 +55,10 @@ void YmapLoader::init(memstream& file)
             }
             case 164374718:  //CMloInstanceDef
             {
-                for (int i = 0; i < Block.MetaDataBlock_struct->DataLength / sizeof(CMloInstanceDef); i++)
+                for (int i = 0; i < meta->DataBlocks[j].DataLength / sizeof(CMloInstanceDef); i++)
                 {
                     CMloInstanceDef MloInstanceDef;
-                    memcpy(&MloInstanceDef, &file.data[Block.MetaDataBlock_struct->DataPointer + i * sizeof(CMloInstanceDef)], sizeof(CMloInstanceDef));
+                    memcpy(&MloInstanceDef, &file.data[meta->DataBlocks[j].DataPointer + i * sizeof(CMloInstanceDef)], sizeof(CMloInstanceDef));
 
                     CMloInstanceDefs.push_back(MloInstanceDef);
                 }

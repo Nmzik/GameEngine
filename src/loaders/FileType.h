@@ -227,9 +227,9 @@ public:
         return (T*)pointer;
     }
 
-    T operator[](int i) const
+    T& operator[](int i) const
     {
-        return *((T*)&pointer[i]);
+        return pointer[i];
     }
 
     pgPtr operator=(T* other)
