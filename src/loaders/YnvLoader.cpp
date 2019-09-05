@@ -82,12 +82,6 @@ YnvLoader::YnvLoader(memstream& file)
         file.seekg(navMeshListPartPointer);
     }
 
-    /*NavMeshSector SectorTree;
-
-    SYSTEM_BASE_PTR(navmesh.SectorTreePointer);
-    file.seekg(navmesh.SectorTreePointer);
-    file.read((char*)&SectorTree, sizeof(NavMeshSector));*/
-
     SYSTEM_BASE_PTR(navmesh.PolysPointer);
 
     file.seekg(navmesh.PolysPointer);
@@ -105,7 +99,6 @@ YnvLoader::YnvLoader(memstream& file)
         uint64_t navMeshListPartPointer = file.tellg();
 
         SYSTEM_BASE_PTR(navMeshListPart.Pointer);
-
         file.seekg(navMeshListPart.Pointer);
 
         for (uint32_t i = 0; i < navMeshListPart.Count; i++)
@@ -118,21 +111,14 @@ YnvLoader::YnvLoader(memstream& file)
 
         file.seekg(navMeshListPartPointer);
     }
-    //file.seekg(navmesh.SectorTreePointer);
-    //file.read((char*)&SectorTree, sizeof(NavMeshSector));
+
+    SYSTEM_BASE_PTR(navmesh.SectorTreePointer);
+    file.seekg(navmesh.SectorTreePointer);
+
+    NavMeshSector SectorTree;
+    file.read((char*)&SectorTree, sizeof(NavMeshSector));
     //NEED TO LOAD POLYS TO MAKE IT WORK!
 
-    /*dtNavMeshCreateParams params;
-
-    memset(&params, 0, sizeof(params));
-
-    int navDataSize;
-    unsigned char* navData;
-    bool result = dtCreateNavMeshData(&params, &navData, &navDataSize);
-    if (result)
-    {
-        printf("DONE");
-    }
     rcHeightfield* rcheightfield;
 
     rcCompactHeightfield* rccompactheightfield;
@@ -270,14 +256,15 @@ YnvLoader::YnvLoader(memstream& file)
                             ntris,
                             triangle_flags);
 
-    rcRasterizeTriangles(&rc,
-                         (float*)&VerticesVector[0],
-                         VerticesVector.size(),
-                         (int*)&IndicesVector[0],
-                         triangle_flags,
-                         ntris,
-                         *rcheightfield,
-                         rcconfig.walkableClimb);
+    if (!rcRasterizeTriangles(&rc,
+                              (float*)&VerticesVector[0],
+                              VerticesVector.size(),
+                              (int*)&IndicesVector[0],
+                              triangle_flags,
+                              ntris,
+                              *rcheightfield,
+                              rcconfig.walkableClimb))
+        printf("ERROR");
 
     delete[] triangle_flags;
     triangle_flags = NULL;
@@ -304,35 +291,40 @@ YnvLoader::YnvLoader(memstream& file)
     // between walkable cells will be calculated.
     rccompactheightfield = rcAllocCompactHeightfield();
 
-    rcBuildCompactHeightfield(&rc, rcconfig.walkableHeight,
-                              rcconfig.walkableClimb,
-                              *rcheightfield,
-                              *rccompactheightfield);
+    if (!rcBuildCompactHeightfield(&rc, rcconfig.walkableHeight,
+                                   rcconfig.walkableClimb,
+                                   *rcheightfield,
+                                   *rccompactheightfield))
+        printf("ERROR");
 
     rcFreeHeightField(rcheightfield);
     rcheightfield = NULL;
 
     // Erode the walkable area by agent radius.
-    rcErodeWalkableArea(&rc,
-                        rcconfig.walkableRadius,
-                        *rccompactheightfield);
+    if (!rcErodeWalkableArea(&rc,
+                             rcconfig.walkableRadius,
+                             *rccompactheightfield))
+        printf("ERROR");
 
     // Prepare for region partitioning, by calculating distance field along the walkable surface.
-    rcBuildDistanceField(&rc, *rccompactheightfield);
+    if (!rcBuildDistanceField(&rc, *rccompactheightfield))
+        printf("ERROR");
 
     // Partition the walkable surface into simple regions without holes.
-    rcBuildRegions(&rc, *rccompactheightfield,
-                   0,
-                   rcconfig.minRegionArea,
-                   rcconfig.mergeRegionArea);
+    if (!rcBuildRegions(&rc, *rccompactheightfield,
+                        0,
+                        rcconfig.minRegionArea,
+                        rcconfig.mergeRegionArea))
+        printf("ERROR");
 
     // Step 5. Trace and simplify region contours.
     rccontourset = rcAllocContourSet();
 
-    rcBuildContours(&rc, *rccompactheightfield,
-                    rcconfig.maxSimplificationError,
-                    rcconfig.maxEdgeLen,
-                    *rccontourset);
+    if (!rcBuildContours(&rc, *rccompactheightfield,
+                         rcconfig.maxSimplificationError,
+                         rcconfig.maxEdgeLen,
+                         *rccontourset))
+        printf("ERROR");
 
     // Step 6. Build polygons mesh from contours.
     rcpolymesh = rcAllocPolyMesh();
@@ -364,24 +356,51 @@ YnvLoader::YnvLoader(memstream& file)
     int i = 0;
     if (rcconfig.maxVertsPerPoly <= DT_VERTS_PER_POLYGON)
     {
-        dtNavMeshCreateParams dtnavmeshcreateparams;
-
         unsigned char* nav_data = NULL;
-
         int nav_data_size = 0;
 
-        i = 0;
-        while (i != rcpolymesh->npolys)
+        enum SamplePolyAreas
+        {
+            SAMPLE_POLYAREA_GROUND,
+            SAMPLE_POLYAREA_WATER,
+            SAMPLE_POLYAREA_ROAD,
+            SAMPLE_POLYAREA_DOOR,
+            SAMPLE_POLYAREA_GRASS,
+        };
+
+        enum SamplePolyFlags
+        {
+            SAMPLE_POLYFLAGS_WALK = 0x01,      // Ability to walk (ground, grass, road)
+            SAMPLE_POLYFLAGS_SWIM = 0x02,      // Ability to swim (water).
+            SAMPLE_POLYFLAGS_DOOR = 0x04,      // Ability to move through doors.
+            SAMPLE_POLYFLAGS_JUMP = 0x08,      // Ability to jump.
+            SAMPLE_POLYFLAGS_DISABLED = 0x10,  // Disabled polygon
+            SAMPLE_POLYFLAGS_ALL = 0xffff      // All abilities.
+        };
+
+        // Update poly flags from areas.
+        for (int i = 0; i < rcpolymesh->npolys; ++i)
         {
             if (rcpolymesh->areas[i] == RC_WALKABLE_AREA)
-            {
-                rcpolymesh->areas[i] = 0;
-                rcpolymesh->flags[i] = 0x01;
-            }
+                rcpolymesh->areas[i] = SAMPLE_POLYAREA_GROUND;
 
-            ++i;
+            if (rcpolymesh->areas[i] == SAMPLE_POLYAREA_GROUND ||
+                rcpolymesh->areas[i] == SAMPLE_POLYAREA_GRASS ||
+                rcpolymesh->areas[i] == SAMPLE_POLYAREA_ROAD)
+            {
+                rcpolymesh->flags[i] = SAMPLE_POLYFLAGS_WALK;
+            }
+            else if (rcpolymesh->areas[i] == SAMPLE_POLYAREA_WATER)
+            {
+                rcpolymesh->flags[i] = SAMPLE_POLYFLAGS_SWIM;
+            }
+            else if (rcpolymesh->areas[i] == SAMPLE_POLYAREA_DOOR)
+            {
+                rcpolymesh->flags[i] = SAMPLE_POLYFLAGS_WALK | SAMPLE_POLYFLAGS_DOOR;
+            }
         }
 
+        dtNavMeshCreateParams dtnavmeshcreateparams;
         memset(&dtnavmeshcreateparams, 0, sizeof(dtNavMeshCreateParams));
 
         dtnavmeshcreateparams.verts = rcpolymesh->verts;
@@ -408,12 +427,10 @@ YnvLoader::YnvLoader(memstream& file)
         dtnavmeshcreateparams.cs = rcconfig.cs;
         dtnavmeshcreateparams.ch = rcconfig.ch;
 
-        dtCreateNavMeshData(&dtnavmeshcreateparams,
-                            &nav_data,
-                            &nav_data_size);
-
-        if (!nav_data) printf("ERROR???");
-        ;
+        if (!dtCreateNavMeshData(&dtnavmeshcreateparams,
+                                 &nav_data,
+                                 &nav_data_size))
+            printf("ERROR");
 
         dtNavMesh* dtnavmesh = dtAllocNavMesh();
 
@@ -427,7 +444,6 @@ YnvLoader::YnvLoader(memstream& file)
         rcFreePolyMeshDetail(rcpolymeshdetail);
         rcpolymeshdetail = NULL;
     }
-    */
 }
 
 YnvLoader::~YnvLoader()

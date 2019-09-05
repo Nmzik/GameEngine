@@ -40,14 +40,15 @@ void YmapLoader::init(memstream& file)
             case 1860713439:
             {  //	CAR GENERATORS
                 CCarGen* carGens = (CCarGen*)&file.data[meta->DataBlocks[j].DataPointer];
-                for (int i = 0; i < meta->DataBlocks[j].DataLength / sizeof(fwEntityDef); i++) {
+                for (int i = 0; i < meta->DataBlocks[j].DataLength / sizeof(fwEntityDef); i++)
+                {
                     carGenerators.push_back(carGens[i]);
                 }
                 break;
             }
             case 164374718:  //CMloInstanceDef
             {
-                CMloInstanceDef* MloInstanceDef = (CMloInstanceDef*)&file.data[meta->DataBlocks[j].DataPointer];;
+                CMloInstanceDef* MloInstanceDef = (CMloInstanceDef*)&file.data[meta->DataBlocks[j].DataPointer];
                 for (int i = 0; i < meta->DataBlocks[j].DataLength / sizeof(CMloInstanceDef); i++)
                 {
                     CMloInstanceDefs.push_back(MloInstanceDef[i]);

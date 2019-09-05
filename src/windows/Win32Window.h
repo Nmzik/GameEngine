@@ -1,9 +1,6 @@
 #pragma once
-#include "../NativeWindow.h"
-
 #include <Windows.h>
-#include <GL/glew.h>
-#include <GL/wglew.h>
+#include "../NativeWindow.h"
 
 class Win32Window : public NativeWindow
 {

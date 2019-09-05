@@ -1,10 +1,7 @@
 #pragma once
-#include "..//NativeWindow.h"
 #include "../GameRenderer.h"
-#include <GL/glew.h>
-#include <GL/wglew.h>
-
-class NativeWindow;
+#include <vulkan/vk_sdk_platform.h>
+#include <vulkan/vulkan.h>
 
 class GameWorld;
 class Camera;
@@ -14,27 +11,18 @@ class YdrLoader;
 class CBuilding;
 class CPed;
 class CVehicle;
+class NativeWindow;
 
-class OpenGLRenderer : public GameRenderer
+class VulkanRenderer : public GameRenderer
 {
     NativeWindow* nativeWindow;
-    //
-    GLuint uboGlobal;
-    GLuint uboModel;
-
-    Shader* mainShader;
-    GLuint VAO;
-    //
-    GLuint vertexArrays[gpuBufferSize] = {0};
-    GLuint vertexBuffers[gpuBufferSize] = {0};
-    GLuint indexBuffers[gpuBufferSize] = {0};
-    GLuint textures[gpuBufferSize] = {0};
+    VkInstance inst;
 
 public:
-    OpenGLRenderer(NativeWindow* window);
-    ~OpenGLRenderer();
+    VulkanRenderer(NativeWindow* window);
+    ~VulkanRenderer();
 
-    void beginFrame();
+    /*void beginFrame();
 
     void endFrame();
 
@@ -53,5 +41,5 @@ public:
     void renderPed(CPed* ped);
     void renderVehicle(CVehicle* vehicle);
     //
-    void renderWorld(GameWorld* world, Camera* curCamera) override;
+    void renderWorld(GameWorld* world, Camera* curCamera) override;*/
 };

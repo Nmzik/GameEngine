@@ -15,6 +15,7 @@ list (APPEND SOURCES ${LOADERS})
 
 if(WIN32)
 	set	(OPENGL 1)
+	set (VULKAN 1)
 	find_package(GLEW REQUIRED)
 	if (GLEW_FOUND)
 		include_directories(${GLEW_INCLUDE_DIRS})
@@ -34,8 +35,14 @@ if(OPENGL)
 	OpenGL/*.h
 	OpenGL/*.cpp
 	)
-	
 	list (APPEND SOURCES ${OpenGL})
+endif()
+if(VULKAN)
+	file(GLOB Vulkan
+	vulkan/*.h
+	vulkan/*.cpp
+	)
+	list (APPEND SOURCES ${Vulkan})
 endif()
 
 if(CMAKE_SYSTEM_NAME STREQUAL iOS)

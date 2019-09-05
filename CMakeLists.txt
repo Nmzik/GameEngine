@@ -9,10 +9,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
 
-if(WIN32)
+if(MSVC)
 	add_definitions(-DUNICODE)
 	add_definitions(-DNOMINMAX)
 	add_definitions (/D "_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS")
+	
+	message(STATUS "  Adding WIN32_LEAN_AND_MEAN to compiler defines")
+	add_definitions( -DWIN32_LEAN_AND_MEAN )
 
 	add_compile_options(
 		/Zi

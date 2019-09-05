@@ -51,7 +51,8 @@ void GameData::load()
         "x64u.rpf",
         "x64v.rpf",
         "x64w.rpf",
-        "update\\update.rpf"};
+        //"update\\update.rpf"
+    };
 
     for (std::string rpfFile : rpfFileNames)
     {
@@ -179,11 +180,11 @@ void GameData::load()
             }
             else if (extension == ".ynv")
             {
-                /*std::vector<uint8_t> Buffer(entry.SystemSize + entry.GraphicsSize);
-                 extractFileResource(entry, &Buffer[0], Buffer.size());
-                 
-                 memstream stream(Buffer.data(), Buffer.size());
-                 std::unique_ptr<YnvLoader> loader = std::make_unique<YnvLoader>(stream);*/
+                /*buffer.resize(entry.SystemSize + entry.GraphicsSize);
+                extractFileResource(entry, buffer.data(), buffer.size());
+                
+				memstream stream(buffer.data(), buffer.size());
+				std::unique_ptr<YnvLoader> loader = std::make_unique<YnvLoader>(stream);*/
                 //    Ynventries[entry.FileNameHash] = &entry;
                 entries[ynv][entry.ShortNameHash] = &entry;
             }
@@ -337,6 +338,7 @@ void GameData::loadGtxd()
 
         element = e.child("child");
         std::string childName = element.first_child().value();
+        std::transform(childName.begin(), childName.end(), childName.begin(), tolower);
         gtxdEntries[GenHash(childName)] = GenHash(ParentName);
     }
 }

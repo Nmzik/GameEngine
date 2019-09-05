@@ -37,7 +37,7 @@ struct VertexLayout
     int size;
 };
 
-static VertexLayout DefaultAttrib = {
+static VertexLayout Default_Attrib = {
     {{0, 3, Attribute::FLOAT, 0},
      {1, 3, Attribute::FLOAT, 12},
      {2, 4, Attribute::UINT8, 24},
@@ -45,7 +45,7 @@ static VertexLayout DefaultAttrib = {
     36,
     4};
 
-static VertexLayout DefaultExAttrib = {
+static VertexLayout DefaultEx_Attrib = {
     {{0, 3, Attribute::FLOAT, 0},
      {1, 3, Attribute::FLOAT, 12},
      {2, 4, Attribute::UINT8, 24},
@@ -53,124 +53,124 @@ static VertexLayout DefaultExAttrib = {
     52,
     4};
 
-static VertexLayout PNCCTAttrib = {
+static VertexLayout PNCCT_Attrib = {
     {{0, 3, Attribute::FLOAT, 0},
      {1, 3, Attribute::FLOAT, 12},
      {2, 4, Attribute::UINT8, 24},
      {3, 2, Attribute::FLOAT, 32}},
     40,
     4};
-static VertexLayout PNCCTTTTAttrib = {
+static VertexLayout PNCCTTTT_Attrib = {
     {{0, 3, Attribute::FLOAT, 0},
      {1, 3, Attribute::FLOAT, 12},
      {2, 4, Attribute::UINT8, 24},
      {3, 2, Attribute::FLOAT, 32}},
     64,
     4};
-static VertexLayout PCCNCCTTXAttrib = {
+static VertexLayout PBBNCCTTX_Attrib = {
     {{0, 3, Attribute::FLOAT, 0},
      {1, 3, Attribute::FLOAT, 20},
-     {2, 4, Attribute::UINT8, 12},
+     {2, 4, Attribute::UINT8, 32},
      {3, 2, Attribute::FLOAT, 40}},
     72,
     4};
-static VertexLayout PCCNCCTAttrib = {
+static VertexLayout PBBNCCT_Attrib = {
     {{0, 3, Attribute::FLOAT, 0},
      {1, 3, Attribute::FLOAT, 20},
      {2, 4, Attribute::UINT8, 12},
      {3, 2, Attribute::FLOAT, 40}},
     48,
     4};
-static VertexLayout PNCTTTXAttrib = {
+static VertexLayout PNCTTTX_Attrib = {
     {{0, 3, Attribute::FLOAT, 0},
      {1, 3, Attribute::FLOAT, 12},
      {2, 4, Attribute::UINT8, 24},
      {3, 2, Attribute::FLOAT, 28}},
     68,
     4};
-static VertexLayout PNCTTXAttrib = {
+static VertexLayout PNCTTX_Attrib = {
     {{0, 3, Attribute::FLOAT, 0},
      {1, 3, Attribute::FLOAT, 12},
      {3, 2, Attribute::FLOAT, 28}},
     60,
     3};
-static VertexLayout PNCTTTX_2Attrib = {
+static VertexLayout PNCTTTX_2_Attrib = {
     {{0, 3, Attribute::FLOAT, 0},
      {1, 3, Attribute::FLOAT, 12},
      {3, 2, Attribute::FLOAT, 28}},
     68,
     3};
-static VertexLayout PNCTTTX_3Attrib = {
+static VertexLayout PNCTTTX_3_Attrib = {
     {{0, 3, Attribute::FLOAT, 0},
      {1, 3, Attribute::FLOAT, 12},
      {3, 2, Attribute::FLOAT, 28}},
     68,
     3};
-static VertexLayout PNCCTTXAttrib = {
+static VertexLayout PNCCTTX_Attrib = {
     {{0, 3, Attribute::FLOAT, 0},
      {1, 3, Attribute::FLOAT, 12},
      {3, 2, Attribute::FLOAT, 32}},
     64,
     3};
-static VertexLayout PNCCTTX_2Attrib = {
+static VertexLayout PNCCTTX_2_Attrib = {
     {{0, 3, Attribute::FLOAT, 0},
      {1, 3, Attribute::FLOAT, 12},
      {3, 2, Attribute::FLOAT, 32}},
     64,
     3};
-static VertexLayout PNCCTTTXAttrib = {
+static VertexLayout PNCCTTTX_Attrib = {
     {{0, 3, Attribute::FLOAT, 0},
      {1, 3, Attribute::FLOAT, 12},
      {3, 2, Attribute::FLOAT, 32}},
     72,
     3};
-static VertexLayout PCCNCCTXAttrib = {
+static VertexLayout PBBNCCTX_Attrib = {
     {{0, 3, Attribute::FLOAT, 0},
      {1, 3, Attribute::FLOAT, 20},
      {3, 2, Attribute::FLOAT, 40}},
     64,
     3};
-static VertexLayout PCCNCTXAttrib = {
+static VertexLayout PBBNCTX_Attrib = {
     {{0, 3, Attribute::FLOAT, 0},
      {1, 3, Attribute::FLOAT, 20},
      {3, 2, Attribute::FLOAT, 36}},
     60,
     3};
-static VertexLayout PCCNCTAttrib = {
+static VertexLayout PBBNCT_Attrib = {
     {{0, 3, Attribute::FLOAT, 0},
      {1, 3, Attribute::FLOAT, 20},
      {3, 2, Attribute::FLOAT, 36}},
     44,
     3};
-static VertexLayout PNCCTTAttrib = {
+static VertexLayout PNCCTT_Attrib = {
     {{0, 3, Attribute::FLOAT, 0},
      {1, 3, Attribute::FLOAT, 12},
      {3, 2, Attribute::FLOAT, 32}},
     48,
     3};
-static VertexLayout PNCCTXAttrib = {
+static VertexLayout PNCCTX_Attrib = {
     {{0, 3, Attribute::FLOAT, 0},
      {1, 3, Attribute::FLOAT, 12},
      {3, 2, Attribute::FLOAT, 32}},
     56,
     3};
-static VertexLayout PCTAttrib = {
+static VertexLayout PCT_Attrib = {
     {{0, 3, Attribute::FLOAT, 0},
      {2, 3, Attribute::FLOAT, 12},
      {3, 2, Attribute::FLOAT, 16}},
     24,
     3};
-static VertexLayout PTAttrib = {
+static VertexLayout PT_Attrib = {
     {{0, 3, Attribute::FLOAT, 0},
      {3, 2, Attribute::FLOAT, 12}},
     20,
     2};
-static VertexLayout PTTAttrib = {
+static VertexLayout PTT_Attrib = {
     {{0, 3, Attribute::FLOAT, 0},
      {3, 3, Attribute::FLOAT, 12}},
     28,
     2};
-static VertexLayout PNCAttrib = {
+static VertexLayout PNC_Attrib = {
     {
         {0, 3, Attribute::FLOAT, 0},
         {1, 3, Attribute::FLOAT, 12},
@@ -178,17 +178,17 @@ static VertexLayout PNCAttrib = {
     },
     28,
     3};
-static VertexLayout PCAttrib = {
+static VertexLayout PC_Attrib = {
     {{0, 3, Attribute::FLOAT, 0},
      {3, 2, Attribute::FLOAT, 8}},
     16,
     2};
-static VertexLayout PCCAttrib = {
+static VertexLayout PCC_Attrib = {
     {{0, 3, Attribute::FLOAT, 0},
      {3, 2, Attribute::FLOAT, 12}},
     20,
     2};
-static VertexLayout PCCH2H4Attrib = {
+static VertexLayout PCCH2H4_Attrib = {
     {
         {0, 3, Attribute::FLOAT, 0},
         {1, 4, Attribute::UINT8, 12},
@@ -197,31 +197,39 @@ static VertexLayout PCCH2H4Attrib = {
     },
     32,
     4};
-static VertexLayout PNCH2Attrib = {
+static VertexLayout PNCH2_Attrib = {
     {{0, 3, Attribute::FLOAT, 0},
      {1, 3, Attribute::FLOAT, 12},
      {2, 4, Attribute::UINT8, 24},
      {3, 2, Attribute::HALFFLOAT, 28}},
     32,
     4};
-static VertexLayout PNCTTTTXAttrib = {
+static VertexLayout PNCTTTTX_Attrib = {
     {{0, 3, Attribute::FLOAT, 0},
      {1, 3, Attribute::FLOAT, 12},
      {2, 4, Attribute::UINT8, 24},
      {3, 2, Attribute::FLOAT, 28}},
     76,
     4};
-/*static VertexLayout PNCTTTTAttrib = {
- };
- static VertexLayout PCCNCCTTAttrib = {
- };
- static VertexLayout PCTTAttrib = {
- };
- static VertexLayout PCCCCTAttrib = {
- };
- static VertexLayout PCCNCAttrib = {
+static VertexLayout PNCTTTT_Attrib = {
+    {{0, 3, Attribute::FLOAT, 0},
+     {1, 3, Attribute::FLOAT, 12},
+     {2, 4, Attribute::UINT8, 24},
+     {3, 2, Attribute::FLOAT, 28}},
+    60,
+    4};
+static VertexLayout PBBNCCTT_Attrib = {
+    {{0, 3, Attribute::FLOAT, 0},
+     {1, 3, Attribute::FLOAT, 20},
+     {2, 4, Attribute::UINT8, 32},
+     {3, 2, Attribute::FLOAT, 40}},
+    56,
+    4};
+/*static VertexLayout PCTT_Attrib = {
  };*/
-static VertexLayout PCCNCTTAttrib = {
+/*static VertexLayout PCCNC_Attrib = {
+ };*/
+static VertexLayout PBBNCTT_Attrib = {
     {
         {0, 3, Attribute::FLOAT, 0},
         {1, 3, Attribute::FLOAT, 20},
@@ -230,7 +238,7 @@ static VertexLayout PCCNCTTAttrib = {
     },
     52,
     4};
-static VertexLayout PCCNCTTXAttrib = {
+static VertexLayout PBBNCTTX_Attrib = {
     {
         {0, 3, Attribute::FLOAT, 0},
         {1, 3, Attribute::FLOAT, 20},
@@ -239,7 +247,7 @@ static VertexLayout PCCNCTTXAttrib = {
     },
     68,
     4};
-static VertexLayout PCCNCTTTAttrib = {
+static VertexLayout PBBNCTTT_Attrib = {
     {
         {0, 3, Attribute::FLOAT, 0},
         {1, 3, Attribute::FLOAT, 20},

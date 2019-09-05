@@ -1,80 +1,71 @@
-#include "OpenGLRenderer.h"
-#include "Shader.h"
+#include "VulkanRenderer.h"
 #include "../CBuilding.h"
 #include "../Camera.h"
 #include "../Model.h"
+#include "../NativeWindow.h"
 
-OpenGLRenderer::OpenGLRenderer(NativeWindow* window)
+#if (VULKAN_DEBUG)
+#define VK_CHECK(name)                \
+    VKResult res = name;              \
+    if (name != VkResult::VK_SUCCESS) \
+    {                                 \
+        printf("ERROR\n");            \
+        DebugBreak();                 \
+    }
+#else
+#define VK_CHECK(name) name;
+#endif
+
+VulkanRenderer::VulkanRenderer(NativeWindow* window)
     : nativeWindow(window)
 {
     nativeWindow->initializeContext();
 
-    glEnable(GL_DEPTH_TEST);
-    glDisable(GL_MULTISAMPLE);
-    glDisable(GL_DITHER);
+    VkApplicationInfo appInfo = {};
+    appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+    appInfo.pApplicationName = "GameEngine";
+    appInfo.engineVersion = 1;
+    appInfo.apiVersion = VK_API_VERSION_1_0;
 
-    glClipControl(GL_LOWER_LEFT, GL_ZERO_TO_ONE);
+    VkInstanceCreateInfo instInfo = {};
+    instInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+    instInfo.pApplicationInfo = &appInfo;
 
-    mainShader = new Shader("assets/shaders/gbuffer");
+    VK_CHECK(vkCreateInstance(&instInfo, NULL, &inst));
 
-    glGenVertexArrays(1, &VAO);
-
-    glGenBuffers(1, &uboGlobal);
-    glBindBuffer(GL_UNIFORM_BUFFER, uboGlobal);
-    glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), NULL, GL_DYNAMIC_DRAW);
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-    glGenBuffers(1, &uboModel);
-    glBindBuffer(GL_UNIFORM_BUFFER, uboModel);
-    glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), NULL, GL_DYNAMIC_DRAW);
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-    //Default texture
-    glGenTextures(1, &textures[0]);
-    glBindTexture(GL_TEXTURE_2D, textures[0]);
-
-    uint8_t data[8 * 8 * 4];
-    for (int i = 0; i < 8 * 8; ++i)
-    {
-        data[4 * i] = (255);
-        data[4 * i + 1] = (0);
-        data[4 * i + 2] = (255);
-        data[4 * i + 3] = (1);
-    }
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 8, 8, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    uint32_t numDevices;
+    VK_CHECK(vkEnumeratePhysicalDevices(inst, &numDevices, NULL));
 }
 
-OpenGLRenderer::~OpenGLRenderer()
+VulkanRenderer::~VulkanRenderer()
 {
 }
 
-void OpenGLRenderer::beginFrame()
+/*void VulkanRenderer::beginFrame()
 {
 }
 
-void OpenGLRenderer::endFrame()
+void VulkanRenderer::endFrame()
 {
 }
 
-void OpenGLRenderer::presentFrame()
+void VulkanRenderer::presentFrame()
 {
     nativeWindow->swapBuffers();
 }
 
-VertexBufferHandle OpenGLRenderer::createVertexBuffer(uint32_t size, const uint8_t* pointer)
+VertexBufferHandle VulkanRenderer::createVertexBuffer(uint32_t size, const uint8_t* pointer)
 {
-    GLuint vbo;
+    /*GLuint vbo;
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
     glBufferData(GL_ARRAY_BUFFER, size, pointer, GL_STATIC_DRAW);
-
+	
     VertexBufferHandle handle;
 
     //find free
-    BOOL found = false;
+    /*BOOL found = false;
     for (int i = 0; i < gpuBufferSize; i++)
     {
         if (vertexBuffers[i] == 0)
@@ -91,18 +82,12 @@ VertexBufferHandle OpenGLRenderer::createVertexBuffer(uint32_t size, const uint8
     return handle;
 }
 
-IndexBufferHandle OpenGLRenderer::createIndexBuffer(uint32_t size, const uint8_t* pointer)
+IndexBufferHandle VulkanRenderer::createIndexBuffer(uint32_t size, const uint8_t* pointer)
 {
-    GLuint vbo;
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo);
-
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, pointer, GL_STATIC_DRAW);
-
     IndexBufferHandle handle;
 
     //find free
-    BOOL found = false;
+    bool found = false;
     for (int i = 0; i < gpuBufferSize; i++)
     {
         if (indexBuffers[i] == 0)
@@ -119,13 +104,13 @@ IndexBufferHandle OpenGLRenderer::createIndexBuffer(uint32_t size, const uint8_t
     return handle;
 }
 
-TextureHandle OpenGLRenderer::createTexture(const uint8_t* pointer, int width, int height, int levels, TextureFormat format)
+TextureHandle VulkanRenderer::createTexture(const uint8_t* pointer, int width, int height, int levels, TextureFormat format)
 {
     unsigned int InternalFormat;
     unsigned int type;
     bool compressed = false;
 
-    switch (format)
+    /*switch (format)
     {
         case D3DFMT_DXT1:
             compressed = true;
@@ -174,7 +159,7 @@ TextureHandle OpenGLRenderer::createTexture(const uint8_t* pointer, int width, i
             InternalFormat = GL_RED;
             type = GL_UNSIGNED_BYTE;
             break;*/
-        default:
+/* default:
             return TextureHandle{0};
             printf("UNSUPPORTED FORMAT\n");
             break;
@@ -189,16 +174,6 @@ TextureHandle OpenGLRenderer::createTexture(const uint8_t* pointer, int width, i
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, levels <= 1 ? GL_LINEAR : GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    //	QUALITY
-    uint8_t TextureQuality = 0;  //	Which is the base mipmap texture to load
-    /*bool Ultra = true;
-	if (Ultra)
-	 glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 16.0f);*/
-
-    //	0 = High Res
-    //	1 = Half Res
-    //	2 = Quarter Res
-    //	UGLY
     //	TextureQuality = texture->Levels < TextureQuality ? 0: TextureQuality;
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, TextureQuality);
@@ -211,7 +186,7 @@ TextureHandle OpenGLRenderer::createTexture(const uint8_t* pointer, int width, i
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-	//glPixelStorei(GL_UNPACK_ALIGNMENT, 1);*/
+	//glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
     if (compressed)
     {
@@ -265,19 +240,19 @@ TextureHandle OpenGLRenderer::createTexture(const uint8_t* pointer, int width, i
     return handle;
 }
 
-void OpenGLRenderer::removeVertexBuffer(VertexBufferHandle handle)
+void VulkanRenderer::removeVertexBuffer(VertexBufferHandle handle)
 {
-    glBindBuffer(GL_VERTEX_ARRAY, 0);
+    /*glBindBuffer(GL_VERTEX_ARRAY, 0);
     glDeleteBuffers(1, &vertexBuffers[handle.id]);
 }
 
-void OpenGLRenderer::removeIndexbuffer(IndexBufferHandle handle)
+void VulkanRenderer::removeIndexbuffer(IndexBufferHandle handle)
 {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glDeleteBuffers(1, &indexBuffers[handle.id]);
 }
 
-void OpenGLRenderer::removeTexture(TextureHandle handle)
+void VulkanRenderer::removeTexture(TextureHandle handle)
 {
     glBindTexture(GL_TEXTURE_2D, 0);
     glDeleteTextures(1, &textures[handle.id]);
@@ -290,24 +265,7 @@ static const GLenum s_attribType[] =
         GL_FLOAT,          // Float
 };
 
-//#define GL_DEBUG
-
-#ifdef GL_DEBUG
-#define GL_CHECK(call)                              \
-    call;                                           \
-    {                                               \
-        GLenum err = glGetError();                  \
-        if (err != 0)                               \
-        {                                           \
-            printf("GL error 0x%x %u\n", err, err); \
-            DebugBreak();                           \
-        }                                           \
-    }
-#else
-#define GL_CHECK(call) call
-#endif
-
-void OpenGLRenderer::renderDrawable(YdrLoader* drawable)
+void VulkanRenderer::renderDrawable(YdrLoader* drawable)
 {
     int curTexture = 0;
     for (auto& model : drawable->models)
@@ -330,121 +288,118 @@ void OpenGLRenderer::renderDrawable(YdrLoader* drawable)
             switch (geometry.type)
             {
                 case Default:
-                    layout = Default_Attrib;
+                    layout = DefaultAttrib;
                     break;
                 case DefaultEx:
-                    layout = DefaultEx_Attrib;
+                    layout = DefaultExAttrib;
                     break;
                 case PNCCT:
-                    layout = PNCCT_Attrib;
+                    layout = PNCCTAttrib;
                     break;
                 case PNCCTTTT:
-                    layout = PNCCTTTT_Attrib;
+                    layout = PNCCTTTTAttrib;
                     break;
-                case PBBNCCTTX:
-                    layout = PBBNCCTTX_Attrib;
+                case PCCNCCTTX:
+                    layout = PCCNCCTTXAttrib;
                     break;
-                case PBBNCCT:
-                    layout = PBBNCCT_Attrib;
+                case PCCNCCT:
+                    layout = PCCNCCTAttrib;
                     break;
                 case PNCTTTX:
-                    layout = PNCTTTX_Attrib;
+                    layout = PNCTTTXAttrib;
                     break;
                 case PNCTTX:
-                    layout = PNCTTX_Attrib;
+                    layout = PNCTTXAttrib;
                     break;
                 case PNCTTTX_2:
-                    layout = PNCTTTX_2_Attrib;
+                    layout = PNCTTTX_2Attrib;
                     break;
                 case PNCTTTX_3:
-                    layout = PNCTTTX_3_Attrib;
+                    layout = PNCTTTX_3Attrib;
                     break;
                 case PNCCTTX:
-                    layout = PNCCTTX_Attrib;
+                    layout = PNCCTTXAttrib;
                     break;
                 case PNCCTTX_2:
-                    layout = PNCCTTX_2_Attrib;
+                    layout = PNCCTTX_2Attrib;
                     break;
                 case PNCCTTTX:
-                    layout = PNCCTTTX_Attrib;
+                    layout = PNCCTTTXAttrib;
                     break;
-                case PBBNCCTX:
-                    layout = PBBNCCTX_Attrib;
+                case PCCNCCTX:
+                    layout = PCCNCCTXAttrib;
                     break;
-                case PBBNCTX:
-                    layout = PBBNCTX_Attrib;
+                case PCCNCTX:
+                    layout = PCCNCTXAttrib;
                     break;
-                case PBBNCT:
-                    layout = PBBNCT_Attrib;
+                case PCCNCT:
+                    layout = PCCNCTAttrib;
                     break;
                 case PNCCTT:
-                    layout = PNCCTT_Attrib;
+                    layout = PNCCTTAttrib;
                     break;
                 case PNCCTX:
-                    layout = PNCCTX_Attrib;
+                    layout = PNCCTXAttrib;
                     break;
                 case PCT:
-                    layout = PCT_Attrib;
+                    layout = PCTAttrib;
                     break;
                 case PT:
-                    layout = PT_Attrib;
+                    layout = PTAttrib;
                     break;
                 case PTT:
-                    layout = PTT_Attrib;
+                    layout = PTTAttrib;
                     break;
                 case PNC:
-                    layout = PNC_Attrib;
+                    layout = PNCAttrib;
                     break;
                 case PC:
-                    layout = PC_Attrib;
+                    layout = PCAttrib;
                     break;
                 case PCC:
-                    layout = PCC_Attrib;
+                    layout = PCCAttrib;
                     break;
                 case PCCH2H4:
-                    layout = PCCH2H4_Attrib;
+                    layout = PCCH2H4Attrib;
                     break;
                 case PNCH2:
-                    layout = PNCH2_Attrib;
+                    layout = PNCH2Attrib;
                     break;
                 case PNCTTTTX:
-                    layout = PNCTTTTX_Attrib;
+                    layout = PNCTTTTXAttrib;
                     break;
-                case PNCTTTT:
-                    layout = PNCTTTT_Attrib;
+                /*case PNCTTTT:
+                    layout = PNCTTTTAttrib;
                     break;
-                case PBBNCCTT:
-                    layout = PBBNCCTT_Attrib;
+                case PCCNCCTT:
+                    layout = PCCNCCTTAttrib;
                     break;
-                /*case PCTT:
-                    layout = PCTT_Attrib;
+                case PCTT:
+                    layout = PCTTAttrib;
                     break;
-                case PBBCCT:
-                    layout = PBBCCT_Attrib;
+                case PCCCCT:
+                    layout = PCCCCTAttrib;
                     break;
-                case PBBNC:
-                    layout = PBBNC_Attrib;
-                    break;*/
-                case PBBNCTT:
-                    layout = PBBNCTT_Attrib;
+                case PCCNC:
+                    layout = PCCNCAttrib;
                     break;
-                case PBBNCTTX:
-                    layout = PBBNCTTX_Attrib;
+                case PCCNCTT:
+                    layout = PCCNCTTAttrib;
                     break;
-                case PBBNCTTT:
-                    layout = PBBNCTTT_Attrib;
+                case PCCNCTTX:
+                    layout = PCCNCTTXAttrib;
+                    break;
+                case PCCNCTTT:
+                    layout = PCCNCTTTAttrib;
                     break;
                 /*case PNCTT:
-                    layout = PNCTT_Attrib;
+                    layout = PNCTTAttrib;
                     break;
                 case PNCTTT:
-                    layout = PNCTTT_Attrib;
+                    layout = PNCTTTAttrib;
                     break;
-                case PBBNCTTTX:
-                    layout = PBBNCTTTX_Attrib;
-                    break;*/
                 default:
-                    continue;
+                    break;
             }
 
             for (int i = 0; i < layout.size; i++)
@@ -464,12 +419,12 @@ void OpenGLRenderer::renderDrawable(YdrLoader* drawable)
     }
 }
 
-void OpenGLRenderer::renderBuilding(CBuilding* building)
+void VulkanRenderer::renderBuilding(CBuilding* building)
 {
     renderDrawable(building->ydr);
 }
 
-void OpenGLRenderer::renderPed(CPed* ped)
+void VulkanRenderer::renderPed(CPed* ped)
 {
     for (auto& ydr : ped->playerModel)
     {
@@ -477,12 +432,12 @@ void OpenGLRenderer::renderPed(CPed* ped)
     }
 }
 
-void OpenGLRenderer::renderVehicle(CVehicle* vehicle)
+void VulkanRenderer::renderVehicle(CVehicle* vehicle)
 {
     renderDrawable(vehicle->getDrawable()->ydr);
 }
 
-void OpenGLRenderer::renderWorld(GameWorld* world, Camera* curCamera)
+void VulkanRenderer::renderWorld(GameWorld* world, Camera* curCamera)
 {
     beginFrame();
 
@@ -547,9 +502,9 @@ void OpenGLRenderer::renderWorld(GameWorld* world, Camera* curCamera)
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, defaultTexture);
         world->getPhysicsSystem()->debug.render();
-    }*/
+    }
 
     endFrame();
 
     presentFrame();
-}
+}*/

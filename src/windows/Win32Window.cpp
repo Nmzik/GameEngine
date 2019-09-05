@@ -92,6 +92,16 @@ Win32Window::~Win32Window()
     UnregisterClass(getName(), GetModuleHandle(nullptr));
 }
 
+#if VULKAN_API
+
+void Win32Window::initializeContext()
+{
+}
+#else
+
+#include <GL/glew.h>
+#include <GL/wglew.h>
+
 void Win32Window::initializeContext()
 {
     PIXELFORMATDESCRIPTOR pfd;
@@ -148,6 +158,7 @@ void Win32Window::initializeContext()
     const GLubyte* GLVersionString = glGetString(GL_VERSION);
     printf("%s\n", GLVersionString);
 }
+#endif
 
 std::wstring get_utf16(const std::string_view& str, int codepage)
 {

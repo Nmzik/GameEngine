@@ -1,4 +1,5 @@
 #pragma once
+#include <cassert>
 #include <cstdint>
 #include <cstring>
 #include "GlobalPool.h"
@@ -29,6 +30,7 @@ public:
 
     const uint8_t* read(uint64_t Count)
     {
+        assert(offset + Count <= bufferSize);
         uint64_t origOffset = offset;
 
         offset += Count;
@@ -38,6 +40,7 @@ public:
 
     void read(void* dst, uint64_t size)
     {
+        assert(offset + size <= bufferSize);
         memcpy(dst, &data[offset], size);
         offset += size;
     }

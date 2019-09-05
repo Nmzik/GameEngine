@@ -10,30 +10,30 @@ void YftLoader::init(memstream& file)
     rmcDrawable* drawable = *(fragType->drawable);
     for (int i = 0; i < drawable->DrawableModels[0]->size(); i++)
     {
-    for (int j = 0; j < drawable->DrawableModels[0]->Get(i)->m_geometries.size(); j++)
-    {
-        switch (drawable->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->InfoPointer->Types)
+        for (int j = 0; j < drawable->DrawableModels[0]->Get(i)->m_geometries.size(); j++)
         {
-            case 216172782140628998:  //    YFT - 0x030000000199A006
-                switch (drawable->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->InfoPointer->Flags)
+            switch (drawable->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->InfoPointer->Types)
             {
-                case 16473:
-                    drawable->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->InfoPointer->Flags = VertexType::PCCH2H4;
-                    break;  //  PCCH2H4
+                case 216172782140628998:  //    YFT - 0x030000000199A006
+                    switch (drawable->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->InfoPointer->Flags)
+                    {
+                        case 16473:
+                            drawable->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->InfoPointer->Flags = VertexType::PCCH2H4;
+                            break;  //  PCCH2H4
+                    }
+                    break;
+                case 216172782140612614:  //    YFT - 0x0300000001996006  PNCH2H4
+                    switch (drawable->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->InfoPointer->Flags)
+                    {
+                        case 89:
+                            drawable->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->InfoPointer->Flags = VertexType::PNCH2;
+                            break;  //  PNCH2
+                    }
+                    break;
             }
-                break;
-            case 216172782140612614:  //    YFT - 0x0300000001996006  PNCH2H4
-                switch (drawable->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->InfoPointer->Flags)
-            {
-                case 89:
-                    drawable->DrawableModels[0]->Get(i)->m_geometries.Get(j)->VertexBufferPointer->InfoPointer->Flags = VertexType::PNCH2;
-                    break;  //  PNCH2
-            }
-                break;
         }
     }
-    }
-    
+
     /*SYSTEM_BASE_PTR(fragType->DrawablePointer);
     file.seekg(fragType->DrawablePointer);
 

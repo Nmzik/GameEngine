@@ -108,7 +108,8 @@ YtdLoader* ResourceManager::getYtd(uint32_t hash)
         auto iter = data.gtxdEntries.find(hash);
         if (iter != data.gtxdEntries.end())
         {
-            return getYtd(iter->second);
+			//fix memory leak!
+            getYtd(iter->second);
         }
 
         /*bool HDTextures = false;

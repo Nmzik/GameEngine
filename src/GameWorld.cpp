@@ -56,7 +56,6 @@ GameWorld::GameWorld(ResourceManager* resManager)
     gameHour = 10;
     gameMinute = 0;
 
-    resourceManager->getYdr(4145603484);
     resourceManager->getYtd(3403519606);  //water
     resourceManager->getYtd(4096714883);  //PLAYER YTD
 
@@ -78,8 +77,7 @@ GameWorld::GameWorld(ResourceManager* resManager)
 	{
         resourceManager->getYtd(ytd.second);
 	}*/
-
-    addPedToWorld(glm::vec3(-19.09, -407.75, 150.77), playerYDD);
+    addPedToWorld(glm::vec3(238, -956.75, 150.77), playerYDD);
     //addPedToWorld(glm::vec3(1705.95, 3746.39, 37.64), playerYDD);
     addPedToWorld(glm::vec3(9.66, -1184.98, 75.74), playerYDD);
     addPedToWorld(glm::vec3(2250.18f, 3471.40f, 56.50f), playerYDD);
