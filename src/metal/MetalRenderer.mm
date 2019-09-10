@@ -9,6 +9,8 @@
 #include "TargetConditionals.h"
 #endif
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 #include "MetalRenderer.h"
 
 #include "../CBuilding.h"
@@ -21,22 +23,28 @@
 
 uint32_t texturesSize = 0;
 uint32_t vertexBufferSize = 0;
-static int testID = 0;
 
 id<MTLBuffer> vertexBuffers[gpuBufferSize] = {0};
 id<MTLBuffer> indexBuffers[gpuBufferSize] = {0};
 id<MTLTexture> textures[gpuBufferSize] = {0};
-uint32_t curIndex = 0;
+
+std::stack<uint32_t> vertexBufferIDs;
+std::stack<uint32_t> indexBufferIDs;
+std::stack<uint32_t> texturesIDs;
 
 id<MTLCommandQueue> commandQueue;
 MTLRenderPassDescriptor* mainPassDescriptor;
+MTLRenderPassDescriptor* guiPassDescriptor;
+MTLRenderPassDescriptor* fxaaPassDescriptor;
 //
+id<MTLRenderPipelineState> guiPipelineState;
+id<MTLRenderPipelineState> fxaaPipelineState;
 id<MTLRenderPipelineState> DefaultPipelineState;
 id<MTLRenderPipelineState> DefaultExPipelineState;
 id<MTLRenderPipelineState> PNCCTPipelineState;
 id<MTLRenderPipelineState> PNCCTTTTPipelineState;
-id<MTLRenderPipelineState> PCCNCCTTXPipelineState;
-id<MTLRenderPipelineState> PCCNCCTPipelineState;
+id<MTLRenderPipelineState> PBBNCCTTXPipelineState;
+id<MTLRenderPipelineState> PBBNCCTPipelineState;
 id<MTLRenderPipelineState> PNCTTTXPipelineState;
 id<MTLRenderPipelineState> PNCTTXPipelineState;
 id<MTLRenderPipelineState> PNCTTTX_2PipelineState;
@@ -44,9 +52,9 @@ id<MTLRenderPipelineState> PNCTTTX_3PipelineState;
 id<MTLRenderPipelineState> PNCCTTXPipelineState;
 id<MTLRenderPipelineState> PNCCTTX_2PipelineState;
 id<MTLRenderPipelineState> PNCCTTTXPipelineState;
-id<MTLRenderPipelineState> PCCNCCTXPipelineState;
-id<MTLRenderPipelineState> PCCNCTXPipelineState;
-id<MTLRenderPipelineState> PCCNCTPipelineState;
+id<MTLRenderPipelineState> PBBNCCTXPipelineState;
+id<MTLRenderPipelineState> PBBNCTXPipelineState;
+id<MTLRenderPipelineState> PBBNCTPipelineState;
 id<MTLRenderPipelineState> PNCCTTPipelineState;
 id<MTLRenderPipelineState> PNCCTXPipelineState;
 id<MTLRenderPipelineState> PCTPipelineState;
@@ -62,9 +70,13 @@ id<MTLRenderPipelineState> PNCTTTTXPipelineState;
 id<MTLSamplerState> samplerState;
 id <MTLBuffer> scene_buffer;
 id <MTLRenderCommandEncoder> commandEncoder;
+id <MTLRenderCommandEncoder> guiEncoder;
+
 id <MTLDepthStencilState> depthStencilState;
+id <MTLTexture> mainTexture;
 id <MTLTexture> depthTexture;
 id <MTLTexture> errorTexture;
+id <MTLTexture> fontTexture;
 //id <MTLHeap> heap;
 
 //id<MTLBuffer> tempBuffer;
@@ -102,6 +114,11 @@ struct uniform_buffer_struct {
 
 MetalRenderer::MetalRenderer()
 {
+    for (int i = 0; i < gpuBufferSize; i++) {
+        vertexBufferIDs.push(i);
+        indexBufferIDs.push(i);
+        texturesIDs.push(i);
+    }
     textureDecompressedMem = std::make_unique<uint8_t[]>(20 * 1024 * 1024); //20mb for uncompressing textures
 }
 
@@ -116,13 +133,69 @@ void MetalRenderer::initializeRenderEngine()
     commandQueue = [device newCommandQueue];
     
     createRenderPipelines();
+    createDepthTexture();
+    createWarningTexture();
+    //createFontTexture();
+    //
+#if TARGET_OS_IPHONE
+    CGSize textureSize = CGSizeMake(mtkView.frame.size.width * mtkView.contentScaleFactor, mtkView.frame.size.height * mtkView.contentScaleFactor);
+#else
+    CGSize textureSize = CGSizeMake(mtkView.frame.size.width, mtkView.frame.size.height);
+#endif
+    
+    MTLTextureDescriptor *desc = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatBGRA8Unorm width:textureSize.width height:textureSize.height mipmapped:NO];
+    desc.storageMode = MTLStorageModePrivate;
+    desc.usage = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
+    
+    mainTexture = [device newTextureWithDescriptor:desc];
+    
     //
     mainPassDescriptor = [MTLRenderPassDescriptor new];
     mainPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
     mainPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0, 0, 0, 1);
     mainPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
+    mainPassDescriptor.colorAttachments[0].texture = mainTexture;
     mainPassDescriptor.depthAttachment.loadAction = MTLLoadActionClear;
     mainPassDescriptor.depthAttachment.clearDepth = 1.0f;
+    mainPassDescriptor.depthAttachment.texture = depthTexture;
+    
+    /*{
+    guiPassDescriptor = [MTLRenderPassDescriptor new];
+    guiPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionLoad;
+    guiPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
+     
+        MTLRenderPipelineDescriptor* guiDescriptor = [MTLRenderPipelineDescriptor new];
+        guiDescriptor.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
+        guiDescriptor.colorAttachments[0].blendingEnabled = true;
+        guiDescriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorSourceAlpha;
+        guiDescriptor.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+        
+        id<MTLLibrary> defaultLibrary = [device newDefaultLibrary];
+        guiDescriptor.vertexFunction = [defaultLibrary newFunctionWithName:@"vertex_gui"];
+        guiDescriptor.fragmentFunction = [defaultLibrary newFunctionWithName:@"fragment_gui"];
+        
+        NSError* error;
+        guiPipelineState = [device newRenderPipelineStateWithDescriptor:guiDescriptor error:&error];
+        NSLog(@"%@", [error debugDescription]);
+    }*/
+    
+    /*{
+        fxaaPassDescriptor = [MTLRenderPassDescriptor new];
+        fxaaPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionLoad;
+        fxaaPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionDontCare;
+    }
+    {
+        MTLRenderPipelineDescriptor* descriptor = [MTLRenderPipelineDescriptor new];
+        descriptor.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
+        
+        id<MTLLibrary> defaultLibrary = [device newDefaultLibrary];
+        descriptor.vertexFunction = [defaultLibrary newFunctionWithName:@"fxaa_vertex"];
+        descriptor.fragmentFunction = [defaultLibrary newFunctionWithName:@"fxaa_fragment"];
+        
+        NSError* error;
+        fxaaPipelineState = [device newRenderPipelineStateWithDescriptor:descriptor error:&error];
+        NSLog(@"%@", [error debugDescription]);
+    }*/
     
     scene_buffer = [device newBufferWithLength:sizeof(uniform_buffer_struct) options:MTLResourceStorageModeShared];
     
@@ -148,7 +221,10 @@ void MetalRenderer::initializeRenderEngine()
     depthDescriptor.depthCompareFunction = MTLCompareFunctionLess;
     depthDescriptor.depthWriteEnabled = true;
     depthStencilState = [device newDepthStencilStateWithDescriptor:depthDescriptor];
-    
+}
+
+void MetalRenderer::createDepthTexture()
+{
 #if TARGET_OS_IPHONE
     CGSize depthTextureSize = CGSizeMake(mtkView.frame.size.width * mtkView.contentScaleFactor, mtkView.frame.size.height * mtkView.contentScaleFactor);
 #else
@@ -160,8 +236,6 @@ void MetalRenderer::initializeRenderEngine()
     desc.usage = MTLTextureUsageRenderTarget;
     
     depthTexture = [device newTextureWithDescriptor:desc];
-    
-    createWarningTexture();
 }
 
 void MetalRenderer::createWarningTexture()
@@ -185,36 +259,54 @@ void MetalRenderer::createWarningTexture()
     textures[0] = errorTexture;
 }
 
+void MetalRenderer::createFontTexture()
+{
+    int width, height, channels;
+    stbi_set_flip_vertically_on_load(true);
+    unsigned char *image = stbi_load("/Users/nmzik/Desktop/lucidagrande.jpg",
+                                     &width,
+                                     &height,
+                                     &channels,
+                                     STBI_rgb_alpha);
+    
+    
+    MTLTextureDescriptor* texDescriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatRGBA8Unorm width:width height:height mipmapped:false];
+    
+    fontTexture = [device newTextureWithDescriptor:texDescriptor];
+    MTLRegion region = MTLRegionMake2D(0, 0, width, height);
+    [fontTexture replaceRegion:region mipmapLevel:0 withBytes:&image[0] bytesPerRow:width * 4];
+}
+
 void MetalRenderer::createRenderPipelines()
 {
     //id<MTLLibrary> defaultLibrary = [device newDefaultLibrary];
     
-    DefaultPipelineState = createRenderDescriptor(DefaultAttrib);
-    DefaultExPipelineState = createRenderDescriptor(DefaultExAttrib);
-    PNCCTPipelineState = createRenderDescriptor(PNCCTAttrib);
-    PNCCTTTTPipelineState = createRenderDescriptor(PNCCTTTTAttrib);
-    PCCNCCTTXPipelineState = createRenderDescriptor(PCCNCCTTXAttrib);
-    PNCTTTXPipelineState = createRenderDescriptor(PNCTTTXAttrib);
-    PNCTTXPipelineState = createRenderDescriptor(PNCTTXAttrib);
-    PNCTTTX_2PipelineState = createRenderDescriptor(PNCTTTX_2Attrib);
-    PNCTTTX_3PipelineState = createRenderDescriptor(PNCTTTX_3Attrib);
-    PNCCTTXPipelineState = createRenderDescriptor(PNCCTTXAttrib);
-    PNCCTTX_2PipelineState = createRenderDescriptor(PNCCTTX_2Attrib);
-    PNCCTTTXPipelineState = createRenderDescriptor(PNCCTTTXAttrib);
-    PCCNCCTXPipelineState = createRenderDescriptor(PCCNCCTXAttrib);
-    PCCNCTXPipelineState = createRenderDescriptor(PCCNCTXAttrib);
-    PCCNCTPipelineState = createRenderDescriptor(PCCNCTAttrib);
-    PNCCTTPipelineState = createRenderDescriptor(PNCCTTAttrib);
-    PNCCTXPipelineState = createRenderDescriptor(PNCCTXAttrib);
-    PCTPipelineState = createRenderDescriptor(PCTAttrib);
-    PTPipelineState = createRenderDescriptor(PTAttrib);
-    PTTPipelineState = createRenderDescriptor(PTTAttrib);
-    PNCPipelineState = createRenderDescriptor(PNCAttrib);
-    PCPipelineState = createRenderDescriptor(PCAttrib);
-    PCCPipelineState = createRenderDescriptor(PCCAttrib);
-    PCCH2H4PipelineState = createRenderDescriptor(PCCH2H4Attrib);
-    PNCH2PipelineState = createRenderDescriptor(PNCH2Attrib);
-    PNCTTTTXPipelineState = createRenderDescriptor(PNCTTTTXAttrib);
+    DefaultPipelineState = createRenderDescriptor(Default_Attrib);
+    DefaultExPipelineState = createRenderDescriptor(DefaultEx_Attrib);
+    PNCCTPipelineState = createRenderDescriptor(PNCCT_Attrib);
+    PNCCTTTTPipelineState = createRenderDescriptor(PNCCTTTT_Attrib);
+    PBBNCCTTXPipelineState = createRenderDescriptor(PBBNCCTTX_Attrib);
+    PNCTTTXPipelineState = createRenderDescriptor(PNCTTTX_Attrib);
+    PNCTTXPipelineState = createRenderDescriptor(PNCTTX_Attrib);
+    PNCTTTX_2PipelineState = createRenderDescriptor(PNCTTTX_2_Attrib);
+    PNCTTTX_3PipelineState = createRenderDescriptor(PNCTTTX_3_Attrib);
+    PNCCTTXPipelineState = createRenderDescriptor(PNCCTTX_Attrib);
+    PNCCTTX_2PipelineState = createRenderDescriptor(PNCCTTX_2_Attrib);
+    PNCCTTTXPipelineState = createRenderDescriptor(PNCCTTTX_Attrib);
+    PBBNCCTXPipelineState = createRenderDescriptor(PBBNCCTX_Attrib);
+    PBBNCTXPipelineState = createRenderDescriptor(PBBNCTX_Attrib);
+    PBBNCTPipelineState = createRenderDescriptor(PBBNCT_Attrib);
+    PNCCTTPipelineState = createRenderDescriptor(PNCCTT_Attrib);
+    PNCCTXPipelineState = createRenderDescriptor(PNCCTX_Attrib);
+    PCTPipelineState = createRenderDescriptor(PCT_Attrib);
+    PTPipelineState = createRenderDescriptor(PT_Attrib);
+    PTTPipelineState = createRenderDescriptor(PTT_Attrib);
+    PNCPipelineState = createRenderDescriptor(PNC_Attrib);
+    PCPipelineState = createRenderDescriptor(PC_Attrib);
+    PCCPipelineState = createRenderDescriptor(PCC_Attrib);
+    PCCH2H4PipelineState = createRenderDescriptor(PCCH2H4_Attrib);
+    PNCH2PipelineState = createRenderDescriptor(PNCH2_Attrib);
+    PNCTTTTXPipelineState = createRenderDescriptor(PNCTTTTX_Attrib);
 }
 
 MTLRenderPipelineState MetalRenderer::createRenderDescriptor(VertexLayout& attributes)
@@ -271,23 +363,15 @@ VertexBufferHandle MetalRenderer::createVertexBuffer(uint32_t size, const uint8_
     VertexBufferHandle handle;
     
     //find free
-    BOOL found = false;
-    for (int i = 0; i < gpuBufferSize; i++) {
-        if (vertexBuffers[i] == 0)
-        {
-            vertexBuffers[i] = buffer;
-            handle.id = i;
-            found = true;
-            break;
-        }
-    }
+    assert(!vertexBufferIDs.empty());
+    uint32_t index = vertexBufferIDs.top();
+    vertexBufferIDs.pop();
     
-    assert(found);
+    handle.id = index;
+    vertexBuffers[index] = buffer;
     
     return handle;
 }
-
-#include <time.h>
 
 IndexBufferHandle MetalRenderer::createIndexBuffer(uint32_t size, const uint8_t* pointer)
 {
@@ -320,18 +404,12 @@ IndexBufferHandle MetalRenderer::createIndexBuffer(uint32_t size, const uint8_t*
     IndexBufferHandle handle;
     
     //find free
-    BOOL found = false;
-    for (int i = 0; i < gpuBufferSize; i++) {
-        if (indexBuffers[i] == 0)
-        {
-            indexBuffers[i] = buffer;
-            handle.id = i;
-            found = true;
-            break;
-        }
-    }
+    assert(!indexBufferIDs.empty());
+    uint32_t index = indexBufferIDs.top();
+    indexBufferIDs.pop();
     
-    assert(found);
+    handle.id = index;
+    indexBuffers[index] = buffer;
     
     return handle;
 }
@@ -391,7 +469,7 @@ TextureHandle MetalRenderer::createTexture(const uint8_t* pointer, int width, in
         textureFormat = MTLPixelFormatBC4_RUnorm;
         break;
         case D3DFMT_ATI2:
-        textureFormat = MTLPixelFormatBC4_RUnorm;
+            textureFormat = MTLPixelFormatBC5_RGUnorm;
         break;
         case D3DFMT_BC7:
         textureFormat = MTLPixelFormatBC7_RGBAUnorm;
@@ -425,7 +503,7 @@ TextureHandle MetalRenderer::createTexture(const uint8_t* pointer, int width, in
         levels -= minMipMap;
     }
     
-    MTLTextureDescriptor* descriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:textureFormat width:width height:height mipmapped:true];
+    MTLTextureDescriptor* descriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:textureFormat width:width height:height mipmapped:levels > 1? true : false];
     
     id <MTLTexture> texture = [device newTextureWithDescriptor:descriptor];
     if (convert)
@@ -481,23 +559,12 @@ TextureHandle MetalRenderer::createTexture(const uint8_t* pointer, int width, in
     TextureHandle handle;
     
     //find free
-    BOOL found = false;
-    for (int i = 0; i < gpuBufferSize; i++) {
-        if (textures[i] == 0)
-        {
-            //if (format == D3DFMT_A8R8G8B8 && testID == 0)
-             //   testID = i;
-            //}
-            textures[i] = texture;
-            handle.id = i;
-            found = true;
-            break;
-        }
-    }
+    assert(!texturesIDs.empty());
+    uint32_t index = texturesIDs.top();
+    texturesIDs.pop();
     
-    texturesSize += [textures[handle.id] allocatedSize];
-    //NSLog(@"%uMB", texturesSize/1024/1024);
-    assert(found);
+    handle.id = index;
+    textures[index] = texture;
     
     return handle;
     
@@ -508,12 +575,16 @@ void MetalRenderer::removeVertexBuffer(VertexBufferHandle handle)
     vertexBufferSize--;
     assert(vertexBuffers[handle.id] != 0);
     vertexBuffers[handle.id] = nil;
+    
+    vertexBufferIDs.push(handle.id);
 }
 
 void MetalRenderer::removeIndexbuffer(IndexBufferHandle handle)
 {
     assert(indexBuffers[handle.id] != 0);
     indexBuffers[handle.id] = nil;
+    
+    indexBufferIDs.push(handle.id);
 }
 
 void MetalRenderer::removeTexture(TextureHandle handle)
@@ -524,6 +595,8 @@ void MetalRenderer::removeTexture(TextureHandle handle)
     {
         textures[handle.id] = nil;
     }
+    
+    texturesIDs.push(handle.id);
 }
 
 template <typename T, typename U >
@@ -542,7 +615,6 @@ const matrix_float4x4 static inline toMtl( const glm::mat4 & mat )
 
 void MetalRenderer::renderDrawable(YdrLoader* drawable)
 {
-    int curTexture = 0;
     for (auto& model : drawable->models)
     {
         if ((model.Unk_2Ch & 1) == 0)
@@ -564,11 +636,11 @@ void MetalRenderer::renderDrawable(YdrLoader* drawable)
                 case PNCCTTTT:
                 [commandEncoder setRenderPipelineState:PNCCTTTTPipelineState];
                 break;
-                case PCCNCCTTX:
-                [commandEncoder setRenderPipelineState:PCCNCCTTXPipelineState];
+                case PBBNCCTTX:
+                [commandEncoder setRenderPipelineState:PBBNCCTTXPipelineState];
                 break;
-                case PCCNCCT:
-                [commandEncoder setRenderPipelineState:PCCNCCTPipelineState];
+                case PBBNCCT:
+                [commandEncoder setRenderPipelineState:PBBNCCTPipelineState];
                 break;
                 case PNCTTTX:
                 [commandEncoder setRenderPipelineState:PNCTTTXPipelineState];
@@ -591,14 +663,14 @@ void MetalRenderer::renderDrawable(YdrLoader* drawable)
                 case PNCCTTTX:
                 [commandEncoder setRenderPipelineState:PNCCTTTXPipelineState];
                 break;
-                case PCCNCCTX:
-                [commandEncoder setRenderPipelineState:PCCNCCTXPipelineState];
+                case PBBNCCTX:
+                [commandEncoder setRenderPipelineState:PBBNCCTXPipelineState];
                 break;
-                case PCCNCTX:
-                [commandEncoder setRenderPipelineState:PCCNCTXPipelineState];
+                case PBBNCTX:
+                [commandEncoder setRenderPipelineState:PBBNCTXPipelineState];
                 break;
-                case PCCNCT:
-                [commandEncoder setRenderPipelineState:PCCNCTPipelineState];
+                case PBBNCT:
+                [commandEncoder setRenderPipelineState:PBBNCTPipelineState];
                 break;
                 case PNCCTT:
                 [commandEncoder setRenderPipelineState:PNCCTTPipelineState];
@@ -702,9 +774,7 @@ void MetalRenderer::renderWorld(GameWorld* world, Camera* curCamera)
     curCamera->updateFrustum(projectionView); //maybe remove this??? opengl ONLY
     
     id <CAMetalDrawable> drawable = [mtkView currentDrawable];
-    
     mainPassDescriptor.colorAttachments[0].texture = drawable.texture;
-    mainPassDescriptor.depthAttachment.texture = depthTexture;
     
     id <MTLCommandBuffer> commandBuffer = [commandQueue commandBuffer];
     commandEncoder = [commandBuffer renderCommandEncoderWithDescriptor:mainPassDescriptor];
@@ -740,9 +810,108 @@ void MetalRenderer::renderWorld(GameWorld* world, Camera* curCamera)
             break;
         }
     }
-    
     [commandEncoder endEncoding];
+    
+    /*guiPassDescriptor.colorAttachments[0].texture = drawable.texture;
+    
+    guiEncoder = [commandBuffer renderCommandEncoderWithDescriptor:guiPassDescriptor];
+    [guiEncoder pushDebugGroup:@"GUI"];
+    
+    char test[100];
+    sprintf(test, "Player: %f %f %f", playerPos.x, playerPos.y, playerPos.z);
+    std::string textString(test);
+    renderText(textString, glm::vec2(-1.f, -1.0f));
+    
+    [guiEncoder popDebugGroup];
+    [guiEncoder endEncoding];*/
+    
+    /*id <CAMetalDrawable> drawable = [mtkView currentDrawable];
+    fxaaPassDescriptor.colorAttachments[0].texture = drawable.texture;
+    
+    id <MTLRenderCommandEncoder> fxaaEncoder = [commandBuffer renderCommandEncoderWithDescriptor:fxaaPassDescriptor];
+    
+    struct guiVertices {
+        glm::vec2 vertices;
+        glm::vec2 uvs;
+    };
+    
+    std::vector<guiVertices> buffer;
+    buffer.push_back({glm::vec2(-1.0f, 1.0f), glm::vec2(0.0f, 1.0f)});
+    buffer.push_back({glm::vec2(-1.0f, -1.0f), glm::vec2(0.0f, 0.0f)});
+                        buffer.push_back({glm::vec2(1.0f, -1.0f), glm::vec2(1.0f, 0.0f)});
+                        buffer.push_back({glm::vec2(-1.0f, 1.0f), glm::vec2(0.0f, 1.0f)});
+                        buffer.push_back({glm::vec2(1.0f, -1.0f), glm::vec2(1.0f, 0.0f)});
+                        buffer.push_back({glm::vec2(1.0f, 1.0f), glm::vec2(1.0f, 1.0f)});
+    
+    [fxaaEncoder setRenderPipelineState:fxaaPipelineState];
+    [fxaaEncoder setVertexBytes:&buffer[0] length:buffer.size() * sizeof(guiVertices) atIndex:0];
+    [fxaaEncoder setFragmentSamplerState:samplerState atIndex:0];
+    [fxaaEncoder setFragmentTexture:mainTexture atIndex:0];
+    [fxaaEncoder drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:0 vertexCount:buffer.size()];
+    
+    [fxaaEncoder endEncoding];*/
     
     [commandBuffer presentDrawable:drawable];
     [commandBuffer commit];
+}
+
+void MetalRenderer::renderText(std::string& text, glm::vec2 pos)
+{
+    struct guiVertices {
+        glm::vec2 vertices;
+        glm::vec2 uvs;
+    };
+    
+    std::vector<guiVertices> buffer;
+    float x = 0;
+    float y = 0;
+    
+    /*buffer.push_back({glm::vec2(0.5, 0.5), glm::vec2(1.0, 1.0)});
+    buffer.push_back({glm::vec2(0, 0.5), glm::vec2(1.0, 1.0)});
+    buffer.push_back({glm::vec2(0, 0), glm::vec2(1.0, 1.0)});
+    
+    buffer.push_back({glm::vec2(0, 0), glm::vec2(1.0, 1.0)});
+    buffer.push_back({glm::vec2(0.5, 0), glm::vec2(1.0, 1.0)});
+    buffer.push_back({glm::vec2(0.5, 0.5), glm::vec2(1.0, 1.0)});*/
+    
+    for (int i = 0; i < text.size(); i++) {
+        
+        char test = text[i];
+        
+        int startIndex = (int)test - 32;
+        
+        
+        
+        int posX = startIndex / 10;
+        int posY = startIndex % 10;
+        
+        //printf("CHAR %c %d %d\n", test, posX, posY);
+        
+        float uv_x = (startIndex%10)/10.0f;
+        float uv_y = (startIndex/10)/10.0f;
+        
+        
+        glm::vec2 pos(30.f, 30.f);
+        float resX = 1.0f/pos.x;
+        float resY = 1.0f/pos.y;
+        
+        buffer.push_back({glm::vec2(resX + x, resY), glm::vec2(uv_x+1.0f/10.0f, 1.0f - uv_y)});
+        buffer.push_back({glm::vec2(0 + x, resY), glm::vec2(uv_x           , 1.0f - uv_y)});
+        buffer.push_back({glm::vec2(0 + x, 0), glm::vec2(uv_x           , 1.0f - (uv_y + 1.0f/10.0f))});
+        
+        buffer.push_back({glm::vec2(0 + x, 0), glm::vec2(uv_x           , 1.0f - (uv_y + 1.0f/10.0f))});
+        buffer.push_back({glm::vec2(resX + x, 0), glm::vec2(uv_x+1.0f/10.0f, 1.0f - (uv_y + 1.0f/10.0f))});
+        buffer.push_back({glm::vec2(resX + x, resY), glm::vec2(uv_x+1.0f/10.0f, 1.0f - uv_y)});
+        
+        x += resX;
+    }
+    
+    glm::vec2 position(-1.f, 0.5f);
+    
+    [guiEncoder setRenderPipelineState:guiPipelineState];
+    [guiEncoder setVertexBytes:&buffer[0] length:buffer.size() * sizeof(guiVertices) atIndex:0];
+    [guiEncoder setVertexBytes:&position length:sizeof(glm::vec2) atIndex:1];
+    [guiEncoder setFragmentSamplerState:samplerState atIndex:0];
+    [guiEncoder setFragmentTexture:fontTexture atIndex:0];
+    [guiEncoder drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:0 vertexCount:buffer.size()];
 }

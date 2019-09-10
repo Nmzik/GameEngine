@@ -108,7 +108,7 @@ YtdLoader* ResourceManager::getYtd(uint32_t hash)
         auto iter = data.gtxdEntries.find(hash);
         if (iter != data.gtxdEntries.end())
         {
-			//fix memory leak!
+            //fix memory leak!
             getYtd(iter->second);
         }
 
@@ -321,12 +321,12 @@ void ResourceManager::update()
                                 {
                                     if (it->second->getType() == 2)
                                     {
-                                        printf("");
+                                        //printf("");
                                     }
 
                                     object.archetype = it->second;
 
-                                    object.boundPos = object.entityDef.position - object.archetype->BaseArchetypeDef.bsCentre;
+                                    object.boundPos = object.entityDef.position + object.archetype->BaseArchetypeDef.bsCentre;
                                     object.boundRadius = object.archetype->BaseArchetypeDef
                                                              .bsRadius;  //* std::max(object.CEntity.scaleXY, object.CEntity.scaleZ); TREES doesnt render with multiplying by scale
 

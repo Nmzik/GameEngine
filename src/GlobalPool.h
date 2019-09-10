@@ -7,16 +7,9 @@ class BasicPool
     //allocate a chunk of memory as big as Type needs:
     void* allocate()
     {
-        void* place;
-        if (!free.empty())
-        {
-            place = static_cast<void*>(free.top());
-            free.pop();
-        }
-        else
-        {
-            place = operator new(sizeof(Type));
-        }
+        assert(!free.empty());
+        void* place = static_cast<void*>(free.top());
+        free.pop();
         return place;
     }
 
@@ -31,10 +24,11 @@ public:
 
     void preAllocate(int num)
     {
+        memPool = new uint8_t[num * sizeof(Type)];
+
         for (size_t i = 0; i < num; i++)
         {
-            Type* place = (Type*)operator new(sizeof(Type));
-            free.push(place);
+            free.push(memPool + (i * sizeof(Type)));
         }
     }
 
@@ -51,22 +45,19 @@ public:
     void remove(Type* o)
     {
         o->~Type();
-        free.push(o);
+        free.push((uint8_t*)o);
     }
 
     //delete all of the available memory chunks:
     ~BasicPool()
     {
-        while (!free.empty())
-        {
-            ::operator delete(free.top());
-            free.pop();
-        }
+        delete[] memPool;
     }
 
 private:
+    uint8_t* memPool;
     //stack to hold pointers to free chunks:
-    std::stack<Type*> free;
+    std::stack<uint8_t*> free;
 };
 
 class Resource;

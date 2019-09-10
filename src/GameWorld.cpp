@@ -24,6 +24,18 @@ GameWorld::GameWorld(ResourceManager* resManager)
     {
         vehiclesPool[vehicle.Hash] = vehicle;
     }*/
+    {
+        CacheDatFile* cache = resourceManager->getGameData()->cacheFile.get();
+        for (int i = 0; i < cache->allMapNodes.size(); i++)
+        {
+            cache->mapNodesBoundaries.push_back({spaceGrid.getCellPos(cache->allMapNodes[i].streamingExtentsMin), spaceGrid.getCellPos(cache->allMapNodes[i].streamingExtentsMax)});
+        }
+
+        for (int i = 0; i < cache->allBoundsStoreItems.size(); i++)
+        {
+            cache->boundsStoreBoundaries.push_back({spaceGrid.getCellPos(cache->allBoundsStoreItems[i].Min), spaceGrid.getCellPos(cache->allBoundsStoreItems[i].Max)});
+        }
+    }
 
     curYbns.reserve(50);
     curYmaps.reserve(200);  //> 100
@@ -412,10 +424,10 @@ void GameWorld::getVisibleYmaps(glm::vec3& PlayerPos)
         //	Bounds
         for (int i = 0; i < data.cacheFile->allBoundsStoreItems.size(); i++)
         {
-            glm::i32vec2 min = spaceGrid.getCellPos(data.cacheFile->allBoundsStoreItems[i].Min);
-            glm::i32vec2 max = spaceGrid.getCellPos(data.cacheFile->allBoundsStoreItems[i].Max);
+            auto max = data.cacheFile->boundsStoreBoundaries[i].max;
+            auto min = data.cacheFile->boundsStoreBoundaries[i].min;
 
-            if (cellID.x <= max.x && cellID.x >= min.x && cellID.y <= max.y && cellID.y >= min.y)
+            if (curCell.x <= max.x && curCell.x >= min.x && curCell.y <= max.y && curCell.y >= min.y)
             {
                 curYbns.emplace_back(resourceManager->getYbn(data.cacheFile->allBoundsStoreItems[i].Name));
             }
@@ -423,10 +435,10 @@ void GameWorld::getVisibleYmaps(glm::vec3& PlayerPos)
 
         for (int i = 0; i < data.cacheFile->allMapNodes.size(); i++)
         {
-            glm::i32vec2 min = spaceGrid.getCellPos(data.cacheFile->allMapNodes[i].streamingExtentsMin);  //	NOT entitiesExtents !!!! GIVES WEIRD RESULTS
-            glm::i32vec2 max = spaceGrid.getCellPos(data.cacheFile->allMapNodes[i].streamingExtentsMax);
-
-            if (cellID.x <= max.x && cellID.x >= min.x && cellID.y <= max.y && cellID.y >= min.y)
+            auto max = data.cacheFile->mapNodesBoundaries[i].max;
+            auto min = data.cacheFile->mapNodesBoundaries[i].min;
+            //    NOT entitiesExtents !!!! GIVES WEIRD RESULTS
+            if (curCell.x <= max.x && curCell.x >= min.x && curCell.y <= max.y && curCell.y >= min.y)
             {
                 curYmaps.emplace_back(resourceManager->getYmap(data.cacheFile->allMapNodes[i].Name));
             }

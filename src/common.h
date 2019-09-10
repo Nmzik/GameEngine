@@ -15,10 +15,10 @@ void endSwap(T* objp)
 class memstream
 {
     uint64_t offset;
+    size_t bufferSize;
 
 public:
     int32_t systemSize;
-    size_t bufferSize;
     const uint8_t* data;
 
     memstream(const uint8_t* buffer, size_t sizeData)
@@ -28,12 +28,12 @@ public:
     {
     }
 
-    const uint8_t* read(uint64_t Count)
+    const uint8_t* read(uint64_t count)
     {
-        assert(offset + Count <= bufferSize);
+        assert(offset + count <= bufferSize);
         uint64_t origOffset = offset;
 
-        offset += Count;
+        offset += count;
 
         return &data[origOffset];
     }
@@ -50,9 +50,14 @@ public:
         return (char*)&data[offset];
     }
 
-    void seekg(uint64_t OffsetFile)
+    void seekg(uint64_t offsetFile)
     {
-        offset = OffsetFile;
+        offset = offsetFile;
+    }
+
+    void seekCur(uint64_t offsetFile)
+    {
+        offset += offsetFile;
     }
 
     uint64_t tellg()
@@ -60,9 +65,9 @@ public:
         return offset;
     }
 
-    void seekCur(int64_t OffsetFile)
+    uint64_t getSize()
     {
-        offset += OffsetFile;
+        return bufferSize;
     }
 };
 

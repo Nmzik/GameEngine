@@ -47,7 +47,7 @@ PhysicsSystem::PhysicsSystem()
 
     dynamicsWorld->setGravity(btVector3(0, 0, -9.8f));
     //	UPDATE STATIC OBJECTS MANUALLY
-    //dynamicsWorld->setForceUpdateAllAabbs(false);
+    dynamicsWorld->setForceUpdateAllAabbs(false);
 
     debug.setDebugMode(btIDebugDraw::DBG_DrawWireframe);
     dynamicsWorld->setDebugDrawer(&debug);

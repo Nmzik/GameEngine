@@ -40,7 +40,8 @@ public:
     virtual void removeTexture(TextureHandle handle) override;
 
     virtual void renderWorld(GameWorld* world, Camera* curCamera) override;
-
+    void renderText(std::string& text, glm::vec2 pos);
+    
     void renderDrawable(YdrLoader* drawable);
     void renderBuilding(CBuilding* building);
     void renderPed(CPed* ped);
@@ -53,7 +54,9 @@ public:
     ~MetalRenderer();
     
     void initializeRenderEngine();
+    void createDepthTexture();
     void createWarningTexture();
+    void createFontTexture();
     MTLRenderPipelineState createRenderDescriptor(VertexLayout& attributes);
     void createRenderPipelines();
 };
