@@ -168,7 +168,7 @@ void Game::loadQueuedResources()
     //    If we still didn't finish loading our queue, do not swap! Swap only if we dont have any job.
     if (resourceManager->tempMainThreadResources.empty())
     {
-        std::lock_guard<std::mutex> swapLock(resourceManager->mainThreadLock);
+        lock_guard swapLock(&resourceManager->mainThreadLock);
         if (resourceManager->mainThreadResources.size() > 0)
             resourceManager->mainThreadResources.swap(resourceManager->tempMainThreadResources);
     }

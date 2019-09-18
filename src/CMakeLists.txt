@@ -13,6 +13,11 @@ loaders/*.cpp
 )
 list (APPEND SOURCES ${LOADERS})
 
+file(GLOB UTILS
+utils/*.h
+)
+list (APPEND SOURCES ${UTILS})
+
 if(WIN32)
 	set	(OPENGL 1)
 	set (VULKAN 1)

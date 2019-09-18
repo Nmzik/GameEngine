@@ -58,11 +58,12 @@ struct TextureDictionary : ResourceFileBase
     uint32_t Unknown_14h;  // 0x00000000
     uint32_t Unknown_18h;  // 0x00000001
     uint32_t Unknown_1Ch;  // 0x00000000
-    ResourceSimpleList64Ptr TextureNameHashesPtr;
+    pgArray<uint32_t> TextureNameHashesPtr;
     pgObjectArray<grcTexture> Textures;
 
     void Resolve(memstream& file)
     {
+        TextureNameHashesPtr.Resolve(file);
         Textures.Resolve(file);
     }
 };

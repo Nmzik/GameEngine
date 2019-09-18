@@ -4,8 +4,8 @@
 ///////////////// Tiago Costa, 2014
 /////////////////////////////////////////////////////////////////////////////////////////////
 
-#include <mutex>
 #include "FreeListAllocator.h"
+#include "utils/mutex.h"
 
 class ThreadSafeAllocator : public FreeListAllocator
 {
@@ -18,7 +18,7 @@ public:
     void deallocate(void* p) override;
 
 private:
-    std::mutex allocatorLock;
+    mutex allocatorLock;
 
     ThreadSafeAllocator(const ThreadSafeAllocator&) = delete;
     ThreadSafeAllocator& operator=(const ThreadSafeAllocator&) = delete;

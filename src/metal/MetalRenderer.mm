@@ -204,6 +204,7 @@ void MetalRenderer::initializeRenderEngine()
     samplerDescriptor.magFilter = MTLSamplerMinMagFilterLinear;
     samplerDescriptor.sAddressMode = MTLSamplerAddressModeRepeat;
     samplerDescriptor.tAddressMode = MTLSamplerAddressModeRepeat;
+    samplerDescriptor.rAddressMode = MTLSamplerAddressModeRepeat;
     
     samplerState = [device newSamplerStateWithDescriptor:samplerDescriptor];
     

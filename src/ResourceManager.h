@@ -1,13 +1,11 @@
 #pragma once
 
-#include <condition_variable>
-#include <mutex>
 #include <queue>
-#include <thread>
 #include <unordered_map>
 #include "GameData.h"
 #include "ThreadSafeAllocator.h"
 #include "common.h"
+#include "utils/thread.h"
 
 class GameWorld;
 
@@ -24,9 +22,9 @@ class YscLoader;
 
 class ResourceManager
 {
-    std::thread loadThread;
-    std::mutex loadThreadLock;
-    std::condition_variable loadCondition;
+    thread loadThread;
+    mutex loadThreadLock;
+    condition_variable loadCondition;
     bool running;
 
     std::queue<Resource*> waitingList;
@@ -40,19 +38,15 @@ class ResourceManager
     std::unordered_map<uint32_t, YmapLoader*> ymapLoader;
     std::unordered_map<uint32_t, YscLoader*> yscLoader;
 
-    void update();
-
     inline void addToMainQueue(Resource* res);
-
     Resource* removeFromWaitingList();
-
     void getGtxd(uint32_t hash);
 
 public:
     ResourceManager(GameData* gameData);
     ~ResourceManager();
 
-    std::mutex mainThreadLock;
+    mutex mainThreadLock;
     std::queue<Resource*> mainThreadResources;
     std::queue<Resource*> tempMainThreadResources;
 
@@ -71,6 +65,7 @@ public:
         return &data;
     }
 
+    void update();
     void addToWaitingList(Resource* res);
     void removeAll();
     void updateResourceCache(GameWorld* world);

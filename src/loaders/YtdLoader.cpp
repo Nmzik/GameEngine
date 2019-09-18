@@ -13,10 +13,6 @@ void YtdLoader::finalize(GameRenderer* _renderer, memstream& file)
 
     if (texDictionary->Textures.size() != 0)
     {
-        SYSTEM_BASE_PTR(texDictionary->TextureNameHashesPtr.EntriesPointer);
-        file.seekg(texDictionary->TextureNameHashesPtr.EntriesPointer);
-        uint32_t* TexturesHashes = (uint32_t*)file.read(sizeof(uint32_t) * texDictionary->TextureNameHashesPtr.EntriesCount);
-
         for (int i = 0; i < texDictionary->Textures.size(); i++)
         {
             grcTexture* texture = texDictionary->Textures.Get(i);
@@ -25,9 +21,10 @@ void YtdLoader::finalize(GameRenderer* _renderer, memstream& file)
 
             TextureHandle handle = renderer->createTexture(&file.data[texture->DataPointer], texture->Width, texture->Height, texture->Levels, texture->Format);
 
-            renderer->getTextureManager()->addTexture(TexturesHashes[i], handle);
+            uint32_t hash = texDictionary->TextureNameHashesPtr.Get(i);
+            renderer->getTextureManager()->addTexture(hash, handle);
             Texture tex(handle);
-            textures.insert({TexturesHashes[i], tex});
+            textures.insert({hash, tex});
         }
     }
 }

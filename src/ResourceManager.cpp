@@ -17,6 +17,12 @@
 // 50MB for BULLET PHYSICS
 // 50MB for ResourceLoader
 
+static void* threadEntryFunc(void* This)
+{
+    ((ResourceManager*)This)->update();
+    return NULL;
+}
+
 ResourceManager::ResourceManager(GameData* gameData)
     : running(true)
     , data{*gameData}
@@ -34,7 +40,7 @@ ResourceManager::ResourceManager(GameData* gameData)
 
     resource_allocator = std::make_unique<ThreadSafeAllocator>(50 * 1024 * 1024);
 
-    loadThread = std::thread(&ResourceManager::update, this);
+    loadThread = thread(&threadEntryFunc, this);
 }
 
 ResourceManager::~ResourceManager()
@@ -225,22 +231,23 @@ YscLoader* ResourceManager::getYsc(uint32_t hash)
 
 inline void ResourceManager::addToMainQueue(Resource* res)
 {
-    std::lock_guard<std::mutex> lock(mainThreadLock);
+    lock_guard lock(&mainThreadLock);
     mainThreadResources.push(res);
 }
 
 void ResourceManager::addToWaitingList(Resource* res)
 {
-    std::lock_guard<std::mutex> lock(loadThreadLock);
+    lock_guard lock(&loadThreadLock);
     waitingList.push(res);
-    loadCondition.notify_one();
+    loadCondition.notify();
 }
 
 inline Resource* ResourceManager::removeFromWaitingList()
 {
-    std::unique_lock<std::mutex> lock(loadThreadLock);
+    lock_guard lock(&loadThreadLock);
 
-    loadCondition.wait(lock, [this] { return !waitingList.empty(); });
+    while (waitingList.empty())
+        loadCondition.wait(&loadThreadLock);
 
     Resource* res = waitingList.front();
     waitingList.pop();
