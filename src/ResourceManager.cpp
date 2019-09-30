@@ -40,7 +40,7 @@ ResourceManager::ResourceManager(GameData* gameData)
 
     resource_allocator = std::make_unique<ThreadSafeAllocator>(50 * 1024 * 1024);
 
-    loadThread = thread(&threadEntryFunc, this);
+    loadThread = Thread(&threadEntryFunc, this);
 }
 
 ResourceManager::~ResourceManager()
@@ -231,26 +231,25 @@ YscLoader* ResourceManager::getYsc(uint32_t hash)
 
 inline void ResourceManager::addToMainQueue(Resource* res)
 {
-    lock_guard lock(&mainThreadLock);
+    Lock_guard lock(&mainThreadLock);
     mainThreadResources.push(res);
 }
 
 void ResourceManager::addToWaitingList(Resource* res)
 {
-    lock_guard lock(&loadThreadLock);
+    Lock_guard lock(&loadThreadLock);
     waitingList.push(res);
     loadCondition.notify();
 }
 
 inline Resource* ResourceManager::removeFromWaitingList()
 {
-    lock_guard lock(&loadThreadLock);
+    Lock_guard lock(&loadThreadLock);
 
     while (waitingList.empty())
         loadCondition.wait(&loadThreadLock);
 
-    Resource* res = waitingList.front();
-    waitingList.pop();
+    Resource* res = waitingList.pop();
     return res;
 }
 

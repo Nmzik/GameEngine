@@ -1,21 +1,20 @@
 #pragma once
-#include <fstream>
-#include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
+#include "../utils/fileHandle.h"
 #include "RpfEntry.h"
 
 class RpfFile
 {
 public:
-    std::ifstream& rpf;
+    FileHandle& rpf;
     bool isAESEncrypted = false;
     std::string path;
     std::vector<RpfResourceFileEntry> resourceEntries;
     std::vector<RpfBinaryFileEntry> binaryEntries;
 
-    RpfFile(std::ifstream* rpfFile, std::string& fullPath, std::string& fileName, uint32_t fileSize, uint64_t fileOffset);
+    RpfFile(FileHandle& rpfFile, std::string& fullPath, std::string& fileName, uint32_t fileSize, uint64_t fileOffset);
 
     ~RpfFile();
 };

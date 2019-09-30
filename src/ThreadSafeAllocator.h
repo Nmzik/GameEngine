@@ -18,7 +18,7 @@ public:
     void deallocate(void* p) override;
 
 private:
-    mutex allocatorLock;
+    Mutex allocatorLock;
 
     ThreadSafeAllocator(const ThreadSafeAllocator&) = delete;
     ThreadSafeAllocator& operator=(const ThreadSafeAllocator&) = delete;

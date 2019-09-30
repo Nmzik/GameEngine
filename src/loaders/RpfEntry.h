@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include "../utils/fileHandle.h"
 #include "../common.h"
 
 inline int GetSizeFromFlags(uint32_t flags)
@@ -64,5 +65,5 @@ public:
     int32_t SystemSize;
     int32_t GraphicsSize;
 
-    RpfResourceFileEntry(memstream& stream, std::istream& originalFile, uint64_t startPos, memstream& namesStream);
+    RpfResourceFileEntry(memstream& stream, FileHandle& originalFile, uint64_t startPos, memstream& namesStream);
 };

@@ -1,5 +1,4 @@
 #include "RpfEntry.h"
-#include <istream>
 
 RpfDirectoryEntry::RpfDirectoryEntry(memstream& stream, memstream& NamesStream)
 {
@@ -37,7 +36,7 @@ RpfBinaryFileEntry::RpfBinaryFileEntry(memstream& stream, uint64_t StartPos, mem
     FileOffset = StartPos + ((uint64_t)FileOffset * 512);
 }
 
-RpfResourceFileEntry::RpfResourceFileEntry(memstream& stream, std::istream& originalFile, uint64_t StartPos, memstream& NamesStream)
+RpfResourceFileEntry::RpfResourceFileEntry(memstream& stream, FileHandle& originalFile, uint64_t StartPos, memstream& NamesStream)
 {
     uint16_t NameOffset;
     stream.read((char*)&NameOffset, sizeof(uint16_t));
@@ -67,12 +66,12 @@ RpfResourceFileEntry::RpfResourceFileEntry(memstream& stream, std::istream& orig
     // means length>=0xffffff
     if (FileSize == 0xFFFFFF)
     {
-        uint64_t pos = originalFile.tellg();
-        originalFile.seekg(StartPos + ((long)FileOffset * 512));
+        uint64_t pos = originalFile.getCurPos();
+        originalFile.seek(StartPos + ((long)FileOffset * 512));
         uint8_t buf[16];
         originalFile.read((char*)&buf[0], 16);
         FileSize = ((uint32_t)buf[7] << 0) | ((uint32_t)buf[14] << 8) | ((uint32_t)buf[5] << 16) | ((uint32_t)buf[2] << 24);
-        originalFile.seekg(pos);
+        originalFile.seek(pos);
     }
 
     FileSize = FileSize - 0x10;

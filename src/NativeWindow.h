@@ -1,6 +1,4 @@
 #pragma once
-#include <iostream>
-#include <sstream>
 #include "InputManager.h"
 
 class NativeWindow

@@ -1,10 +1,9 @@
 #pragma once
-#include <array>
 #include <cstdint>
 #include <memory>
+#include <glm/gtc/type_precision.hpp>
 #include "../GameRenderer.h"
 #include "../common.h"
-#include <glm/gtc/type_precision.hpp>
 
 #define SYSTEM_BASE 0x50000000
 #define GRAPHICS_BASE 0x60000000

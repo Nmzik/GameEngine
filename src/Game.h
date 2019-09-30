@@ -4,7 +4,6 @@
 
 #include <chrono>
 #include <memory>
-#include <sstream>
 #include "ft2build.h"
 #include FT_FREETYPE_H
 

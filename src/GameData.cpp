@@ -58,21 +58,19 @@ void GameData::load()
     {
         std::string FilePath = mainDirPath + rpfFile;
 
-        std::unique_ptr<std::ifstream> rpf = std::make_unique<std::ifstream>(FilePath, std::ios::binary);
+        std::unique_ptr<FileHandle> handle = std::make_unique<FileHandle>(FilePath.c_str());
 
-        if (!rpf->is_open())
+        if (!handle->isOpen())
         {
             printf("File %s wasn't found!\n", rpfFile.c_str());
             continue;
         }
 
-        rpf->seekg(0, std::ios::end);
-        uint32_t FileSize = (uint32_t)rpf->tellg();
-        rpf->seekg(0, std::ios::beg);
+        uint32_t fileSize = handle->getFileSize();
 
-        loadRpf(*rpf, rpfFile, rpfFile, FileSize, 0);
+        loadRpf(*handle, rpfFile, rpfFile, fileSize, 0);
 
-        openedFiles.push_back(std::move(rpf));
+        openedFiles.push_back(std::move(handle));
 
         printf("File %s was succesfully loaded!\n", rpfFile.c_str());
     }
@@ -425,9 +423,9 @@ void GameData::loadScenesSwitch(std::vector<uint8_t>& Buffer)
     }
 }
 
-void GameData::loadRpf(std::ifstream& rpf, std::string& FullPath_, std::string& FileName_, uint32_t FileSize_, uint64_t FileOffset)
+void GameData::loadRpf(FileHandle& rpf, std::string& FullPath_, std::string& FileName_, uint32_t FileSize_, uint64_t FileOffset)
 {
-    std::unique_ptr<RpfFile> file = std::make_unique<RpfFile>(&rpf, FullPath_, FileName_, FileSize_, FileOffset);
+    std::unique_ptr<RpfFile> file = std::make_unique<RpfFile>(rpf, FullPath_, FileName_, FileSize_, FileOffset);
 
     for (auto& BinaryFileEntry : file->binaryEntries)
     {
@@ -450,7 +448,7 @@ void GameData::extractFileBinary(RpfBinaryFileEntry& entry, uint8_t* allocatedMe
 {
     auto& rpf = entry.File->rpf;
 
-    rpf.seekg(entry.FileOffset);
+    rpf.seek(entry.FileOffset);
 
     assert(entry.FileSize < tempBufferSize);
 
@@ -469,7 +467,7 @@ void GameData::extractFileResource(RpfResourceFileEntry& entry, uint8_t* allocat
 {
     auto& rpf = entry.File->rpf;
     //printf("%s\n", entry.File->path.c_str());
-    rpf.seekg(entry.FileOffset);
+    rpf.seek(entry.FileOffset);
 
     assert(entry.FileSize < tempBufferSize);
 

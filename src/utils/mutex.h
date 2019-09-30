@@ -1,18 +1,18 @@
 #pragma once
 #include <pthread.h>
 
-class mutex {
+class Mutex {
 #ifdef __APPLE__
     pthread_mutex_t mutex_lock;
 #endif
-    friend class condition_variable;
+    friend class Condition_variable;
 public:
-    mutex()
+    Mutex()
     {
         pthread_mutex_init(&mutex_lock, NULL);
     }
     
-    ~mutex()
+    ~Mutex()
     {
         pthread_mutex_destroy(&mutex_lock);
     }
@@ -28,37 +28,37 @@ public:
     }
 };
 
-class lock_guard
+class Lock_guard
 {
-    mutex* mutex_lock;
+    Mutex* mutex_lock;
 public:
-    lock_guard(mutex* lock)
+    Lock_guard(Mutex* lock)
     : mutex_lock(lock)
     {
         mutex_lock->lock();
     }
     
-    ~lock_guard()
+    ~Lock_guard()
     {
         mutex_lock->unlock();
     }
 };
 
-class condition_variable
+class Condition_variable
 {
     pthread_cond_t cv;
 public:
-    condition_variable()
+    Condition_variable()
     {
         pthread_cond_init(&cv, NULL);
     }
     
-    ~condition_variable()
+    ~Condition_variable()
     {
         pthread_cond_destroy(&cv);
     }
     
-    void wait(mutex* lock)
+    void wait(Mutex* lock)
     {
         pthread_cond_wait(&cv, &lock->mutex_lock);
     }

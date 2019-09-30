@@ -1,11 +1,14 @@
 #pragma once
 #include <algorithm>
 #include <memory>
+#include <array>
 #include <string>
 #include <string_view>
 #include <unordered_map>
 #include <vector>
 #include <glm/vec3.hpp>
+
+#include "utils/fileHandle.h"
 
 class RpfFile;
 class RpfBinaryFileEntry;
@@ -51,7 +54,7 @@ class GameData
     std::unique_ptr<uint8_t[]> tempBuffer;
     std::string mainDirPath;
     std::vector<std::unique_ptr<RpfFile>> rpfFiles;
-    std::vector<std::unique_ptr<std::ifstream>> openedFiles;
+    std::vector<std::unique_ptr<FileHandle>> openedFiles;
 
 public:
     std::vector<WaterQuad> waterQuads;
@@ -78,7 +81,7 @@ public:
     void loadWaterQuads(std::vector<uint8_t>& buffer);
     void loadScenesSwitch(std::vector<uint8_t>& buffer);
 
-    void loadRpf(std::ifstream& rpf, std::string& FullPath_, std::string& FileName_, uint32_t FileSize_, uint64_t FileOffset);
+    void loadRpf(FileHandle& rpf, std::string& FullPath_, std::string& FileName_, uint32_t FileSize_, uint64_t FileOffset);
 
     void extractFileBinary(RpfBinaryFileEntry& entry, uint8_t* allocatedMem, uint32_t allocatedSize);
     void extractFileResource(RpfResourceFileEntry& entry, uint8_t* allocatedMem, uint32_t allocatedSize);

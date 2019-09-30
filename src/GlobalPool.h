@@ -1,5 +1,5 @@
 #pragma once
-#include <stack>
+#include <vector>
 
 template <typename Type>
 class BasicPool
@@ -8,8 +8,8 @@ class BasicPool
     void* allocate()
     {
         assert(!free.empty());
-        void* place = static_cast<void*>(free.top());
-        free.pop();
+        void* place = static_cast<void*>(free.back());
+        free.pop_back();
         return place;
     }
 
@@ -28,7 +28,7 @@ public:
 
         for (size_t i = 0; i < num; i++)
         {
-            free.push(memPool + (i * sizeof(Type)));
+            free.push_back(memPool + (i * sizeof(Type)));
         }
     }
 
@@ -45,7 +45,7 @@ public:
     void remove(Type* o)
     {
         o->~Type();
-        free.push((uint8_t*)o);
+        free.push_back((uint8_t*)o);
     }
 
     //delete all of the available memory chunks:
@@ -57,7 +57,7 @@ public:
 private:
     uint8_t* memPool;
     //stack to hold pointers to free chunks:
-    std::stack<uint8_t*> free;
+    std::vector<uint8_t*> free;
 };
 
 class Resource;

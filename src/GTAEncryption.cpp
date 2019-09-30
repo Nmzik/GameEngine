@@ -1,3 +1,5 @@
+#include <cstring>
+#include "utils/fileHandle.h"
 #include "GTAEncryption.h"
 
 #ifdef __APPLE__
@@ -26,13 +28,16 @@ GTAEncryption::~GTAEncryption()
 
 void GTAEncryption::loadKeys(std::string keyPath)
 {
+    
 #if TARGET_OS_IPHONE
-    std::ifstream stream(keyPath + "assets/magic.dat", std::ios::binary);
+    std::string Path = keyPath + "assets/magic.dat";
+    const char* path = Path.c_str();
 #else
-    std::ifstream stream("assets/magic.dat", std::ios::binary);
+    const char* path = "assets/magic.dat";
 #endif
+    FileHandle stream(path);
 
-    if (!stream.is_open())
+    if (!stream.isOpen())
     {
         throw std::runtime_error("KEY FILE IS MISSING\n");
     }
@@ -52,7 +57,7 @@ void GTAEncryption::loadKeys(std::string keyPath)
         }
     }
     stream.read((char*)&PC_AWC_KEY[0], 16);
-
+    
     AES_init_ctx(&ctx, PC_AES_KEY);
 }
 

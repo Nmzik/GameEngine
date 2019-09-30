@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stack>
+
 #include "Geometry.h"
 #include "Texture.h"
 #include "TextureManager.h"

@@ -1,23 +1,22 @@
 #pragma once
 #include <pthread.h>
 
-class thread {
+class Thread {
 #ifdef __APPLE__
     pthread_t thread_id;
 #endif
 public:
-    thread()
-    : thread_id(0)
+    Thread()
     {
         
     }
     
-    thread(void *(*start_routine) (void *), void *arg)
+    Thread(void *(*start_routine) (void *), void *arg)
     {
         pthread_create(&thread_id, NULL, start_routine, arg);
     }
     
-    ~thread()
+    ~Thread()
     {
         
     }

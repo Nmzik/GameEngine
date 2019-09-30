@@ -49,11 +49,6 @@ CPed::~CPed()
     delete body->getMotionState();
 }
 
-btRigidBody* CPed::getPhysCharacter()
-{
-    return body.get();
-}
-
 void CPed::setPosition(glm::vec3 pos)
 {
     btTransform transform;

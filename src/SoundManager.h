@@ -1,7 +1,6 @@
 #pragma once
-/*#include <iostream>
 
-#include "al.h"
+/*#include "al.h"
 #include "alc.h"
 //#include "alut.h"
 

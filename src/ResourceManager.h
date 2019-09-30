@@ -6,6 +6,7 @@
 #include "ThreadSafeAllocator.h"
 #include "common.h"
 #include "utils/thread.h"
+#include "utils/queue.h"
 
 class GameWorld;
 
@@ -22,12 +23,12 @@ class YscLoader;
 
 class ResourceManager
 {
-    thread loadThread;
-    mutex loadThreadLock;
-    condition_variable loadCondition;
+    Thread loadThread;
+    Mutex loadThreadLock;
+    Condition_variable loadCondition;
     bool running;
 
-    std::queue<Resource*> waitingList;
+    Queue waitingList;
     GameData& data;
 
     std::unordered_map<uint32_t, YdrLoader*> ydrLoader;
@@ -46,9 +47,9 @@ public:
     ResourceManager(GameData* gameData);
     ~ResourceManager();
 
-    mutex mainThreadLock;
-    std::queue<Resource*> mainThreadResources;
-    std::queue<Resource*> tempMainThreadResources;
+    Mutex mainThreadLock;
+    Queue mainThreadResources;
+    Queue tempMainThreadResources;
 
     std::unique_ptr<ThreadSafeAllocator> resource_allocator;
     // GetFile<YdrLoader, Type::ydr>(uint32_t hash, uint32_t TextureDictionaryHash);

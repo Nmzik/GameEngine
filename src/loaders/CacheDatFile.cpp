@@ -1,3 +1,4 @@
+#include <string>
 #include "CacheDatFile.h"
 #include "../common.h"
 

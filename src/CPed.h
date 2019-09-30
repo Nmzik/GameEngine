@@ -72,8 +72,13 @@ public:
     {
         return vehicle;
     }
+    
+    btRigidBody* getPhysCharacter() const
+    {
+        return body.get();
+    }
+    
     void addToInventory(uint32_t slot, uint32_t ammo);
     void setActiveWeapon(uint32_t slot);
     void jump();
-    btRigidBody* getPhysCharacter();
 };

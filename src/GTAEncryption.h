@@ -1,9 +1,7 @@
 #pragma once
 #include <cassert>
-#include <cstring>
-#include <fstream>
-#include <iostream>
-#include <vector>
+#include <string>
+#include <string_view>
 #include "aes.hpp"
 #include "zlib.h"
 

@@ -1,8 +1,5 @@
 #pragma once
-#include <iostream>
-#include <string>
 #include <vector>
-#include "fstream"
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <glm/gtc/type_precision.hpp>

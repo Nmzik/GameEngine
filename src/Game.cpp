@@ -1,3 +1,4 @@
+#include <sstream>
 #include "Game.h"
 
 #include "CPed.h"
@@ -168,8 +169,8 @@ void Game::loadQueuedResources()
     //    If we still didn't finish loading our queue, do not swap! Swap only if we dont have any job.
     if (resourceManager->tempMainThreadResources.empty())
     {
-        lock_guard swapLock(&resourceManager->mainThreadLock);
-        if (resourceManager->mainThreadResources.size() > 0)
+        Lock_guard swapLock(&resourceManager->mainThreadLock);
+        if (!resourceManager->mainThreadResources.empty())
             resourceManager->mainThreadResources.swap(resourceManager->tempMainThreadResources);
     }
 
@@ -178,10 +179,9 @@ void Game::loadQueuedResources()
 
     long diffms = 0;
 
-    while (resourceManager->tempMainThreadResources.size() > 0 && diffms < 2)  //    2ms
+    while (!resourceManager->tempMainThreadResources.empty() && diffms < 2)  //    2ms
     {
-        Resource* res = resourceManager->tempMainThreadResources.front();
-        resourceManager->tempMainThreadResources.pop();
+        Resource* res = resourceManager->tempMainThreadResources.pop();
 
         //    Object hash equal to texture hash what should we do? there are +hi textures with the same name
 

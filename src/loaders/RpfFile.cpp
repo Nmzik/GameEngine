@@ -1,13 +1,13 @@
 #include "RpfFile.h"
 #include "../GTAEncryption.h"
 
-RpfFile::RpfFile(std::ifstream* rpfFile, std::string& FullPath, std::string& FileName, uint32_t FileSize, uint64_t FileOffset)
-    : rpf(*rpfFile)
+RpfFile::RpfFile(FileHandle& rpfFile, std::string& FullPath, std::string& FileName, uint32_t FileSize, uint64_t FileOffset)
+    : rpf(rpfFile)
     , path(FullPath)
 {
-    rpf.seekg(FileOffset);
+    rpf.seek(FileOffset);
 
-    uint64_t startPos = rpf.tellg();
+    uint64_t startPos = rpf.getCurPos();
 
     uint32_t Version;
     uint32_t EntryCount;

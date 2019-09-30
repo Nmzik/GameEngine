@@ -1,5 +1,4 @@
 #pragma once
-#include <vector>
 #include "FileType.h"
 
 struct MetaStructureEntryInfo_s
