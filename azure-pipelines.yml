@@ -8,6 +8,9 @@ jobs:
   - task: CMake@1
     displayName: Building with CMake
     inputs:
-      workingDirectory: 'build'
-      #cmakeArgs: '..'
+      cmakeArgs: '..'
+  - script: |
+        cd build
+        make
+    displayName: 'Run make'
   
