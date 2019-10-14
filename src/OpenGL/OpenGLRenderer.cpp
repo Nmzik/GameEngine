@@ -74,7 +74,7 @@ VertexBufferHandle OpenGLRenderer::createVertexBuffer(uint32_t size, const uint8
     VertexBufferHandle handle;
 
     //find free
-    BOOL found = false;
+    bool found = false;
     for (int i = 0; i < gpuBufferSize; i++)
     {
         if (vertexBuffers[i] == 0)
@@ -102,7 +102,7 @@ IndexBufferHandle OpenGLRenderer::createIndexBuffer(uint32_t size, const uint8_t
     IndexBufferHandle handle;
 
     //find free
-    BOOL found = false;
+    bool found = false;
     for (int i = 0; i < gpuBufferSize; i++)
     {
         if (indexBuffers[i] == 0)
@@ -248,7 +248,7 @@ TextureHandle OpenGLRenderer::createTexture(const uint8_t* pointer, int width, i
     TextureHandle handle;
 
     //find free
-    BOOL found = false;
+    bool found = false;
     for (int i = 0; i < gpuBufferSize; i++)
     {
         if (textures[i] == 0)

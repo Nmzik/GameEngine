@@ -20,12 +20,7 @@ list (APPEND SOURCES ${UTILS})
 
 if(WIN32)
 	set	(OPENGL 1)
-	set (VULKAN 1)
-	find_package(GLEW REQUIRED)
-	if (GLEW_FOUND)
-		include_directories(${GLEW_INCLUDE_DIRS})
-    link_libraries(${GLEW_LIBRARIES})
-	endif()
+	set (VULKAN 0)
 
 	file(GLOB WIN_SOURCES
 	windows/*.h
@@ -107,6 +102,8 @@ target_link_libraries(MyGameEngine BulletDynamics)
 target_link_libraries(MyGameEngine BulletCollision)
 target_link_libraries(MyGameEngine LinearMath)
 if (MSVC)
+	target_link_libraries(MyGameEngine ${CMAKE_HOME_DIRECTORY}/3rdparty/SDL2/lib/SDL2.lib)
+	target_link_libraries(MyGameEngine ${CMAKE_HOME_DIRECTORY}/3rdparty/SDL2/lib/SDL2main.lib)
 	target_link_libraries(MyGameEngine opengl32.lib)
 endif()
 target_link_libraries(MyGameEngine zlibstatic)

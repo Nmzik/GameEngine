@@ -2,8 +2,8 @@
 #include <fstream>
 #include <sstream>
 #include "iostream"
-#include <GL/glew.h>
 #include <glm/glm.hpp>
+#include "opengl.h"
 
 class Shader
 {
