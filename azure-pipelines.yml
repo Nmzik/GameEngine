@@ -9,5 +9,5 @@ jobs:
     displayName: Building with CMake
     inputs:
       workingDirectory: 'build'
-      cmakeArgs: '..'
+      #cmakeArgs: '..'
   
