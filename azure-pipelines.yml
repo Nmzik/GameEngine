@@ -3,6 +3,8 @@ jobs:
   pool:
     vmImage: 'macOS-latest'
   steps:
+  - checkout: self
+    submodules: true
   - script: mkdir build
     displayName: Make build directory
   - task: CMake@1
