@@ -3,4 +3,12 @@ jobs:
   pool:
     vmImage: 'macOS-latest'
   steps:
-  - script: echo hello from macOS
+  - script: 
+    mkdir build
+    displayName: Make build directory
+- task: CMake@1
+  inputs:
+    workingDirectory: 'build'
+    displayName: Building with CMake
+    cmakeArgs: '..'
+  
