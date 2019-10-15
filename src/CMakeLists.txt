@@ -98,27 +98,40 @@ foreach(_source IN ITEMS ${SOURCES})
 endforeach()
 #set_target_properties(MyGameEngine PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${PROJECT_BINARY_DIR}/Release")
 
-target_link_libraries(MyGameEngine BulletDynamics)
-target_link_libraries(MyGameEngine BulletCollision)
-target_link_libraries(MyGameEngine LinearMath)
 if (MSVC)
 	target_link_libraries(MyGameEngine ${CMAKE_HOME_DIRECTORY}/3rdparty/SDL2/lib/SDL2.lib)
 	target_link_libraries(MyGameEngine ${CMAKE_HOME_DIRECTORY}/3rdparty/SDL2/lib/SDL2main.lib)
 	target_link_libraries(MyGameEngine opengl32.lib)
 elseif(APPLE)
-SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -framework MetalKit")
-SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -framework Metal")
-	if(CMAKE_SYSTEM_NAME STREQUAL iOS)
-		SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -framework UIKit")
-	else()
-		SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -framework AppKit")
-	endif()
+	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -framework MetalKit")
+	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -framework Metal")
+		if(CMAKE_SYSTEM_NAME STREQUAL iOS)
+			SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -framework UIKit")
+		else()
+			SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -framework AppKit")
+		endif()
 endif()
+
+target_include_directories(MyGameEngine PUBLIC
+    ${CMAKE_HOME_DIRECTORY}/3rdparty/bullet/src)
+target_link_libraries(MyGameEngine BulletDynamics)
+target_link_libraries(MyGameEngine BulletCollision)
+target_link_libraries(MyGameEngine LinearMath)
+
 target_link_libraries(MyGameEngine zlibstatic)
 target_link_libraries(MyGameEngine pugixml)
+
+target_include_directories(MyGameEngine PUBLIC
+    ${CMAKE_HOME_DIRECTORY}/3rdparty/glm)
+
+if (MSVC)
+	target_include_directories(MyGameEngine PUBLIC ${CMAKE_HOME_DIRECTORY}/3rdparty/SDL2/include)
+endif()
+
 target_link_libraries(MyGameEngine Detour)
 target_link_libraries(MyGameEngine Recast)
 target_link_libraries(MyGameEngine freetype)
+
 target_link_libraries(MyGameEngine tiny-aes)
 
 #set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT MyGameEngine)
