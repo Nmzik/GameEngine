@@ -15,4 +15,20 @@ jobs:
         cd build
         make
     displayName: 'Run make'
-  
+- job: windows
+  pool:
+    vmImage: 'windows-latest'
+  steps:
+  - checkout: self
+    submodules: true
+  - script: mkdir build
+    displayName: Make build directory
+  - task: CMake@1
+    displayName: Building with CMake
+    inputs:
+      cmakeArgs: '..'
+  - task: VSBuild@1
+    inputs:
+      solution: 'build\MyGameEngine.sln'
+      platform: 'x64'
+      msbuildArchitecture: 'x64'
