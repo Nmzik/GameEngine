@@ -26,6 +26,8 @@ set(BUILD_BULLET3 OFF CACHE BOOL "" FORCE)
 add_subdirectory(bullet)
 
 add_subdirectory(zlib)
+target_include_directories(zlib INTERFACE zlib)
+target_include_directories(zlib INTERFACE ${CMAKE_CURRENT_BINARY_DIR}/zlib)
 
 add_subdirectory(freetype)
 
@@ -40,6 +42,3 @@ add_compile_definitions(AES256=1)
 
 add_subdirectory(tiny-AES-c)
 target_include_directories(tiny-aes INTERFACE tiny-AES-c)
-
-include_directories(${CMAKE_CURRENT_BINARY_DIR}/3rdparty/zlib)
-include_directories(zlib)

@@ -118,7 +118,7 @@ target_link_libraries(MyGameEngine BulletDynamics)
 target_link_libraries(MyGameEngine BulletCollision)
 target_link_libraries(MyGameEngine LinearMath)
 
-target_link_libraries(MyGameEngine zlibstatic)
+target_link_libraries(MyGameEngine zlib)
 target_link_libraries(MyGameEngine pugixml)
 
 target_include_directories(MyGameEngine PUBLIC
