@@ -1,5 +1,5 @@
-#include <string>
 #include "CacheDatFile.h"
+#include <string>
 #include "../common.h"
 
 CacheDatFile::CacheDatFile(std::vector<uint8_t>& data)

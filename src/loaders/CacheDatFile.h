@@ -1,8 +1,8 @@
 #pragma once
 #include <vector>
+#include <glm/gtc/type_precision.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
-#include <glm/gtc/type_precision.hpp>
 
 struct MapDataStoreNode
 {
@@ -59,7 +59,7 @@ public:
     std::vector<MapDataStoreNode> allMapNodes;
     std::vector<CInteriorProxy> allCInteriorProxies;
     std::vector<BoundsStoreItem> allBoundsStoreItems;
-    
+
     std::vector<boundaries> mapNodesBoundaries;
     std::vector<boundaries> boundsStoreBoundaries;
 

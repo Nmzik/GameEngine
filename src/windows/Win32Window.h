@@ -1,6 +1,6 @@
 #pragma once
-#include "../NativeWindow.h"
 #include <SDL.h>
+#include "../NativeWindow.h"
 
 class Win32Window : public NativeWindow
 {

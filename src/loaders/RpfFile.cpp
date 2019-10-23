@@ -7,7 +7,12 @@ RpfFile::RpfFile(FileHandle& rpfFile, std::string& FullPath, std::string& FileNa
 {
     rpf.seek(FileOffset);
 
-    uint64_t startPos = rpf.getCurPos();
+    uint64_t startPos = FileOffset;
+
+    if (FileOffset != rpf.getCurPos())
+    {
+        printf("Something wrong with File Handling API\n");
+    }
 
     uint32_t Version;
     uint32_t EntryCount;

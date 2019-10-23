@@ -1,5 +1,5 @@
-#include <sstream>
 #include "Game.h"
+#include <sstream>
 
 #include "CPed.h"
 #include "CVehicle.h"
@@ -43,7 +43,7 @@ Game::Game(const char* GamePath)
     resourceManager = std::make_unique<ResourceManager>(gameData.get());
 #ifdef WIN32
     window = std::make_unique<Win32Window>();
-    rendering_system = std::make_unique<OpenGLRenderer>(window.get());
+    //rendering_system = std::make_unique<OpenGLRenderer>(window.get());
 #else
     rendering_system = std::make_unique<MetalRenderer>();
 #endif

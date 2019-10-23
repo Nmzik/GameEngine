@@ -1,7 +1,7 @@
-#include <string>
-#include <stdexcept>
-#include "utils/fileHandle.h"
 #include "GTAEncryption.h"
+#include <stdexcept>
+#include <string>
+#include "utils/fileHandle.h"
 
 #ifdef __APPLE__
 #include "TargetConditionals.h"
@@ -29,7 +29,6 @@ GTAEncryption::~GTAEncryption()
 
 void GTAEncryption::loadKeys(std::string keyPath)
 {
-    
 #if TARGET_OS_IPHONE
     std::string Path = keyPath + "assets/magic.dat";
     const char* path = Path.c_str();
@@ -58,7 +57,7 @@ void GTAEncryption::loadKeys(std::string keyPath)
         }
     }
     stream.read((char*)&PC_AWC_KEY[0], 16);
-    
+
     AES_init_ctx(&ctx, PC_AES_KEY);
 }
 

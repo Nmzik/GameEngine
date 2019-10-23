@@ -33,7 +33,7 @@ YmfLoader::YmfLoader(memstream& stream)
     stream.seekg(0);
 
     uint64_t bufSize = stream.getSize();
-    
+
     while (stream.tellg() < bufSize)
     {
         uint32_t section = *(uint32_t*)stream.read(sizeof(uint32_t));

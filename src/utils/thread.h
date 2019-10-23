@@ -5,7 +5,8 @@
 #include <Windows.h>
 #endif
 
-class Thread {
+class Thread
+{
 #ifdef __APPLE__
     pthread_t thread_id;
 #else
@@ -14,10 +15,9 @@ class Thread {
 public:
     Thread()
     {
-        
     }
-    
-    Thread(void *(*start_routine) (void *), void *arg)
+
+    Thread(void* (*start_routine)(void*), void* arg)
     {
 #ifdef __APPLE__
         pthread_create(&thread_id, NULL, start_routine, arg);
@@ -25,14 +25,14 @@ public:
         thread_id = CreateThread(0, 0, (LPTHREAD_START_ROUTINE)start_routine, arg, 0, 0);
 #endif
     }
-    
+
     ~Thread()
     {
 #ifndef __APPLE__
         CloseHandle(thread_id);
 #endif
     }
-    
+
     void join()
     {
 #ifdef __APPLE__
@@ -42,4 +42,3 @@ public:
 #endif
     }
 };
-
