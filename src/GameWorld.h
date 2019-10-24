@@ -113,6 +113,8 @@ public:
     void testFunction(glm::vec3 position);
     bool detectInWater(glm::vec3 position);
 
+    bool isAllCollisionLoaded();
+    
     void addVehicleToWorld(glm::vec3 position, glm::quat rot, float mass, YftLoader* model);
     void removeVehicleFromWorld(CVehicle* vehicle);
     void addPedToWorld(glm::vec3 pos, YddLoader* model);

@@ -334,6 +334,9 @@ void GameData::loadGtxd(std::vector<uint8_t>& Buffer)
 
     for (auto& entry : loader.gtxd)
     {
+        std::transform(entry.first.begin(), entry.first.end(), entry.first.begin(), tolower);
+        std::transform(entry.second.begin(), entry.second.end(), entry.second.begin(), tolower);
+        
         gtxdEntries[GenHash(entry.second)] = GenHash(entry.first);
     }
 }

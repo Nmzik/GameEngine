@@ -163,7 +163,7 @@ void GameWorld::updateObjects(Camera* camera, glm::vec3& position)
     culledYmaps = 0;
     for (auto& ymap : curYmaps)
     {
-        if (ymap->loaded)
+        if (ymap->isLoaded())
         {
             if (!camera->ContainsAABBNoClipNoOpt(ymap->_CMapData.entitiesExtentsMin, ymap->_CMapData.entitiesExtentsMax))
             {
@@ -188,7 +188,7 @@ void GameWorld::updateObjects(Camera* camera, glm::vec3& position)
                                     object.ytd = resourceManager->getYtd(object.archetype->BaseArchetypeDef.textureDictionary);
                                     object.ydr = resourceManager->getYdr(object.entityDef.archetypeName);
                                 }
-                                if (object.ydr->loaded)
+                                if (object.ydr->isLoaded())
                                 {
                                     //	NOTE:
                                     //
@@ -222,7 +222,7 @@ void GameWorld::updateObjects(Camera* camera, glm::vec3& position)
                                     object.ytd = resourceManager->getYtd(object.archetype->BaseArchetypeDef.textureDictionary);
                                     object.ydd = resourceManager->getYdd(object.archetype->BaseArchetypeDef.drawableDictionary);
                                 }
-                                if (object.ydd->loaded)
+                                if (object.ydd->isLoaded())
                                 {
                                     auto iter2 = object.ydd->ydrFiles.find(object.entityDef.archetypeName);
                                     if (iter2 != object.ydd->ydrFiles.end())
@@ -240,7 +240,7 @@ void GameWorld::updateObjects(Camera* camera, glm::vec3& position)
                                     object.ytd = resourceManager->getYtd(object.archetype->BaseArchetypeDef.textureDictionary);
                                     object.yft = resourceManager->getYft(object.entityDef.archetypeName);
                                 }
-                                if (object.yft->loaded)
+                                if (object.yft->isLoaded())
                                 {
                                     object.ydr = object.yft->ydr;
                                     object.loaded = true;
@@ -484,7 +484,7 @@ void GameWorld::createVehicle(glm::vec3 position, glm::quat rotation)
     GameData& data = *resourceManager->getGameData();
     int vehicleID = rand() % data.vehiclesInfo.size();
 
-    if (YftLoader* vehicle = resourceManager->getYft(data.vehiclesInfo[vehicleID].Hash); vehicle->loaded)
+    if (YftLoader* vehicle = resourceManager->getYft(data.vehiclesInfo[vehicleID].Hash); vehicle->isLoaded())
     {
         if (vehicle->ydr)
         {
@@ -728,11 +728,28 @@ void GameWorld::updateWorld(float delta_time, Camera* camera)
     {
         renderList.clear();
 
+        if (!isAllCollisionLoaded()) {
+            if (getCurrentPlayer()->getPhysCharacter()->getGravity() != btVector3(0.f, 0.f, 0.f))
+                getCurrentPlayer()->getPhysCharacter()->setGravity(btVector3(0.f, 0.f, 0.f));
+        }
+            else {
+                if (getCurrentPlayer()->getPhysCharacter()->getGravity() == btVector3(0.f, 0.f, 0.f)) getCurrentPlayer()->getPhysCharacter()->setGravity(physicsSystem.getPhysicsWorld()->getGravity());
+            }
+        
         glm::vec3 playerPos = getCurrentPlayer()->getPosition();
         //glm::vec3 PlayerPos = camera->position;
         getVisibleYmaps(playerPos);
         updateObjects(camera, playerPos);
     }
+}
+
+bool GameWorld::isAllCollisionLoaded()
+{
+    for (auto& ybn : curYbns) {
+        if (!ybn->isLoaded())
+            return false;
+    }
+    return true;
 }
 
 bool GameWorld::detectInWater(glm::vec3 Position)

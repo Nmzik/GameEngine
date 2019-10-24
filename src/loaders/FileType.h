@@ -450,10 +450,21 @@ public:
 
 class FileType
 {
+protected:
+    bool loaded = false;
 public:
     uint32_t refCount = 0;
-    bool loaded = false;
 
+    bool isLoaded() const
+    {
+        return loaded;
+    }
+    
+    void setLoaded()
+    {
+        loaded = true;
+    }
+    
     FileType()
     {
     }

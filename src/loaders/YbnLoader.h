@@ -150,18 +150,17 @@ class YbnLoader : public FileType
     std::vector<glm::vec3*> VerticesArray;
     std::unique_ptr<btRigidBody> rigidBody;
 
+    void addBoxShape(btCompoundShape* compound, btVector3 pos, btVector3 halfExtents);
+    void addCapsuleShape(btCompoundShape* compound, btVector3 pos, float radius, float height);
+    void addSphereShape(btCompoundShape* compound, btVector3 pos, float SphereRadius);
+    void addCylinderShape(btCompoundShape* compound, btVector3 pos, btVector3 halfExtents);
+    void parseYbn(memstream& file, btCompoundShape* compound);
 public:
     btRigidBody* getRigidBody() const
     {
         return rigidBody.get();
     }
 
-    void addBoxShape(btCompoundShape* compound, btVector3 pos, btVector3 halfExtents);
-    void addCapsuleShape(btCompoundShape* compound, btVector3 pos, float radius, float height);
-    void addSphereShape(btCompoundShape* compound, btVector3 pos, float SphereRadius);
-    void addCylinderShape(btCompoundShape* compound, btVector3 pos, btVector3 halfExtents);
-
     void init(memstream& file) override;
-    void parseYbn(memstream& file, btCompoundShape* compound);
     ~YbnLoader();
 };

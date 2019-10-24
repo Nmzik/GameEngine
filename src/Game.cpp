@@ -190,7 +190,7 @@ void Game::loadQueuedResources()
 
         if (res->bufferSize == 0)
         {
-            res->file->loaded = true;
+            res->file->setLoaded();
         }
         else
         {
@@ -200,7 +200,7 @@ void Game::loadQueuedResources()
             {
                 case ymap:
                 {
-                    res->file->loaded = true;
+                    res->file->setLoaded();
                     break;
                 }
                 case ydr:

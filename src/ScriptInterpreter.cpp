@@ -107,7 +107,7 @@ namespace SCRIPT
 
         printf("HAS_SCRIPT_LOADED %s", (char*)&args.getScript()->Strings[(*param)[0].integer]);
 
-        if (args.getInterpreter()->LoadedScripts[GenHash((char*)&args.getScript()->Strings[(*param)[0].integer])]->loaded)
+        if (args.getInterpreter()->LoadedScripts[GenHash((char*)&args.getScript()->Strings[(*param)[0].integer])]->isLoaded())
             args.getScript()->pushToStack({Int32, 1});  //WE ASSUME IT WAS LOADED
         else
             args.getScript()->pushToStack({Int32, 0});
@@ -1390,7 +1390,7 @@ void ScriptInterpreter::execute()
 {
     for (auto it = LoadedScripts.begin(); it != LoadedScripts.end();)
     {
-        if ((it->second)->loaded)
+        if ((it->second)->isLoaded())
         {
             executeThread(*it->second);
             if ((it->second)->finished)

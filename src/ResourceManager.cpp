@@ -395,7 +395,7 @@ void ResourceManager::updateResourceCache(GameWorld* world)
     // REMOVE objects WHEN WE ARE IN ANOTHER CELL????  RUN GARBAGE COLLECTOR WHEN IN ANOTHER CEL
     for (auto it = ybnLoader.begin(); it != ybnLoader.end();)
     {
-        if ((it->second)->refCount == 0 && (it->second)->loaded)
+        if ((it->second)->refCount == 0 && (it->second)->isLoaded())
         {
             if ((it->second)->getRigidBody())
                 world->getPhysicsSystem()->removeRigidBody((it->second)->getRigidBody());
@@ -410,7 +410,7 @@ void ResourceManager::updateResourceCache(GameWorld* world)
 
     for (auto it = ymapLoader.begin(); it != ymapLoader.end();)
     {
-        if ((it->second)->refCount == 0 && (it->second)->loaded)
+        if ((it->second)->refCount == 0 && (it->second)->isLoaded())
         {
             GlobalPool::GetInstance()->ymapPool.remove(it->second);
             it = ymapLoader.erase(it);
@@ -423,7 +423,7 @@ void ResourceManager::updateResourceCache(GameWorld* world)
 
     for (auto it = ydrLoader.begin(); it != ydrLoader.end();)
     {
-        if ((it->second)->refCount == 0 && (it->second)->loaded)
+        if ((it->second)->refCount == 0 && (it->second)->isLoaded())
         {
             GlobalPool::GetInstance()->ydrPool.remove(it->second);
             it = ydrLoader.erase(it);
@@ -436,7 +436,7 @@ void ResourceManager::updateResourceCache(GameWorld* world)
 
     for (auto it = yddLoader.begin(); it != yddLoader.end();)
     {
-        if ((it->second)->refCount == 0 && (it->second)->loaded)
+        if ((it->second)->refCount == 0 && (it->second)->isLoaded())
         {
             GlobalPool::GetInstance()->yddPool.remove(it->second);
             it = yddLoader.erase(it);
@@ -449,7 +449,7 @@ void ResourceManager::updateResourceCache(GameWorld* world)
 
     for (auto it = yftLoader.begin(); it != yftLoader.end();)
     {
-        if ((it->second)->refCount == 0 && (it->second)->loaded)
+        if ((it->second)->refCount == 0 && (it->second)->isLoaded())
         {
             GlobalPool::GetInstance()->yftPool.remove(it->second);
             it = yftLoader.erase(it);
@@ -462,7 +462,7 @@ void ResourceManager::updateResourceCache(GameWorld* world)
 
     for (auto it = ytdLoader.begin(); it != ytdLoader.end();)
     {
-        if ((it->second)->refCount == 0 && (it->second)->loaded)
+        if ((it->second)->refCount == 0 && (it->second)->isLoaded())
         {
             GlobalPool::GetInstance()->ytdPool.remove(it->second);
             it = ytdLoader.erase(it);
