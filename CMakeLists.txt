@@ -18,12 +18,16 @@ if(MSVC)
 	add_definitions( -DWIN32_LEAN_AND_MEAN )
 
 	add_compile_options(
-		/Zi
-		/Zo
-		/permissive-
-		/MP
-		/MT
+		/Zi #debug
+		/Zo #Enhance Optimized Debugging
+		/permissive- #Standards conformance
+		/MP #Build with Multiple Processes
 	)
+	
+	set(CMAKE_C_FLAGS_DEBUG "-DDEBUG=1 /MTd /Od")
+	set(CMAKE_C_FLAGS_RELEASE "/MT")
+	set(CMAKE_CXX_FLAGS_DEBUG "-DDEBUG=1 /Zi /MTd /Od")
+	set(CMAKE_CXX_FLAGS_RELEASE "/MT /GS-")
 
 	# /GS- - No stack buffer overflow checks
 	add_compile_options("$<$<CONFIG:Release>:/GS->")

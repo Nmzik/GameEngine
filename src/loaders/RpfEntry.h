@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
-#include "../utils/fileHandle.h"
 #include "../common.h"
+#include "../utils/fileHandle.h"
 
 inline int GetSizeFromFlags(uint32_t flags)
 {

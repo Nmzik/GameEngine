@@ -48,7 +48,7 @@ Win32Window::Win32Window()
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
         printf("Unable to initialize SDL");
 
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 
     /* Turn on double buffering with a 24bit Z buffer.
@@ -58,14 +58,13 @@ Win32Window::Win32Window()
 
     /* Create our window centered at 512x512 resolution */
     window = SDL_CreateWindow("HELLO", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                                  1024, 768, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+                              1024, 768, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
     if (!window) /* Die if creation failed */
         printf("Unable to create window");
 }
 
 Win32Window::~Win32Window()
 {
-    
 }
 
 #if VULKAN_API
@@ -84,12 +83,10 @@ void Win32Window::initializeContext()
 
 void Win32Window::setTitle(std::string& osstr)
 {
-    
 }
 
 void Win32Window::processEvents()
 {
-    
 }
 
 void Win32Window::swapBuffers()

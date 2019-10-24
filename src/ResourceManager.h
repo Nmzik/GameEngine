@@ -5,8 +5,8 @@
 #include "GameData.h"
 #include "ThreadSafeAllocator.h"
 #include "common.h"
-#include "utils/thread.h"
 #include "utils/queue.h"
+#include "utils/thread.h"
 
 class GameWorld;
 

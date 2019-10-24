@@ -2,8 +2,8 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include "../utils/fileHandle.h"
 #include "RpfEntry.h"
+#include "../utils/fileHandle.h"
 
 class RpfFile
 {

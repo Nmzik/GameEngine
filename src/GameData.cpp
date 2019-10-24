@@ -75,8 +75,6 @@ void GameData::load()
         printf("File %s was succesfully loaded!\n", rpfFile.c_str());
     }
 
-    loadGtxd();
-
     entries[ydr].reserve(58000);
     entries[ydd].reserve(8600);
     entries[yft].reserve(6100);
@@ -218,6 +216,16 @@ void GameData::load()
                     }
                 }
             }
+            else if (extension == ".ymt")
+            {
+                if (entry.FileName == "gtxd.ymt")
+                {
+                    buffer.resize(entry.UncompressedFileSize);
+                    extractFileBinary(entry, buffer.data(), buffer.size());
+
+                    loadGtxd(buffer);
+                }
+            }
 
             else if (extension == ".awc")
             {
@@ -319,25 +327,14 @@ void GameData::loadHandlingData(std::vector<uint8_t>& Buffer)
     }
 }
 
-void GameData::loadGtxd()
+void GameData::loadGtxd(std::vector<uint8_t>& Buffer)
 {
-    pugi::xml_document doc;
-    auto error = doc.load_file("assets/gtxd.ymt.rbf.xml");
+    memstream stream(Buffer.data(), Buffer.size());
+    YmfLoader loader(stream);
 
-    pugi::xml_node root = doc.child("CMapParentTxds");
-
-    pugi::xml_node element = root.child("txdRelationships");
-
-    for (pugi::xml_node e = element.first_child(); e != NULL; e = e.next_sibling())  //item
+    for (auto& entry : loader.gtxd)
     {
-        pugi::xml_node element = e.child("parent");
-        std::string ParentName = element.first_child().value();
-        std::transform(ParentName.begin(), ParentName.end(), ParentName.begin(), tolower);
-
-        element = e.child("child");
-        std::string childName = element.first_child().value();
-        std::transform(childName.begin(), childName.end(), childName.begin(), tolower);
-        gtxdEntries[GenHash(childName)] = GenHash(ParentName);
+        gtxdEntries[GenHash(entry.second)] = GenHash(entry.first);
     }
 }
 

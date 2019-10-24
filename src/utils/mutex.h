@@ -4,47 +4,49 @@
 #else
 #include <Windows.h>
 #endif
-class Mutex {
+class Mutex
+{
 #ifdef __APPLE__
     pthread_mutex_t mutex_lock;
 #else
     CRITICAL_SECTION mutex_lock;
 #endif
     friend class Condition_variable;
+
 public:
     Mutex()
     {
 #ifdef __APPLE__
         pthread_mutex_init(&mutex_lock, NULL);
 #else
-		InitializeCriticalSection(&mutex_lock);
+        InitializeCriticalSection(&mutex_lock);
 #endif
     }
-    
+
     ~Mutex()
     {
 #ifdef __APPLE__
         pthread_mutex_destroy(&mutex_lock);
 #else
-        EnterCriticalSection(&mutex_lock);
+        DeleteCriticalSection(&mutex_lock);
 #endif
     }
-    
+
     void lock()
     {
 #ifdef __APPLE__
         pthread_mutex_lock(&mutex_lock);
 #else
-        LeaveCriticalSection(&mutex_lock);
+        EnterCriticalSection(&mutex_lock);
 #endif
     }
-    
+
     void unlock()
     {
 #ifdef __APPLE__
         pthread_mutex_unlock(&mutex_lock);
 #else
-        DeleteCriticalSection(&mutex_lock);
+        LeaveCriticalSection(&mutex_lock);
 #endif
     }
 };
@@ -52,13 +54,14 @@ public:
 class Lock_guard
 {
     Mutex* mutex_lock;
+
 public:
     Lock_guard(Mutex* lock)
-    : mutex_lock(lock)
+        : mutex_lock(lock)
     {
         mutex_lock->lock();
     }
-    
+
     ~Lock_guard()
     {
         mutex_lock->unlock();
@@ -81,7 +84,7 @@ public:
         InitializeConditionVariable(&cv);
 #endif
     }
-    
+
     ~Condition_variable()
     {
 #ifdef __APPLE__
@@ -90,7 +93,7 @@ public:
         //
 #endif
     }
-    
+
     void wait(Mutex* lock)
     {
 #ifdef __APPLE__
@@ -99,7 +102,7 @@ public:
         SleepConditionVariableCS(&cv, &lock->mutex_lock, INFINITE);
 #endif
     }
-    
+
     void notify()
     {
 #ifdef __APPLE__
@@ -109,4 +112,3 @@ public:
 #endif
     }
 };
-

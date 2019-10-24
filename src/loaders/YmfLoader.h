@@ -2,6 +2,8 @@
 #include <algorithm>
 #include <unordered_map>
 #include <vector>
+#include <string>
+#include <utility>
 #include "FileType.h"
 
 enum PsoSection
@@ -97,16 +99,82 @@ public:
     }
 };
 
+class RbfEntryDescription
+{
+public:
+    std::string Name;
+    int Type;
+};
+class IRbfType
+{
+    std::string Name;
+};
+class RbfBoolean : public IRbfType
+{
+public:
+    std::string Name;
+    bool Value;
+};
+class RbfBytes : public IRbfType
+{
+public:
+    std::string Name;
+    uint8_t* Value; //byte[]
+};
+class RbfFloat : public IRbfType
+{
+public:
+    std::string Name;
+    float Value;
+};
+class RbfFloat3 : public IRbfType
+{
+public:
+    std::string Name;
+    float X;
+    float Y;
+    float Z;
+};
+class RbfString : public IRbfType
+{
+public:
+    std::string Name;
+    std::string Value;
+};
+class RbfStructure : public IRbfType
+{
+public:
+    std::string Name;
+    std::vector<IRbfType*> Children;  //List
+};
+class RbfUint32 : public IRbfType
+{
+public:
+    std::string Name;
+    uint32_t Value;
+};
+
 class YmfLoader
 {
 public:
     std::vector<CHDTxdAssetBinding*> HDtextures;
+    RbfStructure* current = nullptr;
+    std::stack<RbfStructure*> structures;
+    std::vector<std::unique_ptr<RbfStructure>> vectorOfStructures;
+	std::vector<RbfEntryDescription> descriptors;
+
+	std::vector<std::pair<std::string, std::string>> gtxd; //hack
 
     PsoDataSection _PsoDataSection;
     PsoDataMapSection _PsoDataMapSection;
 
     YmfLoader(memstream& stream);
     ~YmfLoader();
+
+    void loadRBF(memstream& stream);
+    void loadPSO(memstream& stream);
+
+    void ParseElement(memstream& stream, int descriptorIndex, uint8_t dataType);
 
     uint8_t DetectType(memstream& stream);
 };

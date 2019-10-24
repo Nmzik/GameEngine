@@ -1,7 +1,7 @@
 #pragma once
 #include <algorithm>
-#include <memory>
 #include <array>
+#include <memory>
 #include <string>
 #include <string_view>
 #include <unordered_map>
@@ -77,7 +77,7 @@ public:
 
     void load();
     void loadHandlingData(std::vector<uint8_t>& buffer);
-    void loadGtxd();
+    void loadGtxd(std::vector<uint8_t>& Buffer);
     void loadWaterQuads(std::vector<uint8_t>& buffer);
     void loadScenesSwitch(std::vector<uint8_t>& buffer);
 

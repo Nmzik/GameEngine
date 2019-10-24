@@ -1,8 +1,8 @@
 #pragma once
-#include "..//NativeWindow.h"
-#include "../GameRenderer.h"
 #include "SDL.h"
 #include "opengl.h"
+#include "..//NativeWindow.h"
+#include "../GameRenderer.h"
 
 class NativeWindow;
 
