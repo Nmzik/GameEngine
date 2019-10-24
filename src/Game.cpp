@@ -175,12 +175,15 @@ void Game::loadQueuedResources()
     }
 
     //    HASH 38759883
-    auto old_time = std::chrono::steady_clock::now();
+    //auto old_time = std::chrono::steady_clock::now();
+    //long diffms = 0;
 
-    long diffms = 0;
-
-    while (!resourceManager->tempMainThreadResources.empty() && diffms < 2)  //    2ms
+    //int numFiles = 0;
+    
+    //while (!resourceManager->tempMainThreadResources.empty() && diffms < 2)  //    2ms
+    if (!resourceManager->tempMainThreadResources.empty())
     {
+        //numFiles++;
         Resource* res = resourceManager->tempMainThreadResources.pop();
 
         //    Object hash equal to texture hash what should we do? there are +hi textures with the same name
@@ -233,9 +236,12 @@ void Game::loadQueuedResources()
 
         GlobalPool::GetInstance()->resourcesPool.remove(res);
 
-        auto new_time = std::chrono::steady_clock::now();
-        diffms = std::chrono::duration_cast<std::chrono::microseconds>(new_time - old_time).count();
+        //auto new_time = std::chrono::steady_clock::now();
+        //diffms = std::chrono::duration_cast<std::chrono::microseconds>(new_time - old_time).count();
     }
+    
+    //if (numFiles > 0)
+       // printf("%d Files Loaded\n", numFiles);
 }
 
 void Game::updateFPS(float delta_time, float cpuThreadTime, float gpuThreadTime)
