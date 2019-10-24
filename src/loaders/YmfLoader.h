@@ -2,6 +2,8 @@
 #include <algorithm>
 #include <unordered_map>
 #include <vector>
+#include <string>
+#include <utility>
 #include "FileType.h"
 
 enum PsoSection
