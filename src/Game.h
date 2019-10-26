@@ -36,9 +36,7 @@ class Game
     std::unique_ptr<Camera> camera;
 
     std::chrono::steady_clock::time_point current_time;
-#ifdef WIN32
     std::unique_ptr<NativeWindow> window;
-#endif
 public:
     Game(const char* gamePath);
     ~Game();

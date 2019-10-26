@@ -14,10 +14,7 @@
 #include "loaders/YtdLoader.h"
 
 #ifdef WIN32
-#include "OpenGL/OpenGLRenderer.h"
 #include "windows/Win32Window.h"
-#else
-#include "metal/MetalRenderer.h"
 #endif
 
 #include "GameWorld.h"

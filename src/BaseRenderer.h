@@ -158,38 +158,43 @@ static VertexLayout PNCCTX_Attrib = {
     3};
 static VertexLayout PCT_Attrib = {
     {{0, 3, Attribute::FLOAT, 0},
+        {1, 3, Attribute::FLOAT, 12},
      {2, 3, Attribute::FLOAT, 12},
      {3, 2, Attribute::FLOAT, 16}},
     24,
-    3};
+    4};
 static VertexLayout PT_Attrib = {
     {{0, 3, Attribute::FLOAT, 0},
+        {1, 3, Attribute::FLOAT, 0},
      {3, 2, Attribute::FLOAT, 12}},
     20,
-    2};
+    3};
 static VertexLayout PTT_Attrib = {
     {{0, 3, Attribute::FLOAT, 0},
+        {1, 3, Attribute::FLOAT, 0},
      {3, 3, Attribute::FLOAT, 12}},
     28,
-    2};
+    3};
 static VertexLayout PNC_Attrib = {
     {
         {0, 3, Attribute::FLOAT, 0},
-        {1, 3, Attribute::FLOAT, 12},
+        {1, 3, Attribute::FLOAT, 0},
         {3, 2, Attribute::FLOAT, 20},  //COLOR
     },
     28,
     3};
 static VertexLayout PC_Attrib = {
     {{0, 3, Attribute::FLOAT, 0},
+        {1, 3, Attribute::FLOAT, 0},
      {3, 2, Attribute::FLOAT, 8}},
     16,
-    2};
+    3};
 static VertexLayout PCC_Attrib = {
     {{0, 3, Attribute::FLOAT, 0},
+        {1, 3, Attribute::FLOAT, 0},
      {3, 2, Attribute::FLOAT, 12}},
     20,
-    2};
+    3};
 static VertexLayout PCCH2H4_Attrib = {
     {
         {0, 3, Attribute::FLOAT, 0},
@@ -283,11 +288,12 @@ public:
     virtual void removeTexture(TextureHandle handle) = 0;
     virtual void removeVertexBuffer(VertexBufferHandle handle) = 0;
     virtual void removeIndexbuffer(IndexBufferHandle handle) = 0;
-    virtual void updateGlobalSceneBuffer(glm::mat4& ProjectionView) = 0;
+    virtual void updateGlobalSceneBuffer(glm::mat4& Projection, glm::mat4& View) = 0;
     virtual void updatePerModelData(glm::mat4& mat) = 0;
     virtual void renderGeom(Geometry& geom) = 0;
     /*void beginFrame();
      void endFrame();*/
+    virtual void beginFrame() = 0;
     virtual void presentFrame() = 0;
     //
     TextureManager* getTextureManager()

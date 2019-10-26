@@ -28,11 +28,15 @@ id<MTLBuffer> vertexBuffers[gpuBufferSize] = {0};
 id<MTLBuffer> indexBuffers[gpuBufferSize] = {0};
 id<MTLTexture> textures[gpuBufferSize] = {0};
 
+std::vector<MTLRenderPipelineState> pipilineStates;
+
 std::stack<uint32_t> vertexBufferIDs;
 std::stack<uint32_t> indexBufferIDs;
 std::stack<uint32_t> texturesIDs;
 
 id<MTLCommandQueue> commandQueue;
+id <MTLCommandBuffer> commandBuffer;
+id <CAMetalDrawable> drawable;
 MTLRenderPassDescriptor* mainPassDescriptor;
 MTLRenderPassDescriptor* guiPassDescriptor;
 MTLRenderPassDescriptor* fxaaPassDescriptor;
@@ -283,31 +287,83 @@ void MetalRenderer::createRenderPipelines()
     //id<MTLLibrary> defaultLibrary = [device newDefaultLibrary];
     
     DefaultPipelineState = createRenderDescriptor(Default_Attrib);
+    pipilineStates.push_back(DefaultPipelineState);
+    layoutHandles[Default] = 0;
     DefaultExPipelineState = createRenderDescriptor(DefaultEx_Attrib);
+    pipilineStates.push_back(DefaultExPipelineState);
+    layoutHandles[DefaultEx] = 1;
     PNCCTPipelineState = createRenderDescriptor(PNCCT_Attrib);
+    pipilineStates.push_back(PNCCTPipelineState);
+    layoutHandles[PNCCT] = 2;
     PNCCTTTTPipelineState = createRenderDescriptor(PNCCTTTT_Attrib);
+    pipilineStates.push_back(PNCCTTTTPipelineState);
+    layoutHandles[PNCCTTTT] = 3;
     PBBNCCTTXPipelineState = createRenderDescriptor(PBBNCCTTX_Attrib);
+    pipilineStates.push_back(PBBNCCTTXPipelineState);
+    layoutHandles[PBBNCCTTX] = 4;
     PNCTTTXPipelineState = createRenderDescriptor(PNCTTTX_Attrib);
+    pipilineStates.push_back(PNCTTTXPipelineState);
+    layoutHandles[PNCTTTX] = 5;
     PNCTTXPipelineState = createRenderDescriptor(PNCTTX_Attrib);
+    pipilineStates.push_back(PNCTTXPipelineState);
+    layoutHandles[PNCTTX] = 6;
     PNCTTTX_2PipelineState = createRenderDescriptor(PNCTTTX_2_Attrib);
+    pipilineStates.push_back(PNCTTTX_2PipelineState);
+    layoutHandles[PNCTTTX_2] = 7;
     PNCTTTX_3PipelineState = createRenderDescriptor(PNCTTTX_3_Attrib);
+    pipilineStates.push_back(PNCTTTX_3PipelineState);
+    layoutHandles[PNCTTTX_3] = 8;
     PNCCTTXPipelineState = createRenderDescriptor(PNCCTTX_Attrib);
+    pipilineStates.push_back(PNCCTTXPipelineState);
+    layoutHandles[PNCCTTX] = 9;
     PNCCTTX_2PipelineState = createRenderDescriptor(PNCCTTX_2_Attrib);
+    pipilineStates.push_back(PNCCTTX_2PipelineState);
+    layoutHandles[PNCCTTX_2] = 10;
     PNCCTTTXPipelineState = createRenderDescriptor(PNCCTTTX_Attrib);
+    pipilineStates.push_back(PNCCTTTXPipelineState);
+    layoutHandles[PNCCTTTX] = 11;
     PBBNCCTXPipelineState = createRenderDescriptor(PBBNCCTX_Attrib);
+    pipilineStates.push_back(PBBNCCTXPipelineState);
+    layoutHandles[PBBNCCTX] = 12;
     PBBNCTXPipelineState = createRenderDescriptor(PBBNCTX_Attrib);
+    pipilineStates.push_back(PBBNCTXPipelineState);
+    layoutHandles[PBBNCTX] = 13;
     PBBNCTPipelineState = createRenderDescriptor(PBBNCT_Attrib);
+    pipilineStates.push_back(PBBNCTPipelineState);
+    layoutHandles[PBBNCT] = 14;
     PNCCTTPipelineState = createRenderDescriptor(PNCCTT_Attrib);
+    pipilineStates.push_back(PNCCTTPipelineState);
+    layoutHandles[PNCCTT] = 15;
     PNCCTXPipelineState = createRenderDescriptor(PNCCTX_Attrib);
+    pipilineStates.push_back(PNCCTXPipelineState);
+    layoutHandles[PNCCTX] = 16;
     PCTPipelineState = createRenderDescriptor(PCT_Attrib);
+    pipilineStates.push_back(PCTPipelineState);
+    layoutHandles[PCT] = 17;
     PTPipelineState = createRenderDescriptor(PT_Attrib);
+    pipilineStates.push_back(PTPipelineState);
+    layoutHandles[PT] = 18;
     PTTPipelineState = createRenderDescriptor(PTT_Attrib);
+    pipilineStates.push_back(PTTPipelineState);
+    layoutHandles[PTT] = 19;
     PNCPipelineState = createRenderDescriptor(PNC_Attrib);
+    pipilineStates.push_back(PNCPipelineState);
+    layoutHandles[PNC] = 20;
     PCPipelineState = createRenderDescriptor(PC_Attrib);
+    pipilineStates.push_back(PCPipelineState);
+    layoutHandles[PC] = 21;
     PCCPipelineState = createRenderDescriptor(PCC_Attrib);
+    pipilineStates.push_back(PCCPipelineState);
+    layoutHandles[PCC] = 22;
     PCCH2H4PipelineState = createRenderDescriptor(PCCH2H4_Attrib);
+    pipilineStates.push_back(PCCH2H4PipelineState);
+    layoutHandles[PCCH2H4] = 23;
     PNCH2PipelineState = createRenderDescriptor(PNCH2_Attrib);
+    pipilineStates.push_back(PNCH2PipelineState);
+    layoutHandles[PNCH2] = 24;
     PNCTTTTXPipelineState = createRenderDescriptor(PNCTTTTX_Attrib);
+    pipilineStates.push_back(PNCTTTTXPipelineState);
+    layoutHandles[PNCTTTTX] = 25;
 }
 
 MTLRenderPipelineState MetalRenderer::createRenderDescriptor(VertexLayout& attributes)
@@ -335,7 +391,9 @@ MTLRenderPipelineState MetalRenderer::createRenderDescriptor(VertexLayout& attri
     descriptor.vertexDescriptor = vertexDescriptor;
     descriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
     
-    id <MTLRenderPipelineState> pipelineState = [device newRenderPipelineStateWithDescriptor:descriptor error:nil];
+    NSError* error;
+    id <MTLRenderPipelineState> pipelineState = [device newRenderPipelineStateWithDescriptor:descriptor error:&error];
+    NSLog(@"%@", [error localizedDescription]);
     return pipelineState;
 }
 
@@ -571,6 +629,20 @@ TextureHandle MetalRenderer::createTexture(const uint8_t* pointer, int width, in
     
 }
 
+uint32_t MetalRenderer::getLayoutHandle(VertexType type)
+{
+    auto iter = layoutHandles.find(type);
+    if (iter != layoutHandles.end())
+    {
+        return iter->second;
+    }
+    else
+    {
+        printf("NOT FOUND");
+        return 0;
+    }
+}
+
 void MetalRenderer::removeVertexBuffer(VertexBufferHandle handle)
 {
     vertexBufferSize--;
@@ -614,161 +686,63 @@ const matrix_float4x4 static inline toMtl( const glm::mat4 & mat )
     return convert<glm::mat4, matrix_float4x4>(mat);
 }
 
-void MetalRenderer::renderDrawable(YdrLoader* drawable)
+void MetalRenderer::updateGlobalSceneBuffer(glm::mat4& Projection, glm::mat4& View)
 {
-    for (auto& model : drawable->models)
-    {
-        if ((model.Unk_2Ch & 1) == 0)
-        {
-            continue;  //    PROXIES
-        }
-        for (auto& geometry : model.geometries)
-        {
-            switch (geometry.type) {
-                case Default:
-                [commandEncoder setRenderPipelineState:DefaultPipelineState];
-                break;
-                case DefaultEx:
-                [commandEncoder setRenderPipelineState:DefaultExPipelineState];
-                break;
-                case PNCCT:
-                [commandEncoder setRenderPipelineState:PNCCTPipelineState];
-                break;
-                case PNCCTTTT:
-                [commandEncoder setRenderPipelineState:PNCCTTTTPipelineState];
-                break;
-                case PBBNCCTTX:
-                [commandEncoder setRenderPipelineState:PBBNCCTTXPipelineState];
-                break;
-                case PBBNCCT:
-                [commandEncoder setRenderPipelineState:PBBNCCTPipelineState];
-                break;
-                case PNCTTTX:
-                [commandEncoder setRenderPipelineState:PNCTTTXPipelineState];
-                break;
-                case PNCTTX:
-                [commandEncoder setRenderPipelineState:PNCTTXPipelineState];
-                break;
-                case PNCTTTX_2:
-                [commandEncoder setRenderPipelineState:PNCTTTX_2PipelineState];
-                break;
-                case PNCTTTX_3:
-                [commandEncoder setRenderPipelineState:PNCTTTX_3PipelineState];
-                break;
-                case PNCCTTX:
-                [commandEncoder setRenderPipelineState:PNCCTTXPipelineState];
-                break;
-                case PNCCTTX_2:
-                [commandEncoder setRenderPipelineState:PNCCTTX_2PipelineState];
-                break;
-                case PNCCTTTX:
-                [commandEncoder setRenderPipelineState:PNCCTTTXPipelineState];
-                break;
-                case PBBNCCTX:
-                [commandEncoder setRenderPipelineState:PBBNCCTXPipelineState];
-                break;
-                case PBBNCTX:
-                [commandEncoder setRenderPipelineState:PBBNCTXPipelineState];
-                break;
-                case PBBNCT:
-                [commandEncoder setRenderPipelineState:PBBNCTPipelineState];
-                break;
-                case PNCCTT:
-                [commandEncoder setRenderPipelineState:PNCCTTPipelineState];
-                break;
-                case PNCCTX:
-                [commandEncoder setRenderPipelineState:PNCCTXPipelineState];
-                break;
-                /*(case PCT:
-                 [commandEncoder setRenderPipelineState:PCTPipelineState];
-                 break;
-                 case PT:
-                 [commandEncoder setRenderPipelineState:PTPipelineState];
-                 break;
-                 case PTT:
-                 [commandEncoder setRenderPipelineState:PTTPipelineState];
-                 break;
-                 case PNC:
-                 [commandEncoder setRenderPipelineState:PNCPipelineState];
-                 break;
-                 case PC:
-                 [commandEncoder setRenderPipelineState:PCPipelineState];
-                 break;
-                 case PCC:
-                 [commandEncoder setRenderPipelineState:PCCPipelineState];
-                 break;*/
-                case PCCH2H4:
-                [commandEncoder setRenderPipelineState:PCCH2H4PipelineState];
-                break;
-                case PNCH2:
-                [commandEncoder setRenderPipelineState:PNCH2PipelineState];
-                break;
-                case PNCTTTTX:
-                [commandEncoder setRenderPipelineState:PNCTTTTXPipelineState];
-                break;
-                default:
-                continue;
-            }
-            //
-            [commandEncoder setDepthStencilState:depthStencilState];
-            [commandEncoder setCullMode:MTLCullModeBack];
-            //if (geometry.type != VertexType::Default)
-            // continue;
-            //if (testID != 0)
-            //[commandEncoder setFragmentTexture:textures[testID] atIndex:0];
-            //else
-            
-            //fix TextureManager
-            if (textures[geometry.getTextureHandle().id] == 0)
-                [commandEncoder setFragmentTexture:textures[0] atIndex:0];
-            else
-                [commandEncoder setFragmentTexture:textures[geometry.getTextureHandle().id] atIndex:0];
-            [commandEncoder setFragmentSamplerState:samplerState atIndex:0];
-            
-            [commandEncoder setVertexBuffer:vertexBuffers[geometry.getVertexBufferHandle().id] offset:0 atIndex:0];
-            //memcpy([scene_buffer contents], &scene_matrices, sizeof(uniform_buffer_struct));
-            
-            //[commandEncoder setVertexBuffer:scene_buffer offset:0 atIndex:1];
-            
-            //[commandEncoder drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:0 vertexCount:36];
-            
-            [commandEncoder drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:geometry.getIndexCount() indexType:MTLIndexTypeUInt16 indexBuffer:indexBuffers[geometry.getIndexBufferHandle().id] indexBufferOffset:0];
-            
-            //numDrawCalls++;
-            
-        }
-    }
+    scene_matrices.projMatrix = toMtl(Projection);
+    scene_matrices.ViewMatrix = toMtl(View);
 }
 
-void MetalRenderer::renderBuilding(CBuilding* building)
+void MetalRenderer::updatePerModelData(glm::mat4& mat)
 {
-    renderDrawable(building->ydr);
+    scene_matrices.modelMatrix = toMtl(mat);
 }
 
-void MetalRenderer::renderPed(CPed* ped)
+void MetalRenderer::renderGeom(Geometry& geom)
 {
-    for (auto& ydr : ped->playerModel)
-    {
-        //fix
-        if (ydr)
-        renderDrawable(ydr);
-    }
+    [commandEncoder setRenderPipelineState:pipilineStates[geom.getVertexLayoutHandle()]];
+    
+    [commandEncoder setDepthStencilState:depthStencilState];
+    [commandEncoder setCullMode:MTLCullModeBack];
+    //fix TextureManager
+    if (textures[geom.getTextureHandle().id] == 0)
+        [commandEncoder setFragmentTexture:textures[0] atIndex:0];
+    else
+        [commandEncoder setFragmentTexture:textures[geom.getTextureHandle().id] atIndex:0];
+    
+    [commandEncoder setFragmentSamplerState:samplerState atIndex:0];
+    
+    [commandEncoder setVertexBuffer:vertexBuffers[geom.getVertexBufferHandle().id] offset:0 atIndex:0];
+    [commandEncoder setVertexBytes:&scene_matrices length:sizeof(uniform_buffer_struct) atIndex:1];
+    
+    [commandEncoder drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:geom.getIndexCount() indexType:MTLIndexTypeUInt16 indexBuffer:indexBuffers[geom.getIndexBufferHandle().id] indexBufferOffset:0];
+    
+    //numDrawCalls++;
 }
 
-void MetalRenderer::renderVehicle(CVehicle* vehicle)
+void MetalRenderer::beginFrame()
 {
-    renderDrawable(vehicle->getDrawable()->ydr);
+    drawable = [mtkView currentDrawable];
+    mainPassDescriptor.colorAttachments[0].texture = drawable.texture;
+    
+    commandBuffer = [commandQueue commandBuffer];
+    commandEncoder = [commandBuffer renderCommandEncoderWithDescriptor:mainPassDescriptor];
 }
 
-void MetalRenderer::renderWorld(GameWorld* world, Camera* curCamera)
+void MetalRenderer::presentFrame()
 {
-    glm::vec3 playerPos = world->getCurrentPlayer()->getPosition();
+    [commandEncoder endEncoding];
+    [commandBuffer presentDrawable:drawable];
+    [commandBuffer commit];
+}
+
+//void MetalRenderer::renderWorld(GameWorld* world, Camera* curCamera)
+//    glm::vec3 playerPos = world->getCurrentPlayer()->getPosition();
     
     //NSLog(@"Player Pos%f %f %f", playerPos.x, playerPos.y, playerPos.z);
     //NSLog(@"%f %f %f", curCamera->getPosition().x, curCamera->getPosition().y, curCamera->getPosition().z);
     //curCamera->setPosition(curCamera->getPosition() + glm::vec3(0,0, -1));
     
-    glm::mat4 projection = curCamera->getProjection();
+    /*glm::mat4 projection = curCamera->getProjection();
     glm::mat4 view = curCamera->getViewMatrix();
     glm::mat4 projectionView = projection * view;
     //
@@ -787,29 +761,8 @@ void MetalRenderer::renderWorld(GameWorld* world, Camera* curCamera)
     {
         scene_matrices.modelMatrix = toMtl(object->getMatrix());
         [commandEncoder setVertexBytes:&scene_matrices length:sizeof(uniform_buffer_struct) atIndex:1];
-        switch (object->getType())
-        {
-            case ObjectType::Building:
-            {
-                CBuilding* building = static_cast<CBuilding*>(object);
-                renderBuilding(building);
-                break;
-            }
-            case ObjectType::Vehicle:
-            {
-                CVehicle* vehicle = static_cast<CVehicle*>(object);
-                renderVehicle(vehicle);
-                break;
-            }
-            case ObjectType::Ped:
-            {
-                CPed* ped = static_cast<CPed*>(object);
-                renderPed(ped);
-                break;
-            }
-            default:
-            break;
-        }
+        
+        //render objects
     }
     [commandEncoder endEncoding];
     
@@ -852,9 +805,9 @@ void MetalRenderer::renderWorld(GameWorld* world, Camera* curCamera)
     
     [fxaaEncoder endEncoding];*/
     
-    [commandBuffer presentDrawable:drawable];
-    [commandBuffer commit];
-}
+   // [commandBuffer presentDrawable:drawable];
+   // [commandBuffer commit];
+//}
 
 void MetalRenderer::renderText(std::string& text, glm::vec2 pos)
 {

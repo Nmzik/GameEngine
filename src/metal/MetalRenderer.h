@@ -9,7 +9,7 @@
 
 #include <stdio.h>
 #include <memory>
-#include "../GameRenderer.h"
+#include "../BaseRenderer.h"
 #include "../Texture.h"
 #include <chrono>
 #if defined(__OBJC__)
@@ -26,7 +26,7 @@ typedef id MTLViewPtr;
 typedef id MTLRenderPipelineState;
 #endif
 
-class MetalRenderer : public GameRenderer
+class MetalRenderer : public BaseRenderer
 {
     std::unique_ptr<uint8_t[]> textureDecompressedMem;
     std::chrono::steady_clock::time_point current_time;
@@ -34,18 +34,19 @@ public:
     virtual VertexBufferHandle createVertexBuffer(uint32_t size, const uint8_t* pointer) override;
     virtual IndexBufferHandle createIndexBuffer(uint32_t size, const uint8_t* pointer) override;
     virtual TextureHandle createTexture(const uint8_t* pointer, int width, int height, int levels, TextureFormat format) override;
-
+    virtual uint32_t getLayoutHandle(VertexType type) override;
+    
     virtual void removeVertexBuffer(VertexBufferHandle handle) override;
     virtual void removeIndexbuffer(IndexBufferHandle handle) override;
     virtual void removeTexture(TextureHandle handle) override;
-
-    virtual void renderWorld(GameWorld* world, Camera* curCamera) override;
-    void renderText(std::string& text, glm::vec2 pos);
+    virtual void updateGlobalSceneBuffer(glm::mat4& Projection, glm::mat4& View) override;
+    virtual void updatePerModelData(glm::mat4& mat) override;
+    virtual void renderGeom(Geometry& geom) override;
     
-    void renderDrawable(YdrLoader* drawable);
-    void renderBuilding(CBuilding* building);
-    void renderPed(CPed* ped);
-    void renderVehicle(CVehicle* vehicle);
+    virtual void beginFrame() override;
+    virtual void presentFrame() override;
+    
+    void renderText(std::string& text, glm::vec2 pos);
 
     MTLDevicePtr device;
     MTLViewPtr mtkView;

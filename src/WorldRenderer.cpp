@@ -2,7 +2,13 @@
 #include "Camera.h"
 #include "WorldRenderer.h"
 #include "Model.h"
+
+#ifdef WIN32
 #include "OpenGL/OpenGLRenderer.h"
+#include "windows/Win32Window.h"
+#else
+#include "metal/MetalRenderer.h"
+#endif
 
 WorldRenderer::WorldRenderer(NativeWindow* window)
 {
@@ -53,15 +59,15 @@ void WorldRenderer::renderVehicle(CVehicle* vehicle)
 
 void WorldRenderer::renderWorld(GameWorld* world, Camera* curCamera)
 {
-    //beginFrame();
+    renderer->beginFrame();
 
     glm::mat4 view = curCamera->getViewMatrix();
     glm::mat4 projection = curCamera->getProjection();
-    glm::mat4 ProjectionView = projection * view;
+    glm::mat4 projectionView = projection * view;
 
-    curCamera->updateFrustum(ProjectionView);
+    curCamera->updateFrustum(projectionView);
 
-	renderer->updateGlobalSceneBuffer(ProjectionView);
+	renderer->updateGlobalSceneBuffer(projection, view);
 
     for (auto& object : world->renderList)
     {
