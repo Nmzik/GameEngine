@@ -202,7 +202,7 @@ public:
     std::vector<YdrLoader*> fragPhysicsLODs;
 
     void init(memstream& file) override;
-    void finalize(GameRenderer* _renderer, memstream& file) override;
+    void finalize(BaseRenderer* _renderer, memstream& file) override;
 
     YftLoader()
         : ydr(nullptr)

@@ -82,7 +82,7 @@ void YftLoader::init(memstream& file)
     ybn->init(file);*/
 }
 
-void YftLoader::finalize(GameRenderer* _renderer, memstream& file)
+void YftLoader::finalize(BaseRenderer* _renderer, memstream& file)
 {
     loaded = true;
     rmcDrawable* drawable = (rmcDrawable*)fragType->drawable.operator*();

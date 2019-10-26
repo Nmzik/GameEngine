@@ -5,6 +5,8 @@
 #include <chrono>
 #include <memory>
 #include "ft2build.h"
+#include "WorldRenderer.h"
+#include "BaseRenderer.h"
 #include FT_FREETYPE_H
 
 class Camera;
@@ -12,7 +14,6 @@ class ScriptInterpreter;
 class InputManager;
 class GameData;
 class GameWorld;
-class GameRenderer;
 class NativeWindow;
 class ResourceManager;
 
@@ -28,8 +29,7 @@ class Game
     std::unique_ptr<GameData> gameData;
     std::unique_ptr<ResourceManager> resourceManager;
     std::unique_ptr<GameWorld> gameWorld;
-    //std::unique_ptr<NativeWindow> window;
-    std::unique_ptr<GameRenderer> rendering_system;
+    std::unique_ptr<WorldRenderer> rendering_system;
     //std::unique_ptr<btIDebugDraw> debugRenderer;
     std::unique_ptr<ScriptInterpreter> scriptMachine;
     std::unique_ptr<InputManager> input;
@@ -63,9 +63,9 @@ public:
         return gameWorld.get();
     }
 
-    GameRenderer* getRenderer() const
+    BaseRenderer* getRenderer() const
     {
-        return rendering_system.get();
+        return rendering_system.get()->getBaseRenderer();
     }
 
     GameData* getGameData() const

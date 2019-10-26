@@ -1,7 +1,7 @@
 #pragma once
 #include <cstdint>
 #include <memory>
-#include "../GameRenderer.h"
+#include "../BaseRenderer.h"
 #include "../common.h"
 #include <glm/gtc/type_precision.hpp>
 
@@ -475,7 +475,7 @@ public:
     virtual void init(memstream& file)
     {
     }
-    virtual void finalize(GameRenderer* renderer, memstream& file)
+    virtual void finalize(BaseRenderer* renderer, memstream& file)
     {
     }
 };

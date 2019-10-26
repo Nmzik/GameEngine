@@ -1,9 +1,9 @@
-#include "GameRenderer.h"
+#include "BaseRenderer.h"
 #include "CBuilding.h"
 #include "Camera.h"
 #include "Model.h"
 
-GameRenderer::GameRenderer(/*NativeWindow* window*/)
+BaseRenderer::BaseRenderer(/*NativeWindow* window*/)
     : /*nativeWindow(window)
     ,*/
     renderDebugWorld(false)
@@ -11,7 +11,7 @@ GameRenderer::GameRenderer(/*NativeWindow* window*/)
     //nativeWindow->InitializeContext();
 }
 
-GameRenderer::~GameRenderer()
+BaseRenderer::~BaseRenderer()
 {
 }
 

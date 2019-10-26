@@ -261,15 +261,15 @@ static VertexLayout PBBNCTTT_Attrib = {
 
 #define gpuBufferSize 18000
 
-class GameRenderer
+class BaseRenderer
 {
     int numDrawCalls;
 
     TextureManager textureManager;
 
 public:
-    GameRenderer(/*NativeWindow* window*/);
-    virtual ~GameRenderer();
+    BaseRenderer(/*NativeWindow* window*/);
+    virtual ~BaseRenderer();
 
     bool renderDebugWorld;
     uint64_t GlobalGpuMemory = 0;
@@ -278,30 +278,28 @@ public:
     virtual TextureHandle createTexture(const uint8_t* pointer, int width, int height, int levels, TextureFormat format) = 0;
     virtual VertexBufferHandle createVertexBuffer(uint32_t size, const uint8_t* pointer) = 0;
     virtual IndexBufferHandle createIndexBuffer(uint32_t size, const uint8_t* pointer) = 0;
+    virtual uint32_t getLayoutHandle(VertexType type) = 0;
 
     virtual void removeTexture(TextureHandle handle) = 0;
     virtual void removeVertexBuffer(VertexBufferHandle handle) = 0;
     virtual void removeIndexbuffer(IndexBufferHandle handle) = 0;
+    virtual void updateGlobalSceneBuffer(glm::mat4& ProjectionView) = 0;
+    virtual void updatePerModelData(glm::mat4& mat) = 0;
+    virtual void renderGeom(Geometry& geom) = 0;
     /*void beginFrame();
-     void endFrame();
-     void presentFrame();
-     
-     void renderDrawable(YdrLoader* drawable);
-     void renderBuilding(CBuilding* building);
-     void renderPed(CPed* ped);
-     void renderVehicle(CVehicle* vehicle);*/
+     void endFrame();*/
+    virtual void presentFrame() = 0;
     //
     TextureManager* getTextureManager()
     {
         return &textureManager;
     }
 
-    virtual void renderWorld(GameWorld* world, Camera* curCamera) = 0;
-
     int getNumDrawCalls() const
     {
         return numDrawCalls;
     }
 
-    //
+protected:
+    std::unordered_map<VertexType, uint32_t> layoutHandles;
 };

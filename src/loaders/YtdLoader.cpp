@@ -6,7 +6,7 @@ void YtdLoader::init(memstream& file)
     texDictionary->Resolve(file);
 }
 
-void YtdLoader::finalize(GameRenderer* _renderer, memstream& file)
+void YtdLoader::finalize(BaseRenderer* _renderer, memstream& file)
 {
     renderer = _renderer;
     loaded = true;

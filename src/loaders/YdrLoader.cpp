@@ -18,12 +18,12 @@ void YdrLoader::init(memstream& file)
     //loadDrawable(GTAdrawable, _renderer, file);
 }
 
-void YdrLoader::finalize(GameRenderer* _renderer, memstream& file)
+void YdrLoader::finalize(BaseRenderer* _renderer, memstream& file)
 {
     loadDrawable(drawable, _renderer, file);
 }
 
-void YdrLoader::loadDrawable(rmcDrawable* drawable, GameRenderer* _renderer, memstream& file)
+void YdrLoader::loadDrawable(rmcDrawable* drawable, BaseRenderer* _renderer, memstream& file)
 {
     renderer = _renderer;
     loaded = true;
@@ -167,9 +167,9 @@ void YdrLoader::loadDrawable(rmcDrawable* drawable, GameRenderer* _renderer, mem
             VertexBufferHandle vertexHandle = renderer->createVertexBuffer(vertexSize, vertexPointer);
             IndexBufferHandle indexHandle = renderer->createIndexBuffer(indicesSize, indicesPointer);
             TextureHandle texHandle = renderer->getTextureManager()->getTexture(materials[drawable->DrawableModels[0]->Get(i)->ShaderMappingPointer[j]].DiffuseSampler);
+            uint32_t vertexLayoutHandle = renderer->getLayoutHandle((VertexType)geom->VertexBufferPointer->InfoPointer->Flags);
 
-            Geometry geometry(vertexHandle, indexHandle, geom->IndexBufferPointer->IndicesCount, texHandle);
-            geometry.type = (VertexType)geom->VertexBufferPointer->InfoPointer->Flags;
+            Geometry geometry(vertexHandle, indexHandle, vertexLayoutHandle, geom->IndexBufferPointer->IndicesCount, texHandle);
             models[i].geometries.push_back(geometry);
 
             /*models[i].geometries.emplace_back(file.data,

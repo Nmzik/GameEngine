@@ -1,48 +1,5 @@
 #include "Win32Window.h"
 
-/*LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-    switch (uMsg)
-    {
-           
-
-        case WM_CREATE:
-        {
-            return 0;
-        }
-        case WM_KEYDOWN:
-        {
-            if (auto window = GetWindowFromUserData(hwnd))
-            {
-                window->processButtonEvent(static_cast<uint32_t>(wParam), true);
-            }
-            return 0;
-        }
-        case WM_KEYUP:
-        {
-            if (auto window = GetWindowFromUserData(hwnd))
-            {
-                window->processButtonEvent(static_cast<uint32_t>(wParam), false);
-            }
-            return 0;
-        }
-        case WM_MOUSEMOVE:
-        {
-            if (auto window = GetWindowFromUserData(hwnd))
-            {
-                Extract mouse position from event parameter
-                int x = GET_X_LPARAM(lParam);
-                int y = GET_Y_LPARAM(lParam);
-
-               
-                window->processMouseEvents(x, y);
-            }
-            return 0;
-        }
-    }
-    return DefWindowProc(hwnd, uMsg, wParam, lParam);
-}*/
-
 Win32Window::Win32Window()
 {
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
@@ -57,10 +14,12 @@ Win32Window::Win32Window()
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
     /* Create our window centered at 512x512 resolution */
-    window = SDL_CreateWindow("HELLO", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                              1024, 768, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+    window = SDL_CreateWindow("GameEngine", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                              1280, 720, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
     if (!window) /* Die if creation failed */
         printf("Unable to create window");
+
+	state = SDL_GetKeyboardState(NULL);
 }
 
 Win32Window::~Win32Window()
@@ -87,6 +46,15 @@ void Win32Window::setTitle(std::string& osstr)
 
 void Win32Window::processEvents()
 {
+    int x, y;
+    SDL_GetGlobalMouseState(&x, &y);
+    processMouseEvents(x, y);
+
+    SDL_PumpEvents();
+	processButtonEvent(SDL_SCANCODE_W, state[SDL_SCANCODE_W] ? true : false);
+    processButtonEvent(SDL_SCANCODE_S, state[SDL_SCANCODE_S] ? true : false);
+	processButtonEvent(SDL_SCANCODE_A, state[SDL_SCANCODE_A] ? true : false);
+    processButtonEvent(SDL_SCANCODE_D, state[SDL_SCANCODE_D] ? true : false);
 }
 
 void Win32Window::swapBuffers()

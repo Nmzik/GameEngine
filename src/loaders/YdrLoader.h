@@ -357,7 +357,7 @@ struct FragDrawable : rmcDrawable
 class YdrLoader : public FileType
 {
     YtdLoader* ytd;
-    GameRenderer* renderer = nullptr;
+    BaseRenderer* renderer = nullptr;
     rmcDrawable* drawable;
 
 public:
@@ -372,7 +372,7 @@ public:
     }
     ~YdrLoader();
 
-    void loadDrawable(rmcDrawable* drawable, GameRenderer* _renderer, memstream& file);
+    void loadDrawable(rmcDrawable* drawable, BaseRenderer* _renderer, memstream& file);
     void init(memstream& file) override;
-    void finalize(GameRenderer* _renderer, memstream& file) override;
+    void finalize(BaseRenderer* _renderer, memstream& file) override;
 };

@@ -6,7 +6,7 @@ class Win32Window : public NativeWindow
 {
     SDL_Window* window;
     SDL_GLContext context;
-
+    const Uint8* state;
 public:
     Win32Window();
     ~Win32Window();

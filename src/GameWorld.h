@@ -3,7 +3,7 @@
 #include <queue>
 #include "CPed.h"
 #include "CVehicle.h"
-#include "GameRenderer.h"
+#include "BaseRenderer.h"
 #include "Light.h"
 #include "PhysicsSystem.h"
 #include "SoundManager.h"

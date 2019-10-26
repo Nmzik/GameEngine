@@ -1,5 +1,6 @@
 #include "OpenGLRenderer.h"
 #include "Shader.h"
+#include "opengl.h"
 #include "../CBuilding.h"
 #include "../Camera.h"
 #include "../Model.h"
@@ -8,6 +9,8 @@ OpenGLRenderer::OpenGLRenderer(NativeWindow* window)
     : nativeWindow(window)
 {
     nativeWindow->initializeContext();
+
+    OpenGL_Init();
 
     glEnable(GL_DEPTH_TEST);
     glDisable(GL_MULTISAMPLE);
@@ -44,6 +47,89 @@ OpenGLRenderer::OpenGLRenderer(NativeWindow* window)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 8, 8, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+
+    layouts.push_back(Default_Attrib);
+    layoutHandles[Default] = 0;
+    layouts.push_back(DefaultEx_Attrib);
+    layoutHandles[DefaultEx] = 1;
+    layouts.push_back(PNCCT_Attrib);
+    layoutHandles[PNCCT] = 2;
+    layouts.push_back(PNCCTTTT_Attrib);
+    layoutHandles[PNCCTTTT] = 3;
+    layouts.push_back(PBBNCCTTX_Attrib);
+    layoutHandles[PBBNCCTTX] = 4;
+    layouts.push_back(PBBNCCT_Attrib);
+    layoutHandles[PBBNCCT] = 5;
+    layouts.push_back(PNCTTTX_Attrib);
+    layoutHandles[PNCTTTX] = 6;
+    layouts.push_back(PNCTTX_Attrib);
+    layoutHandles[PNCTTX] = 7;
+    layouts.push_back(PNCTTTX_2_Attrib);
+    layoutHandles[PNCTTTX_2] = 8;
+    layouts.push_back(PNCTTTX_3_Attrib);
+    layoutHandles[PNCTTTX_3] = 9;
+    layouts.push_back(PNCCTTX_Attrib);
+    layoutHandles[PNCCTTX] = 10;
+    layouts.push_back(PNCCTTX_2_Attrib);
+    layoutHandles[PNCCTTX_2] = 11;
+    layouts.push_back(PNCCTTTX_Attrib);
+    layoutHandles[PNCCTTTX] = 12;
+    layouts.push_back(PBBNCCTX_Attrib);
+    layoutHandles[PBBNCCTX] = 13;
+    layouts.push_back(PBBNCTX_Attrib);
+    layoutHandles[PBBNCTX] = 14;
+    layouts.push_back(PBBNCT_Attrib);
+    layoutHandles[PBBNCT] = 15;
+    layouts.push_back(PNCCTT_Attrib);
+    layoutHandles[PNCCTT] = 16;
+    layouts.push_back(PNCCTX_Attrib);
+    layoutHandles[PNCCTX] = 17;
+    layouts.push_back(PCT_Attrib);
+    layoutHandles[PCT] = 18;
+    layouts.push_back(PT_Attrib);
+    layoutHandles[PT] = 19;
+    layouts.push_back(PTT_Attrib);
+    layoutHandles[PTT] = 20;
+    layouts.push_back(PNC_Attrib);
+    layoutHandles[PNC] = 21;
+    layouts.push_back(PC_Attrib);
+    layoutHandles[PC] = 22;
+    layouts.push_back(PCC_Attrib);
+    layoutHandles[PCC] = 23;
+    layouts.push_back(PCCH2H4_Attrib);
+    layoutHandles[PCCH2H4] = 24;
+    layouts.push_back(PNCH2_Attrib);
+    layoutHandles[PNCH2] = 25;
+    layouts.push_back(PNCTTTTX_Attrib);
+    layoutHandles[PNCTTTTX] = 26;
+    layouts.push_back(PNCTTTT_Attrib);
+    layoutHandles[PNCTTTT] = 27;
+    layouts.push_back(PBBNCCTT_Attrib);
+    layoutHandles[PBBNCCTT] = 28;
+    /*case PCTT:
+                    layout = PCTT_Attrib;
+                    break;
+                case PBBCCT:
+                    layout = PBBCCT_Attrib;
+                    break;
+                case PBBNC:
+                    layout = PBBNC_Attrib;
+                    break;*/
+    layouts.push_back(PBBNCTT_Attrib);
+    layoutHandles[PBBNCTT] = 29;
+    layouts.push_back(PBBNCTTX_Attrib);
+    layoutHandles[PBBNCTTX] = 30;
+    layouts.push_back(PBBNCTTT_Attrib);
+    layoutHandles[PBBNCTTT] = 31;
+    /*case PNCTT:
+                    layout = PNCTT_Attrib;
+                    break;
+                case PNCTTT:
+                    layout = PNCTTT_Attrib;
+                    break;
+                case PBBNCTTTX:
+                    layout = PBBNCTTTX_Attrib;
+                    break;*/
 }
 
 OpenGLRenderer::~OpenGLRenderer()
@@ -265,6 +351,20 @@ TextureHandle OpenGLRenderer::createTexture(const uint8_t* pointer, int width, i
     return handle;
 }
 
+uint32_t OpenGLRenderer::getLayoutHandle(VertexType type)
+{
+    auto iter = layoutHandles.find(type);
+    if (iter != layoutHandles.end())
+    {
+        return iter->second;
+    }
+    else
+    {
+        printf("NOT FOUND\n");
+        return 0;
+    }
+}
+
 void OpenGLRenderer::removeVertexBuffer(VertexBufferHandle handle)
 {
     glBindBuffer(GL_VERTEX_ARRAY, 0);
@@ -283,6 +383,28 @@ void OpenGLRenderer::removeTexture(TextureHandle handle)
     glDeleteTextures(1, &textures[handle.id]);
 }
 
+void OpenGLRenderer::updateGlobalSceneBuffer(glm::mat4& ProjectionView)
+{
+    GL_CHECK(glBindBuffer(GL_UNIFORM_BUFFER, uboGlobal));
+    GL_CHECK(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &ProjectionView[0]));
+
+    GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+    GL_CHECK(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+
+    //need to fix this
+    GL_CHECK(glEnable(GL_CULL_FACE));
+
+    GL_CHECK(glBindBufferBase(GL_UNIFORM_BUFFER, 0, uboGlobal));
+    GL_CHECK(glBindBufferBase(GL_UNIFORM_BUFFER, 1, uboModel));
+}
+
+void OpenGLRenderer::updatePerModelData(glm::mat4& mat)
+{
+    GL_CHECK(glBindBuffer(GL_UNIFORM_BUFFER, uboModel));
+    GL_CHECK(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &mat[0]));
+    GL_CHECK(glBindBuffer(GL_UNIFORM_BUFFER, 0));
+}
+
 static const GLenum s_attribType[] =
     {
         GL_UNSIGNED_BYTE,  // Uint8
@@ -290,266 +412,28 @@ static const GLenum s_attribType[] =
         GL_FLOAT,          // Float
 };
 
-//#define GL_DEBUG
-
-#ifdef GL_DEBUG
-#define GL_CHECK(call)                              \
-    call;                                           \
-    {                                               \
-        GLenum err = glGetError();                  \
-        if (err != 0)                               \
-        {                                           \
-            printf("GL error 0x%x %u\n", err, err); \
-            DebugBreak();                           \
-        }                                           \
-    }
-#else
-#define GL_CHECK(call) call
-#endif
-
-void OpenGLRenderer::renderDrawable(YdrLoader* drawable)
+void OpenGLRenderer::renderGeom(Geometry& geom)
 {
-    int curTexture = 0;
-    for (auto& model : drawable->models)
+    mainShader->use();
+
+    GL_CHECK(glBindVertexArray(VAO));
+
+    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, vertexBuffers[geom.getVertexBufferHandle().id]));
+    GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffers[geom.getIndexBufferHandle().id]));
+
+    VertexLayout& layout = layouts[geom.getVertexLayoutHandle()];
+
+    for (int i = 0; i < layout.size; i++)
     {
-        if ((model.Unk_2Ch & 1) == 0)
-        {
-            continue;  //	PROXIES
-        }
-        for (auto& geometry : model.geometries)
-        {
-            mainShader->use();
-
-            GL_CHECK(glBindVertexArray(VAO));
-
-            GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, vertexBuffers[geometry.getVertexBufferHandle().id]));
-            GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffers[geometry.getIndexBufferHandle().id]));
-
-            VertexLayout layout;
-
-            switch (geometry.type)
-            {
-                case Default:
-                    layout = Default_Attrib;
-                    break;
-                case DefaultEx:
-                    layout = DefaultEx_Attrib;
-                    break;
-                case PNCCT:
-                    layout = PNCCT_Attrib;
-                    break;
-                case PNCCTTTT:
-                    layout = PNCCTTTT_Attrib;
-                    break;
-                case PBBNCCTTX:
-                    layout = PBBNCCTTX_Attrib;
-                    break;
-                case PBBNCCT:
-                    layout = PBBNCCT_Attrib;
-                    break;
-                case PNCTTTX:
-                    layout = PNCTTTX_Attrib;
-                    break;
-                case PNCTTX:
-                    layout = PNCTTX_Attrib;
-                    break;
-                case PNCTTTX_2:
-                    layout = PNCTTTX_2_Attrib;
-                    break;
-                case PNCTTTX_3:
-                    layout = PNCTTTX_3_Attrib;
-                    break;
-                case PNCCTTX:
-                    layout = PNCCTTX_Attrib;
-                    break;
-                case PNCCTTX_2:
-                    layout = PNCCTTX_2_Attrib;
-                    break;
-                case PNCCTTTX:
-                    layout = PNCCTTTX_Attrib;
-                    break;
-                case PBBNCCTX:
-                    layout = PBBNCCTX_Attrib;
-                    break;
-                case PBBNCTX:
-                    layout = PBBNCTX_Attrib;
-                    break;
-                case PBBNCT:
-                    layout = PBBNCT_Attrib;
-                    break;
-                case PNCCTT:
-                    layout = PNCCTT_Attrib;
-                    break;
-                case PNCCTX:
-                    layout = PNCCTX_Attrib;
-                    break;
-                case PCT:
-                    layout = PCT_Attrib;
-                    break;
-                case PT:
-                    layout = PT_Attrib;
-                    break;
-                case PTT:
-                    layout = PTT_Attrib;
-                    break;
-                case PNC:
-                    layout = PNC_Attrib;
-                    break;
-                case PC:
-                    layout = PC_Attrib;
-                    break;
-                case PCC:
-                    layout = PCC_Attrib;
-                    break;
-                case PCCH2H4:
-                    layout = PCCH2H4_Attrib;
-                    break;
-                case PNCH2:
-                    layout = PNCH2_Attrib;
-                    break;
-                case PNCTTTTX:
-                    layout = PNCTTTTX_Attrib;
-                    break;
-                case PNCTTTT:
-                    layout = PNCTTTT_Attrib;
-                    break;
-                case PBBNCCTT:
-                    layout = PBBNCCTT_Attrib;
-                    break;
-                /*case PCTT:
-                    layout = PCTT_Attrib;
-                    break;
-                case PBBCCT:
-                    layout = PBBCCT_Attrib;
-                    break;
-                case PBBNC:
-                    layout = PBBNC_Attrib;
-                    break;*/
-                case PBBNCTT:
-                    layout = PBBNCTT_Attrib;
-                    break;
-                case PBBNCTTX:
-                    layout = PBBNCTTX_Attrib;
-                    break;
-                case PBBNCTTT:
-                    layout = PBBNCTTT_Attrib;
-                    break;
-                /*case PNCTT:
-                    layout = PNCTT_Attrib;
-                    break;
-                case PNCTTT:
-                    layout = PNCTTT_Attrib;
-                    break;
-                case PBBNCTTTX:
-                    layout = PBBNCTTTX_Attrib;
-                    break;*/
-                default:
-                    continue;
-            }
-
-            for (int i = 0; i < layout.size; i++)
-            {
-                GL_CHECK(glEnableVertexAttribArray(layout.attributes[i].index));
-                GL_CHECK(glVertexAttribPointer(layout.attributes[i].index, layout.attributes[i].size, s_attribType[(int)layout.attributes[i].type], GL_FALSE, layout.stride, (void*)(uintptr_t)layout.attributes[i].offset));
-            }
-
-            GL_CHECK(glActiveTexture(GL_TEXTURE0));
-            if (geometry.getTextureHandle().id == 0)
-                glBindTexture(GL_TEXTURE_2D, textures[0]);
-            else
-                glBindTexture(GL_TEXTURE_2D, textures[geometry.getTextureHandle().id]);
-
-            GL_CHECK(glDrawElements(GL_TRIANGLES, geometry.getIndexCount(), GL_UNSIGNED_SHORT, 0));
-        }
-    }
-}
-
-void OpenGLRenderer::renderBuilding(CBuilding* building)
-{
-    renderDrawable(building->ydr);
-}
-
-void OpenGLRenderer::renderPed(CPed* ped)
-{
-    for (auto& ydr : ped->playerModel)
-    {
-        //renderDrawable(ydr);
-    }
-}
-
-void OpenGLRenderer::renderVehicle(CVehicle* vehicle)
-{
-    renderDrawable(vehicle->getDrawable()->ydr);
-}
-
-void OpenGLRenderer::renderWorld(GameWorld* world, Camera* curCamera)
-{
-    beginFrame();
-
-    glm::mat4 view = curCamera->getViewMatrix();
-    glm::mat4 projection = curCamera->getProjection();
-    glm::mat4 ProjectionView = projection * view;
-
-    curCamera->updateFrustum(ProjectionView);
-
-    GL_CHECK(glBindBuffer(GL_UNIFORM_BUFFER, uboGlobal));
-    GL_CHECK(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &ProjectionView[0]));
-
-    GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, 0));
-    GL_CHECK(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-
-    GL_CHECK(glEnable(GL_CULL_FACE));
-
-    GL_CHECK(glBindBufferBase(GL_UNIFORM_BUFFER, 0, uboGlobal));
-    GL_CHECK(glBindBufferBase(GL_UNIFORM_BUFFER, 1, uboModel));
-
-    for (auto& object : world->renderList)
-    {
-        GL_CHECK(glBindBuffer(GL_UNIFORM_BUFFER, uboModel));
-        GL_CHECK(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &object->getMatrix()[0]));
-        GL_CHECK(glBindBuffer(GL_UNIFORM_BUFFER, 0));
-
-        switch (object->getType())
-        {
-            case ObjectType::Building:
-            {
-                CBuilding* building = static_cast<CBuilding*>(object);
-                renderBuilding(building);
-                break;
-            }
-            case ObjectType::Vehicle:
-            {
-                CVehicle* vehicle = static_cast<CVehicle*>(object);
-                renderVehicle(vehicle);
-                break;
-            }
-            case ObjectType::Ped:
-            {
-                CPed* ped = static_cast<CPed*>(object);
-                renderPed(ped);
-                break;
-            }
-            default:
-                break;
-        }
+        GL_CHECK(glEnableVertexAttribArray(layout.attributes[i].index));
+        GL_CHECK(glVertexAttribPointer(layout.attributes[i].index, layout.attributes[i].size, s_attribType[(int)layout.attributes[i].type], GL_FALSE, layout.stride, (void*)(uintptr_t)layout.attributes[i].offset));
     }
 
-    GL_CHECK(glDisable(GL_CULL_FACE));
+    GL_CHECK(glActiveTexture(GL_TEXTURE0));
+    if (geom.getTextureHandle().id == 0)
+        glBindTexture(GL_TEXTURE_2D, textures[0]);
+    else
+        glBindTexture(GL_TEXTURE_2D, textures[geom.getTextureHandle().id]);
 
-    /*if (RenderDebugWorld)
-    {
-        world->getPhysicsSystem()->getPhysicsWorld()->debugDrawWorld();
-        glm::mat4 DefaultMatrix(1.0f);
-        glBindBuffer(GL_UNIFORM_BUFFER, uboModel);
-        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &DefaultMatrix[0]);
-        glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, defaultTexture);
-        world->getPhysicsSystem()->debug.render();
-    }*/
-
-    endFrame();
-
-    presentFrame();
+    GL_CHECK(glDrawElements(GL_TRIANGLES, geom.getIndexCount(), GL_UNSIGNED_SHORT, 0));
 }

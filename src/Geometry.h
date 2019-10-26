@@ -92,11 +92,11 @@ class Geometry
     IndexBufferHandle indexBufferHandle;
     TextureHandle textureHandle;
     uint32_t indexCount;
+    uint32_t vertexLayoutHandle;
 
 public:
-    VertexType type;
     //Geometry(const uint8_t* meshData, grmGeometry* drawGeom, uint16_t _materialID, uint32_t Shader);
-    Geometry(VertexBufferHandle vert_handle, IndexBufferHandle index_handle, uint32_t countIndices, TextureHandle tex_handle);
+    Geometry(VertexBufferHandle vert_handle, IndexBufferHandle index_handle, uint32_t layoutHandle, uint32_t countIndices, TextureHandle tex_handle);
     ~Geometry();
 
     VertexBufferHandle getVertexBufferHandle() const
@@ -118,4 +118,9 @@ public:
     {
         return indexCount;
     }
+
+    uint32_t getVertexLayoutHandle() const
+    {
+        return vertexLayoutHandle;
+	}
 };

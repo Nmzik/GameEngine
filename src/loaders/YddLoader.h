@@ -31,6 +31,6 @@ public:
     std::unordered_map<uint32_t, YdrLoader*> ydrFiles;
 
     void init(memstream& file) override;
-    void finalize(GameRenderer* _renderer, memstream& file) override;
+    void finalize(BaseRenderer* _renderer, memstream& file) override;
     ~YddLoader();
 };

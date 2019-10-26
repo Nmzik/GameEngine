@@ -9,7 +9,7 @@ void YddLoader::init(memstream& file)
     ydrFiles.reserve(drawableDictionary->drawables.size());
 }
 
-void YddLoader::finalize(GameRenderer* _renderer, memstream& file)
+void YddLoader::finalize(BaseRenderer* _renderer, memstream& file)
 {
     loaded = true;
     for (int i = 0; i < drawableDictionary->drawables.size(); i++)

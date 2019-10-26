@@ -1,5 +1,4 @@
 #include "Game.h"
-#include <sstream>
 
 #include "CPed.h"
 #include "CVehicle.h"
@@ -7,7 +6,7 @@
 #include "GTAEncryption.h"
 #include "GameData.h"
 
-#include "GameRenderer.h"
+#include "WorldRenderer.h"
 #include "ResourceManager.h"
 
 #include "loaders/YbnLoader.h"
@@ -41,13 +40,11 @@ Game::Game(const char* GamePath)
     gameData = std::make_unique<GameData>(GamePath);
     gameData->load();
     resourceManager = std::make_unique<ResourceManager>(gameData.get());
+    gameWorld = std::make_unique<GameWorld>(resourceManager.get());
 #ifdef WIN32
     window = std::make_unique<Win32Window>();
-    //rendering_system = std::make_unique<OpenGLRenderer>(window.get());
-#else
-    rendering_system = std::make_unique<MetalRenderer>();
 #endif
-    gameWorld = std::make_unique<GameWorld>(resourceManager.get());
+    rendering_system = std::make_unique<WorldRenderer>(window.get());
     input = std::make_unique<InputManager>();
     scriptMachine = std::make_unique<ScriptInterpreter>(gameData.get(), this);
 
@@ -246,7 +243,7 @@ void Game::loadQueuedResources()
 
 void Game::updateFPS(float delta_time, float cpuThreadTime, float gpuThreadTime)
 {
-    static auto time_since_last_fps_output = 0.f;
+    /*static auto time_since_last_fps_output = 0.f;
 
     time_since_last_fps_output += delta_time;
     if (time_since_last_fps_output >= 1.0f)
@@ -270,7 +267,7 @@ void Game::updateFPS(float delta_time, float cpuThreadTime, float gpuThreadTime)
               //<< resourceManager->TextureMemory / 1024 / 1024 << " MB Texture Mem, "
               << (physicsAllocator->getSize() - physicsAllocator->getUsedMemory()) / 1024 / 1024 << " MB Bullet Free Mem ";
         //window->setTitle(osstr.str());
-    }
+    }*/
 }
 
 void Game::tick(float delta_time)
