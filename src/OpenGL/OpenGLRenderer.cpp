@@ -383,9 +383,10 @@ void OpenGLRenderer::removeTexture(TextureHandle handle)
     glDeleteTextures(1, &textures[handle.id]);
 }
 
-void OpenGLRenderer::updateGlobalSceneBuffer(glm::mat4& ProjectionView)
+void OpenGLRenderer::updateGlobalSceneBuffer(glm::mat4& Projection, glm::mat4& View)
 {
     GL_CHECK(glBindBuffer(GL_UNIFORM_BUFFER, uboGlobal));
+    glm::mat4 ProjectionView = Projection * View;
     GL_CHECK(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &ProjectionView[0]));
 
     GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, 0));

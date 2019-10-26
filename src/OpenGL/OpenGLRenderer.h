@@ -67,7 +67,7 @@ public:
     virtual void removeIndexbuffer(IndexBufferHandle handle) override;
     virtual void removeTexture(TextureHandle handle) override;
 
-    virtual void updateGlobalSceneBuffer(glm::mat4& ProjectionView) override;
+    virtual void updateGlobalSceneBuffer(glm::mat4& Projection, glm::mat4& View) override;
     virtual void updatePerModelData(glm::mat4& mat) override;
 
 	virtual void renderGeom(Geometry& geom) override;
