@@ -6,6 +6,7 @@
 #ifdef __APPLE__
 #include "TargetConditionals.h"
 #endif
+#include "common.h"
 
 GTAEncryption GTAEncryption::gtaEncryption;
 
@@ -33,15 +34,27 @@ void GTAEncryption::loadKeys(std::string keyPath)
     std::string Path = keyPath + "assets/magic.dat";
     const char* path = Path.c_str();
 #else
-    const char* path = "assets/magic.dat";
+    const char* path = "assets/compressed.dat";
 #endif
-    FileHandle stream(path);
 
-    if (!stream.isOpen())
+    FileHandle fileStream(path);
+
+    if (!fileStream.isOpen())
     {
         throw std::runtime_error("KEY FILE IS MISSING\n");
     }
 
+	#define compressedSize 154072
+	#define uncompressedSize 306304
+
+    uint64_t size = fileStream.getFileSize();
+    assert(size == compressedSize);
+    uint8_t fileContents[300 * 1024];
+    uint8_t uncompFileContents[300 * 1024];
+    fileStream.read((char*)&fileContents[0], compressedSize);
+    decompressBytes(&fileContents[0], compressedSize, uncompFileContents, uncompressedSize);
+
+	memstream stream(&uncompFileContents[0], uncompressedSize);
     stream.read((char*)&PC_AES_KEY[0], 32);
     stream.read((char*)&LUT[0], 256);
     for (int i = 0; i < 101; i++)
