@@ -1,5 +1,8 @@
 #include "GameData.h"
+
 #include "GTAEncryption.h"
+#include <pugixml.hpp>
+
 #include "loaders/AwcLoader.h"
 #include "loaders/CacheDatFile.h"
 #include "loaders/RpfFile.h"
@@ -7,8 +10,6 @@
 #include "loaders/YndLoader.h"
 #include "loaders/YnvLoader.h"
 #include "loaders/YtypLoader.h"
-
-#include <pugixml.hpp>
 
 #define tempBufferSize 40 * 1024 * 1024
 
@@ -111,6 +112,8 @@ void GameData::load()
             }
             else if (extension == ".ydd")
             {
+                if (entry.ShortNameHash == 4096714883)
+                    printf("");
                 //    Yddentries[entry.FileNameHash] = &entry;
                 entries[ydd][entry.ShortNameHash] = &entry;
             }
@@ -180,8 +183,8 @@ void GameData::load()
                 extractFileResource(entry, buffer.data(), buffer.size());
                 
 				memstream stream(buffer.data(), buffer.size());
-				std::unique_ptr<YnvLoader> loader = std::make_unique<YnvLoader>(stream);*/
-                //    Ynventries[entry.FileNameHash] = &entry;
+				std::unique_ptr<YnvLoader> loader = std::make_unique<YnvLoader>(stream);
+                //    Ynventries[entry.FileNameHash] = &entry;*/
                 entries[ynv][entry.ShortNameHash] = &entry;
             }
             else if (extension == ".ysc")
@@ -336,7 +339,7 @@ void GameData::loadGtxd(std::vector<uint8_t>& Buffer)
     {
         std::transform(entry.first.begin(), entry.first.end(), entry.first.begin(), tolower);
         std::transform(entry.second.begin(), entry.second.end(), entry.second.begin(), tolower);
-        
+
         gtxdEntries[GenHash(entry.second)] = GenHash(entry.first);
     }
 }

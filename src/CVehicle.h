@@ -1,9 +1,10 @@
 #pragma once
 #include <memory>
+
 #include "CEntity.h"
 #include <btBulletDynamicsCommon.h>
-#include "BulletCollision/CollisionDispatch/btGhostObject.h"
 
+#include "BulletCollision/CollisionDispatch/btGhostObject.h"
 #include "loaders/YftLoader.h"
 
 class CVehicle : public CEntity

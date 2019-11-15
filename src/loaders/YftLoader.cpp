@@ -87,7 +87,7 @@ void YftLoader::finalize(BaseRenderer* _renderer, memstream& file)
     loaded = true;
     rmcDrawable* drawable = (rmcDrawable*)fragType->drawable.operator*();
     ydr = GlobalPool::GetInstance()->ydrPool.create();
-    ydr->loadDrawable(drawable, _renderer, file);
+    ydr->loadDrawable(drawable, true, _renderer, file);
 }
 
 YftLoader::~YftLoader()

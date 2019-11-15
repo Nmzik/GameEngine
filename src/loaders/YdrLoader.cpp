@@ -7,23 +7,25 @@ void YdrLoader::init(memstream& file)
     gtaDrawable* GTAdrawable = (gtaDrawable*)file.read(sizeof(gtaDrawable));
     GTAdrawable->Resolve(file);
 
-    if (GTAdrawable->BoundPointer)
+    /*if (GTAdrawable->BoundPointer)
     {
-        /*file.seekg(GTAdrawable->BoundPointer);
+        uint64_t origPos = file.tellg();
+        file.seekg(GTAdrawable->BoundPointer);
          
-         ybn = std::make_unique<YbnLoader>();
-         ybn->Init(file);*/
-    }
+        ybn = GlobalPool::GetInstance()->ybnPool.create();
+        ybn->init(file);
+        file.seekg(origPos);
+    }*/
     drawable = (rmcDrawable*)GTAdrawable;
     //loadDrawable(GTAdrawable, _renderer, file);
 }
 
 void YdrLoader::finalize(BaseRenderer* _renderer, memstream& file)
 {
-    loadDrawable(drawable, _renderer, file);
+    loadDrawable(drawable, false, _renderer, file);
 }
 
-void YdrLoader::loadDrawable(rmcDrawable* drawable, BaseRenderer* _renderer, memstream& file)
+void YdrLoader::loadDrawable(rmcDrawable* drawable, bool isYft, BaseRenderer* _renderer, memstream& file)
 {
     renderer = _renderer;
     loaded = true;
@@ -61,26 +63,19 @@ void YdrLoader::loadDrawable(rmcDrawable* drawable, BaseRenderer* _renderer, mem
                 switch (param->DataType)
                 {
                     case 0:
-
                         if (param->DataPointer == 0)
                         {
                             TexturesHashes.push_back(0);
                         }
                         else
                         {
-                            uint64_t Pos = file.tellg();
-
                             SYSTEM_BASE_PTR(param->DataPointer);
 
-                            file.seekg(param->DataPointer);
-
-                            TextureBase* texBase = (TextureBase*)file.read(sizeof(TextureBase));
+                            TextureBase* texBase = (TextureBase*)&file.data[param->DataPointer];
 
                             SYSTEM_BASE_PTR(texBase->NamePointer);
 
-                            file.seekg(texBase->NamePointer);
-
-                            char* TextureName = file.getString();
+                            char* TextureName = (char*)&file.data[texBase->NamePointer];
 
                             size_t NameLength = strlen(TextureName);
 
@@ -92,18 +87,15 @@ void YdrLoader::loadDrawable(rmcDrawable* drawable, BaseRenderer* _renderer, mem
                             uint32_t NameHash = GenHash(std::string_view(TextureName, NameLength));
 
                             TexturesHashes.push_back(NameHash);
-
-                            file.seekg(Pos);
                         }
-
                         break;
                     case 1:  //	SOME OTHER SHIT OTHER THAN TEXTURE
                         offset += 16;
-                        TexturesHashes.push_back(0);
+                        //TexturesHashes.push_back(0);
                         break;
                     default:
                         offset += 16 * param->DataType;
-                        TexturesHashes.push_back(0);  //	NOT ERROR
+                        //TexturesHashes.push_back(0);  //	NOT ERROR
                         break;
                 }
             }
@@ -142,6 +134,22 @@ void YdrLoader::loadDrawable(rmcDrawable* drawable, BaseRenderer* _renderer, mem
 
             Material newMat{DiffuseSampler, BumpSampler, SpecularSampler, DetailSampler};
             materials.push_back(newMat);
+        }
+    }
+    
+    if (isYft) {
+        
+    } else {
+        gtaDrawable* GTAdrawable = (gtaDrawable*)drawable;
+        
+        if (GTAdrawable->BoundPointer)
+        {
+            uint64_t origPos = file.tellg();
+            file.seekg(GTAdrawable->BoundPointer);
+             
+            ybn = GlobalPool::GetInstance()->ybnPool.create();
+            ybn->init(file);
+            file.seekg(origPos);
         }
     }
     //////////
@@ -184,6 +192,9 @@ YdrLoader::~YdrLoader()
     if (ytd)
         GlobalPool::GetInstance()->ytdPool.remove(ytd);
 
+    if (ybn)
+        GlobalPool::GetInstance()->ybnPool.remove(ybn);
+    
     if (renderer)
     {
         for (auto& model : models)

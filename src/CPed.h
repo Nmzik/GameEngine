@@ -3,6 +3,7 @@
 #include <array>
 #include <memory>
 #include <vector>
+
 #include "CEntity.h"
 #include <btBulletDynamicsCommon.h>
 
@@ -27,7 +28,6 @@ class CPed : public CEntity
     uint16_t currentWeapon = 0;
     bool inWater = false;
     glm::vec3 playerDirection;
-    YddLoader* player;
     CVehicle* vehicle;
     bool on_ground = false;
     glm::vec3 movementDirection;
@@ -38,7 +38,11 @@ public:
 
     //CPed& operator=(CPed&& other) = default;
     //CPed(CPed&& other) = default;
+    YddLoader* player;
+    bool loaded = false;
     std::vector<YdrLoader*> playerModel;
+    void initDrawable();
+
     bool isAlive() const
     {
         return health > 0;
