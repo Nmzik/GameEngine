@@ -1,5 +1,18 @@
 #include "TextureManager.h"
 
+int TextureManager::getRefCount(uint32_t hash)
+{
+    auto iter = textureHandles.find(hash);
+    if (iter != textureHandles.end())
+    {
+        return iter->second.refCount;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
 TextureHandle TextureManager::getTexture(uint32_t hash)
 {
     auto iter = textureHandles.find(hash);

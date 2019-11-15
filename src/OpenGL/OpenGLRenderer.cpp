@@ -24,7 +24,7 @@ OpenGLRenderer::OpenGLRenderer(NativeWindow* window)
 
     glGenBuffers(1, &uboGlobal);
     glBindBuffer(GL_UNIFORM_BUFFER, uboGlobal);
-    glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), NULL, GL_DYNAMIC_DRAW);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2, NULL, GL_DYNAMIC_DRAW);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     glGenBuffers(1, &uboModel);
@@ -386,8 +386,10 @@ void OpenGLRenderer::removeTexture(TextureHandle handle)
 void OpenGLRenderer::updateGlobalSceneBuffer(glm::mat4& Projection, glm::mat4& View)
 {
     GL_CHECK(glBindBuffer(GL_UNIFORM_BUFFER, uboGlobal));
-    glm::mat4 ProjectionView = Projection * View;
-    GL_CHECK(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &ProjectionView[0]));
+
+	sceneData.projection = Projection;
+    sceneData.view = View;
+    GL_CHECK(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4) * 2, &sceneData));
 
     GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, 0));
     GL_CHECK(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));

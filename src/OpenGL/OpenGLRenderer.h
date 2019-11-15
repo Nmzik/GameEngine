@@ -32,9 +32,17 @@ class CVehicle;
 #define GL_CHECK(call) call
 #endif
 
+struct GlobalSceneData
+{
+    glm::mat4 projection;
+    glm::mat4 view;
+};
+
 class OpenGLRenderer : public BaseRenderer
 {
     NativeWindow* nativeWindow;
+	//
+    GlobalSceneData sceneData;
     //
     GLuint uboGlobal;
     GLuint uboModel;

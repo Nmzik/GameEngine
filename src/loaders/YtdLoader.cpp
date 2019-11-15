@@ -34,6 +34,7 @@ YtdLoader::~YtdLoader()
     for (auto& tex : textures)
     {
         renderer->getTextureManager()->removeTexture(tex.first);
-        renderer->removeTexture(tex.second.getHandle());
+        if (renderer->getTextureManager()->getRefCount(tex.first) == 0)
+			renderer->removeTexture(tex.second.getHandle());
     }
 }

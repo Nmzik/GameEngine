@@ -9,7 +9,8 @@ layout (location = 0) out vec2 TexCoords;
 
 layout(binding = 0, std140) uniform WorldData
 {
-	mat4 projectionView;
+	mat4 projection;
+	mat4 view;
 };
 
 layout(binding = 1, std140) uniform ObjectData
