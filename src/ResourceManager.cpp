@@ -1,7 +1,10 @@
 #include "ResourceManager.h"
+
 #include "CBuilding.h"
+#include "Game.h"
 #include "GameData.h"
 #include "GameWorld.h"
+
 #include "loaders/RpfEntry.h"
 #include "loaders/YbnLoader.h"
 #include "loaders/YddLoader.h"
@@ -23,9 +26,10 @@ static void* threadEntryFunc(void* This)
     return NULL;
 }
 
-ResourceManager::ResourceManager(GameData* gameData)
+ResourceManager::ResourceManager(GameData* gameData, Game* mainGame)
     : running(true)
     , data{*gameData}
+    , game(*mainGame)
 {
     // printf("RESOURCE MANAGER loaded!\n");
 
@@ -412,6 +416,11 @@ void ResourceManager::updateResourceCache(GameWorld* world)
     {
         if ((it->second)->refCount == 0 && (it->second)->isLoaded())
         {
+            for (auto& entity : (it->second)->entities)
+            {
+                world->unloadEntity(entity);
+            }
+
             GlobalPool::GetInstance()->ymapPool.remove(it->second);
             it = ymapLoader.erase(it);
         }
@@ -472,4 +481,89 @@ void ResourceManager::updateResourceCache(GameWorld* world)
             ++it;
         }
     }
+}
+
+void ResourceManager::loadQueuedResources()
+{
+    //    If we still didn't finish loading our queue, do not swap! Swap only if we dont have any job.
+    if (tempMainThreadResources.empty())
+    {
+        Lock_guard swapLock(&mainThreadLock);
+        if (!mainThreadResources.empty())
+            mainThreadResources.swap(tempMainThreadResources);
+    }
+
+    //    HASH 38759883
+    //auto old_time = std::chrono::steady_clock::now();
+    //long diffms = 0;
+
+    //int numFiles = 0;
+
+    //while (!resourceManager->tempMainThreadResources.empty() && diffms < 2)  //    2ms
+    if (!tempMainThreadResources.empty())
+    {
+        //numFiles++;
+        Resource* res = tempMainThreadResources.pop();
+
+        //    Object hash equal to texture hash what should we do? there are +hi textures with the same name
+
+        if (res->hash == 4096714883 && res->type == ydd)
+        {
+            printf("");
+        }
+
+        if (res->bufferSize == 0)
+        {
+            res->file->setLoaded();
+        }
+        else
+        {
+            memstream stream(&res->buffer[0], res->bufferSize);
+            stream.systemSize = res->systemSize;
+            switch (res->type)
+            {
+                case ymap:
+                {
+                    res->file->setLoaded();
+                    break;
+                }
+                case ydr:
+                case ydd:
+                case yft:
+                case ytd:
+                {
+                    res->file->finalize(game.getRenderer(), stream);
+                    break;
+                }
+                case ybn:
+                {
+                    YbnLoader* ybn = static_cast<YbnLoader*>(res->file);
+                    ybn->init(stream);
+                    game.getWorld()->getPhysicsSystem()->addRigidBody(ybn->getRigidBody());  //    NOT THREAD SAFE!
+                    break;
+                }
+                case ysc:
+                {
+                    res->file->init(stream);
+                    break;
+                }
+                case ynd:
+                case ynv:
+                case ycd:
+                case awc:
+                case null:
+                    break;
+            }
+
+            resource_allocator->deallocate(res->buffer);
+        }
+
+        GlobalPool::GetInstance()->resourcesPool.remove(res);
+
+        //auto new_time = std::chrono::steady_clock::now();
+        //diffms = std::chrono::duration_cast<std::chrono::microseconds>(new_time - old_time).count();
+    }
+
+    //if (numFiles > 0)
+    // printf("%d Files Loaded\n", numFiles);
 }

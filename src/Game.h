@@ -4,9 +4,10 @@
 
 #include <chrono>
 #include <memory>
-#include "ft2build.h"
-#include "WorldRenderer.h"
+
 #include "BaseRenderer.h"
+#include "WorldRenderer.h"
+#include "ft2build.h"
 #include FT_FREETYPE_H
 
 class Camera;
@@ -37,6 +38,7 @@ class Game
 
     std::chrono::steady_clock::time_point current_time;
     std::unique_ptr<NativeWindow> window;
+
 public:
     Game(const char* gamePath);
     ~Game();

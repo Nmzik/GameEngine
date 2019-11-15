@@ -1,8 +1,8 @@
 #pragma once
 
-#include <glm/gtc/matrix_transform.hpp>
-
 #include "GameWorld.h"
+
+#include <glm/gtc/matrix_transform.hpp>
 
 enum class CameraMode
 {

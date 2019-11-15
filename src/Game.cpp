@@ -5,9 +5,8 @@
 #include "Camera.h"
 #include "GTAEncryption.h"
 #include "GameData.h"
-
-#include "WorldRenderer.h"
 #include "ResourceManager.h"
+#include "WorldRenderer.h"
 
 #include "loaders/YbnLoader.h"
 #include "loaders/YdrLoader.h"
@@ -18,11 +17,10 @@
 #endif
 
 #include "GameWorld.h"
+#include "InputActions.h"
 #include "InputManager.h"
 #include "ResourceManager.h"
 #include "ScriptInterpreter.h"
-
-#include "InputActions.h"
 
 #ifdef __APPLE__
 #include "TargetConditionals.h"
@@ -36,7 +34,7 @@ Game::Game(const char* GamePath)
 {
     gameData = std::make_unique<GameData>(GamePath);
     gameData->load();
-    resourceManager = std::make_unique<ResourceManager>(gameData.get());
+    resourceManager = std::make_unique<ResourceManager>(gameData.get(), this);
     gameWorld = std::make_unique<GameWorld>(resourceManager.get());
 #ifdef WIN32
     window = std::make_unique<Win32Window>();
@@ -152,8 +150,8 @@ void Game::frame()
     auto gpuThreadEnd = std::chrono::steady_clock::now();
     float gpuThreadTime = std::chrono::duration<float>(gpuThreadEnd - gpuThreadStart).count();
 
-    resourceManager->updateResourceCache(gameWorld.get());
     loadQueuedResources();
+    resourceManager->updateResourceCache(gameWorld.get());
 
     updateFPS(delta_time, cpuThreadTime, gpuThreadTime);
 }
@@ -173,7 +171,7 @@ void Game::loadQueuedResources()
     //long diffms = 0;
 
     //int numFiles = 0;
-    
+
     //while (!resourceManager->tempMainThreadResources.empty() && diffms < 2)  //    2ms
     if (!resourceManager->tempMainThreadResources.empty())
     {
@@ -209,6 +207,7 @@ void Game::loadQueuedResources()
                 {
                     YbnLoader* ybn = static_cast<YbnLoader*>(res->file);
                     ybn->init(stream);
+                    ybn->finalize(getRenderer(), stream);
                     getWorld()->getPhysicsSystem()->addRigidBody(ybn->getRigidBody());  //    NOT THREAD SAFE!
                     break;
                 }
@@ -233,9 +232,9 @@ void Game::loadQueuedResources()
         //auto new_time = std::chrono::steady_clock::now();
         //diffms = std::chrono::duration_cast<std::chrono::microseconds>(new_time - old_time).count();
     }
-    
+
     //if (numFiles > 0)
-       // printf("%d Files Loaded\n", numFiles);
+    // printf("%d Files Loaded\n", numFiles);
 }
 
 void Game::updateFPS(float delta_time, float cpuThreadTime, float gpuThreadTime)

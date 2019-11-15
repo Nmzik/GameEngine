@@ -5,6 +5,7 @@
 #include "NativeWindow.h"
 #include "Texture.h"
 #include "TextureManager.h"
+
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/mat4x4.hpp>
 
@@ -31,7 +32,7 @@ public:
     BaseRenderer* getBaseRenderer() const
     {
         return renderer.get();
-	}
+    }
 
     int getNumDrawCalls() const
     {

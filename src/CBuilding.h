@@ -1,5 +1,6 @@
 #pragma once
 #include "CEntity.h"
+
 #include "loaders/YtypLoader.h"
 
 class YdrLoader;

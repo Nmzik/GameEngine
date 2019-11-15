@@ -90,17 +90,3 @@ void YmapLoader::init(memstream& file)
 YmapLoader::~YmapLoader()
 {
 }
-
-/*void YmapPool::RemoveBeta(YmapLoader* ymap, btDynamicsWorld* world)
-{
- //ymap->RootObjects.clear();
-
- /*for (auto &object : *ymap->Objects)
- {
-  if (object.rigidBody) {
-   world->removeRigidBody(object.rigidBody);
-  }
- }
-
- delete ymap->Objects;
-}*/

@@ -1,7 +1,9 @@
 #pragma once
 #include <memory>
 #include <vector>
+
 #include "InputActions.h"
+
 #include <glm/gtc/type_precision.hpp>
 
 class InputManager

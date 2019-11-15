@@ -372,7 +372,7 @@ public:
     }
     ~YdrLoader();
 
-    void loadDrawable(rmcDrawable* drawable, BaseRenderer* _renderer, memstream& file);
+    void loadDrawable(rmcDrawable* drawable, bool isYft, BaseRenderer* _renderer, memstream& file);
     void init(memstream& file) override;
     void finalize(BaseRenderer* _renderer, memstream& file) override;
 };

@@ -1,11 +1,12 @@
 #include "GameWorld.h"
-#include "common.h"
 
 #include "CBuilding.h"
 #include "Camera.h"
 #include "GTAEncryption.h"
 #include "GameData.h"
 #include "ResourceManager.h"
+#include "common.h"
+
 #include "loaders/YbnLoader.h"
 #include "loaders/YddLoader.h"
 #include "loaders/YftLoader.h"
@@ -21,9 +22,9 @@ GameWorld::GameWorld(ResourceManager* resManager)
     , dirLight(glm::vec3(0.1f, 0.8f, 0.1f), glm::vec3(0.2f, 0.2f, 0.2f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1.0f, 1.0f, 1.0f), true)
 {
     /*for (auto& vehicle : data.VehiclesInfo)
-    {
-        vehiclesPool[vehicle.Hash] = vehicle;
-    }*/
+     {
+     vehiclesPool[vehicle.Hash] = vehicle;
+     }*/
     {
         CacheDatFile* cache = resourceManager->getGameData()->cacheFile.get();
         for (int i = 0; i < cache->allMapNodes.size(); i++)
@@ -52,18 +53,18 @@ GameWorld::GameWorld(ResourceManager* resManager)
     GlobalPool::GetInstance()->yddPool.preAllocate(1000);
     GlobalPool::GetInstance()->ydrPool.preAllocate(5500);
     GlobalPool::GetInstance()->yftPool.preAllocate(1000);
-    GlobalPool::GetInstance()->ytdPool.preAllocate(1500);
+    GlobalPool::GetInstance()->ytdPool.preAllocate(2000);
     GlobalPool::GetInstance()->ymapPool.preAllocate(1000);
     /*WaterMeshes.reserve(data.WaterQuads.size());
-    for (auto& WaterQuad : data.WaterQuads)
-    {
-        Water water(WaterQuad);
-        WaterMeshes.push_back(water);
-    }*/
+     for (auto& WaterQuad : data.WaterQuads)
+     {
+     Water water(WaterQuad);
+     WaterMeshes.push_back(water);
+     }*/
 
     /*for (auto& ynd : data.entries[ynd])
-    {
-    }*/
+     {
+     }*/
 
     gameHour = 10;
     gameMinute = 0;
@@ -75,9 +76,9 @@ GameWorld::GameWorld(ResourceManager* resManager)
     skydome = resourceManager->getYdd(2640562617);
 
     /*while (!skydome->loaded || !playerYDD->loaded)
-    {
-        loadQueuedResources();
-    }*/
+     {
+     loadQueuedResources();
+     }*/
 
     resourceManager->getYtd(GenHash("mapdetail"));
     resourceManager->getYtd(GenHash("vehshare"));
@@ -86,9 +87,9 @@ GameWorld::GameWorld(ResourceManager* resManager)
     resourceManager->getYtd(GenHash("vehshare_truck"));
 
     /*for (auto& ytd : resourceManager->getGameData()->gtxdEntries)
-	{
-        resourceManager->getYtd(ytd.second);
-	}*/
+     {
+     resourceManager->getYtd(ytd.second);
+     }*/
     addPedToWorld(glm::vec3(238, -956.75, 150.77), playerYDD);
     //addPedToWorld(glm::vec3(1705.95, 3746.39, 37.64), playerYDD);
     addPedToWorld(glm::vec3(9.66, -1184.98, 75.74), playerYDD);
@@ -96,62 +97,62 @@ GameWorld::GameWorld(ResourceManager* resManager)
 
     //minimap
     /*std::vector<YddLoader*> minimapsYDD;
-    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_0_2")));
-    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_0_3")));
-    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_0_4")));
-    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_0_5")));
-    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_0_6")));
-    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_1_1")));
-    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_1_2")));
-    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_1_3")));
-    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_1_4")));
-    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_1_5")));
-    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_1_6")));
-    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_1_7")));
-    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_1_8")));
-    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_2_0")));
-    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_2_1")));
-    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_2_2")));
-    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_2_3")));
-    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_2_4")));
-    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_2_5")));
-    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_2_6")));
-    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_2_7")));
-    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_2_8")));
-    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_3_0")));
-    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_3_1")));
-    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_3_2")));
-    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_3_3")));
-    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_3_4")));
-    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_3_5")));
-    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_3_6")));
-    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_3_7")));
-    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_3_8")));
-    minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_4_0")));
-
-    for (int i = 0; i < minimapsYDD.size(); i++)
-    {
-        while (!minimapsYDD[i]->loaded)
-        {
-            loadQueuedResources();
-        }
-    }
-
-    fwEntityDef def;
-    def.position = glm::vec3(0.f, 0.f, -100.f);
-    def.rotation = glm::quat(0.f, 0.f, 0.f, -1.f);
-    def.scaleXY = 1.0f;
-    def.scaleZ = 1.0f;
-
-    for (int i = 0; i < minimapsYDD.size(); i++)
-    {
-        for (auto& ydr : minimapsYDD[i]->ydrFiles)
-        {
-            CBuilding building(def);
-            building.ydr = ydr.second;
-            minimap.push_back(building);
-        }
-    }*/
+     minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_0_2")));
+     minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_0_3")));
+     minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_0_4")));
+     minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_0_5")));
+     minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_0_6")));
+     minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_1_1")));
+     minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_1_2")));
+     minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_1_3")));
+     minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_1_4")));
+     minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_1_5")));
+     minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_1_6")));
+     minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_1_7")));
+     minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_1_8")));
+     minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_2_0")));
+     minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_2_1")));
+     minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_2_2")));
+     minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_2_3")));
+     minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_2_4")));
+     minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_2_5")));
+     minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_2_6")));
+     minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_2_7")));
+     minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_2_8")));
+     minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_3_0")));
+     minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_3_1")));
+     minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_3_2")));
+     minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_3_3")));
+     minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_3_4")));
+     minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_3_5")));
+     minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_3_6")));
+     minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_3_7")));
+     minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_3_8")));
+     minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_4_0")));
+     
+     for (int i = 0; i < minimapsYDD.size(); i++)
+     {
+     while (!minimapsYDD[i]->loaded)
+     {
+     loadQueuedResources();
+     }
+     }
+     
+     fwEntityDef def;
+     def.position = glm::vec3(0.f, 0.f, -100.f);
+     def.rotation = glm::quat(0.f, 0.f, 0.f, -1.f);
+     def.scaleXY = 1.0f;
+     def.scaleZ = 1.0f;
+     
+     for (int i = 0; i < minimapsYDD.size(); i++)
+     {
+     for (auto& ydr : minimapsYDD[i]->ydrFiles)
+     {
+     CBuilding building(def);
+     building.ydr = ydr.second;
+     minimap.push_back(building);
+     }
+     }*/
 }
 
 GameWorld::~GameWorld()
@@ -195,21 +196,27 @@ void GameWorld::updateObjects(Camera* camera, glm::vec3& position)
                                     //	SPAWN OBJECTS STATICALLY (IN SLEEP STATE)
                                     //
                                     //	SUPER DIRTY NEED FIX URGENT! UGLY FIX!!!
-                                    /*if (object.ydr->ybnfile) {
 
-							 if (object.ydr->ybnfile->compound->getNumChildShapes() != 0) {
+                                    if (object.ydr->ybn)
+                                    {
+                                        btCompoundShape* compound = object.ydr->ybn->compound;
 
-							  //SET POSITION OF COLLISION TO OBJECT PLACE
-							  //NOTE: SPAWN AT EXACT SAME PLACE!!! "NO +1.0f"
-							  btVector3 localInertia(0, 0, 0);
-							  float mass = 0.0f;
+                                        if (compound->getNumChildShapes() != 0)
+                                        {
+                                            //SET POSITION OF COLLISION TO OBJECT PLACE
+                                            //NOTE: SPAWN AT EXACT SAME PLACE!!! "NO +1.0f"
+                                            btVector3 localInertia(0, 0, 0);
+                                            float mass = 0.0f;
 
-							  btDefaultMotionState* MotionState = new btDefaultMotionState(btTransform(btQuaternion(-object.rotation.x, object.rotation.y,
-							object.rotation.z, object.rotation.w), btVector3(object.position.x, object.position.y, object.position.z)));
-							btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(mass, MotionState, object.ydr->ybnfile->compound, localInertia); object.rigidBody =
-							new btRigidBody(groundRigidBodyCI); dynamicsWorld->addRigidBody(object.rigidBody);
-							 }//can be an error here
-							}*/
+                                            btDefaultMotionState* MotionState = new btDefaultMotionState(btTransform(btQuaternion(object.rotation.w, object.rotation.x,
+                                                                                                                                  object.rotation.y, object.rotation.z),
+                                                                                                                     btVector3(object.position.x, object.position.y, object.position.z)));
+                                            btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(mass, MotionState, compound, localInertia);
+                                            object.rigidBody =
+                                                new btRigidBody(groundRigidBodyCI);
+                                            getPhysicsSystem()->addRigidBody(object.rigidBody);
+                                        }
+                                    }
 
                                     object.loaded = true;
                                 }
@@ -291,6 +298,10 @@ void GameWorld::updateObjects(Camera* camera, glm::vec3& position)
                         }
                     }
                 }
+                else
+                {
+                    unloadEntity(object);
+                }
             }
 
             //	NOTE::
@@ -301,44 +312,57 @@ void GameWorld::updateObjects(Camera* camera, glm::vec3& position)
             //
 
             /*int maxSpawn = 10;
-            auto MaximumAvailableVehicles = maxSpawn - vehicles.size();
-
-            for (auto& carGen : ymap->CarGenerators)
-            {
-                if (MaximumAvailableVehicles == 0)
-                    break;
-                --MaximumAvailableVehicles;
-
-                float radius = 50.f;
-                //float radiusNear = radius / 2.0f;
-
-                float dist = glm::distance2(carGen.position, position);
-                if (dist < radius * radius)
-                {
-                    //no other vehicles in the same carGenerator
-                    for (auto& veh : vehicles)
-                    {
-                        if (glm::distance2(carGen.position, veh->getPosition()) < 100 * 100)
-                            break;
-                    }
-
-                    auto result = glm::atan(carGen.orientY, carGen.orientX);
-                    glm::quat test(glm::vec3(0.0f, 0.f, result));
-                    // Orientation = Quaternion.RotationYawPitchRoll(0.0f, 0.0f, angl);
-                    //float xRandom = RandomFloat(carGen.position.x - carGen.perpendicularLength, carGen.position.x + carGen.perpendicularLength);
-                    //float yRandom = RandomFloat(carGen.position.y - carGen.perpendicularLength, carGen.position.y + carGen.perpendicularLength);
-                    //if (!camera->intersects(glm::vec3(xRandom, yRandom, carGen.position.z), 1.0f)) {
-                    createVehicle(glm::vec3(carGen.position.x, carGen.position.y, carGen.position.z), test);
-                    //}
-                }
-            }*/
+             auto MaximumAvailableVehicles = maxSpawn - vehicles.size();
+             
+             for (auto& carGen : ymap->CarGenerators)
+             {
+             if (MaximumAvailableVehicles == 0)
+             break;
+             --MaximumAvailableVehicles;
+             
+             float radius = 50.f;
+             //float radiusNear = radius / 2.0f;
+             
+             float dist = glm::distance2(carGen.position, position);
+             if (dist < radius * radius)
+             {
+             //no other vehicles in the same carGenerator
+             for (auto& veh : vehicles)
+             {
+             if (glm::distance2(carGen.position, veh->getPosition()) < 100 * 100)
+             break;
+             }
+             
+             auto result = glm::atan(carGen.orientY, carGen.orientX);
+             glm::quat test(glm::vec3(0.0f, 0.f, result));
+             // Orientation = Quaternion.RotationYawPitchRoll(0.0f, 0.0f, angl);
+             //float xRandom = RandomFloat(carGen.position.x - carGen.perpendicularLength, carGen.position.x + carGen.perpendicularLength);
+             //float yRandom = RandomFloat(carGen.position.y - carGen.perpendicularLength, carGen.position.y + carGen.perpendicularLength);
+             //if (!camera->intersects(glm::vec3(xRandom, yRandom, carGen.position.z), 1.0f)) {
+             createVehicle(glm::vec3(carGen.position.x, carGen.position.y, carGen.position.z), test);
+             //}
+             }
+             }*/
         }
     }
 
     for (auto& ped : peds)
     {
         //if (camera->intersects(ped.position, 1.0f))
-        renderList.push_back(ped);
+        if (!ped->loaded)
+        {
+            if (ped->player->isLoaded())
+            {
+                if (ped->player->ydrFiles.size() > 0)
+                    ped->initDrawable();
+                else
+                    ped->loaded = true;
+            }
+        }
+        else
+        {
+            renderList.push_back(ped);
+        }
     }
 
     for (auto& vehicle : vehicles)
@@ -348,9 +372,9 @@ void GameWorld::updateObjects(Camera* camera, glm::vec3& position)
     }
 
     /*for (int i = 0; i < minimap.size(); i++)
-    {
-        renderList.push_back(&minimap[i]);
-    }*/
+     {
+     renderList.push_back(&minimap[i]);
+     }*/
 
     glm::vec3 camPosition = camera->getPosition();
     std::sort(renderList.begin(), renderList.end(), [&camPosition](CEntity* a, CEntity* b) {  // FRONT_TO_BACK
@@ -361,24 +385,73 @@ void GameWorld::updateObjects(Camera* camera, glm::vec3& position)
     });
 }
 
-/*bool GameWorld::LoadYTYP(uint32_t hash)
+void GameWorld::unloadEntity(CBuilding& object)
 {
+    if (object.rigidBody)
+    {
+        getPhysicsSystem()->removeRigidBody(object.rigidBody);
+        delete object.rigidBody->getMotionState();
+        delete object.rigidBody;
+
+        object.rigidBody = nullptr;
+    }
+    if (object.archetype)
+    {
+        switch (object.archetype->BaseArchetypeDef.assetType)
+        {
+            case ASSET_TYPE_DRAWABLE:
+                if (object.ydr)
+                {
+                    object.ydr->refCount--;
+                    object.ydr = nullptr;
+                }
+                break;
+            case ASSET_TYPE_DRAWABLEDICTIONARY:
+                if (object.ydd)
+                {
+                    object.ydd->refCount--;
+                    object.ydd = nullptr;
+                }
+                break;
+            case ASSET_TYPE_FRAGMENT:
+                if (object.yft)
+                {
+                    object.yft->refCount--;
+                    object.yft = nullptr;
+                }
+                break;
+            case ASSET_TYPE_UNINITIALIZED:
+            case ASSET_TYPE_ASSETLESS:
+                break;
+        }
+    }
+    if (object.ytd)
+    {
+        object.ytd->refCount--;
+        object.ytd = nullptr;
+    }
+
+    object.loaded = false;
+}
+
+/*bool GameWorld::LoadYTYP(uint32_t hash)
+ {
  auto it = data.YtypEntries.find(hash);
  if (it != data.YtypEntries.end())
  {
-  std::cout << "YTYP Found " << it->second->Name << std::endl;
-  auto& element = *(it->second);
-  std::vector<uint8_t> outputBuffer;
-  data.ExtractFileResource(element, outputBuffer);
-
-  memstream stream(outputBuffer.data(), outputBuffer.size());
-
-  YtypLoader* file = new YtypLoader(stream);
-  ytypLoader.push_back(file);
-
-  return true;
+ std::cout << "YTYP Found " << it->second->Name << std::endl;
+ auto& element = *(it->second);
+ std::vector<uint8_t> outputBuffer;
+ data.ExtractFileResource(element, outputBuffer);
+ 
+ memstream stream(outputBuffer.data(), outputBuffer.size());
+ 
+ YtypLoader* file = new YtypLoader(stream);
+ ytypLoader.push_back(file);
+ 
+ return true;
  }
-}*/
+ }*/
 
 void GameWorld::getVisibleYmaps(glm::vec3& PlayerPos)
 {
@@ -446,9 +519,9 @@ void GameWorld::getVisibleYmaps(glm::vec3& PlayerPos)
     }
 
     /*for (auto& Proxy : cell.CInteriorProxies)
-	{
-	 LoadYmap(cacheFile.AllCInteriorProxies[Proxy].Parent, camera);
-	}*/
+     {
+     LoadYmap(cacheFile.AllCInteriorProxies[Proxy].Parent, camera);
+     }*/
 
     //	printf("FREE VAO %zd\n",MeshManager::VAOs.size());
     //	printf("FREE VBO %zd\n",MeshManager::VBOs.size());
@@ -459,18 +532,18 @@ void GameWorld::getVisibleYmaps(glm::vec3& PlayerPos)
     //	culled = 0;
 
     /*auto& TexManager = TextureManager::GetTextureManager();
-
-	for (auto it = TexManager.TexturesMap.begin(); it != TexManager.TexturesMap.begin();)
-	{
-	 if (it->second.referenceCount <= 0)
-	 {
-	  printf("");
-	 }
-	 /*else
-	 {
-	  ++it;
-	 }
-	}*/
+     
+     for (auto it = TexManager.TexturesMap.begin(); it != TexManager.TexturesMap.begin();)
+     {
+     if (it->second.referenceCount <= 0)
+     {
+     printf("");
+     }
+     /*else
+     {
+     ++it;
+     }
+     }*/
 }
 
 void GameWorld::createPedestrian()
@@ -499,18 +572,18 @@ void GameWorld::cleanupTraffic(Camera* camera)
     float radiusTraffic = 200.0f;
     //	peds
     /*for (auto it = peds.begin() + 3; it != peds.end();)
-    {
-        if (glm::distance2(camera->getPosition(), (*it)->getPosition()) >= radiusTraffic * radiusTraffic)
-        {
-            RemovePedFromWorld(*it);
-            GlobalPool::GetInstance()->CpedPool.remove(*it);
-            peds.erase(it);
-        }
-        else
-        {
-            ++it;
-        }
-    }*/
+     {
+     if (glm::distance2(camera->getPosition(), (*it)->getPosition()) >= radiusTraffic * radiusTraffic)
+     {
+     RemovePedFromWorld(*it);
+     GlobalPool::GetInstance()->CpedPool.remove(*it);
+     peds.erase(it);
+     }
+     else
+     {
+     ++it;
+     }
+     }*/
     //vehicles
     for (int i = 0; i < vehicles.size(); i++)
     {
@@ -577,44 +650,44 @@ void GameWorld::createTraffic(Camera* camera)
 void GameWorld::updateDynamicObjects()
 {
     /*for (auto & map : curYmaps)
-	{
-	 if (map->loaded) {
-	  for (auto & object : map->Objects)
-	  {
-	   if (object.loaded) {
-	 if (object.Archetype._BaseArchetypeDef.flags == 549584896 && object.rigidBody) {
-	  object.rigidBody->getWorldTransform().getOpenGLMatrix(&object.modelMatrix[0][0]);
-	 }
-	   }
-	  }
-	 }
-	}*/
+     {
+     if (map->loaded) {
+     for (auto & object : map->Objects)
+     {
+     if (object.loaded) {
+     if (object.Archetype._BaseArchetypeDef.flags == 549584896 && object.rigidBody) {
+     object.rigidBody->getWorldTransform().getOpenGLMatrix(&object.modelMatrix[0][0]);
+     }
+     }
+     }
+     }
+     }*/
 }
 
 /*void GameWorld::UpdateTraffic(Camera* camera, glm::vec3 pos)
-{
-//	CARS
-/*if (nodeGrid.cells[curNodeCell.x * 32 + curNodeCell.y]->ynd)
-	{
-
-	 for (auto& node : nodeGrid.cells[curNodeCell.x * 32 + curNodeCell.y]->ynd->nodes)
-	 {
-	  pos = glm::vec3(node.PositionX / 4.0f, node.PositionY / 4.0f, node.PositionZ / 32.0f);
-
-	  for (int i = 0; i < vehicles.size(); i++)
-	  {
-	   glm::vec3 vehiclePosition(vehicles[i].m_carChassis->getWorldTransform().getOrigin().getX(),
-	vehicles[i].m_carChassis->getWorldTransform().getOrigin().getY(), vehicles[i].m_carChassis->getWorldTransform().getOrigin().getZ()); if
-	(glm::distance(camera->position, vehiclePosition) >= 100.0f)
-	   {
-	    dynamicsWorld->removeVehicle((vehicles[i].m_vehicle));
-	    dynamicsWorld->removeRigidBody((vehicles[i].m_carChassis));
-	    vehicles.erase(vehicles.begin() + i);
-	   }
-	  }
-	  }
-	 }
-	}*/
+ {
+ //	CARS
+ /*if (nodeGrid.cells[curNodeCell.x * 32 + curNodeCell.y]->ynd)
+ {
+ 
+ for (auto& node : nodeGrid.cells[curNodeCell.x * 32 + curNodeCell.y]->ynd->nodes)
+ {
+ pos = glm::vec3(node.PositionX / 4.0f, node.PositionY / 4.0f, node.PositionZ / 32.0f);
+ 
+ for (int i = 0; i < vehicles.size(); i++)
+ {
+ glm::vec3 vehiclePosition(vehicles[i].m_carChassis->getWorldTransform().getOrigin().getX(),
+ vehicles[i].m_carChassis->getWorldTransform().getOrigin().getY(), vehicles[i].m_carChassis->getWorldTransform().getOrigin().getZ()); if
+ (glm::distance(camera->position, vehiclePosition) >= 100.0f)
+ {
+ dynamicsWorld->removeVehicle((vehicles[i].m_vehicle));
+ dynamicsWorld->removeRigidBody((vehicles[i].m_carChassis));
+ vehicles.erase(vehicles.begin() + i);
+ }
+ }
+ }
+ }
+ }*/
 //}
 
 CVehicle* GameWorld::findNearestVehicle()
@@ -645,21 +718,21 @@ void GameWorld::detectWeaponHit(glm::vec3 CameraPosition, glm::vec3 lookDirectio
     if (result.HasHit)
     {
         /*CPed* player = static_cast<CPed*>(cb.m_collisionObject->getUserPointer());
-        //	printf("player pointer %p\n", (void*)&player);
-        if (player != nullptr)
-        {
-            player->takeDamage(20);
-            //	player->getPhysCharacter()->applyImpulse(btVector3(0.0f, 0.0f, -20.0f));
-            if (!player->isAlive())
-            {
-                printf("KILLED!\n");
-                //	fun stuff
-                //	player->Jump();
-                //	ACTUALLY DONT DELETE PEDESTRIAN/PLAYER (MESH SHOULD BE STAYED ) - for example ambulance coming to help him etc
-                //	DELETEING WILL BE DONE BY TRAFFIC UPDATER (CAMERA FAR FROM PEDESTRIAN -> DELETE!)
-            }
-        }
-        //	cb.setUserPointer*/
+         //	printf("player pointer %p\n", (void*)&player);
+         if (player != nullptr)
+         {
+         player->takeDamage(20);
+         //	player->getPhysCharacter()->applyImpulse(btVector3(0.0f, 0.0f, -20.0f));
+         if (!player->isAlive())
+         {
+         printf("KILLED!\n");
+         //	fun stuff
+         //	player->Jump();
+         //	ACTUALLY DONT DELETE PEDESTRIAN/PLAYER (MESH SHOULD BE STAYED ) - for example ambulance coming to help him etc
+         //	DELETEING WILL BE DONE BY TRAFFIC UPDATER (CAMERA FAR FROM PEDESTRIAN -> DELETE!)
+         }
+         }
+         //	cb.setUserPointer*/
     }
 }
 
@@ -728,14 +801,16 @@ void GameWorld::updateWorld(float delta_time, Camera* camera)
     {
         renderList.clear();
 
-        if (!isAllCollisionLoaded()) {
+        if (!isAllCollisionLoaded())
+        {
             if (getCurrentPlayer()->getPhysCharacter()->getGravity() != btVector3(0.f, 0.f, 0.f))
                 getCurrentPlayer()->getPhysCharacter()->setGravity(btVector3(0.f, 0.f, 0.f));
         }
-            else {
-                if (getCurrentPlayer()->getPhysCharacter()->getGravity() == btVector3(0.f, 0.f, 0.f)) getCurrentPlayer()->getPhysCharacter()->setGravity(physicsSystem.getPhysicsWorld()->getGravity());
-            }
-        
+        else
+        {
+            if (getCurrentPlayer()->getPhysCharacter()->getGravity() == btVector3(0.f, 0.f, 0.f)) getCurrentPlayer()->getPhysCharacter()->setGravity(physicsSystem.getPhysicsWorld()->getGravity());
+        }
+
         glm::vec3 playerPos = getCurrentPlayer()->getPosition();
         //glm::vec3 PlayerPos = camera->position;
         getVisibleYmaps(playerPos);
@@ -745,7 +820,8 @@ void GameWorld::updateWorld(float delta_time, Camera* camera)
 
 bool GameWorld::isAllCollisionLoaded()
 {
-    for (auto& ybn : curYbns) {
+    for (auto& ybn : curYbns)
+    {
         if (!ybn->isLoaded())
             return false;
     }
@@ -787,7 +863,8 @@ void GameWorld::removeVehicleFromWorld(CVehicle* vehicle)
 
 void GameWorld::addPedToWorld(glm::vec3 pos, YddLoader* model)
 {
-    CPed* ped = GlobalPool::GetInstance()->CPedPool.create(pos, model);
+    //CPed* ped = GlobalPool::GetInstance()->CPedPool.create(pos, model);
+    CPed* ped = new CPed(pos, model);
     physicsSystem.addPed(ped);
     peds.push_back(ped);
 }
@@ -800,11 +877,11 @@ void GameWorld::removePedFromWorld(CPed* ped)
 void GameWorld::testFunction(glm::vec3 position)
 {
     /*for (auto& ytd : data.GtxdEntries)
-	{
-	 while (!resourceManager->getYtd(ytd.second))
-	 {
-	  LoadQueuedResources();
-	 }
-	}
-	printf("DONE\n");*/
+     {
+     while (!resourceManager->getYtd(ytd.second))
+     {
+     LoadQueuedResources();
+     }
+     }
+     printf("DONE\n");*/
 }

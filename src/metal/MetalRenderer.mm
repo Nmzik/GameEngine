@@ -337,7 +337,7 @@ void MetalRenderer::createRenderPipelines()
     PNCCTXPipelineState = createRenderDescriptor(PNCCTX_Attrib);
     pipilineStates.push_back(PNCCTXPipelineState);
     layoutHandles[PNCCTX] = 16;
-    PCTPipelineState = createRenderDescriptor(PCT_Attrib);
+    PCTPipelineState = createRenderDescriptor(PCT_Attrib, "vertexPCT");
     pipilineStates.push_back(PCTPipelineState);
     layoutHandles[PCT] = 17;
     PTPipelineState = createRenderDescriptor(PT_Attrib);
@@ -366,14 +366,14 @@ void MetalRenderer::createRenderPipelines()
     layoutHandles[PNCTTTTX] = 25;
 }
 
-MTLRenderPipelineState MetalRenderer::createRenderDescriptor(VertexLayout& attributes)
+MTLRenderPipelineState MetalRenderer::createRenderDescriptor(VertexLayout& attributes, std::string vertexFunction, std::string fragmentFunction)
 {
     id<MTLLibrary> defaultLibrary = [device newDefaultLibrary];
     
     MTLRenderPipelineDescriptor* descriptor = [MTLRenderPipelineDescriptor new];
     descriptor.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
-    descriptor.vertexFunction = [defaultLibrary newFunctionWithName:@"basic_vertex"];
-    descriptor.fragmentFunction = [defaultLibrary newFunctionWithName:@"basic_fragment"];
+    descriptor.vertexFunction = [defaultLibrary newFunctionWithName:[NSString stringWithUTF8String:vertexFunction.c_str()]];
+    descriptor.fragmentFunction = [defaultLibrary newFunctionWithName:[NSString stringWithUTF8String:fragmentFunction.c_str()]];
     //
     MTLVertexDescriptor* vertexDescriptor = [MTLVertexDescriptor new];
     

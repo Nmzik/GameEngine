@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+
 #include "FreeListAllocator.h"
 #ifdef WIN32
 #include "OpenGL/DebugDrawer.h"
@@ -7,6 +8,7 @@
 #include "metal/DebugDrawer.h"
 #endif
 #include <btBulletDynamicsCommon.h>
+
 #include <LinearMath/btAlignedAllocator.h>
 #include <glm/vec3.hpp>
 

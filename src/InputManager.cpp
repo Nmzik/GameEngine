@@ -1,7 +1,7 @@
 #include "InputManager.h"
 
 #if (WIN32)
-	#include "SDL.h"
+#include "SDL.h"
 #endif
 
 InputManager::InputManager()
@@ -9,7 +9,7 @@ InputManager::InputManager()
 {
     memset(&currentInput[0], 0, ActionsKeySize);
     memset(&previousInput[0], 0, ActionsKeySize);
-#if (WIN32) //IF SDL
+#if (WIN32)  //IF SDL
     keyMapping.emplace_back(SDL_SCANCODE_ESCAPE, Actions::button_ESCAPE);
     keyMapping.emplace_back(SDL_SCANCODE_E, Actions::button_E);
     keyMapping.emplace_back(SDL_SCANCODE_B, Actions::button_player1);

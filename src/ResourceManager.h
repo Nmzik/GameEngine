@@ -2,9 +2,11 @@
 
 #include <queue>
 #include <unordered_map>
+
 #include "GameData.h"
 #include "ThreadSafeAllocator.h"
 #include "common.h"
+
 #include "utils/queue.h"
 #include "utils/thread.h"
 
@@ -20,6 +22,7 @@ class YtdLoader;
 class YbnLoader;
 class YmapLoader;
 class YscLoader;
+class Game;
 
 class ResourceManager
 {
@@ -30,6 +33,7 @@ class ResourceManager
 
     Queue waitingList;
     GameData& data;
+    Game& game;
 
     std::unordered_map<uint32_t, YdrLoader*> ydrLoader;
     std::unordered_map<uint32_t, YddLoader*> yddLoader;
@@ -44,7 +48,7 @@ class ResourceManager
     void getGtxd(uint32_t hash);
 
 public:
-    ResourceManager(GameData* gameData);
+    ResourceManager(GameData* gameData, Game* mainGame);
     ~ResourceManager();
 
     Mutex mainThreadLock;
@@ -70,4 +74,5 @@ public:
     void addToWaitingList(Resource* res);
     void removeAll();
     void updateResourceCache(GameWorld* world);
+    void loadQueuedResources();
 };

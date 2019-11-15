@@ -5,6 +5,7 @@
 #include "Geometry.h"
 #include "Texture.h"
 #include "TextureManager.h"
+
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/mat4x4.hpp>
 
@@ -158,20 +159,19 @@ static VertexLayout PNCCTX_Attrib = {
     3};
 static VertexLayout PCT_Attrib = {
     {{0, 3, Attribute::FLOAT, 0},
-        {1, 3, Attribute::FLOAT, 12},
-     {2, 3, Attribute::FLOAT, 12},
-     {3, 2, Attribute::FLOAT, 16}},
+     {1, 3, Attribute::FLOAT, 12},
+     {2, 2, Attribute::FLOAT, 16}},
     24,
-    4};
+    3};
 static VertexLayout PT_Attrib = {
     {{0, 3, Attribute::FLOAT, 0},
-        {1, 3, Attribute::FLOAT, 0},
+     {1, 3, Attribute::FLOAT, 0},
      {3, 2, Attribute::FLOAT, 12}},
     20,
     3};
 static VertexLayout PTT_Attrib = {
     {{0, 3, Attribute::FLOAT, 0},
-        {1, 3, Attribute::FLOAT, 0},
+     {1, 3, Attribute::FLOAT, 0},
      {3, 3, Attribute::FLOAT, 12}},
     28,
     3};
@@ -185,13 +185,13 @@ static VertexLayout PNC_Attrib = {
     3};
 static VertexLayout PC_Attrib = {
     {{0, 3, Attribute::FLOAT, 0},
-        {1, 3, Attribute::FLOAT, 0},
+     {1, 3, Attribute::FLOAT, 0},
      {3, 2, Attribute::FLOAT, 8}},
     16,
     3};
 static VertexLayout PCC_Attrib = {
     {{0, 3, Attribute::FLOAT, 0},
-        {1, 3, Attribute::FLOAT, 0},
+     {1, 3, Attribute::FLOAT, 0},
      {3, 2, Attribute::FLOAT, 12}},
     20,
     3};

@@ -1,9 +1,10 @@
 #pragma once
 
 #include <queue>
+
+#include "BaseRenderer.h"
 #include "CPed.h"
 #include "CVehicle.h"
-#include "BaseRenderer.h"
 #include "Light.h"
 #include "PhysicsSystem.h"
 #include "SoundManager.h"
@@ -84,6 +85,7 @@ public:
 
     void updateObjects(Camera* camera, glm::vec3& position);
     void getVisibleYmaps(glm::vec3& playerPos);
+    void unloadEntity(CBuilding& object);
 
     CPed* getCurrentPlayer()
     {
@@ -114,7 +116,7 @@ public:
     bool detectInWater(glm::vec3 position);
 
     bool isAllCollisionLoaded();
-    
+
     void addVehicleToWorld(glm::vec3 position, glm::quat rot, float mass, YftLoader* model);
     void removeVehicleFromWorld(CVehicle* vehicle);
     void addPedToWorld(glm::vec3 pos, YddLoader* model);

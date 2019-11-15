@@ -122,5 +122,5 @@ public:
     uint32_t getVertexLayoutHandle() const
     {
         return vertexLayoutHandle;
-	}
+    }
 };

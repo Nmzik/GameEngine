@@ -1,8 +1,8 @@
 #include "CPed.h"
 
 #include "CVehicle.h"
-
 #include "PhysicsSystem.h"
+
 #include "loaders/YddLoader.h"
 #include "loaders/YdrLoader.h"
 
@@ -13,9 +13,6 @@ CPed::CPed(glm::vec3 position, YddLoader* ydd)
     , movementDirection(0, 0, 0)
 {
     health = 200;
-    playerModel.push_back(ydd->ydrFiles[121241095]);
-    playerModel.push_back(ydd->ydrFiles[1471150075]);
-    playerModel.push_back(ydd->ydrFiles[2540683012]);
 
     btScalar mass(1.0f);
     btVector3 localInertia(0, 0, 0);
@@ -49,6 +46,14 @@ CPed::~CPed()
     delete body->getMotionState();
 }
 
+void CPed::initDrawable()
+{
+    loaded = true;
+    playerModel.push_back(player->ydrFiles[121241095]);
+    playerModel.push_back(player->ydrFiles[1471150075]);
+    playerModel.push_back(player->ydrFiles[2540683012]);
+}
+
 void CPed::setPosition(glm::vec3 pos)
 {
     btTransform transform;
@@ -68,9 +73,9 @@ void CPed::takeDamage(float dmg)
 
 void CPed::physicsTick()
 {
+    body->getWorldTransform().getOpenGLMatrix(&modelMatrix[0][0]);
     body->setLinearVelocity(btVector3(movementDirection.x, movementDirection.y, body->getLinearVelocity().z()));
     position = glm::vec3(body->getWorldTransform().getOrigin().x(), body->getWorldTransform().getOrigin().y(), body->getWorldTransform().getOrigin().z());
-    body->getWorldTransform().getOpenGLMatrix(&modelMatrix[0][0]);
 }
 
 void CPed::exitVehicle()

@@ -8,6 +8,7 @@
 #pragma once
 
 #include <stdio.h>
+#include <string>
 #include <memory>
 #include "../BaseRenderer.h"
 #include "../Texture.h"
@@ -58,6 +59,6 @@ public:
     void createDepthTexture();
     void createWarningTexture();
     void createFontTexture();
-    MTLRenderPipelineState createRenderDescriptor(VertexLayout& attributes);
+    MTLRenderPipelineState createRenderDescriptor(VertexLayout& attributes, std::string vertexFunction = "vertexDefault", std::string fragmentFunction = "fragmentDefault");
     void createRenderPipelines();
 };

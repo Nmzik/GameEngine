@@ -1,6 +1,7 @@
+#include "WorldRenderer.h"
+
 #include "CBuilding.h"
 #include "Camera.h"
-#include "WorldRenderer.h"
 #include "Model.h"
 
 #ifdef WIN32
@@ -34,7 +35,7 @@ void WorldRenderer::renderDrawable(YdrLoader* drawable)
         }
         for (auto& geometry : model.geometries)
         {
-			renderer->renderGeom(geometry);
+            renderer->renderGeom(geometry);
         }
     }
 }
@@ -48,7 +49,7 @@ void WorldRenderer::renderPed(CPed* ped)
 {
     for (auto& ydr : ped->playerModel)
     {
-        //renderDrawable(ydr);
+        renderDrawable(ydr);
     }
 }
 
@@ -67,12 +68,12 @@ void WorldRenderer::renderWorld(GameWorld* world, Camera* curCamera)
 
     curCamera->updateFrustum(projectionView);
 
-	renderer->updateGlobalSceneBuffer(projection, view);
+    renderer->updateGlobalSceneBuffer(projection, view);
 
     for (auto& object : world->renderList)
     {
-        glm::mat4 test = object->getMatrix();
-        renderer->updatePerModelData(test);
+        glm::mat4 matrix = object->getMatrix();
+        renderer->updatePerModelData(matrix);
 
         switch (object->getType())
         {

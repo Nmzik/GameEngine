@@ -1,6 +1,8 @@
 #include "GTAEncryption.h"
+
 #include <stdexcept>
 #include <string>
+
 #include "utils/fileHandle.h"
 
 #ifdef __APPLE__

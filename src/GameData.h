@@ -6,9 +6,9 @@
 #include <string_view>
 #include <unordered_map>
 #include <vector>
-#include <glm/vec3.hpp>
 
 #include "utils/fileHandle.h"
+#include <glm/vec3.hpp>
 
 class RpfFile;
 class RpfBinaryFileEntry;
