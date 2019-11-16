@@ -46,9 +46,9 @@ Game::Game(const char* GamePath)
     //scriptMachine->startThread(GenHash("startup_install"));
 #if (WIN32)
     window->addListener(input.get());
+    
+    initializeCamera(1280.f, 720.f);
 #endif
-
-    camera = std::make_unique<Camera>(glm::vec3(0.0, 0.0, 50.0), glm::perspective(glm::radians(45.0f), (float)1280 / (float)720, 0.1f, 10000.0f));
 
     /*for (auto& ytd : resourceManager->getGameData()->gtxdEntries)
     {
@@ -104,6 +104,11 @@ Game::Game(const char* GamePath)
 
 Game::~Game()
 {
+}
+
+void Game::initializeCamera(float width, float height)
+{
+    camera = std::make_unique<Camera>(glm::vec3(0.0, 0.0, 50.0), glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 10000.0f));
 }
 
 void Game::run()

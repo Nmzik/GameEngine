@@ -30,6 +30,7 @@
     renderer->device = device;
     renderer->mtkView = _view;
     
+    game->initializeCamera(_view.frame.size.width, _view.frame.size.height);
     renderer->initializeRenderEngine();
     
     _view.delegate = self;

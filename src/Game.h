@@ -42,6 +42,8 @@ class Game
 public:
     Game(const char* gamePath);
     ~Game();
+    
+    void initializeCamera(float width, float height);
     bool paused = false;
     float gameTime;
 
