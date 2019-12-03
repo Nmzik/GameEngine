@@ -7,7 +7,7 @@
 #include "loaders/YftLoader.h"
 #include "loaders/YtdLoader.h"
 
-CBuilding::CBuilding(fwEntityDef def)
+CBuilding::CBuilding(fwEntityDef& def)
     : CEntity(def.position, glm::quat(def.rotation.w, def.rotation.x, def.rotation.y, def.rotation.z), glm::vec3(def.scaleXY, def.scaleXY, def.scaleZ), ObjectType::Building)
     , entityDef(def)
 {

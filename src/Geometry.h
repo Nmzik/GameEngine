@@ -114,6 +114,11 @@ public:
         return textureHandle;
     }
 
+    void setTextureHandle(TextureHandle& handle)
+    {
+        textureHandle = handle;
+    }
+
     uint32_t getIndexCount() const
     {
         return indexCount;

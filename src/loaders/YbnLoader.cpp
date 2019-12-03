@@ -35,7 +35,6 @@ void YbnLoader::addCylinderShape(btCompoundShape* compound, btVector3 pos, btVec
 
 void YbnLoader::init(memstream& file)
 {
-    loaded = true;
     compound = new btCompoundShape();
 
     parseYbn(file, compound);
@@ -97,8 +96,7 @@ void YbnLoader::parseYbn(memstream& file, btCompoundShape* compound)
 
             for (uint32_t i = 0; i < geom->PolygonsCount; i++)  //	PERFORMANCE IMPROVEMENT???
             {
-                uint8_t type = *(uint8_t*)file.read(sizeof(uint8_t));
-                file.seekCur(-1);
+                uint8_t type = (uint8_t)file.data[file.tellg()];
 
                 switch (type & 7)
                 {

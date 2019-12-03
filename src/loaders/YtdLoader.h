@@ -76,6 +76,8 @@ class YtdLoader : public FileType
 public:
     std::unordered_map<uint32_t, Texture> textures;
 
+    YtdLoader* dependency;
+    
     void init(memstream& file) override;
     void finalize(BaseRenderer* _renderer, memstream& file) override;
 

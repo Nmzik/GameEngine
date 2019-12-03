@@ -1,6 +1,7 @@
 #pragma once
 #include <cassert>
-#include "../GlobalPool.h"
+
+class Resource;
 
 struct node
 {

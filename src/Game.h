@@ -7,8 +7,6 @@
 
 #include "BaseRenderer.h"
 #include "WorldRenderer.h"
-#include "ft2build.h"
-#include FT_FREETYPE_H
 
 class Camera;
 class ScriptInterpreter;
@@ -40,9 +38,10 @@ class Game
     std::unique_ptr<NativeWindow> window;
 
 public:
-    Game(const char* gamePath);
+    Game(const char* gamePath, const char* keysPath);
     ~Game();
-    
+
+    void postLoad();
     void initializeCamera(float width, float height);
     bool paused = false;
     float gameTime;
@@ -50,7 +49,6 @@ public:
     void updateFPS(float delta_time, float cpuThreadTime, float gpuThreadTime);
     void run();
     void frame();
-    void loadQueuedResources();
     void tick(float delta_time);
 
     void changeLocation();

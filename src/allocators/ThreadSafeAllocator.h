@@ -6,7 +6,7 @@
 
 #include "FreeListAllocator.h"
 
-#include "utils/mutex.h"
+#include "../utils/mutex.h"
 
 class ThreadSafeAllocator : public FreeListAllocator
 {

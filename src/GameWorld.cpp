@@ -68,33 +68,42 @@ GameWorld::GameWorld(ResourceManager* resManager)
 
     gameHour = 10;
     gameMinute = 0;
+}
 
-    resourceManager->getYtd(3403519606);  //water
-    resourceManager->getYtd(4096714883);  //PLAYER YTD
+GameWorld::~GameWorld()
+{
+}
 
-    YddLoader* playerYDD = resourceManager->getYdd(4096714883);
-    skydome = resourceManager->getYdd(2640562617);
+void GameWorld::postLoad()
+{
+    resourceManager->getYtdAsync(3403519606);  //water
+    resourceManager->getYtdAsync(4096714883);  //PLAYER YTD
 
-    /*while (!skydome->loaded || !playerYDD->loaded)
-     {
-     loadQueuedResources();
-     }*/
+    YddLoader* playerYDD = resourceManager->getYddAsync(4096714883);
+    //
+    skydome = resourceManager->getYddAsync(2640562617);
+    skydomeYTD = resourceManager->getYtdAsync(2640562617);
 
-    resourceManager->getYtd(GenHash("mapdetail"));
-    resourceManager->getYtd(GenHash("vehshare"));
-    resourceManager->getYtd(GenHash("vehshare_worn"));
-    resourceManager->getYtd(GenHash("vehshare_army"));
-    resourceManager->getYtd(GenHash("vehshare_truck"));
+    resourceManager->getYtdAsync(GenHash("mapdetail"));
+    resourceManager->getYtdAsync(GenHash("vehshare"));
+    resourceManager->getYtdAsync(GenHash("vehshare_worn"));
+    resourceManager->getYtdAsync(GenHash("vehshare_army"));
+    resourceManager->getYtdAsync(GenHash("vehshare_truck"));
 
     /*for (auto& ytd : resourceManager->getGameData()->gtxdEntries)
      {
      resourceManager->getYtd(ytd.second);
      }*/
-    addPedToWorld(glm::vec3(238, -956.75, 150.77), playerYDD);
-    //addPedToWorld(glm::vec3(1705.95, 3746.39, 37.64), playerYDD);
-    addPedToWorld(glm::vec3(9.66, -1184.98, 75.74), playerYDD);
-    addPedToWorld(glm::vec3(2250.18f, 3471.40f, 56.50f), playerYDD);
+    CPed* ped1 = new CPed(glm::vec3(9.66, -1184.98, 75.74), playerYDD);
+    ped1->initDrawable();
+    CPed* ped2 = new CPed(glm::vec3(9.66, -1184.98, 75.74), playerYDD);
+    ped2->initDrawable();
+    CPed* ped3 = new CPed(glm::vec3(2250.18f, 3471.40f, 56.50f), playerYDD);
+    ped3->initDrawable();
 
+    addPedToWorld(ped1);
+    addPedToWorld(ped2);
+    addPedToWorld(ped3);
     //minimap
     /*std::vector<YddLoader*> minimapsYDD;
      minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_0_2")));
@@ -153,10 +162,6 @@ GameWorld::GameWorld(ResourceManager* resManager)
      minimap.push_back(building);
      }
      }*/
-}
-
-GameWorld::~GameWorld()
-{
 }
 
 void GameWorld::updateObjects(Camera* camera, glm::vec3& position)
@@ -348,21 +353,8 @@ void GameWorld::updateObjects(Camera* camera, glm::vec3& position)
 
     for (auto& ped : peds)
     {
-        //if (camera->intersects(ped.position, 1.0f))
-        if (!ped->loaded)
-        {
-            if (ped->player->isLoaded())
-            {
-                if (ped->player->ydrFiles.size() > 0)
-                    ped->initDrawable();
-                else
-                    ped->loaded = true;
-            }
-        }
-        else
-        {
+        if (camera->intersects(ped->getPosition(), 1.0f))
             renderList.push_back(ped);
-        }
     }
 
     for (auto& vehicle : vehicles)
@@ -370,11 +362,6 @@ void GameWorld::updateObjects(Camera* camera, glm::vec3& position)
         if (camera->intersects(vehicle->getPosition(), 1.0f))
             renderList.push_back(vehicle);
     }
-
-    /*for (int i = 0; i < minimap.size(); i++)
-     {
-     renderList.push_back(&minimap[i]);
-     }*/
 
     glm::vec3 camPosition = camera->getPosition();
     std::sort(renderList.begin(), renderList.end(), [&camPosition](CEntity* a, CEntity* b) {  // FRONT_TO_BACK
@@ -555,7 +542,14 @@ void GameWorld::createPedestrian()
 void GameWorld::createVehicle(glm::vec3 position, glm::quat rotation)
 {
     GameData& data = *resourceManager->getGameData();
-    int vehicleID = rand() % data.vehiclesInfo.size();
+
+    uint32_t carHash = data.vehiclesInfo.begin()->Hash;
+
+    YftLoader* carModel = resourceManager->getYft(carHash);
+    if (carModel->isLoaded())
+        addVehicleToWorld(position, rotation, data.vehiclesInfo.begin()->mass, carModel);
+
+    /*int vehicleID = rand() % data.vehiclesInfo.size();
 
     if (YftLoader* vehicle = resourceManager->getYft(data.vehiclesInfo[vehicleID].Hash); vehicle->isLoaded())
     {
@@ -564,51 +558,24 @@ void GameWorld::createVehicle(glm::vec3 position, glm::quat rotation)
             addVehicleToWorld(position, rotation, data.vehiclesInfo[vehicleID].mass, vehicle);
             printf("Car Spawned\n");
         }
-    }
+    }*/
 }
 
 void GameWorld::cleanupTraffic(Camera* camera)
 {
     float radiusTraffic = 200.0f;
-    //	peds
-    /*for (auto it = peds.begin() + 3; it != peds.end();)
-     {
-     if (glm::distance2(camera->getPosition(), (*it)->getPosition()) >= radiusTraffic * radiusTraffic)
-     {
-     RemovePedFromWorld(*it);
-     GlobalPool::GetInstance()->CpedPool.remove(*it);
-     peds.erase(it);
-     }
-     else
-     {
-     ++it;
-     }
-     }*/
-    //vehicles
     for (int i = 0; i < vehicles.size(); i++)
     {
         if (glm::distance2(camera->getPosition(), vehicles[i]->getPosition()) >= radiusTraffic * radiusTraffic)
         {
-            removeVehicleFromWorld(vehicles[i]);
-            GlobalPool::GetInstance()->CVehiclePool.remove(vehicles[i]);
-            printf("Car Removed\n");
-
-            // ensure that we're not attempting to access out of the bounds of the container.
-            assert(i < vehicles.size());
-
-            //Swap the element with the back element, except in the case when we're the last element.
-            if (i + 1 != vehicles.size())
-                std::swap(vehicles[i], vehicles.back());
-
-            //Pop the back of the container, deleting our old element.
-            vehicles.pop_back();
+            printf("Car %d should be deleted\n", i);
         }
     }
 }
 
 void GameWorld::createTraffic(Camera* camera)
 {
-    float radiusTraffic = 100.0f;
+    float radiusTraffic = 500.0f;
 
     int maxSpawn = 30;
 
@@ -616,8 +583,6 @@ void GameWorld::createTraffic(Camera* camera)
 
     if (curNode)
     {
-        //    printf("WE AHVE ONE\n");
-
         for (auto& node : curNode->nodes)
         {
             if (MaximumAvailableVehicles == 0)
@@ -663,32 +628,6 @@ void GameWorld::updateDynamicObjects()
      }
      }*/
 }
-
-/*void GameWorld::UpdateTraffic(Camera* camera, glm::vec3 pos)
- {
- //	CARS
- /*if (nodeGrid.cells[curNodeCell.x * 32 + curNodeCell.y]->ynd)
- {
- 
- for (auto& node : nodeGrid.cells[curNodeCell.x * 32 + curNodeCell.y]->ynd->nodes)
- {
- pos = glm::vec3(node.PositionX / 4.0f, node.PositionY / 4.0f, node.PositionZ / 32.0f);
- 
- for (int i = 0; i < vehicles.size(); i++)
- {
- glm::vec3 vehiclePosition(vehicles[i].m_carChassis->getWorldTransform().getOrigin().getX(),
- vehicles[i].m_carChassis->getWorldTransform().getOrigin().getY(), vehicles[i].m_carChassis->getWorldTransform().getOrigin().getZ()); if
- (glm::distance(camera->position, vehiclePosition) >= 100.0f)
- {
- dynamicsWorld->removeVehicle((vehicles[i].m_vehicle));
- dynamicsWorld->removeRigidBody((vehicles[i].m_carChassis));
- vehicles.erase(vehicles.begin() + i);
- }
- }
- }
- }
- }*/
-//}
 
 CVehicle* GameWorld::findNearestVehicle()
 {
@@ -736,8 +675,6 @@ void GameWorld::detectWeaponHit(glm::vec3 CameraPosition, glm::vec3 lookDirectio
     }
 }
 
-constexpr float myOWNdeltaTime = 1.f / 120.f;
-
 void GameWorld::updateWorld(float delta_time, Camera* camera)
 {
     physicsSystem.update(delta_time);
@@ -762,25 +699,6 @@ void GameWorld::updateWorld(float delta_time, Camera* camera)
 
     //	printf("Time %d %d\n", getWorld()->gameHour, getWorld()->gameMinute);
 
-    double SUNRISE = 5.47f;  // % of Day
-    double SUNSET = 19.35f;
-    uint8_t MOONRISE = 17;  // % of Day
-    uint8_t MOONSET = 4;
-    float tod = gameHour + gameMinute / 60.f;
-    if (tod > SUNRISE && tod < SUNSET)
-    {
-        double sunT = ((double)tod - SUNRISE) / (SUNSET - SUNRISE);
-        float phi = glm::pi<float>() / 2.0f - (float)sunT * glm::pi<float>();
-        float theta = 0.0f;
-
-        dirLight.direction = glm::normalize(glm::vec3(-glm::sin(phi) * glm::cos(theta), glm::sin(phi) * glm::sin(theta), glm::cos(phi)));
-    }
-
-    //	float now = (timeOfDay / 24) * glm::two_pi<float>() + glm::pi<float>();
-
-    //	glm::vec3 sunDirection(0, cos(now), sin(now));
-    //	sunDirection = glm::normalize(sunDirection);
-
     //updateDynamicObjects();
     //cleanupTraffic(camera);
     //createTraffic(camera);
@@ -801,7 +719,7 @@ void GameWorld::updateWorld(float delta_time, Camera* camera)
     {
         renderList.clear();
 
-        if (!isAllCollisionLoaded())
+        /*if (!isAllCollisionLoaded())
         {
             if (getCurrentPlayer()->getPhysCharacter()->getGravity() != btVector3(0.f, 0.f, 0.f))
                 getCurrentPlayer()->getPhysCharacter()->setGravity(btVector3(0.f, 0.f, 0.f));
@@ -809,10 +727,11 @@ void GameWorld::updateWorld(float delta_time, Camera* camera)
         else
         {
             if (getCurrentPlayer()->getPhysCharacter()->getGravity() == btVector3(0.f, 0.f, 0.f)) getCurrentPlayer()->getPhysCharacter()->setGravity(physicsSystem.getPhysicsWorld()->getGravity());
-        }
+        }*/
 
         glm::vec3 playerPos = getCurrentPlayer()->getPosition();
         //glm::vec3 PlayerPos = camera->position;
+
         getVisibleYmaps(playerPos);
         updateObjects(camera, playerPos);
     }
@@ -850,7 +769,8 @@ bool GameWorld::detectInWater(glm::vec3 Position)
 
 void GameWorld::addVehicleToWorld(glm::vec3 position, glm::quat rot, float mass, YftLoader* model)
 {
-    CVehicle* vehicle = GlobalPool::GetInstance()->CVehiclePool.create(position, rot, mass, model, physicsSystem.getPhysicsWorld());
+    //CVehicle* vehicle = GlobalPool::GetInstance()->CVehiclePool.create(position, rot, mass, model, physicsSystem.getPhysicsWorld());
+    CVehicle* vehicle = new CVehicle(position, rot, mass, model, physicsSystem.getPhysicsWorld());
     physicsSystem.addVehicle(vehicle);
 
     vehicles.push_back(vehicle);
@@ -859,12 +779,11 @@ void GameWorld::addVehicleToWorld(glm::vec3 position, glm::quat rot, float mass,
 void GameWorld::removeVehicleFromWorld(CVehicle* vehicle)
 {
     physicsSystem.removeVehicle(vehicle);
+    //delete vehicle;
 }
 
-void GameWorld::addPedToWorld(glm::vec3 pos, YddLoader* model)
+void GameWorld::addPedToWorld(CPed* ped)
 {
-    //CPed* ped = GlobalPool::GetInstance()->CPedPool.create(pos, model);
-    CPed* ped = new CPed(pos, model);
     physicsSystem.addPed(ped);
     peds.push_back(ped);
 }
@@ -872,16 +791,4 @@ void GameWorld::addPedToWorld(glm::vec3 pos, YddLoader* model)
 void GameWorld::removePedFromWorld(CPed* ped)
 {
     physicsSystem.removePed(ped);
-}
-
-void GameWorld::testFunction(glm::vec3 position)
-{
-    /*for (auto& ytd : data.GtxdEntries)
-     {
-     while (!resourceManager->getYtd(ytd.second))
-     {
-     LoadQueuedResources();
-     }
-     }
-     printf("DONE\n");*/
 }

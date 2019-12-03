@@ -48,7 +48,6 @@ CPed::~CPed()
 
 void CPed::initDrawable()
 {
-    loaded = true;
     playerModel.push_back(player->ydrFiles[121241095]);
     playerModel.push_back(player->ydrFiles[1471150075]);
     playerModel.push_back(player->ydrFiles[2540683012]);

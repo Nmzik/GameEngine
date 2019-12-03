@@ -280,6 +280,10 @@ public:
     uint64_t GlobalGpuMemory = 0;
     uint64_t TextureMemory = 0;
 
+    virtual void postLoad()
+    {
+    }
+
     virtual TextureHandle createTexture(const uint8_t* pointer, int width, int height, int levels, TextureFormat format) = 0;
     virtual VertexBufferHandle createVertexBuffer(uint32_t size, const uint8_t* pointer) = 0;
     virtual IndexBufferHandle createIndexBuffer(uint32_t size, const uint8_t* pointer) = 0;
@@ -291,6 +295,7 @@ public:
     virtual void updateGlobalSceneBuffer(glm::mat4& Projection, glm::mat4& View) = 0;
     virtual void updatePerModelData(glm::mat4& mat) = 0;
     virtual void renderGeom(Geometry& geom) = 0;
+    virtual void renderSky(Geometry& geom) = 0;
     /*void beginFrame();
      void endFrame();*/
     virtual void beginFrame() = 0;

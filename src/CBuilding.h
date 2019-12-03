@@ -25,7 +25,7 @@ public:
     fwEntityDef entityDef;
     fwArchetype* archetype = nullptr;
 
-    CBuilding(fwEntityDef def);
+    CBuilding(fwEntityDef& def);
     ~CBuilding();
 
 private:

@@ -13,12 +13,12 @@
 
 #define tempBufferSize 40 * 1024 * 1024
 
-GameData::GameData(std::string path)
-    : mainDirPath(path)
+GameData::GameData(std::string Path, std::string keysPath)
+    : mainDirPath(Path)
 {
     tempBuffer = std::make_unique<uint8_t[]>(tempBufferSize);
     nodes.resize(32 * 32);
-    GTAEncryption::getInstance().loadKeys(path);
+    GTAEncryption::getInstance().loadKeys(keysPath);
 }
 
 GameData::~GameData()

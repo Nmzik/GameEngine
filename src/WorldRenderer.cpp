@@ -4,6 +4,9 @@
 #include "Camera.h"
 #include "Model.h"
 
+#include "loaders/YddLoader.h"
+#include "loaders/YtdLoader.h"
+
 #ifdef WIN32
 #include "OpenGL/OpenGLRenderer.h"
 #include "windows/Win32Window.h"
@@ -22,6 +25,29 @@ WorldRenderer::WorldRenderer(NativeWindow* window)
 
 WorldRenderer::~WorldRenderer()
 {
+}
+
+void WorldRenderer::postLoad()
+{
+    renderer->postLoad();
+}
+
+void WorldRenderer::renderSky(GameWorld* world)
+{
+    if (world->skydome && world->skydomeYTD)
+    {
+        YdrLoader* skydome = world->skydome->ydrFiles.begin()->second;
+        Geometry& geom = world->skydome->ydrFiles.begin()->second->models[0].geometries[0];
+        TextureHandle handle = world->skydomeYTD->textures[1064311147].getHandle();
+
+        geom.setTextureHandle(handle);
+
+        glm::mat4 pos = world->getCurrentPlayer()->getMatrix();
+
+        renderer->updatePerModelData(pos);
+
+        renderer->renderSky(geom);
+    }
 }
 
 void WorldRenderer::renderDrawable(YdrLoader* drawable)
@@ -67,6 +93,8 @@ void WorldRenderer::renderWorld(GameWorld* world, Camera* curCamera)
     glm::mat4 projectionView = projection * view;
 
     curCamera->updateFrustum(projectionView);
+
+    renderSky(world);
 
     renderer->updateGlobalSceneBuffer(projection, view);
 

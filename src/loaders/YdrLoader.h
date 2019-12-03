@@ -5,26 +5,49 @@
 #include "YtdLoader.h"
 #include "../Model.h"
 
+struct grmShaderParameter
+{
+    uint8_t DataType;
+    uint8_t Unknown_1h;
+    uint16_t Unknown_2h;
+    uint32_t Unknown_4h;
+    uint64_t DataPointer;
+    
+    void Resolve(memstream& file)
+    {
+        //DataPointer.Resolve(file);
+    }
+};
+
 struct grmShaderFx
 {
-    uint64_t ParametersPointer;
-    uint32_t Name;        //	530103687, 2401522793, 1912906641
-    uint32_t Unknown_Ch;  // 0x00000000
+    pgPtr<grmShaderParameter> parameters;
+    uintptr_t shaderHash;
     uint8_t ParameterCount;
-    uint8_t Unknown_11h;   // 2, 0,
-    uint16_t Unknown_12h;  // 32768
-    uint32_t Unknown_14h;  //	10485872, 17826000, 26214720
-    uint32_t FileName;     //	2918136469, 2635608835, 2247429097
-    uint32_t Unknown_1Ch;  // 0x00000000
-    uint32_t Unknown_20h;  //	65284, 65281
-    uint16_t Unknown_24h;  //	0
-    uint8_t Unknown_26h;   //	0
+    uint8_t drawBucket;   // 2, 0,
+    uint8_t m_pad;
+    uint8_t m_hasComment;
+    uint16_t m_parameterSize;
+    uint16_t m_parameterDataSize;
+    uintptr_t spsHash;     //	2918136469, 2635608835, 2247429097
+    uint32_t drawBucketMask;  //	65284, 65281
+    uint8_t m_instanced;
+    uint8_t m_pad2[2];
     uint8_t TextureParametersCount;
     uint32_t Unknown_28h;  // 0x00000000
     uint32_t Unknown_2Ch;  // 0x00000000
 
     void Resolve(memstream& file)
     {
+        parameters.Resolve(file);
+        
+        for (int i = 0; i < ParameterCount; i++) {
+            (*parameters)[i].Resolve(file);
+        }
+    }
+    
+    grmShaderParameter* getParameters() {   
+        return *parameters;
     }
 };
 
@@ -172,7 +195,7 @@ struct grmModel : datBase
 {
     pgObjectArray<grmGeometry> m_geometries;
     uint64_t BoundsPointer;
-    pgPtr<uint16_t> ShaderMappingPointer;
+    pgPtr<uint16_t> ShaderMapping;
     uint32_t Unknown_28h;
     uint32_t Unknown_2Ch;
 
@@ -180,7 +203,11 @@ struct grmModel : datBase
     {
         m_geometries.Resolve(file);
 
-        ShaderMappingPointer.Resolve(file);
+        ShaderMapping.Resolve(file);
+    }
+    
+    inline uint16_t* getShaderMappings() {
+        return *ShaderMapping;
     }
 };
 
@@ -211,22 +238,13 @@ struct rmcDrawable : rmcDrawableBase
 
         for (int i = 0; i < 4; i++)
         {
-            if (DrawableModels[i].pointer)
+            if (*DrawableModels[i])
             {
                 DrawableModels[i].Resolve(file);
                 DrawableModels[i]->Resolve(file);
             }
         }
     }
-};
-
-struct ShaderParameter
-{
-    uint8_t DataType;
-    uint8_t Unknown_1h;
-    uint16_t Unknown_2h;
-    uint32_t Unknown_4h;
-    uint64_t DataPointer;
 };
 
 struct CLightAttr
@@ -361,7 +379,6 @@ class YdrLoader : public FileType
     rmcDrawable* drawable;
 
 public:
-    std::vector<Material> materials;
     std::vector<Model> models;
     YbnLoader* ybn;
 

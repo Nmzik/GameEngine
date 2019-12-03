@@ -72,7 +72,7 @@ public:
     std::vector<glm::vec3> scenes;
     std::vector<WaterQuad*> waterPosition;
 
-    GameData(std::string path);
+    GameData(std::string Path, std::string keysPath);
     ~GameData();
 
     void load();

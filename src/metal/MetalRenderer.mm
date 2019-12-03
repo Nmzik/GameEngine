@@ -41,6 +41,8 @@ MTLRenderPassDescriptor* mainPassDescriptor;
 MTLRenderPassDescriptor* guiPassDescriptor;
 MTLRenderPassDescriptor* fxaaPassDescriptor;
 //
+id<MTLRenderPipelineState> skyPipelineState;
+//
 id<MTLRenderPipelineState> guiPipelineState;
 id<MTLRenderPipelineState> fxaaPipelineState;
 id<MTLRenderPipelineState> DefaultPipelineState;
@@ -77,6 +79,7 @@ id <MTLRenderCommandEncoder> commandEncoder;
 id <MTLRenderCommandEncoder> guiEncoder;
 
 id <MTLDepthStencilState> depthStencilState;
+id <MTLDepthStencilState> depthSkyStencilState;
 id <MTLTexture> mainTexture;
 id <MTLTexture> depthTexture;
 id <MTLTexture> errorTexture;
@@ -131,6 +134,10 @@ MetalRenderer::~MetalRenderer()
     
 }
 
+void MetalRenderer::postLoad() {
+    
+}
+
 void MetalRenderer::initializeRenderEngine()
 {
     srand(time(NULL));
@@ -160,7 +167,7 @@ void MetalRenderer::initializeRenderEngine()
     mainPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
     mainPassDescriptor.colorAttachments[0].texture = mainTexture;
     mainPassDescriptor.depthAttachment.loadAction = MTLLoadActionClear;
-    mainPassDescriptor.depthAttachment.clearDepth = 1.0f;
+    mainPassDescriptor.depthAttachment.clearDepth = 0.0f;
     mainPassDescriptor.depthAttachment.texture = depthTexture;
     
     /*{
@@ -223,9 +230,14 @@ void MetalRenderer::initializeRenderEngine()
      
      fence = [device newFence];*/
     MTLDepthStencilDescriptor* depthDescriptor = [MTLDepthStencilDescriptor new];
-    depthDescriptor.depthCompareFunction = MTLCompareFunctionLess;
+    depthDescriptor.depthCompareFunction = MTLCompareFunctionGreater;
     depthDescriptor.depthWriteEnabled = true;
     depthStencilState = [device newDepthStencilStateWithDescriptor:depthDescriptor];
+    
+    MTLDepthStencilDescriptor* depthSkyDescriptor = [MTLDepthStencilDescriptor new];
+    //depthSkyDescriptor.depthCompareFunction = MTLCompareFunctionLess;
+    depthSkyDescriptor.depthWriteEnabled = false;
+    depthSkyStencilState = [device newDepthStencilStateWithDescriptor:depthSkyDescriptor];
 }
 
 void MetalRenderer::createDepthTexture()
@@ -364,6 +376,8 @@ void MetalRenderer::createRenderPipelines()
     PNCTTTTXPipelineState = createRenderDescriptor(PNCTTTTX_Attrib);
     pipilineStates.push_back(PNCTTTTXPipelineState);
     layoutHandles[PNCTTTTX] = 25;
+    
+    createSkyShader(PTT_Attrib);
 }
 
 MTLRenderPipelineState MetalRenderer::createRenderDescriptor(VertexLayout& attributes, std::string vertexFunction, std::string fragmentFunction)
@@ -395,6 +409,38 @@ MTLRenderPipelineState MetalRenderer::createRenderDescriptor(VertexLayout& attri
     id <MTLRenderPipelineState> pipelineState = [device newRenderPipelineStateWithDescriptor:descriptor error:&error];
     NSLog(@"%@", [error localizedDescription]);
     return pipelineState;
+}
+
+void MetalRenderer::createSkyShader(VertexLayout& attributes) {
+    id<MTLLibrary> defaultLibrary = [device newDefaultLibrary];
+    
+    MTLRenderPipelineDescriptor* descriptor = [MTLRenderPipelineDescriptor new];
+    descriptor.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
+    descriptor.vertexFunction = [defaultLibrary newFunctionWithName:[NSString stringWithUTF8String:"vertexSky"]];
+    descriptor.fragmentFunction = [defaultLibrary newFunctionWithName:[NSString stringWithUTF8String:"fragmentSky"]];
+    //
+    MTLVertexDescriptor* vertexDescriptor = [MTLVertexDescriptor new];
+    
+    for (int i = 0; i < attributes.size; i++) {
+        int index = attributes.attributes[i].index;
+        vertexDescriptor.attributes[index].offset = attributes.attributes[i].offset;
+        vertexDescriptor.attributes[index].format = attribType[(int)attributes.attributes[i].type][attributes.attributes[i].size - 1];
+        vertexDescriptor.attributes[index].bufferIndex = 0;
+    }
+    //
+    vertexDescriptor.layouts[0].stepRate = 1;
+    vertexDescriptor.layouts[0].stepFunction = MTLVertexStepFunctionPerVertex;
+    vertexDescriptor.layouts[0].stride = attributes.stride;
+    //
+    descriptor.vertexDescriptor = vertexDescriptor;
+    descriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
+    
+    NSError* error;
+    skyPipelineState = [device newRenderPipelineStateWithDescriptor:descriptor error:&error];
+    NSLog(@"%@", [error localizedDescription]);
+    
+    //glm::vec3 result = glm::vec3(235, 235, 235) / 256.f;
+    //printf("");
 }
 
 VertexBufferHandle MetalRenderer::createVertexBuffer(uint32_t size, const uint8_t* pointer)
@@ -473,83 +519,86 @@ IndexBufferHandle MetalRenderer::createIndexBuffer(uint32_t size, const uint8_t*
     return handle;
 }
 
-TextureHandle MetalRenderer::createTexture(const uint8_t* pointer, int width, int height, int levels, TextureFormat format)
-{
+std::pair<MTLPixelFormat, bool> getCompatibleTextureFormat(TextureFormat format) {
+    
     bool compressed = true;
-#if TARGET_OS_IPHONE
-    bool convert = true;
-#else
-    bool convert = false;
-#endif
     MTLPixelFormat textureFormat = MTLPixelFormatInvalid;
     
     switch (format) {
-        case D3DFMT_A8R8G8B8:
-        textureFormat = MTLPixelFormatRGBA8Unorm;
-        compressed = false;
-        break;
-        case D3DFMT_A1R5G5B5:
-        //textureFormat = MTLPixelFormat(41);
-        textureFormat = MTLPixelFormatInvalid;
-        compressed = false;
-        break;
-        case D3DFMT_A8:
-        textureFormat = MTLPixelFormatA8Unorm;
-        compressed = false;
-        break;
-        case D3DFMT_A8B8G8R8:
-        textureFormat = MTLPixelFormatRGBA8Unorm;
-        compressed = false;
-        break;
-        case D3DFMT_L8:
-        textureFormat = MTLPixelFormatR8Uint;
-        compressed = false;
-        break;
+            case D3DFMT_A8R8G8B8:
+            textureFormat = MTLPixelFormatRGBA8Unorm;
+            compressed = false;
+            break;
+            case D3DFMT_A1R5G5B5:
+            //textureFormat = MTLPixelFormat(41);
+            textureFormat = MTLPixelFormatInvalid;
+            compressed = false;
+            break;
+            case D3DFMT_A8:
+            textureFormat = MTLPixelFormatA8Unorm;
+            compressed = false;
+            break;
+            case D3DFMT_A8B8G8R8:
+            textureFormat = MTLPixelFormatRGBA8Unorm;
+            compressed = false;
+            break;
+            case D3DFMT_L8:
+            textureFormat = MTLPixelFormatR8Uint;
+            compressed = false;
+            break;
+    #if TARGET_OS_IPHONE
+            case D3DFMT_DXT1:
+            case D3DFMT_DXT3:
+            case D3DFMT_DXT5:
+            case D3DFMT_ATI1:
+            case D3DFMT_ATI2:
+            case D3DFMT_BC7:
+            textureFormat = MTLPixelFormatBGRA8Unorm;
+            break;
+    #else
+            case D3DFMT_DXT1:
+            textureFormat = MTLPixelFormatBC1_RGBA;
+            break;
+            case D3DFMT_DXT3:
+            textureFormat = MTLPixelFormatBC2_RGBA;
+            break;
+            case D3DFMT_DXT5:
+            textureFormat = MTLPixelFormatBC3_RGBA;
+            break;
+            case D3DFMT_ATI1:
+            textureFormat = MTLPixelFormatBC4_RUnorm;
+            break;
+            case D3DFMT_ATI2:
+                textureFormat = MTLPixelFormatBC5_RGUnorm;
+            break;
+            case D3DFMT_BC7:
+            textureFormat = MTLPixelFormatBC7_RGBAUnorm;
+            break;
+    #endif
+            default:
+            //printf("UNDEFINED TEXTURE FORMAT");
+            textureFormat = MTLPixelFormatInvalid;
+        }
+    return std::make_pair(textureFormat, compressed);
+}
+
+TextureHandle MetalRenderer::createTexture(const uint8_t* pointer, int width, int height, int levels, TextureFormat format)
+{
 #if TARGET_OS_IPHONE
-        case D3DFMT_DXT1:
-        case D3DFMT_DXT3:
-        case D3DFMT_DXT5:
-        case D3DFMT_ATI1:
-        case D3DFMT_ATI2:
-        case D3DFMT_BC7:
-        textureFormat = MTLPixelFormatRGBA8Unorm;
-        break;
+    bool convert = true;
+    //check uncompressed texture size
+    assert(convert && (width * height * 4) <= 20 * 1024 * 1024);
 #else
-        case D3DFMT_DXT1:
-        textureFormat = MTLPixelFormatBC1_RGBA;
-        break;
-        case D3DFMT_DXT3:
-        textureFormat = MTLPixelFormatBC2_RGBA;
-        break;
-        case D3DFMT_DXT5:
-        textureFormat = MTLPixelFormatBC3_RGBA;
-        break;
-        case D3DFMT_ATI1:
-        textureFormat = MTLPixelFormatBC4_RUnorm;
-        break;
-        case D3DFMT_ATI2:
-            textureFormat = MTLPixelFormatBC5_RGUnorm;
-        break;
-        case D3DFMT_BC7:
-        textureFormat = MTLPixelFormatBC7_RGBAUnorm;
-        break;
+    bool convert = false;
 #endif
-        default:
-        //printf("UNDEFINED TEXTURE FORMAT");
-        textureFormat = MTLPixelFormatInvalid;
-    }
     
-    //if (compatFormat != MTLPixelFormatBC3_RGBA && width < 2048)
-    if (textureFormat == MTLPixelFormatInvalid)
+    auto CompatibleTextureFormat = getCompatibleTextureFormat(format);
+    
+    if (CompatibleTextureFormat.first == MTLPixelFormatInvalid)
         return TextureHandle{0};
     
-    //check uncompressed texture size
-#if TARGET_OS_IPHONE
-    assert(convert && (width * height * 4) <= 20 * 1024 * 1024);
-#endif
-    
-    if (compressed || convert) {
-        int minMipMap = 3; //min mipmap to load
+    if (CompatibleTextureFormat.second || convert) {
+        int minMipMap = 0; //min mipmap to load
         minMipMap = levels > minMipMap? minMipMap : levels - 1;
         
         int blockSize = (format == D3DFMT_DXT1) ? 8 : 16;
@@ -562,7 +611,7 @@ TextureHandle MetalRenderer::createTexture(const uint8_t* pointer, int width, in
         levels -= minMipMap;
     }
     
-    MTLTextureDescriptor* descriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:textureFormat width:width height:height mipmapped:levels > 1? true : false];
+    MTLTextureDescriptor* descriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:CompatibleTextureFormat.first width:width height:height mipmapped:levels > 1? true : false];
     
     id <MTLTexture> texture = [device newTextureWithDescriptor:descriptor];
     if (convert)
@@ -581,7 +630,7 @@ TextureHandle MetalRenderer::createTexture(const uint8_t* pointer, int width, in
             width = std::max(width / 2, 1);
             height = std::max(height / 2, 1);
         }
-    } else if (!compressed){
+    } else if (!CompatibleTextureFormat.second){
         for (int i = 0; i < levels; i++) {
             unsigned int size =
             ((width + 1) >> 1) * ((height + 1) >> 1) * 4;
@@ -717,6 +766,22 @@ void MetalRenderer::renderGeom(Geometry& geom)
     [commandEncoder drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:geom.getIndexCount() indexType:MTLIndexTypeUInt16 indexBuffer:indexBuffers[geom.getIndexBufferHandle().id] indexBufferOffset:0];
     
     //numDrawCalls++;
+}
+
+void MetalRenderer::renderSky(Geometry& geom) {
+    [commandEncoder setRenderPipelineState:skyPipelineState];
+    
+    [commandEncoder setDepthStencilState:depthSkyStencilState];
+    //[commandEncoder setCullMode:MTLCullModeBack];
+    
+    [commandEncoder setFragmentTexture:textures[geom.getTextureHandle().id] atIndex:0];
+    
+    [commandEncoder setFragmentSamplerState:samplerState atIndex:0];
+    
+    [commandEncoder setVertexBuffer:vertexBuffers[geom.getVertexBufferHandle().id] offset:0 atIndex:0];
+    [commandEncoder setVertexBytes:&scene_matrices length:sizeof(uniform_buffer_struct) atIndex:1];
+    
+    [commandEncoder drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:geom.getIndexCount() indexType:MTLIndexTypeUInt16 indexBuffer:indexBuffers[geom.getIndexBufferHandle().id] indexBufferOffset:0];
 }
 
 void MetalRenderer::beginFrame()

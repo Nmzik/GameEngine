@@ -22,7 +22,7 @@ TextureHandle TextureManager::getTexture(uint32_t hash)
     }
     else
     {
-        printf("Texture with hash %u hasnt been found\n", hash);
+        //printf("Texture with hash %u hasnt been found\n", hash);
         return TextureHandle{0};
     }
 }

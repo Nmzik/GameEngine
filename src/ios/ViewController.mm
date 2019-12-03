@@ -39,15 +39,17 @@
     _view.framebufferOnly = true;
     self.view = _view;
     
-    NSString* mainPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
-    NSString* resultString = [mainPath stringByAppendingString:@"/"];
+    NSString* mainPath = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject]stringByAppendingString:@"/"];
     
-    game = new Game([resultString UTF8String]);
+    NSString* executablePath = [[[NSBundle mainBundle] bundlePath] stringByAppendingString:@"/"];
+    
+    game = new Game([mainPath UTF8String], [executablePath UTF8String]);
     game->initializeCamera(_view.frame.size.width, _view.frame.size.height);
     MetalRenderer* renderer = static_cast<MetalRenderer*>(game->getRenderer());
     renderer->device = device;
     renderer->mtkView = _view;
     renderer->initializeRenderEngine();
+    game->postLoad();
     _view.delegate = self;
 }
 
@@ -61,19 +63,19 @@
 
 -(void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
     _startTouch = [touches.anyObject locationInView:self.view];
-    if (_startTouch.x < 200)
+    if (_startTouch.x < self.view.bounds.size.width * 0.15)
     {
         game->getInput()->processButton(0, true);
     }
-    if (_startTouch.x > 700)
+    if (_startTouch.x > self.view.bounds.size.width * 0.85)
     {
         game->getInput()->processButton(2, true);
     }
-    if (_startTouch.y < 100)
+    if (_startTouch.y < self.view.bounds.size.height * 0.20)
     {
         game->getInput()->processButton(13, true);
     }
-    if (_startTouch.y > 320)
+    if (_startTouch.y > self.view.bounds.size.height * 0.80)
     {
         game->getInput()->processButton(1, true);
     }

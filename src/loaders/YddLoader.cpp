@@ -11,14 +11,13 @@ void YddLoader::init(memstream& file)
 
 void YddLoader::finalize(BaseRenderer* _renderer, memstream& file)
 {
-    loaded = true;
     for (int i = 0; i < drawableDictionary->drawables.size(); i++)
     {
         YdrLoader* ydr = GlobalPool::GetInstance()->ydrPool.create();
         rmcDrawable* drawable = (rmcDrawable*)drawableDictionary->drawables[i];
         ydr->loadDrawable(drawable, false, _renderer, file);
 
-        uint32_t hash = drawableDictionary->hashes[i];
+        uint32_t hash = drawableDictionary->hashes.Get(i);
 
         ydrFiles.insert({hash, ydr});
     }

@@ -213,9 +213,8 @@ public:
 template <typename T>
 class pgPtr
 {
-public:
     T* pointer;
-
+public:
     T* operator->() const
     {
         return (T*)pointer;
@@ -226,15 +225,14 @@ public:
         return (T*)pointer;
     }
 
-    T& operator[](int i) const
-    {
-        return pointer[i];
-    }
-
     pgPtr operator=(T* other)
     {
         pointer = other;
         return *this;
+    }
+    
+    bool isNULL() {
+        return pointer == 0;
     }
 
     void Resolve(memstream& file)
@@ -302,7 +300,7 @@ public:
         m_count = 0;
         m_size = capacity;
     }
-
+    
     TValue& Get(uint16_t offset)
     {
         return (*m_offset)[offset];

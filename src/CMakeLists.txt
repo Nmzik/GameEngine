@@ -18,6 +18,12 @@ utils/*.h
 )
 list (APPEND SOURCES ${UTILS})
 
+file(GLOB ALLOCATORS
+allocators/*.h
+allocators/*.cpp
+)
+list (APPEND SOURCES ${ALLOCATORS})
+
 if(WIN32)
 	set	(OPENGL 1)
 	set (VULKAN 0)
@@ -130,7 +136,6 @@ endif()
 
 target_link_libraries(MyGameEngine Detour)
 target_link_libraries(MyGameEngine Recast)
-target_link_libraries(MyGameEngine freetype)
 
 target_link_libraries(MyGameEngine tiny-aes)
 

@@ -30,6 +30,7 @@ class Texture
     TextureHandle handle;
 
 public:
+    Texture() = default;
     Texture(TextureHandle texHandle);
     ~Texture();
 

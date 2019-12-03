@@ -1,11 +1,11 @@
 #pragma once
 
-#include "BaseRenderer.h"
 #include "Geometry.h"
 #include "NativeWindow.h"
 #include "Texture.h"
 #include "TextureManager.h"
 
+#include "metal/MetalRenderer.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/mat4x4.hpp>
 
@@ -20,13 +20,15 @@ class CVehicle;
 
 class WorldRenderer
 {
-    std::unique_ptr<BaseRenderer> renderer;
+    std::unique_ptr<MetalRenderer> renderer;
     int numDrawCalls;
 
 public:
     WorldRenderer(NativeWindow* window);
     ~WorldRenderer();
 
+    void postLoad();
+    void renderSky(GameWorld* world);
     void renderWorld(GameWorld* world, Camera* curCamera);
 
     BaseRenderer* getBaseRenderer() const

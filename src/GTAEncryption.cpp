@@ -33,7 +33,7 @@ GTAEncryption::~GTAEncryption()
 void GTAEncryption::loadKeys(std::string keyPath)
 {
 #if TARGET_OS_IPHONE
-    std::string Path = keyPath + "assets/compressed.dat";
+    std::string Path = keyPath + "compressed.dat";
     const char* path = Path.c_str();
 #else
     const char* path = "assets/compressed.dat";
@@ -46,8 +46,8 @@ void GTAEncryption::loadKeys(std::string keyPath)
         throw std::runtime_error("KEY FILE IS MISSING\n");
     }
 
-	#define compressedSize 154072
-	#define uncompressedSize 306304
+#define compressedSize 154072
+#define uncompressedSize 306304
 
     uint64_t size = fileStream.getFileSize();
     assert(size == compressedSize);
@@ -56,7 +56,7 @@ void GTAEncryption::loadKeys(std::string keyPath)
     fileStream.read((char*)&fileContents[0], compressedSize);
     decompressBytes(&fileContents[0], compressedSize, uncompFileContents, uncompressedSize);
 
-	memstream stream(&uncompFileContents[0], uncompressedSize);
+    memstream stream(&uncompFileContents[0], uncompressedSize);
     stream.read((char*)&PC_AES_KEY[0], 32);
     stream.read((char*)&LUT[0], 256);
     for (int i = 0; i < 101; i++)

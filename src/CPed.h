@@ -39,7 +39,6 @@ public:
     //CPed& operator=(CPed&& other) = default;
     //CPed(CPed&& other) = default;
     YddLoader* player;
-    bool loaded = false;
     std::vector<YdrLoader*> playerModel;
     void initDrawable();
 

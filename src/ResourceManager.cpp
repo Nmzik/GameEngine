@@ -67,6 +67,30 @@ void ResourceManager::getGtxd(uint32_t hash)
 	 }*/
 }
 
+YtdLoader* ResourceManager::getYtdAsync(uint32_t hash)
+{
+    YtdLoader* resource = getYtd(hash);
+
+    while (!resource->isLoaded())
+    {
+        loadQueuedResources();
+    }
+
+    return resource;
+}
+
+YddLoader* ResourceManager::getYddAsync(uint32_t hash)
+{
+    YddLoader* resource = getYdd(hash);
+
+    while (!resource->isLoaded())
+    {
+        loadQueuedResources();
+    }
+
+    return resource;
+}
+
 YmapLoader* ResourceManager::getYmap(uint32_t hash)
 {
     auto it = ymapLoader.find(hash);
@@ -115,11 +139,12 @@ YtdLoader* ResourceManager::getYtd(uint32_t hash)
     }
     else
     {
+        YtdLoader* dependency = nullptr;
         auto iter = data.gtxdEntries.find(hash);
         if (iter != data.gtxdEntries.end())
         {
             //fix memory leak!
-            getYtd(iter->second);
+            dependency = getYtd(iter->second);
         }
 
         /*bool HDTextures = false;
@@ -151,6 +176,7 @@ YtdLoader* ResourceManager::getYtd(uint32_t hash)
         }*/
 
         YtdLoader* loader = GlobalPool::GetInstance()->ytdPool.create();
+        loader->dependency = dependency;
         addToWaitingList(GlobalPool::GetInstance()->resourcesPool.create(ytd, hash, loader));
         loader->refCount++;
         ytdLoader.insert({hash, loader});
@@ -473,6 +499,12 @@ void ResourceManager::updateResourceCache(GameWorld* world)
     {
         if ((it->second)->refCount == 0 && (it->second)->isLoaded())
         {
+            if (it->second->dependency)
+            {
+                if (it->second->dependency->refCount > 0)
+                    it->second->dependency->refCount--;
+            }
+
             GlobalPool::GetInstance()->ytdPool.remove(it->second);
             it = ytdLoader.erase(it);
         }
@@ -493,30 +525,12 @@ void ResourceManager::loadQueuedResources()
             mainThreadResources.swap(tempMainThreadResources);
     }
 
-    //    HASH 38759883
-    //auto old_time = std::chrono::steady_clock::now();
-    //long diffms = 0;
-
-    //int numFiles = 0;
-
-    //while (!resourceManager->tempMainThreadResources.empty() && diffms < 2)  //    2ms
     if (!tempMainThreadResources.empty())
     {
         //numFiles++;
         Resource* res = tempMainThreadResources.pop();
 
-        //    Object hash equal to texture hash what should we do? there are +hi textures with the same name
-
-        if (res->hash == 4096714883 && res->type == ydd)
-        {
-            printf("");
-        }
-
-        if (res->bufferSize == 0)
-        {
-            res->file->setLoaded();
-        }
-        else
+        if (res->bufferSize != 0)
         {
             memstream stream(&res->buffer[0], res->bufferSize);
             stream.systemSize = res->systemSize;
@@ -539,6 +553,7 @@ void ResourceManager::loadQueuedResources()
                 {
                     YbnLoader* ybn = static_cast<YbnLoader*>(res->file);
                     ybn->init(stream);
+                    ybn->finalize(game.getRenderer(), stream);
                     game.getWorld()->getPhysicsSystem()->addRigidBody(ybn->getRigidBody());  //    NOT THREAD SAFE!
                     break;
                 }
@@ -554,6 +569,7 @@ void ResourceManager::loadQueuedResources()
                 case null:
                     break;
             }
+            res->file->setLoaded();
 
             resource_allocator->deallocate(res->buffer);
         }

@@ -63,6 +63,7 @@ class GameWorld
 
 public:
     YddLoader* skydome;
+    YtdLoader* skydomeYTD;
     uint32_t culled = 0;
     uint32_t culledYmaps;
     float LODMultiplier = 1.0f;
@@ -102,6 +103,8 @@ public:
         return physicsSystem.getDebugDrawer();
     }*/
 
+    void postLoad();
+
     void createPedestrian();
     void createVehicle(glm::vec3 position, glm::quat rotation);
     void updateDynamicObjects();
@@ -119,6 +122,6 @@ public:
 
     void addVehicleToWorld(glm::vec3 position, glm::quat rot, float mass, YftLoader* model);
     void removeVehicleFromWorld(CVehicle* vehicle);
-    void addPedToWorld(glm::vec3 pos, YddLoader* model);
+    void addPedToWorld(CPed* ped);
     void removePedFromWorld(CPed* ped);
 };

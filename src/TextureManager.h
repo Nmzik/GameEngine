@@ -17,7 +17,7 @@ public:
     TextureManager() = default;
     ~TextureManager() = default;
 
-	int getRefCount(uint32_t hash);
+    int getRefCount(uint32_t hash);
     TextureHandle getTexture(uint32_t hash);
     void addTexture(uint32_t hash, TextureHandle handle);
     void removeTexture(uint32_t hash);

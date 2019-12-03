@@ -28,11 +28,11 @@
 
 extern FreeListAllocator* physicsAllocator;
 
-Game::Game(const char* GamePath)
+Game::Game(const char* Path, const char* keysPath)
     : paused(false)
     , gameTime(0)
 {
-    gameData = std::make_unique<GameData>(GamePath);
+    gameData = std::make_unique<GameData>(Path, keysPath);
     gameData->load();
     resourceManager = std::make_unique<ResourceManager>(gameData.get(), this);
     gameWorld = std::make_unique<GameWorld>(resourceManager.get());
@@ -46,7 +46,7 @@ Game::Game(const char* GamePath)
     //scriptMachine->startThread(GenHash("startup_install"));
 #if (WIN32)
     window->addListener(input.get());
-    
+
     initializeCamera(1280.f, 720.f);
 #endif
 
@@ -106,9 +106,15 @@ Game::~Game()
 {
 }
 
+void Game::postLoad()
+{
+    gameWorld->postLoad();
+    rendering_system->postLoad();
+}
+
 void Game::initializeCamera(float width, float height)
 {
-    camera = std::make_unique<Camera>(glm::vec3(0.0, 0.0, 50.0), glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 10000.0f));
+    camera = std::make_unique<Camera>(glm::vec3(0.0, 0.0, 50.0), glm::perspective(glm::radians(45.0f), (float)width / (float)height, 10000.0f, 0.1f));
 }
 
 void Game::run()
@@ -155,91 +161,10 @@ void Game::frame()
     auto gpuThreadEnd = std::chrono::steady_clock::now();
     float gpuThreadTime = std::chrono::duration<float>(gpuThreadEnd - gpuThreadStart).count();
 
-    loadQueuedResources();
+    resourceManager->loadQueuedResources();
     resourceManager->updateResourceCache(gameWorld.get());
 
     updateFPS(delta_time, cpuThreadTime, gpuThreadTime);
-}
-
-void Game::loadQueuedResources()
-{
-    //    If we still didn't finish loading our queue, do not swap! Swap only if we dont have any job.
-    if (resourceManager->tempMainThreadResources.empty())
-    {
-        Lock_guard swapLock(&resourceManager->mainThreadLock);
-        if (!resourceManager->mainThreadResources.empty())
-            resourceManager->mainThreadResources.swap(resourceManager->tempMainThreadResources);
-    }
-
-    //    HASH 38759883
-    //auto old_time = std::chrono::steady_clock::now();
-    //long diffms = 0;
-
-    //int numFiles = 0;
-
-    //while (!resourceManager->tempMainThreadResources.empty() && diffms < 2)  //    2ms
-    if (!resourceManager->tempMainThreadResources.empty())
-    {
-        //numFiles++;
-        Resource* res = resourceManager->tempMainThreadResources.pop();
-
-        //    Object hash equal to texture hash what should we do? there are +hi textures with the same name
-
-        if (res->bufferSize == 0)
-        {
-            res->file->setLoaded();
-        }
-        else
-        {
-            memstream stream(&res->buffer[0], res->bufferSize);
-            stream.systemSize = res->systemSize;
-            switch (res->type)
-            {
-                case ymap:
-                {
-                    res->file->setLoaded();
-                    break;
-                }
-                case ydr:
-                case ydd:
-                case yft:
-                case ytd:
-                {
-                    res->file->finalize(getRenderer(), stream);
-                    break;
-                }
-                case ybn:
-                {
-                    YbnLoader* ybn = static_cast<YbnLoader*>(res->file);
-                    ybn->init(stream);
-                    ybn->finalize(getRenderer(), stream);
-                    getWorld()->getPhysicsSystem()->addRigidBody(ybn->getRigidBody());  //    NOT THREAD SAFE!
-                    break;
-                }
-                case ysc:
-                {
-                    res->file->init(stream);
-                    break;
-                }
-                case ynd:
-                case ynv:
-                case ycd:
-                case awc:
-                case null:
-                    break;
-            }
-
-            resourceManager->resource_allocator->deallocate(res->buffer);
-        }
-
-        GlobalPool::GetInstance()->resourcesPool.remove(res);
-
-        //auto new_time = std::chrono::steady_clock::now();
-        //diffms = std::chrono::duration_cast<std::chrono::microseconds>(new_time - old_time).count();
-    }
-
-    //if (numFiles > 0)
-    // printf("%d Files Loaded\n", numFiles);
 }
 
 void Game::updateFPS(float delta_time, float cpuThreadTime, float gpuThreadTime)
@@ -250,10 +175,6 @@ void Game::updateFPS(float delta_time, float cpuThreadTime, float gpuThreadTime)
     if (time_since_last_fps_output >= 1.0f)
     {
         time_since_last_fps_output = 0.0f;
-
-        static std::ostringstream osstr;
-        osstr.str("");
-        osstr.clear();
 
         osstr << "Game "
               << (1.0f / delta_time) << " FPS, "

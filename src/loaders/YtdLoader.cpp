@@ -9,7 +9,6 @@ void YtdLoader::init(memstream& file)
 void YtdLoader::finalize(BaseRenderer* _renderer, memstream& file)
 {
     renderer = _renderer;
-    loaded = true;
 
     if (texDictionary->Textures.size() != 0)
     {

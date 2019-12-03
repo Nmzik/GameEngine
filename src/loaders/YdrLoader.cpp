@@ -28,11 +28,10 @@ void YdrLoader::finalize(BaseRenderer* _renderer, memstream& file)
 void YdrLoader::loadDrawable(rmcDrawable* drawable, bool isYft, BaseRenderer* _renderer, memstream& file)
 {
     renderer = _renderer;
-    loaded = true;
     //	READ COLLISION DATA FROM YDR
 
     //	Shader stuff
-    if (drawable->ShaderGroupPointer.pointer)
+    if (*drawable->ShaderGroupPointer)
     {  //	IF POINTER = 0 NO OBJECTS???
 
         if (drawable->ShaderGroupPointer->TextureDictionaryPointer != 0)
@@ -43,75 +42,13 @@ void YdrLoader::loadDrawable(rmcDrawable* drawable, bool isYft, BaseRenderer* _r
             ytd->init(file);
             ytd->finalize(renderer, file);
         }
-
-        materials.reserve(drawable->ShaderGroupPointer->Shaders.size());
-
-        for (int is = 0; is < drawable->ShaderGroupPointer->Shaders.size(); is++)
-        {
-            SYSTEM_BASE_PTR(drawable->ShaderGroupPointer->Shaders.Get(is)->ParametersPointer);
-            file.seekg(drawable->ShaderGroupPointer->Shaders.Get(is)->ParametersPointer);
-
-            std::vector<uint32_t> TexturesHashes;
-            TexturesHashes.reserve(drawable->ShaderGroupPointer->Shaders.Get(is)->ParameterCount);
-
-            int offset = 0;
-
-            for (int j = 0; j < drawable->ShaderGroupPointer->Shaders.Get(is)->ParameterCount; j++)
-            {
-                ShaderParameter* param = (ShaderParameter*)file.read(sizeof(ShaderParameter));
-
-                switch (param->DataType)
-                {
-                    case 0:
-                        if (param->DataPointer == 0)
-                        {
-                            TexturesHashes.push_back(0);
-                        }
-                        else
-                        {
-                            SYSTEM_BASE_PTR(param->DataPointer);
-
-                            TextureBase* texBase = (TextureBase*)&file.data[param->DataPointer];
-
-                            SYSTEM_BASE_PTR(texBase->NamePointer);
-
-                            char* TextureName = (char*)&file.data[texBase->NamePointer];
-
-                            size_t NameLength = strlen(TextureName);
-
-                            for (int i = 0; i < NameLength; i++)
-                            {
-                                TextureName[i] = tolower(TextureName[i]);
-                            }
-
-                            uint32_t NameHash = GenHash(std::string_view(TextureName, NameLength));
-
-                            TexturesHashes.push_back(NameHash);
-                        }
-                        break;
-                    case 1:  //	SOME OTHER SHIT OTHER THAN TEXTURE
-                        offset += 16;
-                        //TexturesHashes.push_back(0);
-                        break;
-                    default:
-                        offset += 16 * param->DataType;
-                        //TexturesHashes.push_back(0);  //	NOT ERROR
-                        break;
-                }
+        
+        for (int i = 0; i < drawable->ShaderGroupPointer->Shaders.size(); i++) {
+            if (drawable->ShaderGroupPointer->Shaders.Get(i)->TextureParametersCount > 0) {
+                
             }
-
-            file.seekCur(offset);
-
-            uint32_t DiffuseSampler = 0;
-            uint32_t BumpSampler = 0;
-            uint32_t SpecularSampler = 0;
-            uint32_t DetailSampler = 0;
-
-            if ((drawable->ShaderGroupPointer->Shaders.Get(is)->TextureParametersCount > 0))
-            {
-                uint32_t* ShaderHashes = (uint32_t*)file.read(sizeof(uint32_t) * drawable->ShaderGroupPointer->Shaders.Get(is)->TextureParametersCount);
-                //
-                for (int i = 0; i < drawable->ShaderGroupPointer->Shaders.Get(is)->TextureParametersCount; i++)
+        }
+            /*
                 {
                     if (ShaderHashes[i] == 4059966321 || (ShaderHashes[i] == 3576369631))
                     {  //	DiffuseSampler
@@ -129,13 +66,8 @@ void YdrLoader::loadDrawable(rmcDrawable* drawable, bool isYft, BaseRenderer* _r
                     {  //	DetailSampler
                         DetailSampler = TexturesHashes[i];
                     }
-                }
-            }
-
-            Material newMat{DiffuseSampler, BumpSampler, SpecularSampler, DetailSampler};
-            materials.push_back(newMat);
+                }*/
         }
-    }
     
     if (isYft) {
         
@@ -161,6 +93,8 @@ void YdrLoader::loadDrawable(rmcDrawable* drawable, bool isYft, BaseRenderer* _r
         models[i].Unk_2Ch = drawable->DrawableModels[0]->Get(i)->Unknown_2Ch;
         //	Optimization
         models[i].geometries.reserve(drawable->DrawableModels[0]->Get(i)->m_geometries.size());
+        
+        uint16_t* shaderMappings = drawable->DrawableModels[0]->Get(i)->getShaderMappings();
 
         for (int j = 0; j < drawable->DrawableModels[0]->Get(i)->m_geometries.size(); j++)
         {
@@ -174,15 +108,49 @@ void YdrLoader::loadDrawable(rmcDrawable* drawable, bool isYft, BaseRenderer* _r
 
             VertexBufferHandle vertexHandle = renderer->createVertexBuffer(vertexSize, vertexPointer);
             IndexBufferHandle indexHandle = renderer->createIndexBuffer(indicesSize, indicesPointer);
-            TextureHandle texHandle = renderer->getTextureManager()->getTexture(materials[drawable->DrawableModels[0]->Get(i)->ShaderMappingPointer[j]].DiffuseSampler);
+            
+            uint32_t shaderIndex = shaderMappings[j];
+            
+            uint32_t diffuseHash = 0;
+            
+            uint32_t* shaderHashes = (uint32_t*)((uintptr_t)*(drawable->ShaderGroupPointer->Shaders.Get(shaderIndex)->parameters) + drawable->ShaderGroupPointer->Shaders.Get(shaderIndex)->m_parameterSize);
+            
+            grmShaderParameter* param = drawable->ShaderGroupPointer->Shaders.Get(shaderIndex)->getParameters();
+            
+            for (int k = 0; k < drawable->ShaderGroupPointer->Shaders.Get(shaderIndex)->TextureParametersCount; k++) {
+                if (shaderHashes[k] == 4059966321 || shaderHashes[k] == 3576369631) {
+                    
+                    assert(param[k].DataType == 0);
+                    
+                    if (param[k].DataPointer == 0)
+                    {
+                        diffuseHash = 0;
+                    }
+                    else
+                    {
+                        SYSTEM_BASE_PTR(param[k].DataPointer);
+                        TextureBase* texBase = (TextureBase*)&file.data[param[k].DataPointer];
+
+                        SYSTEM_BASE_PTR(texBase->NamePointer);
+                        char* TextureName = (char*)&file.data[texBase->NamePointer];
+
+                        size_t NameLength = strlen(TextureName);
+
+                        for (int i = 0; i < NameLength; i++)
+                        {
+                            TextureName[i] = tolower(TextureName[i]);
+                        }
+
+                        diffuseHash = GenHash(std::string_view(TextureName, NameLength));
+                    }
+                }
+            }
+            
+            TextureHandle texHandle = renderer->getTextureManager()->getTexture(diffuseHash);
             uint32_t vertexLayoutHandle = renderer->getLayoutHandle((VertexType)geom->VertexBufferPointer->InfoPointer->Flags);
 
             Geometry geometry(vertexHandle, indexHandle, vertexLayoutHandle, geom->IndexBufferPointer->IndicesCount, texHandle);
             models[i].geometries.push_back(geometry);
-
-            /*models[i].geometries.emplace_back(file.data,
-                                              drawable->DrawableModels[0]->Get(i)->m_geometries.Get(j),
-                                              (*drawable->DrawableModels[0]->Get(i)->ShaderMappingPointer)[j], drawable->ShaderGroupPointer->Shaders[(*drawable->DrawableModels[0]->Get(i)->ShaderMappingPointer)[j]]->FileName);*/
         }
     }
 }

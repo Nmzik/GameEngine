@@ -29,8 +29,6 @@ add_subdirectory(zlib)
 target_include_directories(zlib INTERFACE zlib)
 target_include_directories(zlib INTERFACE ${CMAKE_CURRENT_BINARY_DIR}/zlib)
 
-add_subdirectory(freetype)
-
 set(BUILD_STATIC_LIBS ON CACHE STRING "" FORCE)
 set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
 set(BUILD_TESTS OFF CACHE BOOL "" FORCE)

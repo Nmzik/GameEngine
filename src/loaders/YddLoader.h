@@ -8,8 +8,7 @@ struct DrawableDictionary : ResourceFileBase
     uint32_t Unknown_14h;  // 0x00000000
     uint32_t Unknown_18h;  // 0x00000001
     uint32_t Unknown_1Ch;  // 0x00000000
-    pgPtr<uint32_t> hashes;
-    uint32_t Unknown_2Ch;  // 0x00000000
+    pgArray<uint32_t> hashes;
     pgObjectArray<gtaDrawable> drawables;
     uint32_t Unknown_3Ch;  // 0x00000000
 

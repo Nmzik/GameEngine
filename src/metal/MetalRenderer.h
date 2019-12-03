@@ -32,6 +32,8 @@ class MetalRenderer : public BaseRenderer
     std::unique_ptr<uint8_t[]> textureDecompressedMem;
     std::chrono::steady_clock::time_point current_time;
 public:
+    virtual void postLoad() override;
+    
     virtual VertexBufferHandle createVertexBuffer(uint32_t size, const uint8_t* pointer) override;
     virtual IndexBufferHandle createIndexBuffer(uint32_t size, const uint8_t* pointer) override;
     virtual TextureHandle createTexture(const uint8_t* pointer, int width, int height, int levels, TextureFormat format) override;
@@ -43,6 +45,7 @@ public:
     virtual void updateGlobalSceneBuffer(glm::mat4& Projection, glm::mat4& View) override;
     virtual void updatePerModelData(glm::mat4& mat) override;
     virtual void renderGeom(Geometry& geom) override;
+    virtual void renderSky(Geometry& geom) override;
     
     virtual void beginFrame() override;
     virtual void presentFrame() override;
@@ -61,4 +64,5 @@ public:
     void createFontTexture();
     MTLRenderPipelineState createRenderDescriptor(VertexLayout& attributes, std::string vertexFunction = "vertexDefault", std::string fragmentFunction = "fragmentDefault");
     void createRenderPipelines();
+    void createSkyShader(VertexLayout& attributes);
 };

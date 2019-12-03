@@ -4,9 +4,9 @@
 #include <unordered_map>
 
 #include "GameData.h"
-#include "ThreadSafeAllocator.h"
 #include "common.h"
 
+#include "allocators/ThreadSafeAllocator.h"
 #include "utils/queue.h"
 #include "utils/thread.h"
 
@@ -47,16 +47,19 @@ class ResourceManager
     Resource* removeFromWaitingList();
     void getGtxd(uint32_t hash);
 
-public:
-    ResourceManager(GameData* gameData, Game* mainGame);
-    ~ResourceManager();
-
     Mutex mainThreadLock;
     Queue mainThreadResources;
     Queue tempMainThreadResources;
 
     std::unique_ptr<ThreadSafeAllocator> resource_allocator;
-    // GetFile<YdrLoader, Type::ydr>(uint32_t hash, uint32_t TextureDictionaryHash);
+
+public:
+    ResourceManager(GameData* gameData, Game* mainGame);
+    ~ResourceManager();
+
+    YtdLoader* getYtdAsync(uint32_t hash);
+    YddLoader* getYddAsync(uint32_t hash);
+
     YmapLoader* getYmap(uint32_t hash);
     YdrLoader* getYdr(uint32_t hash);
     YtdLoader* getYtd(uint32_t hash);
@@ -74,5 +77,7 @@ public:
     void addToWaitingList(Resource* res);
     void removeAll();
     void updateResourceCache(GameWorld* world);
+
+    //Should be only called by main thread!
     void loadQueuedResources();
 };

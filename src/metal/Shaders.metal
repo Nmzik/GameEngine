@@ -118,8 +118,8 @@ fragment half4 fragmentDefault(VertexOut out [[stage_in]],
                                sampler sampler2d [[sampler(0)]]) {
     half4 texSample = half4(tex2d.sample(sampler2d, out.texCoord));
     
-    //if (texSample.a <= 0.5)
-      //  discard_fragment();
+    if (texSample.a <= 0.5)
+        discard_fragment();
     
     half ambientIntensity = 0.5;
     half3 lightColor = {1.0, 1.0, 1.0};
@@ -139,4 +139,37 @@ fragment half4 fragmentDefault(VertexOut out [[stage_in]],
     float specularFactor = pow(max(0.0, dot(reflection, eye)), shininess);
     half4 specularColor = half4(lightColor * specularIntensity * specularFactor, 1.0);
     return texSample * (ambientColor + diffuseColor + specularColor);
+}
+
+struct VertexInSky {
+    float4 position [[attribute(0)]];
+    float2 texCoord1 [[attribute(1)]];
+    float2 texCoord2 [[attribute(2)]];
+};
+
+struct SkyUniforms {
+    float4x4 projMatrix;
+    float4x4 ViewMatrix;
+    float4x4 modelMatrix;
+};
+
+vertex VertexOut vertexSky(const VertexInSky vertex_array[[stage_in]],
+                              const device SkyUniforms& uniforms       [[buffer(1)]],
+                              unsigned int vid [[vertex_id]]) {
+    VertexOut output;
+    
+    float3 ipos = vertex_array.position.xyz * 10.0f;
+    
+    output.position = uniforms.projMatrix * uniforms.ViewMatrix * uniforms.modelMatrix * float4(ipos, 1);
+    
+    return output;
+}
+
+fragment float4 fragmentSky(VertexOut input [[stage_in]],
+                               texture2d<float> tex2d [[texture(0)]],
+                               sampler sampler2d [[sampler(0)]]) {
+    float4 sf = float4(tex2d.sample(sampler2d, input.texCoord));
+    
+
+    return float4(0.91, 0.91, 0.91, 1.0);
 }
