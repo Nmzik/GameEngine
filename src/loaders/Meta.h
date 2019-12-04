@@ -63,7 +63,7 @@ public:
     }
 };
 
-class Meta : ResourceFileBase
+class Meta : pgBase
 {
 public:
     int32_t Unknown_10h;

@@ -4,7 +4,7 @@
 
 class YndLoader
 {
-    struct NodeDictionary : ResourceFileBase
+    struct NodeDictionary : pgBase
     {
         uint64_t NodesPointer;
         uint32_t NodesCount;

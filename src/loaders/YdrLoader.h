@@ -71,7 +71,7 @@ struct grmShaderGroup : datBase
     }
 };
 
-struct rmcDrawableBase : ResourceFileBase
+struct rmcDrawableBase : pgBase
 {
     pgPtr<grmShaderGroup> ShaderGroupPointer;
 

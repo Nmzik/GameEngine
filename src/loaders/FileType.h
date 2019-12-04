@@ -89,10 +89,9 @@ struct ResourcePointerList64
     uint16_t EntriesCapacity;
 };
 
-struct ResourceFileBase
+struct pgBase
 {
-    uint32_t FileVFT;
-    uint32_t FileUnknown;
+    uint64_t FileVFT;
     uint64_t FilePagesInfoPointer;
 };
 

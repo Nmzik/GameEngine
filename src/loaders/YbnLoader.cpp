@@ -37,8 +37,12 @@ void YbnLoader::init(memstream& file)
 {
     compound = new btCompoundShape();
 
-    parseYbn(file, compound);
+    phBound* bound = (phBound*)file.read(sizeof(phBound));
+    
+    parseYbn(file, bound);
 }
+
+static phBoundPoly** boundPolys = new phBoundPoly*[8192];
 
 void YbnLoader::finalize(BaseRenderer* _renderer, memstream& file)
 {
@@ -47,11 +51,120 @@ void YbnLoader::finalize(BaseRenderer* _renderer, memstream& file)
     rigidBody = std::make_unique<btRigidBody>(groundRigidBodyCI);
 }
 
-void YbnLoader::parseYbn(memstream& file, btCompoundShape* compound)
+void YbnLoader::parseYbn(memstream& file, phBound* bound)
 {
-    Bounds* bounds = (Bounds*)file.read(sizeof(Bounds));
+    switch (bound->boundType) {
+        case phBoundType::BVH:
+        case phBoundType::Geometry:
+        {
+            phBoundGeometry* geom = (phBoundGeometry*)bound;
+            geom->Resolve(file);
+            
+            phBoundPoly* polys = geom->getPolygons();
+            int16_t* vertices = geom->getVertices();
+            
+            glm::i16vec3* CompressedVertices = (glm::i16vec3*)vertices;
+            glm::vec3* Vertices = (glm::vec3*)btAlignedAllocInternal(geom->VerticesCount * sizeof(glm::vec3), 16);
+            VerticesArray.push_back(Vertices);
 
-    switch (bounds->Type)
+            for (uint32_t i = 0; i < geom->VerticesCount; i++)
+            {
+                Vertices[i] = glm::vec3(CompressedVertices[i].x, CompressedVertices[i].y, CompressedVertices[i].z) * geom->Quantum;
+            }
+            
+            glm::u16vec3* Indices = (glm::u16vec3*)btAlignedAllocInternal(geom->PolygonsCount * sizeof(glm::u16vec3), 16);
+            IndicesArray.push_back(Indices);
+            
+            int numPolys = 0;
+            
+            for (int i = 0; i < geom->PolygonsCount; i++) {
+                switch (polys[i].type) {
+                case BoundPolygonType::Triangle:
+                {
+                    if (numPolys >= 8192)
+                        assert(false);
+                    boundPolys[numPolys] = &polys[i];
+                    
+                    numPolys++;
+                    
+                    break;
+                }
+                case BoundPolygonType::Sphere:
+                {
+                    break;
+                }
+                case BoundPolygonType::Capsule:
+                {
+                    break;
+                }
+                case BoundPolygonType::Box:
+                {
+                    break;
+                }
+                case BoundPolygonType::Cylinder:
+                {
+                    break;
+                }
+            }
+            
+            }
+            //assert(numIndices > 0);
+            
+            if (numPolys > 0) {
+                
+                glm::u16vec3* Indices = (glm::u16vec3*)btAlignedAllocInternal(numPolys * sizeof(glm::u16vec3), 16);
+                IndicesArray.push_back(Indices);
+
+                for (int i = 0; i < numPolys; i++)
+                {
+                    Indices[i] =
+                    glm::u16vec3(boundPolys[i]->poly.v1 & 0x7FFF, boundPolys[i]->poly.v2 & 0x7FFF, boundPolys[i]->poly.v3 & 0x7FFF);
+                }
+                
+                
+                btIndexedMesh mesh;
+                mesh.m_numTriangles = numPolys;
+                mesh.m_triangleIndexBase = (uint8_t*)&Indices[0];
+                mesh.m_triangleIndexStride = 3 * sizeof(uint16_t);
+                mesh.m_numVertices = geom->VerticesCount;
+                mesh.m_vertexBase = (uint8_t*)&Vertices[0];
+                mesh.m_vertexStride = sizeof(glm::vec3);
+
+                btTriangleIndexVertexArray* VertIndices = new btTriangleIndexVertexArray();
+                VertIndices->addIndexedMesh(mesh, PHY_SHORT);
+
+                btTransform localTrans;
+                localTrans.setIdentity();
+                localTrans.setOrigin(btVector3(geom->CenterGeom.x, geom->CenterGeom.y, geom->CenterGeom.z));
+
+                btBvhTriangleMeshShape* shape = new btBvhTriangleMeshShape(VertIndices, true);
+                shape->setMargin(geom->Margin);
+                compound->addChildShape(localTrans, shape);
+            }
+            
+            break;
+        }
+        case phBoundType::Box:
+            
+            break;
+        case phBoundType::Composite:
+        {
+            phBoundComposite* composite = (phBoundComposite*)bound;
+            composite->Resolve(file);
+            
+            for (int i = 0; i < composite->getNumChildBounds(); i++) {
+                parseYbn(file, composite->getChildBound(i));
+            }
+            
+            break;
+        }
+            
+        default:
+            break;
+            //assert(false);
+    }
+
+    /*switch (bounds->Type)
     {
         case 0:
         {
@@ -162,36 +275,7 @@ void YbnLoader::parseYbn(memstream& file, btCompoundShape* compound)
                 }
             }
 
-            if (PolygonTriangles.size() != 0)
-            {
-                glm::u16vec3* Indices = (glm::u16vec3*)btAlignedAllocInternal(PolygonTriangles.size() * sizeof(glm::u16vec3), 16);
-                IndicesArray.push_back(Indices);
-
-                for (int i = 0; i < PolygonTriangles.size(); i++)
-                {
-                    Indices[i] =
-                        glm::u16vec3(PolygonTriangles[i]->triIndex1 & 0x7FFF, PolygonTriangles[i]->triIndex2 & 0x7FFF, PolygonTriangles[i]->triIndex3 & 0x7FFF);
-                }
-
-                btIndexedMesh mesh;
-                mesh.m_numTriangles = (int)PolygonTriangles.size();
-                mesh.m_triangleIndexBase = (uint8_t*)&Indices[0];
-                mesh.m_triangleIndexStride = 3 * sizeof(uint16_t);
-                mesh.m_numVertices = geom->VerticesCount;
-                mesh.m_vertexBase = (uint8_t*)&Vertices[0];
-                mesh.m_vertexStride = sizeof(glm::vec3);
-
-                btTriangleIndexVertexArray* VertIndices = new btTriangleIndexVertexArray();
-                VertIndices->addIndexedMesh(mesh, PHY_SHORT);
-
-                btTransform localTrans;
-                localTrans.setIdentity();
-                localTrans.setOrigin(btVector3(geom->CenterGeom.x, geom->CenterGeom.y, geom->CenterGeom.z));
-
-                btBvhTriangleMeshShape* shape = new btBvhTriangleMeshShape(VertIndices, true);
-                shape->setMargin(bounds->Margin);
-                compound->addChildShape(localTrans, shape);
-            }
+             
 
             break;
         }
@@ -226,7 +310,7 @@ void YbnLoader::parseYbn(memstream& file, btCompoundShape* compound)
         default:
             break;
             //	12 ???
-    }
+    }*/
 }
 
 YbnLoader::~YbnLoader()

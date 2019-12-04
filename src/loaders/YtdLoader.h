@@ -52,7 +52,7 @@ struct grcTexture : TextureBase
     }
 };
 
-struct TextureDictionary : ResourceFileBase
+struct TextureDictionary : pgBase
 {
     uint32_t Unknown_10h;  // 0x00000000
     uint32_t Unknown_14h;  // 0x00000000

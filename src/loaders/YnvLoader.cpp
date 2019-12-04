@@ -5,8 +5,8 @@ YnvLoader::YnvLoader(memstream& file)
     std::vector<NavMeshVertex> navMeshVertices;
     std::vector<uint16_t> navMeshIndices;
     
-    ResourceFileBase resourceFileBase;
-    file.read((char*)&resourceFileBase, sizeof(ResourceFileBase));
+    pgBase pgBase;
+    file.read((char*)&pgBase, sizeof(pgBase));
     
     Navmesh navmesh;
     file.read((char*)&navmesh, sizeof(Navmesh));
