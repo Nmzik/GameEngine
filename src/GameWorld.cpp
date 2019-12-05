@@ -452,6 +452,22 @@ void GameWorld::getVisibleYmaps(glm::vec3& PlayerPos)
         //auto& cell = nodeGrid.GetCell(NodeCell);
     }
 
+	for (auto& ymap : curYmaps)
+    {
+		ymap->refCount--;
+    }
+	curYmaps.clear();
+
+	static std::vector<MapDataStoreNode> nodes;
+    nodes.clear();
+
+	newSpaceGRID.GetItems(nodes, PlayerPos);
+
+	for (int i = 0; i < nodes.size(); i++)
+    {
+        curYmaps.push_back(resourceManager->getYmap(nodes[i].Name));
+    }
+
     if (curCell != cellID)
     {
         //	printf("NEW CELL\n");
@@ -462,13 +478,8 @@ void GameWorld::getVisibleYmaps(glm::vec3& PlayerPos)
             ybn->refCount--;
         }
 
-        for (auto& map : curYmaps)
-        {
-            map->refCount--;
-        }
-
         curYbns.clear();
-        curYmaps.clear();
+        //curYmaps.clear();
         //	Clear previous Ybns
 
         //SpaceGridCell& cell = spaceGrid.GetCell(cellID);
@@ -483,9 +494,9 @@ void GameWorld::getVisibleYmaps(glm::vec3& PlayerPos)
             {
                 curYbns.emplace_back(resourceManager->getYbn(data.cacheFile->allBoundsStoreItems[i].Name));
             }
-        }
+        }*/
 
-        for (int i = 0; i < data.cacheFile->allMapNodes.size(); i++)
+        /*for (int i = 0; i < data.cacheFile->allMapNodes.size(); i++)
         {
             auto max = data.cacheFile->mapNodesBoundaries[i].max;
             auto min = data.cacheFile->mapNodesBoundaries[i].min;
@@ -721,8 +732,8 @@ void GameWorld::updateWorld(float delta_time, Camera* camera)
             if (getCurrentPlayer()->getPhysCharacter()->getGravity() == btVector3(0.f, 0.f, 0.f)) getCurrentPlayer()->getPhysCharacter()->setGravity(physicsSystem.getPhysicsWorld()->getGravity());
         }*/
 
-        glm::vec3 playerPos = getCurrentPlayer()->getPosition();
-        //glm::vec3 PlayerPos = camera->position;
+        //glm::vec3 playerPos = getCurrentPlayer()->getPosition();
+        glm::vec3 playerPos = camera->getPosition();
 
         getVisibleYmaps(playerPos);
         updateObjects(camera, playerPos);

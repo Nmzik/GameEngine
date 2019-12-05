@@ -104,7 +104,7 @@ void Game::postLoad()
 
 void Game::initializeCamera(float width, float height)
 {
-    camera = std::make_unique<Camera>(glm::vec3(0.0, 0.0, 50.0), glm::perspective(glm::radians(45.0f), (float)width / (float)height, 10000.0f, 0.1f));
+    camera = std::make_unique<Camera>(glm::vec3(0.0, 0.0, 100.0), glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 10000.0f));
 }
 
 void Game::run()
@@ -277,7 +277,7 @@ void Game::tick(float delta_time)
         }
     }
 
-    float speed = getInput()->isKeyPressed(Actions::button_LSHIFT) ? 80.0f : 40.0f;
+    float speed = getInput()->isKeyPressed(Actions::button_LSHIFT) ? 80.0f : 10.0f;
 
     glm::vec3 movement{};
     movement.x = (float)getInput()->isKeyPressed(Actions::button_Forward) - getInput()->isKeyPressed(Actions::button_Backward);

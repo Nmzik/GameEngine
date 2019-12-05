@@ -79,4 +79,5 @@ public:
     virtual void updatePerModelData(glm::mat4& mat) override;
 
 	virtual void renderGeom(Geometry& geom) override;
+    virtual void renderSky(Geometry& geom) override;
 };

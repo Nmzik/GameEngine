@@ -21,8 +21,8 @@ int main(int argc, char* argv[])
     }
     //printf("GAME DIRECTORY %s", argv[1]);
 
-    Game game(argv[1]);
-
+    Game game(argv[1], "");
+    game.postLoad();
     game.run();
 
     //_CrtDumpMemoryLeaks(); IT WILL BE CALLED AUTOMATICALLY AT THE END OF PROGRAM

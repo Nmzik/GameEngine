@@ -3,13 +3,14 @@
 #include <glm/gtc/type_precision.hpp>
 #include <glm/vec3.hpp>
 #include <limits>
+#include <array>
 
 class YndLoader;
 class YnvLoader;
 
 class SpaceMapDataStoreNode {
-    std::vector<SpaceMapDataStoreNode*> childrens;
-    std::vector<MapDataStoreNode>* items;
+    std::array<SpaceMapDataStoreNode*, 4> childrens;
+    std::vector<MapDataStoreNode> items;
     
     int depth;
     glm::vec3 BBmin;
@@ -18,8 +19,8 @@ public:
     SpaceMapDataStoreNode()
     : depth(0)
     , BBmin(std::numeric_limits<float>::max())
-    , BBmax(std::numeric_limits<float>::min())
-    , items(nullptr)
+    , BBmax(std::numeric_limits<float>::lowest())
+    , childrens{nullptr}
     {
     }
     
@@ -27,35 +28,53 @@ public:
         BBmin = glm::min(BBmin, node.streamingExtentsMin);
         BBmax = glm::max(BBmax, node.streamingExtentsMax);
         
-        if (items == nullptr)
-            items = new std::vector<MapDataStoreNode>();
-        
-        items->push_back(node);
+        items.push_back(node);
     }
+
+	void getItems(std::vector<MapDataStoreNode>& nodes, glm::vec3& pos)
+    {
+            if ((pos.x >= BBmin.x) && (pos.x <= BBmax.x) && (pos.y >= BBmin.y) && (pos.y <= BBmax.y))
+            {
+                for (int i = 0; i < items.size(); i++)
+                {
+						glm::vec3 imin = items[i].streamingExtentsMin;
+                    glm::vec3 imax = items[i].streamingExtentsMax;
+                        if ((pos.x >= imin.x) && (pos.x <= imax.x) && (pos.y >= imin.y) && (pos.y <= imax.y))
+                        {
+                            nodes.push_back(items[i]);
+                        }
+                }
+                for (int i = 0; i < childrens.size(); i++)
+                {
+					if (childrens[i] != nullptr)
+                    {
+                        childrens[i]->getItems(nodes, pos);
+                    }
+                }
+            }
+	}
     
     void trySplit(int threshold) {
-        if ((items == nullptr) || (items->size() <= threshold))
+        if (items.size() <= threshold)
             return;
-        
-        childrens.resize(4);
-        
-        std::vector<MapDataStoreNode>* newItems = new std::vector<MapDataStoreNode>();
+
+        std::vector<MapDataStoreNode> newItems;
         
         glm::vec3 ncen = (BBmax + BBmin) * 0.5f;
         glm::vec3 next = (BBmax - BBmin) * 0.5f;
         float nsiz = glm::max(next.x, next.y);
         float nsizh = nsiz * 0.5f;
         
-        for (int i = 0; i < items->size(); i++) {
-            glm::vec3 imin = (*items)[i].streamingExtentsMin;
-            glm::vec3 imax = (*items)[i].streamingExtentsMax;
+        for (int i = 0; i < items.size(); i++) {
+            glm::vec3 imin = items[i].streamingExtentsMin;
+            glm::vec3 imax = items[i].streamingExtentsMax;
             glm::vec3 icen = (imax + imin) * 0.5f;
             glm::vec3 iext = (imax - imin) * 0.5f;
             float isiz = glm::max(iext.x, iext.y);
 
             if (isiz >= nsizh)
             {
-                newItems->push_back((*items)[i]);
+                newItems.push_back(items[i]);
             }
             else
             {
@@ -65,7 +84,7 @@ public:
                     childrens[cind] = new SpaceMapDataStoreNode();
                     childrens[cind]->depth = depth + 1;
                 }
-                childrens[cind]->addMapNode((*items)[i]);
+                childrens[cind]->addMapNode(items[i]);
             }
         }
         
@@ -77,7 +96,7 @@ public:
             }
         }
         
-        items = newItems;
+        items = std::move(newItems);
     }
 };
 
@@ -92,6 +111,11 @@ public:
         }
         rootNode.trySplit(splitThreshold);
     }
+
+	void GetItems(std::vector<MapDataStoreNode>& nodes, glm::vec3& pos)
+    {
+            rootNode.getItems(nodes, pos);
+	}
 };
 
 class SpaceGrid

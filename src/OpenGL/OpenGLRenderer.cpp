@@ -144,6 +144,11 @@ void OpenGLRenderer::endFrame()
 {
 }
 
+void OpenGLRenderer::renderSky(Geometry& geom)
+{
+
+}
+
 void OpenGLRenderer::presentFrame()
 {
     nativeWindow->swapBuffers();
@@ -387,7 +392,7 @@ void OpenGLRenderer::updateGlobalSceneBuffer(glm::mat4& Projection, glm::mat4& V
 {
     GL_CHECK(glBindBuffer(GL_UNIFORM_BUFFER, uboGlobal));
 
-	sceneData.projection = Projection;
+    sceneData.projection = Projection;
     sceneData.view = View;
     GL_CHECK(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4) * 2, &sceneData));
 

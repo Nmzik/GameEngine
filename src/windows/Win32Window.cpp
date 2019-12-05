@@ -5,6 +5,10 @@ Win32Window::Win32Window()
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
         printf("Unable to initialize SDL");
 
+#if VULKAN_API
+    window = SDL_CreateWindow("GameEngine", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                              1280, 720, SDL_WINDOW_VULKAN | SDL_WINDOW_SHOWN | SDL_WINDOW_FULLSCREEN);
+#else
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 
@@ -16,6 +20,7 @@ Win32Window::Win32Window()
     /* Create our window centered at 512x512 resolution */
     window = SDL_CreateWindow("GameEngine", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                               1280, 720, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+#endif
     if (!window) /* Die if creation failed */
         printf("Unable to create window");
 
@@ -26,19 +31,15 @@ Win32Window::~Win32Window()
 {
 }
 
+void Win32Window::initializeContext()
+{
 #if VULKAN_API
 
-void Win32Window::initializeContext()
-{
-}
 #else
-
-void Win32Window::initializeContext()
-{
     context = SDL_GL_CreateContext(window);
     SDL_GL_SetSwapInterval(1);
-}
 #endif
+}
 
 void Win32Window::setTitle(std::string& osstr)
 {
