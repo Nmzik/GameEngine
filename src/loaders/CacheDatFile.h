@@ -47,21 +47,12 @@ struct BoundsStoreItem
     uint32_t Layer;
 };
 
-struct boundaries
-{
-    glm::i32vec2 min;
-    glm::i32vec2 max;
-};
-
 class CacheDatFile
 {
 public:
     std::vector<MapDataStoreNode> allMapNodes;
     std::vector<CInteriorProxy> allCInteriorProxies;
     std::vector<BoundsStoreItem> allBoundsStoreItems;
-
-    std::vector<boundaries> mapNodesBoundaries;
-    std::vector<boundaries> boundsStoreBoundaries;
 
     CacheDatFile(std::vector<uint8_t>& data);
     ~CacheDatFile();

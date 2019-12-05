@@ -99,6 +99,28 @@ void YbnLoader::parseYbn(memstream& file, phBound* bound)
                 }
                 case BoundPolygonType::Box:
                 {
+                    glm::vec3 p1 = Vertices[polys[i].box.indices[0]];
+                    glm::vec3 p2 = Vertices[polys[i].box.indices[1]];
+                    glm::vec3 p3 = Vertices[polys[i].box.indices[2]];
+                    glm::vec3 p4 = Vertices[polys[i].box.indices[3]];
+
+                    glm::vec3 p1p2max = glm::max(p1, p2);
+                    glm::vec3 p3p4max = glm::max(p3, p4);
+                    glm::vec3 max = glm::max(p1p2max, p3p4max);
+
+                    glm::vec3 p1p2min = glm::min(p1, p2);
+                    glm::vec3 p3p4min = glm::min(p3, p4);
+                    glm::vec3 min = glm::min(p1p2min, p3p4min);
+
+                    glm::vec3 size = ((p3 + p4) - (p1 + p2)) * 0.5f;  //    Half extents
+                    glm::vec3 mid = (min + max) / 2.f;
+                    
+                    btTransform localTrans;
+                    localTrans.setIdentity();
+                    localTrans.setOrigin(btVector3(geom->CenterGeom.x + mid.x, geom->CenterGeom.y + mid.y, geom->CenterGeom.z + mid.z));
+                    compound->addChildShape(localTrans, new btBoxShape(btVector3(size.x, size.y, size.z)));
+                    
+                    
                     break;
                 }
                 case BoundPolygonType::Cylinder:

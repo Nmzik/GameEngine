@@ -50,16 +50,6 @@ Game::Game(const char* Path, const char* keysPath)
     initializeCamera(1280.f, 720.f);
 #endif
 
-    /*for (auto& ytd : resourceManager->getGameData()->gtxdEntries)
-    {
-        while (resourceManager->getYtd(ytd.second)->loaded) {
-            loadQueuedResources();
-        }
-    }*/
-
-    //	FT_Library library;
-    //	FT_Init_FreeType(&library);
-
     // get format from audio file
 
     //	Libavcodec
@@ -226,7 +216,7 @@ void Game::tick(float delta_time)
      //	getRenderer()->ShowTexture = !getRenderer()->ShowTexture;
      }*/
 
-    if (getInput()->isKeyTriggered(Actions::button_player1))
+    if (getInput()->isKeyPressed(Actions::button_player1))
     {
         getWorld()->currentPlayerID = 0;
 
@@ -419,7 +409,7 @@ void Game::changeLocation()
     uint32_t random = rand() % resourceManager->getGameData()->scenes.size();
     CPed* ped = getWorld()->getCurrentPlayer();
 
-    ped->setPosition(resourceManager->getGameData()->scenes[random]);
+    ped->setPosition(resourceManager->getGameData()->scenes[0]);
     // ped->setGravity(getWorld()->getPhysicsSystem()->getGravity());
     /*for (int i = 0; i < 3; i++)
      {

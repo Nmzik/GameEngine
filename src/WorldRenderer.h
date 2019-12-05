@@ -4,8 +4,8 @@
 #include "NativeWindow.h"
 #include "Texture.h"
 #include "TextureManager.h"
+#include "BaseRenderer.h"
 
-#include "metal/MetalRenderer.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/mat4x4.hpp>
 
@@ -20,7 +20,7 @@ class CVehicle;
 
 class WorldRenderer
 {
-    std::unique_ptr<MetalRenderer> renderer;
+    std::unique_ptr<BaseRenderer> renderer;
     int numDrawCalls;
 
 public:

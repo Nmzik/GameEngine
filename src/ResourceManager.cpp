@@ -131,52 +131,15 @@ YdrLoader* ResourceManager::getYdr(uint32_t hash)
 
 YtdLoader* ResourceManager::getYtd(uint32_t hash)
 {
-    auto it = ytdLoader.find(hash);
-    if (it != ytdLoader.end())
+    auto iter = ytdLoader.find(hash);
+    if (iter != ytdLoader.end())
     {
-        it->second->refCount++;
-        return it->second;
+        iter->second->refCount++;
+        return iter->second;
     }
     else
     {
-        YtdLoader* dependency = nullptr;
-        auto iter = data.gtxdEntries.find(hash);
-        if (iter != data.gtxdEntries.end())
-        {
-            //fix memory leak!
-            dependency = getYtd(iter->second);
-        }
-
-        /*bool HDTextures = false;
-        if (HDTextures)
-        {
-            auto iter = data.hdTextures.find(hash);
-            if (iter != data.hdTextures.end())
-            {
-                auto it = ytdLoader.find(iter->second);
-                if (it != ytdLoader.end())
-                {
-                    it->second->refCount++;
-                    return it->second;
-                }
-                else
-                {
-                    YtdLoader* loader = GlobalPool::GetInstance()->ytdPool.create();
-                    addToWaitingList(GlobalPool::GetInstance()->resourcesPool.create(ytd, iter->second, loader));
-                    loader->refCount++;
-                    ytdLoader.insert({iter->second, loader});
-
-                    return loader;
-                }
-            }
-            else
-            {
-                printf("HD Texture not found\n");
-            }
-        }*/
-
-        YtdLoader* loader = GlobalPool::GetInstance()->ytdPool.create();
-        loader->dependency = dependency;
+        YtdLoader* loader = new YtdLoader();
         addToWaitingList(GlobalPool::GetInstance()->resourcesPool.create(ytd, hash, loader));
         loader->refCount++;
         ytdLoader.insert({hash, loader});
@@ -456,6 +419,7 @@ void ResourceManager::updateResourceCache(GameWorld* world)
         }
     }
 
+    printf("YDR SIZE %lu\n", ydrLoader.size());
     for (auto it = ydrLoader.begin(); it != ydrLoader.end();)
     {
         if ((it->second)->refCount == 0 && (it->second)->isLoaded())
@@ -469,6 +433,7 @@ void ResourceManager::updateResourceCache(GameWorld* world)
         }
     }
 
+    printf("YDD SIZE %lu\n", yddLoader.size());
     for (auto it = yddLoader.begin(); it != yddLoader.end();)
     {
         if ((it->second)->refCount == 0 && (it->second)->isLoaded())
@@ -494,16 +459,21 @@ void ResourceManager::updateResourceCache(GameWorld* world)
             ++it;
         }
     }
-
+    printf("YTD SIZE %lu\n", ytdLoader.size());
     for (auto it = ytdLoader.begin(); it != ytdLoader.end();)
     {
         if ((it->second)->refCount == 0 && (it->second)->isLoaded())
         {
-            if (it->second->dependency)
-            {
-                if (it->second->dependency->refCount > 0)
-                    it->second->dependency->refCount--;
-            }
+            /*YtdLoader* dependency = it->second->dependency;
+            
+            while (dependency) {
+                if (dependency->refCount > 0)
+                    dependency->refCount = dependency->refCount - 2;
+                if (dependency->refCount == 0)
+                    dependency = dependency->dependency;
+                else
+                    dependency = nullptr;
+            }*/
 
             GlobalPool::GetInstance()->ytdPool.remove(it->second);
             it = ytdLoader.erase(it);

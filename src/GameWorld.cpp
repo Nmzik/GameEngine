@@ -27,15 +27,7 @@ GameWorld::GameWorld(ResourceManager* resManager)
      }*/
     {
         CacheDatFile* cache = resourceManager->getGameData()->cacheFile.get();
-        for (int i = 0; i < cache->allMapNodes.size(); i++)
-        {
-            cache->mapNodesBoundaries.push_back({spaceGrid.getCellPos(cache->allMapNodes[i].streamingExtentsMin), spaceGrid.getCellPos(cache->allMapNodes[i].streamingExtentsMax)});
-        }
-
-        for (int i = 0; i < cache->allBoundsStoreItems.size(); i++)
-        {
-            cache->boundsStoreBoundaries.push_back({spaceGrid.getCellPos(cache->allBoundsStoreItems[i].Min), spaceGrid.getCellPos(cache->allBoundsStoreItems[i].Max)});
-        }
+        newSpaceGRID.Init(cache->allMapNodes);
     }
 
     curYbns.reserve(50);
@@ -482,7 +474,7 @@ void GameWorld::getVisibleYmaps(glm::vec3& PlayerPos)
         //SpaceGridCell& cell = spaceGrid.GetCell(cellID);
         GameData& data = *resourceManager->getGameData();
         //	Bounds
-        for (int i = 0; i < data.cacheFile->allBoundsStoreItems.size(); i++)
+        /*for (int i = 0; i < data.cacheFile->allBoundsStoreItems.size(); i++)
         {
             auto max = data.cacheFile->boundsStoreBoundaries[i].max;
             auto min = data.cacheFile->boundsStoreBoundaries[i].min;
@@ -502,7 +494,7 @@ void GameWorld::getVisibleYmaps(glm::vec3& PlayerPos)
             {
                 curYmaps.emplace_back(resourceManager->getYmap(data.cacheFile->allMapNodes[i].Name));
             }
-        }
+        }*/
     }
 
     /*for (auto& Proxy : cell.CInteriorProxies)

@@ -43,6 +43,7 @@ class GameWorld
 
     using RenderList = std::vector<RenderInstruction>;
 
+    SpaceMapDataStore newSpaceGRID;
     SpaceGrid spaceGrid;
     NodeGrid nodeGrid;
     NavGrid navGrid;
