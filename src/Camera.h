@@ -38,7 +38,7 @@ public:
         : position(pos)
         , rotation(1.0f, 0.0f, 0.0f, 0.0f)
         , projection(proj)
-        , cameraMode(CameraMode::FreeCamera)
+        , cameraMode(CameraMode::ThirdPerson)
     {
     }
 

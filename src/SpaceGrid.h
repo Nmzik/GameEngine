@@ -1,71 +1,54 @@
 #pragma once
+#include <array>
+#include <limits>
+
 #include "loaders/CacheDatFile.h"
 #include <glm/gtc/type_precision.hpp>
 #include <glm/vec3.hpp>
-#include <limits>
-#include <array>
 
 class YndLoader;
 class YnvLoader;
 
-class SpaceMapDataStoreNode {
+class SpaceMapDataStoreNode
+{
     std::array<SpaceMapDataStoreNode*, 4> childrens;
     std::vector<MapDataStoreNode> items;
-    
+
     int depth;
     glm::vec3 BBmin;
     glm::vec3 BBmax;
+
 public:
     SpaceMapDataStoreNode()
-    : depth(0)
-    , BBmin(std::numeric_limits<float>::max())
-    , BBmax(std::numeric_limits<float>::lowest())
-    , childrens{nullptr}
+        : childrens{nullptr}
+        , depth(0)
+        , BBmin(std::numeric_limits<float>::max())
+        , BBmax(std::numeric_limits<float>::lowest())
     {
     }
-    
-    void addMapNode(MapDataStoreNode& node) {
+
+    void addMapNode(MapDataStoreNode& node)
+    {
         BBmin = glm::min(BBmin, node.streamingExtentsMin);
         BBmax = glm::max(BBmax, node.streamingExtentsMax);
-        
+
         items.push_back(node);
     }
 
-	void getItems(std::vector<MapDataStoreNode>& nodes, glm::vec3& pos)
+    void trySplit(int threshold)
     {
-            if ((pos.x >= BBmin.x) && (pos.x <= BBmax.x) && (pos.y >= BBmin.y) && (pos.y <= BBmax.y))
-            {
-                for (int i = 0; i < items.size(); i++)
-                {
-						glm::vec3 imin = items[i].streamingExtentsMin;
-                    glm::vec3 imax = items[i].streamingExtentsMax;
-                        if ((pos.x >= imin.x) && (pos.x <= imax.x) && (pos.y >= imin.y) && (pos.y <= imax.y))
-                        {
-                            nodes.push_back(items[i]);
-                        }
-                }
-                for (int i = 0; i < childrens.size(); i++)
-                {
-					if (childrens[i] != nullptr)
-                    {
-                        childrens[i]->getItems(nodes, pos);
-                    }
-                }
-            }
-	}
-    
-    void trySplit(int threshold) {
         if (items.size() <= threshold)
             return;
 
         std::vector<MapDataStoreNode> newItems;
-        
+
         glm::vec3 ncen = (BBmax + BBmin) * 0.5f;
         glm::vec3 next = (BBmax - BBmin) * 0.5f;
         float nsiz = glm::max(next.x, next.y);
         float nsizh = nsiz * 0.5f;
-        
-        for (int i = 0; i < items.size(); i++) {
+
+        for (int i = 0; i < items.size(); i++)
+        {
             glm::vec3 imin = items[i].streamingExtentsMin;
             glm::vec3 imax = items[i].streamingExtentsMax;
             glm::vec3 icen = (imax + imin) * 0.5f;
@@ -87,7 +70,7 @@ public:
                 childrens[cind]->addMapNode(items[i]);
             }
         }
-        
+
         for (int i = 0; i < 4; i++)
         {
             if (childrens[i] != nullptr)
@@ -95,8 +78,128 @@ public:
                 childrens[i]->trySplit(threshold);
             }
         }
-        
+
         items = std::move(newItems);
+    }
+
+    void getItems(std::vector<MapDataStoreNode>& nodes, glm::vec3& pos)
+    {
+        if ((pos.x >= BBmin.x) && (pos.x <= BBmax.x) && (pos.y >= BBmin.y) && (pos.y <= BBmax.y))
+        {
+            for (int i = 0; i < items.size(); i++)
+            {
+                glm::vec3 imin = items[i].streamingExtentsMin;
+                glm::vec3 imax = items[i].streamingExtentsMax;
+                if ((pos.x >= imin.x) && (pos.x <= imax.x) && (pos.y >= imin.y) && (pos.y <= imax.y))
+                {
+                    nodes.push_back(items[i]);
+                }
+            }
+            for (int i = 0; i < childrens.size(); i++)
+            {
+                if (childrens[i] != nullptr)
+                {
+                    childrens[i]->getItems(nodes, pos);
+                }
+            }
+        }
+    }
+};
+
+class SpaceBoundsStoreNode
+{
+    std::array<SpaceBoundsStoreNode*, 4> childrens;
+    std::vector<BoundsStoreItem> items;
+
+    int depth;
+    glm::vec3 BBmin;
+    glm::vec3 BBmax;
+
+public:
+    SpaceBoundsStoreNode()
+        : childrens{nullptr}
+        , depth(0)
+        , BBmin(std::numeric_limits<float>::max())
+        , BBmax(std::numeric_limits<float>::lowest())
+    {
+    }
+
+    void addBoundsNode(BoundsStoreItem& node)
+    {
+        BBmin = glm::min(BBmin, node.Min);
+        BBmax = glm::max(BBmax, node.Max);
+
+        items.push_back(node);
+    }
+
+    void trySplit(int threshold)
+    {
+        if (items.size() <= threshold)
+            return;
+
+        std::vector<BoundsStoreItem> newItems;
+
+        glm::vec3 ncen = (BBmax + BBmin) * 0.5f;
+        glm::vec3 next = (BBmax - BBmin) * 0.5f;
+        float nsiz = glm::max(next.x, next.y);
+        float nsizh = nsiz * 0.5f;
+
+        for (int i = 0; i < items.size(); i++)
+        {
+            glm::vec3 imin = items[i].Min;
+            glm::vec3 imax = items[i].Max;
+            glm::vec3 icen = (imax + imin) * 0.5f;
+            glm::vec3 iext = (imax - imin) * 0.5f;
+            float isiz = glm::max(iext.x, iext.y);
+
+            if (isiz >= nsizh)
+            {
+                newItems.push_back(items[i]);
+            }
+            else
+            {
+                float cind = ((icen.x > ncen.x) ? 1 : 0) + ((icen.y > ncen.y) ? 2 : 0);
+                if (childrens[cind] == nullptr)
+                {
+                    childrens[cind] = new SpaceBoundsStoreNode();
+                    childrens[cind]->depth = depth + 1;
+                }
+                childrens[cind]->addBoundsNode(items[i]);
+            }
+        }
+
+        for (int i = 0; i < 4; i++)
+        {
+            if (childrens[i] != nullptr)
+            {
+                childrens[i]->trySplit(threshold);
+            }
+        }
+
+        items = std::move(newItems);
+    }
+
+    void getItems(std::vector<BoundsStoreItem>& nodes, glm::vec3& pos)
+    {
+        if ((pos.x >= BBmin.x) && (pos.x <= BBmax.x) && (pos.y >= BBmin.y) && (pos.y <= BBmax.y))
+        {
+            for (int i = 0; i < items.size(); i++)
+            {
+                glm::vec3 imin = items[i].Min;
+                glm::vec3 imax = items[i].Max;
+                if ((pos.x >= imin.x) && (pos.x <= imax.x) && (pos.y >= imin.y) && (pos.y <= imax.y))
+                {
+                    nodes.push_back(items[i]);
+                }
+            }
+            for (int i = 0; i < childrens.size(); i++)
+            {
+                if (childrens[i] != nullptr)
+                {
+                    childrens[i]->getItems(nodes, pos);
+                }
+            }
+        }
     }
 };
 
@@ -104,42 +207,41 @@ class SpaceMapDataStore
 {
     SpaceMapDataStoreNode rootNode;
     const int splitThreshold = 10;
+
 public:
-    void Init(std::vector<MapDataStoreNode>& mapNodes) {
-        for (int i = 0; i < mapNodes.size(); i++) {
+    void Init(std::vector<MapDataStoreNode>& mapNodes)
+    {
+        for (int i = 0; i < mapNodes.size(); i++)
+        {
             rootNode.addMapNode(mapNodes[i]);
         }
         rootNode.trySplit(splitThreshold);
     }
 
-	void GetItems(std::vector<MapDataStoreNode>& nodes, glm::vec3& pos)
+    void GetItems(std::vector<MapDataStoreNode>& nodes, glm::vec3& pos)
     {
-            rootNode.getItems(nodes, pos);
-	}
+        rootNode.getItems(nodes, pos);
+    }
 };
 
-class SpaceGrid
+class SpaceBoundsStore
 {
-private:
-    const int CellCount = 500;
-    const int LastCell = CellCount - 1;
-    const float WorldSize = 10000.0f;                            // max world grid size +/- 10000 units
-    const float CellSize = 2.0f * WorldSize / (float)CellCount;  // 20.0f; //size of a cell
-    const float CellSizeInv = 1.0f / CellSize;                   // inverse of the cell size.
-    const float CellSizeHalf = CellSize * 0.5f;
+    SpaceBoundsStoreNode rootNode;
+    const int splitThreshold = 10;
 
 public:
-    SpaceGrid() = default;
-    ~SpaceGrid() = default;
-
-    glm::i32vec2 getCellPos(glm::vec3 p)
+    void Init(std::vector<BoundsStoreItem>& boundsNodes)
     {
-        glm::i32vec2 ind = (p + WorldSize) * CellSizeInv;
-        int x = (int)ind.x;
-        int y = (int)ind.y;
-        x = (x < 0) ? 0 : (x > LastCell) ? LastCell : x;
-        y = (y < 0) ? 0 : (y > LastCell) ? LastCell : y;
-        return glm::i32vec2(x, y);
+        for (int i = 0; i < boundsNodes.size(); i++)
+        {
+            rootNode.addBoundsNode(boundsNodes[i]);
+        }
+        rootNode.trySplit(splitThreshold);
+    }
+
+    void GetItems(std::vector<BoundsStoreItem>& nodes, glm::vec3& pos)
+    {
+        rootNode.getItems(nodes, pos);
     }
 };
 

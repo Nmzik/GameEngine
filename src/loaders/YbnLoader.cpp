@@ -118,7 +118,7 @@ void YbnLoader::parseYbn(memstream& file, phBound* bound)
                     btTransform localTrans;
                     localTrans.setIdentity();
                     localTrans.setOrigin(btVector3(geom->CenterGeom.x + mid.x, geom->CenterGeom.y + mid.y, geom->CenterGeom.z + mid.z));
-                    compound->addChildShape(localTrans, new btBoxShape(btVector3(size.x, size.y, size.z)));
+                    //compound->addChildShape(localTrans, new btBoxShape(btVector3(size.x, size.y, size.z)));
                     
                     
                     break;

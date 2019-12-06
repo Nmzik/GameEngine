@@ -104,7 +104,7 @@ void Game::postLoad()
 
 void Game::initializeCamera(float width, float height)
 {
-    camera = std::make_unique<Camera>(glm::vec3(0.0, 0.0, 100.0), glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 10000.0f));
+    camera = std::make_unique<Camera>(glm::vec3(0.0, 0.0, 100.0), glm::perspective(glm::radians(45.0f), (float)width / (float)height, 10000.0f, 0.1f));
 }
 
 void Game::run()

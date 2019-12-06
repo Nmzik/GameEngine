@@ -27,7 +27,8 @@ GameWorld::GameWorld(ResourceManager* resManager)
      }*/
     {
         CacheDatFile* cache = resourceManager->getGameData()->cacheFile.get();
-        newSpaceGRID.Init(cache->allMapNodes);
+        mapDataStore.Init(cache->allMapNodes);
+        boundsStore.Init(cache->allBoundsStoreItems);
     }
 
     curYbns.reserve(50);
@@ -432,11 +433,10 @@ void GameWorld::unloadEntity(CBuilding& object)
  }
  }*/
 
-void GameWorld::getVisibleYmaps(glm::vec3& PlayerPos)
+void GameWorld::getVisibleYmaps(glm::vec3& playerPos)
 {
-    auto cellID = spaceGrid.getCellPos(PlayerPos);
-    auto NodeCell = nodeGrid.getCellPos(PlayerPos);
-    auto NavCell = navGrid.getCellPos(PlayerPos);
+    auto NodeCell = nodeGrid.getCellPos(playerPos);
+    auto NavCell = navGrid.getCellPos(playerPos);
 
     if (curNavCell != NavCell)
     {
@@ -452,23 +452,50 @@ void GameWorld::getVisibleYmaps(glm::vec3& PlayerPos)
         //auto& cell = nodeGrid.GetCell(NodeCell);
     }
 
-	for (auto& ymap : curYmaps)
+    //<= 25.0f
+    const float streamingDistanceReload = 25.f;
+
+    if (glm::distance2(streamingPos, glm::vec2(playerPos)) > streamingDistanceReload * streamingDistanceReload)
     {
-		ymap->refCount--;
+        printf("NEW NODE\n");
+        streamingPos = glm::vec2(playerPos);
+        {
+            static std::vector<MapDataStoreNode> nodes;
+            nodes.clear();
+
+            mapDataStore.GetItems(nodes, playerPos);
+
+            for (auto& ymap : curYmaps)
+            {
+                ymap->refCount--;
+            }
+            curYmaps.clear();
+
+            for (int i = 0; i < nodes.size(); i++)
+            {
+                curYmaps.push_back(resourceManager->getYmap(nodes[i].Name));
+            }
+        }
+        //
+        {
+            static std::vector<BoundsStoreItem> nodes;
+            nodes.clear();
+
+            boundsStore.GetItems(nodes, playerPos);
+
+            for (auto& ybn : curYbns)
+            {
+                ybn->refCount--;
+            }
+            curYbns.clear();
+
+            for (int i = 0; i < nodes.size(); i++)
+            {
+                curYbns.push_back(resourceManager->getYbn(nodes[i].Name));
+            }
+        }
     }
-	curYmaps.clear();
-
-	static std::vector<MapDataStoreNode> nodes;
-    nodes.clear();
-
-	newSpaceGRID.GetItems(nodes, PlayerPos);
-
-	for (int i = 0; i < nodes.size(); i++)
-    {
-        curYmaps.push_back(resourceManager->getYmap(nodes[i].Name));
-    }
-
-    if (curCell != cellID)
+    /*if (curCell != cellID)
     {
         //	printf("NEW CELL\n");
         curCell = cellID;
@@ -483,9 +510,9 @@ void GameWorld::getVisibleYmaps(glm::vec3& PlayerPos)
         //	Clear previous Ybns
 
         //SpaceGridCell& cell = spaceGrid.GetCell(cellID);
-        GameData& data = *resourceManager->getGameData();
-        //	Bounds
-        /*for (int i = 0; i < data.cacheFile->allBoundsStoreItems.size(); i++)
+        GameData& data = *resourceManager->getGameData();*/
+    //	Bounds
+    /*for (int i = 0; i < data.cacheFile->allBoundsStoreItems.size(); i++)
         {
             auto max = data.cacheFile->boundsStoreBoundaries[i].max;
             auto min = data.cacheFile->boundsStoreBoundaries[i].min;
@@ -496,7 +523,7 @@ void GameWorld::getVisibleYmaps(glm::vec3& PlayerPos)
             }
         }*/
 
-        /*for (int i = 0; i < data.cacheFile->allMapNodes.size(); i++)
+    /*for (int i = 0; i < data.cacheFile->allMapNodes.size(); i++)
         {
             auto max = data.cacheFile->mapNodesBoundaries[i].max;
             auto min = data.cacheFile->mapNodesBoundaries[i].min;
@@ -506,7 +533,6 @@ void GameWorld::getVisibleYmaps(glm::vec3& PlayerPos)
                 curYmaps.emplace_back(resourceManager->getYmap(data.cacheFile->allMapNodes[i].Name));
             }
         }*/
-    }
 
     /*for (auto& Proxy : cell.CInteriorProxies)
      {

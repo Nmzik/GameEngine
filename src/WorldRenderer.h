@@ -1,10 +1,10 @@
 #pragma once
 
+#include "BaseRenderer.h"
 #include "Geometry.h"
 #include "NativeWindow.h"
 #include "Texture.h"
 #include "TextureManager.h"
-#include "BaseRenderer.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/mat4x4.hpp>

@@ -419,7 +419,7 @@ void ResourceManager::updateResourceCache(GameWorld* world)
         }
     }
 
-    printf("YDR SIZE %lu\n", ydrLoader.size());
+    //printf("YDR SIZE %lu\n", ydrLoader.size());
     for (auto it = ydrLoader.begin(); it != ydrLoader.end();)
     {
         if ((it->second)->refCount == 0 && (it->second)->isLoaded())
@@ -433,7 +433,7 @@ void ResourceManager::updateResourceCache(GameWorld* world)
         }
     }
 
-    printf("YDD SIZE %lu\n", yddLoader.size());
+    //printf("YDD SIZE %lu\n", yddLoader.size());
     for (auto it = yddLoader.begin(); it != yddLoader.end();)
     {
         if ((it->second)->refCount == 0 && (it->second)->isLoaded())
@@ -459,7 +459,7 @@ void ResourceManager::updateResourceCache(GameWorld* world)
             ++it;
         }
     }
-    printf("YTD SIZE %lu\n", ytdLoader.size());
+    //printf("YTD SIZE %lu\n", ytdLoader.size());
     for (auto it = ytdLoader.begin(); it != ytdLoader.end();)
     {
         if ((it->second)->refCount == 0 && (it->second)->isLoaded())
