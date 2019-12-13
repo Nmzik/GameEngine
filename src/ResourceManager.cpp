@@ -349,10 +349,16 @@ void ResourceManager::update()
                         case ydr:
                         case ydd:
                         case yft:
-                        case ytd:
                         {
                             memstream stream(&res->buffer[0], res->bufferSize);
                             res->file->init(stream);
+                            break;
+                        }
+                        case ytd:
+                        {
+                            memstream stream(&res->buffer[0], res->bufferSize);
+                            TextureDictionary* dictionary = (TextureDictionary*)&res->buffer[0];
+                            dictionary->Resolve(stream);
                             break;
                         }
                         default:
@@ -514,16 +520,25 @@ void ResourceManager::loadQueuedResources()
                 case ydr:
                 case ydd:
                 case yft:
-                case ytd:
                 {
                     res->file->finalize(game.getRenderer(), stream);
+                    break;
+                }
+                case ytd:
+                {
+                    YtdLoader* loader = static_cast<YtdLoader*>(res->file);
+                    TextureDictionary* texDictionary = (TextureDictionary*)&res->buffer[0];
+                    
+                    loader->finalize(game.getRenderer(), texDictionary, res->systemSize);
+                    
                     break;
                 }
                 case ybn:
                 {
                     YbnLoader* ybn = static_cast<YbnLoader*>(res->file);
-                    ybn->init(stream);
-                    ybn->finalize(game.getRenderer(), stream);
+                    
+                    phBound* boundData = (phBound*)&res->buffer[0];
+                    ybn->finalize(game.getRenderer(), boundData, stream);
                     game.getWorld()->getPhysicsSystem()->addRigidBody(ybn->getRigidBody());  //    NOT THREAD SAFE!
                     break;
                 }

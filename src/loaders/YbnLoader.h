@@ -298,7 +298,6 @@ public:
         return rigidBody.get();
     }
 
-    void init(memstream& file) override;
-    void finalize(BaseRenderer* _renderer, memstream& file) override;
+    void finalize(BaseRenderer* _renderer, phBound* boundData, memstream& file);
     ~YbnLoader();
 };

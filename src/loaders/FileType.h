@@ -31,6 +31,7 @@ struct Array_Structure  // 16 bytes - pointer for a structure array
     uint16_t Count2;
     uint32_t Unk1;
 };
+
 struct Array_uint  // 16 bytes - pointer for a uint array
 {
     uint32_t Pointer;
@@ -71,22 +72,6 @@ struct Array_StructurePointer  // 16 bytes - pointer for a structure pointer arr
     uint16_t Count1;
     uint16_t Count2;
     uint32_t Unk1;
-};
-
-struct ResourceSimpleList64Ptr
-{
-    // structure data
-    uint64_t EntriesPointer;
-    uint16_t EntriesCount;
-    uint16_t EntriesCapacity;
-    uint32_t Unused1;
-};
-
-struct ResourcePointerList64
-{
-    uint64_t EntriesPointer;
-    uint16_t EntriesCount;
-    uint16_t EntriesCapacity;
 };
 
 struct pgBase
@@ -157,6 +142,10 @@ class datBase
     uint32_t VFT;
     uint32_t Unknown_4h;  // 0x00000001
 };
+
+//ResourcePointerList64 -> pgObjectArray
+//ResourcePointerArray64 -> pgObjectArray
+//ResourceSimpleList64Ptr -> pgArray
 
 template <typename TValue>
 class atArray
@@ -237,6 +226,11 @@ public:
     void Resolve(memstream& file)
     {
         pointer = (T*)&file.data[(uint64_t)pointer & ~0x50000000];
+    }
+    
+    void ResolveGraphicsPointer(memstream& file)
+    {
+        pointer = (T*)&file.data[(uint64_t)pointer & ~0x60000000];
     }
 };
 

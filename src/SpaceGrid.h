@@ -1,6 +1,7 @@
 #pragma once
 #include <array>
 #include <limits>
+#include <optional>
 
 #include "loaders/CacheDatFile.h"
 #include <glm/gtc/type_precision.hpp>
@@ -11,7 +12,7 @@ class YnvLoader;
 
 class SpaceMapDataStoreNode
 {
-    std::array<SpaceMapDataStoreNode*, 4> childrens;
+    std::optional<SpaceMapDataStoreNode>* childrens;
     std::vector<MapDataStoreNode> items;
 
     int depth;
@@ -20,7 +21,7 @@ class SpaceMapDataStoreNode
 
 public:
     SpaceMapDataStoreNode()
-        : childrens{nullptr}
+        : childrens(new std::optional<SpaceMapDataStoreNode>[4]())
         , depth(0)
         , BBmin(std::numeric_limits<float>::max())
         , BBmax(std::numeric_limits<float>::lowest())
@@ -61,10 +62,11 @@ public:
             }
             else
             {
-                float cind = ((icen.x > ncen.x) ? 1 : 0) + ((icen.y > ncen.y) ? 2 : 0);
-                if (childrens[cind] == nullptr)
+                int cind = ((icen.x > ncen.x) ? 1 : 0) + ((icen.y > ncen.y) ? 2 : 0);
+                
+                if (!childrens[cind].has_value())
                 {
-                    childrens[cind] = new SpaceMapDataStoreNode();
+                    childrens[cind] = std::make_optional<SpaceMapDataStoreNode>();
                     childrens[cind]->depth = depth + 1;
                 }
                 childrens[cind]->addMapNode(items[i]);
@@ -73,7 +75,7 @@ public:
 
         for (int i = 0; i < 4; i++)
         {
-            if (childrens[i] != nullptr)
+            if (childrens[i].has_value())
             {
                 childrens[i]->trySplit(threshold);
             }
@@ -95,9 +97,9 @@ public:
                     nodes.push_back(items[i]);
                 }
             }
-            for (int i = 0; i < childrens.size(); i++)
+            for (int i = 0; i < 4; i++)
             {
-                if (childrens[i] != nullptr)
+                if (childrens[i].has_value())
                 {
                     childrens[i]->getItems(nodes, pos);
                 }
@@ -108,7 +110,7 @@ public:
 
 class SpaceBoundsStoreNode
 {
-    std::array<SpaceBoundsStoreNode*, 4> childrens;
+    std::optional<SpaceBoundsStoreNode>* childrens;
     std::vector<BoundsStoreItem> items;
 
     int depth;
@@ -117,7 +119,7 @@ class SpaceBoundsStoreNode
 
 public:
     SpaceBoundsStoreNode()
-        : childrens{nullptr}
+        : childrens(new std::optional<SpaceBoundsStoreNode>[4]())
         , depth(0)
         , BBmin(std::numeric_limits<float>::max())
         , BBmax(std::numeric_limits<float>::lowest())
@@ -158,10 +160,10 @@ public:
             }
             else
             {
-                float cind = ((icen.x > ncen.x) ? 1 : 0) + ((icen.y > ncen.y) ? 2 : 0);
-                if (childrens[cind] == nullptr)
+                int cind = ((icen.x > ncen.x) ? 1 : 0) + ((icen.y > ncen.y) ? 2 : 0);
+                if (!childrens[cind].has_value())
                 {
-                    childrens[cind] = new SpaceBoundsStoreNode();
+                    childrens[cind] = std::make_optional<SpaceBoundsStoreNode>();
                     childrens[cind]->depth = depth + 1;
                 }
                 childrens[cind]->addBoundsNode(items[i]);
@@ -170,7 +172,7 @@ public:
 
         for (int i = 0; i < 4; i++)
         {
-            if (childrens[i] != nullptr)
+            if (childrens[i].has_value())
             {
                 childrens[i]->trySplit(threshold);
             }
@@ -192,9 +194,9 @@ public:
                     nodes.push_back(items[i]);
                 }
             }
-            for (int i = 0; i < childrens.size(); i++)
+            for (int i = 0; i < 4; i++)
             {
-                if (childrens[i] != nullptr)
+                if (childrens[i].has_value())
                 {
                     childrens[i]->getItems(nodes, pos);
                 }

@@ -20,7 +20,7 @@ struct FragType : pgBase
     uint32_t Unknown_50h;  // 0x00000000
     uint32_t Unknown_54h;  // 0x00000000
     uint64_t NamePointer;
-    ResourcePointerList64 Clothes;
+    pgObjectArray<uint32_t> Clothes;
     uint32_t Unknown_70h;  // 0x00000000
     uint32_t Unknown_74h;  // 0x00000000
     uint32_t Unknown_78h;  // 0x00000000
@@ -59,7 +59,7 @@ struct FragType : pgBase
     uint32_t Unknown_104h;  // 0x00000000
     uint32_t Unknown_108h;  // 0x00000000
     uint32_t Unknown_10Ch;  // 0x00000000
-    ResourceSimpleList64Ptr LightAttributesPtr;
+    pgArray<uint16_t> LightAttributesPtr;
     uint64_t Unknown_120h_Pointer;
     uint32_t Unknown_128h;  // 0x00000000
     uint32_t Unknown_12Ch;  // 0x00000000

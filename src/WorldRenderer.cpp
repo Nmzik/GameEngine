@@ -52,7 +52,6 @@ void WorldRenderer::renderSky(GameWorld* world)
 
 void WorldRenderer::renderDrawable(YdrLoader* drawable)
 {
-    int curTexture = 0;
     for (auto& model : drawable->models)
     {
         if ((model.Unk_2Ch & 1) == 0)

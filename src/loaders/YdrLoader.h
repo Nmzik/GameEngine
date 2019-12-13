@@ -53,7 +53,7 @@ struct grmShaderFx
 
 struct grmShaderGroup : datBase
 {
-    uint64_t TextureDictionaryPointer;
+    pgPtr<TextureDictionary> TextureDictionaryPointer;
     pgObjectArray<grmShaderFx> Shaders;
     uint32_t Unknown_1Ch;  // 0x00000000
     uint32_t Unknown_20h;  // 0x00000000
@@ -67,6 +67,11 @@ struct grmShaderGroup : datBase
 
     void Resolve(memstream& file)
     {
+        if (*TextureDictionaryPointer) {
+            TextureDictionaryPointer.Resolve(file);
+            TextureDictionaryPointer->Resolve(file);
+        }
+        
         Shaders.Resolve(file);
     }
 };
@@ -96,7 +101,7 @@ struct grcVertexBuffer : datBase
     uint16_t VertexStride;
     uint16_t Unknown_Ah;
     uint32_t Unknown_Ch;  // 0x00000000
-    uint64_t DataPointer1;
+    pgPtr<uint8_t> DataPointer1;
     uint32_t VertexCount;
     uint32_t Unknown_1Ch;  // 0x00000000
     uint64_t DataPointer2;
@@ -124,7 +129,7 @@ struct grcVertexBuffer : datBase
 
     void Resolve(memstream& file)
     {
-        SYSTEM_BASE_PTR(DataPointer1);
+        DataPointer1.Resolve(file);
         InfoPointer = (VertexDeclaration*)&file.data[(uint64_t)InfoPointer & ~0x50000000];
     }
 };
@@ -133,7 +138,7 @@ struct grcIndexBuffer : datBase
 {
     uint32_t IndicesCount;
     uint32_t Unknown_Ch;  // 0x00000000
-    uint64_t IndicesPointer;
+    pgPtr<uint8_t> IndicesPointer;
     uint32_t Unknown_18h;  // 0x00000000
     uint32_t Unknown_1Ch;  // 0x00000000
     uint32_t Unknown_20h;  // 0x00000000
@@ -155,7 +160,7 @@ struct grcIndexBuffer : datBase
 
     void Resolve(memstream& file)
     {
-        SYSTEM_BASE_PTR(IndicesPointer);
+        IndicesPointer.Resolve(file);
     }
 };
 
@@ -211,9 +216,105 @@ struct grmModel : datBase
     }
 };
 
+enum EBoneFlags : uint16_t
+{
+    None = 0,
+    RotX = 0x1,
+    RotY = 0x2,
+    RotZ = 0x4,
+    LimitRotation = 0x8,
+    TransX = 0x10,
+    TransY = 0x20,
+    TransZ = 0x40,
+    LimitTranslation = 0x80,
+    ScaleX = 0x100,
+    ScaleY = 0x200,
+    ScaleZ = 0x400,
+    LimitScale = 0x800,
+    Unk0 = 0x1000,
+    Unk1 = 0x2000,
+    Unk2 = 0x4000,
+    Unk3 = 0x8000,
+};
+
+struct SkeletonBoneTag : pgBase
+{
+    uint32_t BoneTag;
+    uint32_t BoneIndex;
+    uint64_t LinkedTagPointer;
+    
+    inline void Resolve(memstream& file)
+    {
+        
+    }
+};
+
+struct Bone : pgBase
+{
+    glm::quat Rotation;
+    glm::vec3 Translation;
+    uint32_t Unknown_1Ch; // 0x00000000 RHW?
+    glm::vec3 Scale;
+    float Unknown_2Ch;
+    int16_t NextSiblingIndex; //limb end index? IK chain?
+    int16_t ParentIndex;
+    uint32_t Unknown_34h; // 0x00000000
+    uint64_t NamePointer;
+    EBoneFlags Flags;
+    int16_t Index;
+    uint16_t Tag;
+    int16_t Index2;//same as Index?
+    uint32_t Unknown_48h; // 0x00000000
+    uint32_t Unknown_4Ch; // 0x00000000
+    
+    inline void Resolve(memstream& file)
+    {
+        
+    }
+};
+
+typedef uint32_t FlagsUint;
+
+struct Skeleton : pgBase
+{
+    pgObjectArray<SkeletonBoneTag> BoneTagsPointer;
+    FlagsUint Unknown_1Ch;
+    pgPtr<Bone> BonesPointer;
+    pgPtr<glm::mat4> TransformationsInvertedPointer;
+    pgPtr<glm::mat4> TransformationsPointer;
+    pgPtr<int16_t> ParentIndicesPointer;
+    pgPtr<int16_t> ChildIndicesPointer;
+    uint32_t Unknown_48h; // 0x00000000
+    uint32_t Unknown_4Ch; // 0x00000000
+    uint32_t Unknown_50h;
+    uint32_t Unknown_54h;
+    uint32_t Unknown_58h;
+    uint16_t Unknown_5Ch; // 0x0001
+    uint16_t BonesCount;
+    uint16_t ChildIndicesCount;
+    uint16_t Unknown_62h; // 0x0000
+    uint32_t Unknown_64h; // 0x00000000
+    uint32_t Unknown_68h; // 0x00000000
+    uint32_t Unknown_6Ch; // 0x00000000
+    
+    inline void Resolve(memstream& file)
+    {
+        BoneTagsPointer.Resolve(file);
+        
+        BonesPointer.Resolve(file);
+        BonesPointer->Resolve(file);
+        
+        TransformationsInvertedPointer.Resolve(file);
+        TransformationsPointer.Resolve(file);
+        ParentIndicesPointer.Resolve(file);
+        ChildIndicesPointer.Resolve(file);
+        
+    }
+};
+
 struct rmcDrawable : rmcDrawableBase
 {
-    uint64_t SkeletonPointer;
+    pgPtr<Skeleton> SkeletonPointer;
     glm::vec3 BoundingCenter;
     float BoundingSphereRadius;
     glm::vec4 BoundingBoxMin;
@@ -235,6 +336,11 @@ struct rmcDrawable : rmcDrawableBase
     inline void Resolve(memstream& file)
     {
         rmcDrawableBase::Resolve(file);
+        
+        /*if (*SkeletonPointer) {
+            SkeletonPointer.Resolve(file);
+            SkeletonPointer->Resolve(file);
+        }*/
 
         for (int i = 0; i < 4; i++)
         {
@@ -318,7 +424,7 @@ struct gtaDrawable : rmcDrawable
     //uint32_t Unknown_BCh;  // 0x00000000
     uint32_t Unknown_C0h;  // 0x00000000
     uint32_t Unknown_C4h;  // 0x00000000
-    uint64_t BoundPointer;
+    pgPtr<phBound> BoundPointer;
 
     inline void Resolve(memstream& file)
     {
@@ -326,9 +432,9 @@ struct gtaDrawable : rmcDrawable
 
         LightAttributes.Resolve(file);
 
-        if (BoundPointer != 0)
+        if (*BoundPointer)
         {
-            SYSTEM_BASE_PTR(BoundPointer);
+            BoundPointer.Resolve(file);
         }
     }
 };

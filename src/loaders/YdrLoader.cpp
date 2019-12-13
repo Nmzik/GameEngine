@@ -34,13 +34,13 @@ void YdrLoader::loadDrawable(rmcDrawable* drawable, bool isYft, BaseRenderer* _r
     if (*drawable->ShaderGroupPointer)
     {  //	IF POINTER = 0 NO OBJECTS???
 
-        if (drawable->ShaderGroupPointer->TextureDictionaryPointer != 0)
+        if (*drawable->ShaderGroupPointer->TextureDictionaryPointer)
         {
-            SYSTEM_BASE_PTR(drawable->ShaderGroupPointer->TextureDictionaryPointer);
-            file.seekg(drawable->ShaderGroupPointer->TextureDictionaryPointer);
             ytd = GlobalPool::GetInstance()->ytdPool.create();
-            ytd->init(file);
-            ytd->finalize(renderer, file);
+            
+            TextureDictionary* textureDictionary = *drawable->ShaderGroupPointer->TextureDictionaryPointer;
+            
+            ytd->finalize(renderer, textureDictionary, file.systemSize);
         }
         
         for (int i = 0; i < drawable->ShaderGroupPointer->Shaders.size(); i++) {
@@ -74,14 +74,11 @@ void YdrLoader::loadDrawable(rmcDrawable* drawable, bool isYft, BaseRenderer* _r
     } else {
         gtaDrawable* GTAdrawable = (gtaDrawable*)drawable;
         
-        if (GTAdrawable->BoundPointer)
+        if (*GTAdrawable->BoundPointer)
         {
-            uint64_t origPos = file.tellg();
-            file.seekg(GTAdrawable->BoundPointer);
-             
             ybn = GlobalPool::GetInstance()->ybnPool.create();
-            ybn->init(file);
-            file.seekg(origPos);
+            
+            ybn->finalize(renderer, *GTAdrawable->BoundPointer, file);
         }
     }
     //////////
@@ -101,10 +98,10 @@ void YdrLoader::loadDrawable(rmcDrawable* drawable, bool isYft, BaseRenderer* _r
             grmGeometry* geom = drawable->DrawableModels[0]->Get(i)->m_geometries.Get(j);
 
             int vertexSize = geom->VertexBufferPointer->VertexCount * geom->VertexBufferPointer->VertexStride;
-            const uint8_t* vertexPointer = &file.data[geom->VertexBufferPointer->DataPointer1];
+            const uint8_t* vertexPointer = *geom->VertexBufferPointer->DataPointer1;
 
             int indicesSize = geom->IndexBufferPointer->IndicesCount * sizeof(uint16_t);
-            const uint8_t* indicesPointer = &file.data[geom->IndexBufferPointer->IndicesPointer];
+            const uint8_t* indicesPointer = *geom->IndexBufferPointer->IndicesPointer;
 
             VertexBufferHandle vertexHandle = renderer->createVertexBuffer(vertexSize, vertexPointer);
             IndexBufferHandle indexHandle = renderer->createIndexBuffer(indicesSize, indicesPointer);

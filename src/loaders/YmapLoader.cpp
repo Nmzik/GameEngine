@@ -14,7 +14,7 @@ void YmapLoader::init(memstream& file)
     {
         if (meta->DataBlocks[j].StructureNameHash == 3545841574)
         {
-            std::memcpy(&_CMapData, &file.data[meta->DataBlocks[j].DataPointer], sizeof(CMapData));
+            CMapData* cmapData = (CMapData*)&file.data[meta->DataBlocks[j].DataPointer];
 
             //	Optimization
             entities.reserve(_CMapData.entities.Count1);

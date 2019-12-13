@@ -1,24 +1,18 @@
 #include "YtdLoader.h"
 
-void YtdLoader::init(memstream& file)
-{
-    texDictionary = (TextureDictionary*)file.read(sizeof(TextureDictionary));
-    texDictionary->Resolve(file);
-}
-
-void YtdLoader::finalize(BaseRenderer* _renderer, memstream& file)
+void YtdLoader::finalize(BaseRenderer* _renderer, TextureDictionary* texDictionary, int32_t systemSize)
 {
     renderer = _renderer;
-
+    
     if (texDictionary->Textures.size() != 0)
     {
         for (int i = 0; i < texDictionary->Textures.size(); i++)
         {
             grcTexture* texture = texDictionary->Textures.Get(i);
 
-            texture->DataPointer += file.systemSize;
+            uint8_t* dataPointer = (uint8_t*)((uint64_t)*texture->DataPointer + systemSize);
 
-            TextureHandle handle = renderer->createTexture(&file.data[texture->DataPointer], texture->Width, texture->Height, texture->Levels, texture->Format);
+            TextureHandle handle = renderer->createTexture(dataPointer, texture->Width, texture->Height, texture->Levels, texture->Format);
 
             uint32_t hash = texDictionary->TextureNameHashesPtr.Get(i);
             renderer->getTextureManager()->addTexture(hash, handle);

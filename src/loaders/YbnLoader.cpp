@@ -33,19 +33,14 @@ void YbnLoader::addCylinderShape(btCompoundShape* compound, btVector3 pos, btVec
     compound->addChildShape(localTrans, new btCylinderShapeZ(halfExtents));
 }
 
-void YbnLoader::init(memstream& file)
-{
-    compound = new btCompoundShape();
-
-    phBound* bound = (phBound*)file.read(sizeof(phBound));
-    
-    parseYbn(file, bound);
-}
-
 static phBoundPoly** boundPolys = new phBoundPoly*[8192];
 
-void YbnLoader::finalize(BaseRenderer* _renderer, memstream& file)
+void YbnLoader::finalize(BaseRenderer* _renderer, phBound* boundData, memstream& file)
 {
+    compound = new btCompoundShape();
+    
+    parseYbn(file, boundData);
+    
     btDefaultMotionState* MotionState = new btDefaultMotionState(btTransform(btQuaternion(0.f, 0.f, 0.f, 1.f), btVector3(0, 0, 0)));
     btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(0, MotionState, compound, btVector3(0, 0, 0));
     rigidBody = std::make_unique<btRigidBody>(groundRigidBodyCI);

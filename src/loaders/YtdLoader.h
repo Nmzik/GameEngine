@@ -38,7 +38,7 @@ struct grcTexture : TextureBase
     uint32_t Unknown_64h;  // 0x00000000
     uint32_t Unknown_68h;  // 0x00000000
     uint32_t Unknown_6Ch;  // 0x00000000
-    uint64_t DataPointer;
+    pgPtr<uint8_t> DataPointer;
     uint32_t Unknown_78h;  // 0x00000000
     uint32_t Unknown_7Ch;  // 0x00000000
     uint32_t Unknown_80h;  // 0x00000000
@@ -48,7 +48,7 @@ struct grcTexture : TextureBase
 
     void Resolve(memstream& file)
     {
-        GRAPHICS_BASE_PTR(DataPointer);
+        DataPointer.ResolveGraphicsPointer(file);
     }
 };
 
@@ -71,15 +71,13 @@ struct TextureDictionary : pgBase
 class YtdLoader : public FileType
 {
     BaseRenderer* renderer = nullptr;
-    TextureDictionary* texDictionary;
 
 public:
     std::unordered_map<uint32_t, Texture> textures;
 
     YtdLoader* dependency;
     
-    void init(memstream& file) override;
-    void finalize(BaseRenderer* _renderer, memstream& file) override;
+    void finalize(BaseRenderer* _renderer, TextureDictionary* texDictionary, int32_t systemSize);
 
     YtdLoader() = default;
     ~YtdLoader();
