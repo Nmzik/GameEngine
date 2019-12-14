@@ -164,7 +164,7 @@ void GameWorld::updateObjects(Camera* camera, glm::vec3& position)
     {
         if (ymap->isLoaded())
         {
-            if (!camera->ContainsAABBNoClipNoOpt(ymap->_CMapData.entitiesExtentsMin, ymap->_CMapData.entitiesExtentsMax))
+            if (!camera->ContainsAABBNoClipNoOpt(ymap->cMapData.entitiesExtentsMin, ymap->cMapData.entitiesExtentsMax))
             {
                 ++culledYmaps;
                 continue;

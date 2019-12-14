@@ -14,11 +14,12 @@ void YmapLoader::init(memstream& file)
     {
         if (meta->DataBlocks[j].StructureNameHash == 3545841574)
         {
-            CMapData* cmapData = (CMapData*)&file.data[meta->DataBlocks[j].DataPointer];
-
+            CMapData* data = (CMapData*)&file.data[meta->DataBlocks[j].DataPointer];
+            
+            cMapData = *data;
             //	Optimization
-            entities.reserve(_CMapData.entities.Count1);
-            carGenerators.reserve(_CMapData.carGenerators.Count1);
+            entities.reserve(cMapData.entities.Count1);
+            carGenerators.reserve(cMapData.carGenerators.Count1);
         }
     }
 
