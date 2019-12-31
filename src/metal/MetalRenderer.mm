@@ -213,6 +213,7 @@ void MetalRenderer::initializeRenderEngine()
     MTLSamplerDescriptor *samplerDescriptor = [MTLSamplerDescriptor new];
     samplerDescriptor.minFilter = MTLSamplerMinMagFilterNearest;
     samplerDescriptor.magFilter = MTLSamplerMinMagFilterLinear;
+    samplerDescriptor.mipFilter = MTLSamplerMipFilterLinear;
     samplerDescriptor.sAddressMode = MTLSamplerAddressModeRepeat;
     samplerDescriptor.tAddressMode = MTLSamplerAddressModeRepeat;
     samplerDescriptor.rAddressMode = MTLSamplerAddressModeRepeat;
