@@ -213,6 +213,7 @@ void MetalRenderer::initializeRenderEngine()
     MTLSamplerDescriptor *samplerDescriptor = [MTLSamplerDescriptor new];
     samplerDescriptor.minFilter = MTLSamplerMinMagFilterNearest;
     samplerDescriptor.magFilter = MTLSamplerMinMagFilterLinear;
+    samplerDescriptor.mipFilter = MTLSamplerMipFilterLinear;
     samplerDescriptor.sAddressMode = MTLSamplerAddressModeRepeat;
     samplerDescriptor.tAddressMode = MTLSamplerAddressModeRepeat;
     samplerDescriptor.rAddressMode = MTLSamplerAddressModeRepeat;
@@ -598,7 +599,7 @@ TextureHandle MetalRenderer::createTexture(const uint8_t* pointer, int width, in
         return TextureHandle{0};
     
     if (CompatibleTextureFormat.second || convert) {
-        int minMipMap = 0; //min mipmap to load
+        int minMipMap = 3; //min mipmap to load
         minMipMap = levels > minMipMap? minMipMap : levels - 1;
         
         int blockSize = (format == D3DFMT_DXT1) ? 8 : 16;

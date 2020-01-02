@@ -281,7 +281,7 @@ void Game::tick(float delta_time)
         }
     }
 
-    float speed = getInput()->isKeyPressed(Actions::button_LSHIFT) ? 80.0f : 10.0f;
+    float speed = getInput()->isKeyPressed(Actions::button_LSHIFT) ? 80.0f : 50.0f;
 
     glm::vec3 movement{};
     movement.x = (float)getInput()->isKeyPressed(Actions::button_Forward) - getInput()->isKeyPressed(Actions::button_Backward);

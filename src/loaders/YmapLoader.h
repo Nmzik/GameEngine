@@ -115,7 +115,7 @@ class CBuilding;
 class YmapLoader : public FileType
 {
 public:
-    CMapData _CMapData;
+    CMapData cMapData;
     std::vector<CMloInstanceDef> CMloInstanceDefs;
     std::vector<CBuilding> entities;
     std::vector<CCarGen> carGenerators;

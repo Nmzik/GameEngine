@@ -46,7 +46,7 @@ GameWorld::GameWorld(ResourceManager* resManager)
     GlobalPool::GetInstance()->yddPool.preAllocate(1000);
     GlobalPool::GetInstance()->ydrPool.preAllocate(5500);
     GlobalPool::GetInstance()->yftPool.preAllocate(1000);
-    GlobalPool::GetInstance()->ytdPool.preAllocate(2000);
+    GlobalPool::GetInstance()->ytdPool.preAllocate(3000);
     GlobalPool::GetInstance()->ymapPool.preAllocate(1000);
     /*WaterMeshes.reserve(data.WaterQuads.size());
      for (auto& WaterQuad : data.WaterQuads)
@@ -87,7 +87,7 @@ void GameWorld::postLoad()
      {
      resourceManager->getYtd(ytd.second);
      }*/
-    CPed* ped1 = new CPed(glm::vec3(9.66, -1184.98, 75.74), playerYDD);
+    CPed* ped1 = new CPed(glm::vec3(-1800.66, -84.98, 2500.74), playerYDD);
     ped1->initDrawable();
     CPed* ped2 = new CPed(glm::vec3(9.66, -1184.98, 75.74), playerYDD);
     ped2->initDrawable();
@@ -164,7 +164,7 @@ void GameWorld::updateObjects(Camera* camera, glm::vec3& position)
     {
         if (ymap->isLoaded())
         {
-            if (!camera->ContainsAABBNoClipNoOpt(ymap->_CMapData.entitiesExtentsMin, ymap->_CMapData.entitiesExtentsMax))
+            if (!camera->ContainsAABBNoClipNoOpt(ymap->cMapData.entitiesExtentsMin, ymap->cMapData.entitiesExtentsMax))
             {
                 ++culledYmaps;
                 continue;
@@ -414,25 +414,6 @@ void GameWorld::unloadEntity(CBuilding& object)
     object.loaded = false;
 }
 
-/*bool GameWorld::LoadYTYP(uint32_t hash)
- {
- auto it = data.YtypEntries.find(hash);
- if (it != data.YtypEntries.end())
- {
- std::cout << "YTYP Found " << it->second->Name << std::endl;
- auto& element = *(it->second);
- std::vector<uint8_t> outputBuffer;
- data.ExtractFileResource(element, outputBuffer);
- 
- memstream stream(outputBuffer.data(), outputBuffer.size());
- 
- YtypLoader* file = new YtypLoader(stream);
- ytypLoader.push_back(file);
- 
- return true;
- }
- }*/
-
 void GameWorld::getVisibleYmaps(glm::vec3& playerPos)
 {
     auto NodeCell = nodeGrid.getCellPos(playerPos);
@@ -452,8 +433,8 @@ void GameWorld::getVisibleYmaps(glm::vec3& playerPos)
         //auto& cell = nodeGrid.GetCell(NodeCell);
     }
 
-    //<= 25.0f
-    const float streamingDistanceReload = 25.f;
+    //<= 20.0f
+    const float streamingDistanceReload = 15.f;
 
     if (glm::distance2(streamingPos, glm::vec2(playerPos)) > streamingDistanceReload * streamingDistanceReload)
     {
@@ -560,6 +541,35 @@ void GameWorld::getVisibleYmaps(glm::vec3& playerPos)
      ++it;
      }
      }*/
+    
+    static bool firstRun = true;
+    if (firstRun) {
+        
+        bool allLoaded = true;
+        peds[0]->getPhysCharacter()->setGravity(btVector3(0,0,0));
+        
+        
+        for (int i = 0; i < curYbns.size(); i++) {
+            if (!curYbns[i]->isLoaded()) {
+                allLoaded = false;
+                break;
+            }
+        }
+        
+        if (allLoaded) {
+            glm::vec3 m_rayStart = peds[0]->getPosition();
+            glm::vec3 m_rayEnd = glm::vec3(m_rayStart.x, m_rayStart.y, 0.f);
+
+            auto result = physicsSystem.rayCast(m_rayStart, m_rayEnd);
+            if (result.HasHit) {
+                firstRun = false;
+                
+                peds[0]->getPhysCharacter()->setGravity(physicsSystem.getPhysicsWorld()->getGravity());
+                peds[0]->setPosition(result.HitPos + glm::vec3(0, 0, 5.f));
+            }
+        }
+        
+    }
 }
 
 void GameWorld::createPedestrian()
