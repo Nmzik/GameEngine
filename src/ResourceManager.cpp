@@ -139,7 +139,15 @@ YtdLoader* ResourceManager::getYtd(uint32_t hash)
     }
     else
     {
-        YtdLoader* loader = new YtdLoader();
+        YtdLoader* dependency = nullptr;
+        auto iter = data.gtxdEntries.find(hash);
+        if (iter != data.gtxdEntries.end())
+        {
+            //fix memory leak!
+            dependency = getYtd(iter->second);
+        }
+        
+        YtdLoader* loader = GlobalPool::GetInstance()->ytdPool.create();
         addToWaitingList(GlobalPool::GetInstance()->resourcesPool.create(ytd, hash, loader));
         loader->refCount++;
         ytdLoader.insert({hash, loader});
