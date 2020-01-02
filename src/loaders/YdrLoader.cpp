@@ -1,5 +1,7 @@
 #include "YdrLoader.h"
+
 #include <algorithm>
+
 #include "../GTAEncryption.h"
 
 void YdrLoader::init(memstream& file)
@@ -28,6 +30,21 @@ void YdrLoader::finalize(BaseRenderer* _renderer, memstream& file)
 void YdrLoader::loadDrawable(rmcDrawable* drawable, bool isYft, BaseRenderer* _renderer, memstream& file)
 {
     renderer = _renderer;
+
+    struct bonesData
+    {
+        Bone bone;
+        Bone* parent;
+    };
+
+    if (*drawable->SkeletonPointer)
+    {
+        if (*drawable->SkeletonPointer->BonesPointer && *drawable->SkeletonPointer->ParentIndicesPointer)
+        {
+            //int maxcnt = std::min(drawable->SkeletonPointer->BonesCount, drawable->SkeletonPointer->in)        
+        }
+    }
+
     //	READ COLLISION DATA FROM YDR
 
     //	Shader stuff
@@ -37,18 +54,19 @@ void YdrLoader::loadDrawable(rmcDrawable* drawable, bool isYft, BaseRenderer* _r
         if (*drawable->ShaderGroupPointer->TextureDictionaryPointer)
         {
             ytd = GlobalPool::GetInstance()->ytdPool.create();
-            
+
             TextureDictionary* textureDictionary = *drawable->ShaderGroupPointer->TextureDictionaryPointer;
-            
+
             ytd->finalize(renderer, textureDictionary, file.systemSize);
         }
-        
-        for (int i = 0; i < drawable->ShaderGroupPointer->Shaders.size(); i++) {
-            if (drawable->ShaderGroupPointer->Shaders.Get(i)->TextureParametersCount > 0) {
-                
+
+        for (int i = 0; i < drawable->ShaderGroupPointer->Shaders.size(); i++)
+        {
+            if (drawable->ShaderGroupPointer->Shaders.Get(i)->TextureParametersCount > 0)
+            {
             }
         }
-            /*
+        /*
                 {
                     if (ShaderHashes[i] == 4059966321 || (ShaderHashes[i] == 3576369631))
                     {  //	DiffuseSampler
@@ -67,17 +85,19 @@ void YdrLoader::loadDrawable(rmcDrawable* drawable, bool isYft, BaseRenderer* _r
                         DetailSampler = TexturesHashes[i];
                     }
                 }*/
-        }
-    
-    if (isYft) {
-        
-    } else {
+    }
+
+    if (isYft)
+    {
+    }
+    else
+    {
         gtaDrawable* GTAdrawable = (gtaDrawable*)drawable;
-        
+
         if (*GTAdrawable->BoundPointer)
         {
             ybn = GlobalPool::GetInstance()->ybnPool.create();
-            
+
             ybn->finalize(renderer, *GTAdrawable->BoundPointer, file);
         }
     }
@@ -90,7 +110,7 @@ void YdrLoader::loadDrawable(rmcDrawable* drawable, bool isYft, BaseRenderer* _r
         models[i].Unk_2Ch = drawable->DrawableModels[0]->Get(i)->Unknown_2Ch;
         //	Optimization
         models[i].geometries.reserve(drawable->DrawableModels[0]->Get(i)->m_geometries.size());
-        
+
         uint16_t* shaderMappings = drawable->DrawableModels[0]->Get(i)->getShaderMappings();
 
         for (int j = 0; j < drawable->DrawableModels[0]->Get(i)->m_geometries.size(); j++)
@@ -105,20 +125,21 @@ void YdrLoader::loadDrawable(rmcDrawable* drawable, bool isYft, BaseRenderer* _r
 
             VertexBufferHandle vertexHandle = renderer->createVertexBuffer(vertexSize, vertexPointer);
             IndexBufferHandle indexHandle = renderer->createIndexBuffer(indicesSize, indicesPointer);
-            
+
             uint32_t shaderIndex = shaderMappings[j];
-            
+
             uint32_t diffuseHash = 0;
-            
-            uint32_t* shaderHashes = (uint32_t*)((uintptr_t)*(drawable->ShaderGroupPointer->Shaders.Get(shaderIndex)->parameters) + drawable->ShaderGroupPointer->Shaders.Get(shaderIndex)->m_parameterSize);
-            
+
+            uint32_t* shaderHashes = (uint32_t*)((uintptr_t) * (drawable->ShaderGroupPointer->Shaders.Get(shaderIndex)->parameters) + drawable->ShaderGroupPointer->Shaders.Get(shaderIndex)->m_parameterSize);
+
             grmShaderParameter* param = drawable->ShaderGroupPointer->Shaders.Get(shaderIndex)->getParameters();
-            
-            for (int k = 0; k < drawable->ShaderGroupPointer->Shaders.Get(shaderIndex)->TextureParametersCount; k++) {
-                if (shaderHashes[k] == 4059966321 || shaderHashes[k] == 3576369631) {
-                    
+
+            for (int k = 0; k < drawable->ShaderGroupPointer->Shaders.Get(shaderIndex)->TextureParametersCount; k++)
+            {
+                if (shaderHashes[k] == 4059966321 || shaderHashes[k] == 3576369631)
+                {
                     assert(param[k].DataType == 0);
-                    
+
                     if (param[k].DataPointer == 0)
                     {
                         diffuseHash = 0;
@@ -142,7 +163,7 @@ void YdrLoader::loadDrawable(rmcDrawable* drawable, bool isYft, BaseRenderer* _r
                     }
                 }
             }
-            
+
             TextureHandle texHandle = renderer->getTextureManager()->getTexture(diffuseHash);
             uint32_t vertexLayoutHandle = renderer->getLayoutHandle((VertexType)geom->VertexBufferPointer->InfoPointer->Flags);
 
@@ -159,7 +180,7 @@ YdrLoader::~YdrLoader()
 
     if (ybn)
         GlobalPool::GetInstance()->ybnPool.remove(ybn);
-    
+
     if (renderer)
     {
         for (auto& model : models)

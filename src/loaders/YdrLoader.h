@@ -241,11 +241,15 @@ struct SkeletonBoneTag : pgBase
 {
     uint32_t BoneTag;
     uint32_t BoneIndex;
-    uint64_t LinkedTagPointer;
+    pgPtr<SkeletonBoneTag> LinkedTagPointer;
     
     inline void Resolve(memstream& file)
     {
-        
+        /*if (*LinkedTagPointer)
+        {
+            LinkedTagPointer.Resolve(file);
+            //LinkedTagPointer->Resolve(file);
+        }*/
     }
 };
 
@@ -337,10 +341,10 @@ struct rmcDrawable : rmcDrawableBase
     {
         rmcDrawableBase::Resolve(file);
         
-        /*if (*SkeletonPointer) {
+        if (*SkeletonPointer) {
             SkeletonPointer.Resolve(file);
             SkeletonPointer->Resolve(file);
-        }*/
+        }
 
         for (int i = 0; i < 4; i++)
         {
@@ -487,6 +491,8 @@ class YdrLoader : public FileType
 public:
     std::vector<Model> models;
     YbnLoader* ybn;
+
+    std::unordered_map<uint16_t, Bone> bonesMap;
 
     YdrLoader()
         : ytd(nullptr)

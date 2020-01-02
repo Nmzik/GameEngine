@@ -245,7 +245,7 @@ private:
 public:
     inline uint16_t size() const
     {
-        return m_count;
+        return m_size;
     }
 
     TValue* operator[](uint16_t offset)
@@ -262,10 +262,13 @@ public:
     {
         m_objects.Resolve(file);
 
-        for (int i = 0; i < m_count; i++)
+        for (int i = 0; i < m_size; i++)
         {
-            (*m_objects)[i].Resolve(file);
-            (*m_objects)[i]->Resolve(file);
+            if (!(*m_objects)[i].isNULL())
+            {
+                (*m_objects)[i].Resolve(file);
+                (*m_objects)[i]->Resolve(file);
+            }
         }
     }
 };

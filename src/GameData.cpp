@@ -8,6 +8,7 @@
 #include "loaders/RpfFile.h"
 #include "loaders/YmfLoader.h"
 #include "loaders/YndLoader.h"
+#include "loaders/YcdLoader.h"
 #include "loaders/YnvLoader.h"
 #include "loaders/YtypLoader.h"
 
@@ -112,13 +113,18 @@ void GameData::load()
             }
             else if (extension == ".ydd")
             {
-                if (entry.ShortNameHash == 4096714883)
-                    printf("");
                 //    Yddentries[entry.FileNameHash] = &entry;
                 entries[ydd][entry.ShortNameHash] = &entry;
             }
             else if (extension == ".ycd")
             {
+                //buffer.resize(entry.UncompressedFileSize);
+                //extractFileResource(entry, buffer.data(), buffer.size());
+
+                //memstream stream(buffer.data(), buffer.size());
+
+                //YcdLoader loader(stream);
+
                 //    Yddentries[entry.FileNameHash] = &entry;
                 entries[ycd][entry.ShortNameHash] = &entry;
             }

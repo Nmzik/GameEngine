@@ -758,8 +758,8 @@ void GameWorld::updateWorld(float delta_time, Camera* camera)
             if (getCurrentPlayer()->getPhysCharacter()->getGravity() == btVector3(0.f, 0.f, 0.f)) getCurrentPlayer()->getPhysCharacter()->setGravity(physicsSystem.getPhysicsWorld()->getGravity());
         }*/
 
-        //glm::vec3 playerPos = getCurrentPlayer()->getPosition();
-        glm::vec3 playerPos = camera->getPosition();
+        glm::vec3 playerPos = getCurrentPlayer()->getPosition();
+        //glm::vec3 playerPos = camera->getPosition();
 
         getVisibleYmaps(playerPos);
         updateObjects(camera, playerPos);

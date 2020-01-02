@@ -104,7 +104,11 @@ void Game::postLoad()
 
 void Game::initializeCamera(float width, float height)
 {
+#ifdef METAL
     camera = std::make_unique<Camera>(glm::vec3(0.0, 0.0, 100.0), glm::perspective(glm::radians(45.0f), (float)width / (float)height, 10000.0f, 0.1f));
+#else
+    camera = std::make_unique<Camera>(glm::vec3(0.0, 0.0, 100.0), glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 10000.0f));
+#endif
 }
 
 void Game::run()
