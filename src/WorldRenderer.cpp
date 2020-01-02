@@ -8,7 +8,7 @@
 #include "loaders/YtdLoader.h"
 
 #ifdef WIN32
-#include "OpenGL/OpenGLRenderer.h"
+#include "vulkan/VulkanRenderer.h"
 #include "windows/Win32Window.h"
 #else
 #include "metal/MetalRenderer.h"
@@ -17,7 +17,7 @@
 WorldRenderer::WorldRenderer(NativeWindow* window)
 {
 #ifdef WIN32
-    renderer = std::make_unique<OpenGLRenderer>(window);
+    renderer = std::make_unique<VulkanRenderer>(window);
 #else
     renderer = std::make_unique<MetalRenderer>();
 #endif

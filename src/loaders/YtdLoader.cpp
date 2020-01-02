@@ -10,14 +10,17 @@ void YtdLoader::finalize(BaseRenderer* _renderer, TextureDictionary* texDictiona
         {
             grcTexture* texture = texDictionary->Textures.Get(i);
 
-            uint8_t* dataPointer = (uint8_t*)((uint64_t)*texture->DataPointer + systemSize);
+            if (texture)
+            {
+                uint8_t* dataPointer = (uint8_t*)((uint64_t)*texture->DataPointer + systemSize);
 
-            TextureHandle handle = renderer->createTexture(dataPointer, texture->Width, texture->Height, texture->Levels, texture->Format);
+                TextureHandle handle = renderer->createTexture(dataPointer, texture->Width, texture->Height, texture->Levels, texture->Format);
 
-            uint32_t hash = texDictionary->TextureNameHashesPtr.Get(i);
-            renderer->getTextureManager()->addTexture(hash, handle);
-            Texture tex(handle);
-            textures.insert({hash, tex});
+                uint32_t hash = texDictionary->TextureNameHashesPtr.Get(i);
+                renderer->getTextureManager()->addTexture(hash, handle);
+                Texture tex(handle);
+                textures.insert({hash, tex});
+            }
         }
     }
 }

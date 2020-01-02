@@ -245,6 +245,7 @@ private:
 public:
     inline uint16_t size() const
     {
+        //m_count should be less/equal to m_size
         return m_size;
     }
 

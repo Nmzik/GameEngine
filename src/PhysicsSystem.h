@@ -3,7 +3,7 @@
 
 #include "allocators/FreeListAllocator.h"
 #ifdef WIN32
-#include "OpenGL/DebugDrawer.h"
+//#include "OpenGL/DebugDrawer.h"
 #else
 #include "metal/DebugDrawer.h"
 #endif
@@ -27,7 +27,7 @@ public:
     PhysicsSystem();
     ~PhysicsSystem();
 
-    DebugDrawer debug;
+    //DebugDrawer debug;
     void update(float delta_time);
 
     struct RayResult

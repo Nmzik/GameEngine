@@ -25,30 +25,26 @@ allocators/*.cpp
 list (APPEND SOURCES ${ALLOCATORS})
 
 if(WIN32)
-	set	(OPENGL 1)
-	set (VULKAN 0)
-
 	file(GLOB WIN_SOURCES
 	windows/*.h
 	windows/*.cpp
 	)
 
 	list (APPEND SOURCES ${WIN_SOURCES})
-endif()
-
-if(OPENGL)
-	file(GLOB OpenGL
-	OpenGL/*.h
-	OpenGL/*.cpp
-	)
-	list (APPEND SOURCES ${OpenGL})
-endif()
-if(VULKAN)
-	file(GLOB Vulkan
-	vulkan/*.h
-	vulkan/*.cpp
-	)
-	list (APPEND SOURCES ${Vulkan})
+	
+	if(USE_VULKAN)
+		file(GLOB Vulkan
+		vulkan/*.h
+		vulkan/*.cpp
+		)
+		list (APPEND SOURCES ${Vulkan})
+	else()
+		file(GLOB OpenGL
+		OpenGL/*.h
+		OpenGL/*.cpp
+		)
+		list (APPEND SOURCES ${OpenGL})
+	endif()
 endif()
 
 if(CMAKE_SYSTEM_NAME STREQUAL iOS)
