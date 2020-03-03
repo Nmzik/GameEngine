@@ -127,6 +127,8 @@ MetalRenderer::MetalRenderer()
         texturesIDs.push(i);
     }
     textureDecompressedMem = std::make_unique<uint8_t[]>(20 * 1024 * 1024); //20mb for uncompressing textures
+    secondTextureDecompressedMem = std::make_unique<uint8_t[]>(10 * 1024 * 1024);
+    
 }
 
 MetalRenderer::~MetalRenderer()
@@ -585,12 +587,19 @@ std::pair<MTLPixelFormat, bool> getCompatibleTextureFormat(TextureFormat format)
 
 TextureHandle MetalRenderer::createTexture(const uint8_t* pointer, int width, int height, int levels, TextureFormat format)
 {
+    bool convert;
+    bool lowRAM;
+    bool convertToASTC;
 #if TARGET_OS_IPHONE
-    bool convert = true;
+    convert = true;
+    lowRAM = true;
+    convertToASTC = true;
     //check uncompressed texture size
     assert(convert && (width * height * 4) <= 20 * 1024 * 1024);
 #else
-    bool convert = false;
+    convert = false;
+    lowRAM = false;
+    convertToASTC = false;
 #endif
     
     auto CompatibleTextureFormat = getCompatibleTextureFormat(format);
@@ -598,7 +607,7 @@ TextureHandle MetalRenderer::createTexture(const uint8_t* pointer, int width, in
     if (CompatibleTextureFormat.first == MTLPixelFormatInvalid)
         return TextureHandle{0};
     
-    if (CompatibleTextureFormat.second || convert) {
+    if (lowRAM && convert) {
         int minMipMap = 3; //min mipmap to load
         minMipMap = levels > minMipMap? minMipMap : levels - 1;
         
@@ -612,6 +621,13 @@ TextureHandle MetalRenderer::createTexture(const uint8_t* pointer, int width, in
         levels -= minMipMap;
     }
     
+    //levels = 1;
+    
+    #if TARGET_OS_IPHONE
+    if (convertToASTC)
+        CompatibleTextureFormat.first = MTLPixelFormatASTC_4x4_LDR;
+    #endif
+    
     MTLTextureDescriptor* descriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:CompatibleTextureFormat.first width:width height:height mipmapped:levels > 1? true : false];
     
     id <MTLTexture> texture = [device newTextureWithDescriptor:descriptor];
@@ -621,29 +637,44 @@ TextureHandle MetalRenderer::createTexture(const uint8_t* pointer, int width, in
             int blockSize = (format == D3DFMT_DXT1) ? 8 : 16;
             
             unsigned int size = ((width + 3) / 4) * ((height + 3) / 4) * blockSize;
+            const uint32_t depth = 1;
             
-            Decompressor::imageDecodeToBgra8(textureDecompressedMem.get(), pointer, width, height, width * 4, format);
+            if (convertToASTC) {
+                imageDecodeToRgba8(textureDecompressedMem.get(), pointer, width, height, width*4, format);
+                imageEncodeFromRgba8(secondTextureDecompressedMem.get(), textureDecompressedMem.get(), width, height, depth, Quality::Fastest);
+                
+                const uint32_t widthInBlocks =  (width + 4 - 1) / 4;
+                const uint32_t blockSize = 4 * 4;
+                const uint32_t bytesPerRow = widthInBlocks * blockSize;
+                
+                MTLRegion region = MTLRegionMake2D(0, 0, width, height);
+                [texture replaceRegion:region mipmapLevel:i slice:0 withBytes:secondTextureDecompressedMem.get() bytesPerRow: bytesPerRow bytesPerImage:0];
+                
+            } else {
+                imageDecodeToBgra8(textureDecompressedMem.get(), pointer, width, height, width * 4, format);
             
-            MTLRegion region = MTLRegionMake2D(0, 0, width, height);
-            [texture replaceRegion:region mipmapLevel:i slice:0 withBytes:textureDecompressedMem.get() bytesPerRow:width * 32 / 8 bytesPerImage:0];
+                MTLRegion region = MTLRegionMake2D(0, 0, width, height);
+                [texture replaceRegion:region mipmapLevel:i slice:0 withBytes:textureDecompressedMem.get() bytesPerRow:width * 32 / 8 bytesPerImage:0];
+            }
             
             pointer += size;
             width = std::max(width / 2, 1);
             height = std::max(height / 2, 1);
         }
-    } else if (!CompatibleTextureFormat.second){
-        for (int i = 0; i < levels; i++) {
-            unsigned int size =
-            ((width + 1) >> 1) * ((height + 1) >> 1) * 4;
+    } else if (!CompatibleTextureFormat.second)
+        {
+            for (int i = 0; i < levels; i++) {
+                unsigned int size =
+                ((width + 1) >> 1) * ((height + 1) >> 1) * 4;
             
-            MTLRegion region = MTLRegionMake2D(0, 0, width, height);
-            [texture replaceRegion:region mipmapLevel:i withBytes:pointer bytesPerRow:width * 4];
+                MTLRegion region = MTLRegionMake2D(0, 0, width, height);
+                [texture replaceRegion:region mipmapLevel:i withBytes:pointer bytesPerRow:width * 4];
             
-            pointer += size;
-            width = std::max(width / 2, 1);
-            height = std::max(height / 2, 1);
+                pointer += size;
+                width = std::max(width / 2, 1);
+                height = std::max(height / 2, 1);
+            }
         }
-    }
     #if !TARGET_OS_IPHONE
     else {
         for (int i = 0; i < levels; i++) {

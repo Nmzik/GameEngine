@@ -1,9 +1,11 @@
 #pragma once
 #include <vector>
+
 #include "FileType.h"
 #include <btBulletDynamicsCommon.h>
 
-enum class phBoundType : uint8_t {
+enum class phBoundType : uint8_t
+{
     Sphere = 0,
     Capsule = 1,
     Box = 3,
@@ -17,18 +19,18 @@ struct phBoundMaterial1
     uint8_t materialIdx;
     uint8_t proceduralId;
 
-        // TODO: double-check order
-        uint8_t roomId : 5;
-        uint8_t pedDensity : 3;
+    // TODO: double-check order
+    uint8_t roomId : 5;
+    uint8_t pedDensity : 3;
 
-        uint8_t stairs : 1;
-        uint8_t blockClimb : 1;
-        uint8_t seeThrough : 1;
-        uint8_t shootThrough : 1;
-        uint8_t notCover : 1;
-        uint8_t walkablePath : 1;
-        uint8_t noCamCollision : 1;
-        uint8_t shootThroughFx : 1;
+    uint8_t stairs : 1;
+    uint8_t blockClimb : 1;
+    uint8_t seeThrough : 1;
+    uint8_t shootThrough : 1;
+    uint8_t notCover : 1;
+    uint8_t walkablePath : 1;
+    uint8_t noCamCollision : 1;
+    uint8_t shootThroughFx : 1;
 };
 
 struct phBoundMaterial2
@@ -82,16 +84,15 @@ enum class BoundPolygonType : uint32_t
 struct phBoundPoly
 {
 public:
-    union
-    {
+    union {
         struct
         {
-            BoundPolygonType type : 3; // 0: triangle, 1: sphere, 2: capsule, 3: box, 4: cylinder
+            BoundPolygonType type : 3;  // 0: triangle, 1: sphere, 2: capsule, 3: box, 4: cylinder
         };
 
         struct
         {
-            uint16_t type; // 1
+            uint16_t type;  // 1
             uint16_t index;
 
             float radius;
@@ -99,7 +100,7 @@ public:
 
         struct
         {
-            uint16_t type; // 2
+            uint16_t type;  // 2
             uint16_t index;
 
             float length;
@@ -108,7 +109,7 @@ public:
 
         struct
         {
-            uint32_t type; // 3
+            uint32_t type;  // 3
 
             int16_t indices[4];
         } box;
@@ -148,19 +149,21 @@ struct phBoundPolyhedron : public phBound
     uint64_t Unknown_D8h;  // 0x00000000
     uint64_t Unknown_DCh;  // 0x00000000
     uint64_t Unknown_E0h;  // 0x00000000
-    
-    int16_t* getVertices() {
+
+    int16_t* getVertices()
+    {
         return *vertices;
     }
-    
-    phBoundPoly* getPolygons() {
+
+    phBoundPoly* getPolygons()
+    {
         return *polygons;
     }
-    
+
     void Resolve(memstream& file)
     {
         polygons.Resolve(file);
-        
+
         vertices.Resolve(file);
     }
 };
@@ -182,7 +185,7 @@ struct phBoundGeometry : public phBoundPolyhedron
     uint32_t Unknown_124h;  // 0x00000000
     uint32_t Unknown_128h;  // 0x00000000
     uint32_t Unknown_12Ch;  // 0x00000000
-    
+
     void Resolve(memstream& file)
     {
         phBoundPolyhedron::Resolve(file);
@@ -241,8 +244,8 @@ struct BoundPolygonCylinder
 
 struct phBoundFlagEntry
 {
-    uint32_t m_0; // boundflags value?
-    uint32_t m_4; // defaults to -1 during import, though other values are also seen
+    uint32_t m_0;  // boundflags value?
+    uint32_t m_4;  // defaults to -1 during import, though other values are also seen
 };
 
 class phBoundComposite : phBound
@@ -254,26 +257,27 @@ class phBoundComposite : phBound
     pgPtr<phBoundFlagEntry> m_boundFlags;
     pgArray<phBoundFlagEntry> m_childArray;
     uint64_t BVHPointer;
-    
+
 public:
     void Resolve(memstream& file)
     {
         //phBound::Resolve(file);
-        
+
         childrens.Resolve(file);
-        
+
         m_boundFlags.Resolve(file);
-        
-        for (int i = 0; i < m_childArray.GetCount(); i++) {
+
+        for (int i = 0; i < m_childArray.GetCount(); i++)
+        {
             (*childrens)[i].Resolve(file);
         }
     }
-    
+
     inline uint16_t getNumChildBounds()
     {
         return m_childArray.GetSize();
     }
-    
+
     inline phBound* getChildBound(uint16_t index)
     {
         return *((*childrens)[index]);
@@ -285,12 +289,13 @@ class YbnLoader : public FileType
     std::vector<glm::u16vec3*> IndicesArray;
     std::vector<glm::vec3*> VerticesArray;
     std::unique_ptr<btRigidBody> rigidBody;
-    
+
     void addBoxShape(btCompoundShape* compound, btVector3 pos, btVector3 halfExtents);
     void addCapsuleShape(btCompoundShape* compound, btVector3 pos, float radius, float height);
     void addSphereShape(btCompoundShape* compound, btVector3 pos, float SphereRadius);
     void addCylinderShape(btCompoundShape* compound, btVector3 pos, btVector3 halfExtents);
     void parseYbn(memstream& file, phBound* bound);
+
 public:
     btCompoundShape* compound;
     btRigidBody* getRigidBody() const

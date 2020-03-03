@@ -17,8 +17,8 @@ struct Sequence
     uint8_t ChunkSize;                      //64|255                 0x40|0xFF
     uint8_t RootMotionRefCounts;            //0|17|20|21|49|52|53    0x11|0x14|0x15|0x31|0x34|0x35
 
-    void Resolve(memstream& file) {
-
+    void Resolve(memstream& file)
+    {
     }
 };
 
@@ -127,8 +127,8 @@ struct ClipPropertyAttribute
     uint32_t NameHash;
     uint32_t Unknown_1Ch;  // 0x00000000
 
-    void Resolve(memstream& file) {
-
+    void Resolve(memstream& file)
+    {
     }
 };
 

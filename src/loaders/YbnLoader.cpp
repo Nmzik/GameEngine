@@ -41,8 +41,7 @@ void YbnLoader::finalize(BaseRenderer* _renderer, phBound* boundData, memstream&
     
     parseYbn(file, boundData);
     
-    btDefaultMotionState* MotionState = new btDefaultMotionState(btTransform(btQuaternion(0.f, 0.f, 0.f, 1.f), btVector3(0, 0, 0)));
-    btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(0, MotionState, compound, btVector3(0, 0, 0));
+    btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(0, nullptr, compound, btVector3(0, 0, 0));
     rigidBody = std::make_unique<btRigidBody>(groundRigidBodyCI);
 }
 
@@ -355,7 +354,8 @@ YbnLoader::~YbnLoader()
             btAlignedFreeInternal(Indices);
         }
 
-        delete rigidBody->getMotionState();
+        if (rigidBody->getMotionState())
+            delete rigidBody->getMotionState();
         delete compound;
     }
 }

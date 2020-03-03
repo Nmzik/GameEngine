@@ -40,3 +40,11 @@ add_compile_definitions(AES256=1)
 
 add_subdirectory(tiny-AES-c)
 target_include_directories(tiny-aes INTERFACE tiny-AES-c)
+
+file(GLOB astcSources
+    "astc/*.cpp"
+)
+
+add_library(astc ${astcSources})
+
+target_include_directories(astc PUBLIC astc)

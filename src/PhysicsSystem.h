@@ -22,6 +22,7 @@ class PhysicsSystem
     std::unique_ptr<btCollisionDispatcher> dispatcher;
     std::unique_ptr<btSequentialImpulseConstraintSolver> solver;
     std::unique_ptr<btDiscreteDynamicsWorld> dynamicsWorld;
+    float accumulatedTime = 0;
 
 public:
     PhysicsSystem();

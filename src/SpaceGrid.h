@@ -63,7 +63,7 @@ public:
             else
             {
                 int cind = ((icen.x > ncen.x) ? 1 : 0) + ((icen.y > ncen.y) ? 2 : 0);
-                
+
                 if (!childrens[cind].has_value())
                 {
                     childrens[cind] = std::make_optional<SpaceMapDataStoreNode>();

@@ -1,9 +1,10 @@
 #pragma once
 #include <algorithm>
-#include <unordered_map>
-#include <vector>
 #include <string>
+#include <unordered_map>
 #include <utility>
+#include <vector>
+
 #include "FileType.h"
 
 enum PsoSection
@@ -119,7 +120,7 @@ class RbfBytes : public IRbfType
 {
 public:
     std::string Name;
-    uint8_t* Value; //byte[]
+    uint8_t* Value;  //byte[]
 };
 class RbfFloat : public IRbfType
 {
@@ -161,9 +162,9 @@ public:
     RbfStructure* current = nullptr;
     std::stack<RbfStructure*> structures;
     std::vector<std::unique_ptr<RbfStructure>> vectorOfStructures;
-	std::vector<RbfEntryDescription> descriptors;
+    std::vector<RbfEntryDescription> descriptors;
 
-	std::vector<std::pair<std::string, std::string>> gtxd; //hack
+    std::vector<std::pair<std::string, std::string>> gtxd;  //hack
 
     PsoDataSection _PsoDataSection;
     PsoDataMapSection _PsoDataMapSection;

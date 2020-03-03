@@ -1,5 +1,6 @@
 #pragma once
 #include <SDL.h>
+
 #include "../NativeWindow.h"
 
 class Win32Window : public NativeWindow
@@ -11,6 +12,7 @@ class Win32Window : public NativeWindow
     SDL_GLContext context;
 #endif
     const Uint8* state;
+
 public:
     Win32Window();
     ~Win32Window();
@@ -20,8 +22,8 @@ public:
     virtual void processEvents();
     virtual void swapBuffers();
 
-	SDL_Window* getSDLWindow() const
+    SDL_Window* getSDLWindow() const
     {
-            return window;
-	}
+        return window;
+    }
 };

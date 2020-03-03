@@ -475,7 +475,7 @@ void GameData::extractFileBinary(RpfBinaryFileEntry& entry, uint8_t* allocatedMe
 void GameData::extractFileResource(RpfResourceFileEntry& entry, uint8_t* allocatedMem, uint32_t allocatedSize)
 {
     auto& rpf = entry.File->rpf;
-    //printf("%s\n", entry.File->path.c_str());
+    printf("%s\n", entry.File->path.c_str());
     rpf.seek(entry.FileOffset);
 
     assert(entry.FileSize < tempBufferSize);

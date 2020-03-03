@@ -2,6 +2,7 @@
 #include <stack>
 #include <string>
 #include <vector>
+
 #include "FileType.h"
 
 enum ScriptType

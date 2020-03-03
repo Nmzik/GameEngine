@@ -31,7 +31,7 @@ if(WIN32)
 	)
 
 	list (APPEND SOURCES ${WIN_SOURCES})
-	
+
 	if(USE_VULKAN)
 		file(GLOB Vulkan
 		vulkan/*.h
@@ -87,7 +87,16 @@ if(METAL)
 endif()
 
 if(APPLE)
-	add_executable(MyGameEngine MACOSX_BUNDLE ${SOURCES})
+if(CMAKE_SYSTEM_NAME STREQUAL iOS)
+add_executable(MyGameEngine
+								MACOSX_BUNDLE ${SOURCES})
+set_target_properties(MyGameEngine PROPERTIES
+  MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/ios/Info.plist
+)
+else()
+	add_executable(MyGameEngine
+									MACOSX_BUNDLE ${SOURCES})
+endif()
 else()
 	add_executable(MyGameEngine ${SOURCES})
 endif()
@@ -134,5 +143,6 @@ target_link_libraries(MyGameEngine Detour)
 target_link_libraries(MyGameEngine Recast)
 
 target_link_libraries(MyGameEngine tiny-aes)
+target_link_libraries(MyGameEngine astc)
 
 #set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT MyGameEngine)

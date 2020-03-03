@@ -14,7 +14,8 @@
  ##
  */
 
-namespace Decompressor {
+#include "simd_t.h"
+
     
     inline uint32_t uint32_sll(uint32_t _a, int32_t _sa)
     {
@@ -373,7 +374,139 @@ namespace Decompressor {
      }
      }
      }*/
+void imageSwizzleBgra8Ref(void* _dst, uint32_t _dstPitch, uint32_t _width, uint32_t _height, const void* _src, uint32_t _srcPitch)
+{
+    const uint8_t* srcData = (uint8_t*) _src;
+    uint8_t* dstData = (uint8_t*)_dst;
+
+    for (uint32_t yy = 0; yy < _height; ++yy, srcData += _srcPitch, dstData += _dstPitch)
+    {
+        const uint8_t* src = srcData;
+        uint8_t* dst = dstData;
+
+        for (uint32_t xx = 0; xx < _width; ++xx, src += 4, dst += 4)
+        {
+            uint8_t rr = src[0];
+            uint8_t gg = src[1];
+            uint8_t bb = src[2];
+            uint8_t aa = src[3];
+            dst[0] = bb;
+            dst[1] = gg;
+            dst[2] = rr;
+            dst[3] = aa;
+        }
+    }
+}
+
+inline bool isAligned(const void* _ptr, size_t _align)
+{
+    union { const void* ptr; uintptr_t addr; } un;
+    un.ptr = _ptr;
+    return 0 == (un.addr & (_align-1) );
+}
+
+#include "../../3rdparty/astc/astc_lib.h"
+
+static const ASTC_COMPRESS_MODE s_astcQuality[] =
+{
+    // Standard
+    ASTC_COMPRESS_MEDIUM,       // Default
+    ASTC_COMPRESS_THOROUGH,     // Highest
+    ASTC_COMPRESS_FAST,         // Fastest
+    // Normal map
+    ASTC_COMPRESS_MEDIUM,       // Default
+    ASTC_COMPRESS_THOROUGH,     // Highest
+    ASTC_COMPRESS_FAST,         // Fastest
+};
+static_assert(Quality::Count == sizeof(s_astcQuality) / sizeof(s_astcQuality[0]), "");
+
+void imageEncodeFromRgba8(void* _dst, const void* _src, uint32_t _width, uint32_t _height, uint32_t _depth, Quality::Enum _quality)
+{
+    const uint8_t* src = (const uint8_t*)_src;
+    uint8_t* dst = (uint8_t*)_dst;
+
+    const uint32_t srcPitch = _width*4;
+    const uint32_t srcSlice = _height*srcPitch;
+    //const uint32_t dstBpp   = getBitsPerPixel(_format);
+    const uint32_t dstBpp   = 8;
+    const uint32_t dstPitch = _width*dstBpp/8;
+    const uint32_t dstSlice = _height*dstPitch;
+
+    int memRequirements = astc_compressed_size(_width, _height, 4, 4);
+    assert(memRequirements <= 10 * 1024 * 1024);
     
+    for (uint32_t zz = 0; zz < _depth; ++zz, src += srcSlice, dst += dstSlice)
+    {
+        //const bimg::ImageBlockInfo& astcBlockInfo = bimg::getBlockInfo(_format);
+        int blockWidth = 4;
+        int blockHeight = 4;
+        
+                ASTC_COMPRESS_MODE compress_mode = ASTC_COMPRESS_VERY_FAST;
+                ASTC_DECODE_MODE   decode_mode   = ASTC_DECODE_LDR_LINEAR;
+
+                if (Quality::NormalMapDefault <= _quality)
+                {
+                    astc_compress(_width, _height, src, ASTC_ENC_NORMAL_RA, srcPitch, blockWidth, blockHeight, compress_mode, decode_mode, dst);
+                }
+                else
+                {
+                    astc_compress(_width, _height, src, ASTC_RGBA, srcPitch, blockWidth, blockHeight, compress_mode, decode_mode, dst);
+                }
+            }
+        }
+
+void imageSwizzleBgra8(void* _dst, uint32_t _dstPitch, uint32_t _width, uint32_t _height, const void* _src, uint32_t _srcPitch)
+{
+    // Test can we do four 4-byte pixels at the time.
+    if (0 != (_width&0x3)
+    ||  _width < 4
+    ||  !isAligned(_src, 16)
+    ||  !isAligned(_dst, 16) )
+    {
+        //printf("Image swizzle is taking slow path.\n");
+        //if (!isAligned(_src, 16))
+         //   printf("Source %p is not 16-byte aligned\n", _src);
+        //if (!isAligned(_dst, 16))
+        //    printf("Destination %p is not 16-byte aligned\n", _dst);
+        imageSwizzleBgra8Ref(_dst, _dstPitch, _width, _height, _src, _srcPitch);
+        return;
+    }
+    
+    using namespace bx;
+
+    const simd128_t mf0f0 = simd_isplat(0xff00ff00);
+    const simd128_t m0f0f = simd_isplat(0x00ff00ff);
+    const uint32_t  width = _width/4;
+
+    const uint8_t* srcData = (uint8_t*) _src;
+    uint8_t* dstData = (uint8_t*)_dst;
+
+    for (uint32_t yy = 0; yy < _height; ++yy, srcData += _srcPitch, dstData += _dstPitch)
+    {
+        const uint8_t* src = srcData;
+        uint8_t* dst = dstData;
+
+        for (uint32_t xx = 0; xx < width; ++xx, src += 16, dst += 16)
+        {
+            const simd128_t tabgr = simd_ld(src);
+            const simd128_t t00ab = simd_srl(tabgr, 16);
+            const simd128_t tgr00 = simd_sll(tabgr, 16);
+            const simd128_t tgrab = simd_or(t00ab, tgr00);
+            const simd128_t ta0g0 = simd_and(tabgr, mf0f0);
+            const simd128_t t0r0b = simd_and(tgrab, m0f0f);
+            const simd128_t targb = simd_or(ta0g0, t0r0b);
+            simd_st(dst, targb);
+        }
+    }
+}
+    
+void imageDecodeToRgba8(void* _dst, const void* _src, uint32_t _width, uint32_t _height, uint32_t _dstPitch, TextureFormat _srcFormat)
+{
+    const uint32_t srcPitch = _width * 4;
+    imageDecodeToBgra8(_dst, _src, _width, _height, _dstPitch, _srcFormat);
+    imageSwizzleBgra8(_dst, _dstPitch, _width, _height, _dst, srcPitch);
+}
+
     void imageDecodeToBgra8(void* _dst, const void* _src, uint32_t _width, uint32_t _height, uint32_t _dstPitch, TextureFormat format)
     {
         const uint8_t* src = (const uint8_t*)_src;
@@ -476,4 +609,4 @@ namespace Decompressor {
          break;*/
         
     }
-};
+

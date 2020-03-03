@@ -24,7 +24,7 @@
     [super viewDidLoad];
     
     [self initMetal];
-    game = new Game("/Volumes/BOOTCAMP/Program Files/Rockstar Games/Grand Theft Auto V/", "");
+    game = new Game("/Volumes/WinBackup/Games/Grand Theft Auto V/", "");
     
     MetalRenderer* renderer = static_cast<MetalRenderer*>(game->getRenderer());
     renderer->device = device;

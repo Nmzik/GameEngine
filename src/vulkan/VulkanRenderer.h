@@ -1,13 +1,14 @@
 #pragma once
-#include <SDL.h>
-#include <SDL_vulkan.h>
-#include <vulkan.h>
-#include "..//NativeWindow.h"
-#include "../BaseRenderer.h"
-
 #include <optional>
 #include <set>
 #include <stack>
+
+#include <SDL.h>
+#include <SDL_vulkan.h>
+#include <vulkan.h>
+
+#include "..//NativeWindow.h"
+#include "../BaseRenderer.h"
 
 class NativeWindow;
 
@@ -47,14 +48,14 @@ struct QueueFamilyIndices
 class VulkanRenderer : public BaseRenderer
 {
     NativeWindow* nativeWindow;
-	//
+    //
     GlobalSceneData sceneData;
 
-	std::vector<VertexLayout> layouts;
+    std::vector<VertexLayout> layouts;
 
-	//
+    //
     VkSurfaceKHR surface;
-	VkInstance instance;
+    VkInstance instance;
     VkPhysicalDevice physicalDevice;
     VkDevice device;
 
@@ -85,13 +86,13 @@ class VulkanRenderer : public BaseRenderer
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
 
-    public:
+public:
     VulkanRenderer(NativeWindow* window);
     ~VulkanRenderer();
-    
+
     std::vector<const char*> getRequiredExtensions();
 
-	//vulkan setup functions
+    //vulkan setup functions
     void createInstance();
     void createSurface();
     SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);

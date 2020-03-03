@@ -1,8 +1,10 @@
 #pragma once
 #include <fstream>
 #include <sstream>
+
 #include "iostream"
 #include "opengl.h"
+
 #include <glm/glm.hpp>
 
 class Shader

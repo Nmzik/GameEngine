@@ -1,6 +1,7 @@
 #pragma once
 #include "SDL.h"
 #include "opengl.h"
+
 #include "..//NativeWindow.h"
 #include "../BaseRenderer.h"
 
@@ -41,7 +42,7 @@ struct GlobalSceneData
 class OpenGLRenderer : public BaseRenderer
 {
     NativeWindow* nativeWindow;
-	//
+    //
     GlobalSceneData sceneData;
     //
     GLuint uboGlobal;
@@ -55,7 +56,8 @@ class OpenGLRenderer : public BaseRenderer
     GLuint indexBuffers[gpuBufferSize] = {0};
     GLuint textures[gpuBufferSize] = {0};
 
-	std::vector<VertexLayout> layouts;
+    std::vector<VertexLayout> layouts;
+
 public:
     OpenGLRenderer(NativeWindow* window);
     ~OpenGLRenderer();
@@ -78,6 +80,6 @@ public:
     virtual void updateGlobalSceneBuffer(glm::mat4& Projection, glm::mat4& View) override;
     virtual void updatePerModelData(glm::mat4& mat) override;
 
-	virtual void renderGeom(Geometry& geom) override;
+    virtual void renderGeom(Geometry& geom) override;
     virtual void renderSky(Geometry& geom) override;
 };

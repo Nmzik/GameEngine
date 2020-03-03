@@ -1,6 +1,7 @@
 #pragma once
 #include <cstdint>
 #include <memory>
+
 #include "../BaseRenderer.h"
 #include "../common.h"
 #include <glm/gtc/type_precision.hpp>
@@ -202,6 +203,7 @@ template <typename T>
 class pgPtr
 {
     T* pointer;
+
 public:
     T* operator->() const
     {
@@ -218,8 +220,9 @@ public:
         pointer = other;
         return *this;
     }
-    
-    bool isNULL() {
+
+    bool isNULL()
+    {
         return pointer == 0;
     }
 
@@ -227,7 +230,7 @@ public:
     {
         pointer = (T*)&file.data[(uint64_t)pointer & ~0x50000000];
     }
-    
+
     void ResolveGraphicsPointer(memstream& file)
     {
         pointer = (T*)&file.data[(uint64_t)pointer & ~0x60000000];
@@ -297,7 +300,7 @@ public:
         m_count = 0;
         m_size = capacity;
     }
-    
+
     TValue& Get(uint16_t offset)
     {
         return (*m_offset)[offset];
@@ -447,6 +450,7 @@ class FileType
 {
 protected:
     bool loaded = false;
+
 public:
     uint32_t refCount = 0;
 
@@ -454,12 +458,12 @@ public:
     {
         return loaded;
     }
-    
+
     void setLoaded()
     {
         loaded = true;
     }
-    
+
     FileType()
     {
     }

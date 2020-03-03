@@ -1,6 +1,8 @@
 #pragma once
 #include <unordered_map>
+
 #include "FileType.h"
+
 #include "../Texture.h"
 
 struct TextureBase : datBase
@@ -76,7 +78,7 @@ public:
     std::unordered_map<uint32_t, Texture> textures;
 
     YtdLoader* dependency;
-    
+
     void finalize(BaseRenderer* _renderer, TextureDictionary* texDictionary, int32_t systemSize);
 
     YtdLoader() = default;

@@ -97,6 +97,8 @@ void GameWorld::postLoad()
     addPedToWorld(ped1);
     addPedToWorld(ped2);
     addPedToWorld(ped3);
+    
+    peds[0]->getPhysCharacter()->setGravity(btVector3(0, 0, -9.8f));
     //minimap
     /*std::vector<YddLoader*> minimapsYDD;
      minimapsYDD.push_back(resourceManager->getYdd(GenHash("minimap_0_2")));
@@ -542,21 +544,10 @@ void GameWorld::getVisibleYmaps(glm::vec3& playerPos)
      }
      }*/
     
-    static bool firstRun = true;
-    if (firstRun) {
-        
-        bool allLoaded = true;
-        peds[0]->getPhysCharacter()->setGravity(btVector3(0,0,0));
+    
         
         
-        for (int i = 0; i < curYbns.size(); i++) {
-            if (!curYbns[i]->isLoaded()) {
-                allLoaded = false;
-                break;
-            }
-        }
-        
-        if (allLoaded) {
+        /*if (allLoaded) {
             glm::vec3 m_rayStart = peds[0]->getPosition();
             glm::vec3 m_rayEnd = glm::vec3(m_rayStart.x, m_rayStart.y, 0.f);
 
@@ -567,9 +558,9 @@ void GameWorld::getVisibleYmaps(glm::vec3& playerPos)
                 peds[0]->getPhysCharacter()->setGravity(physicsSystem.getPhysicsWorld()->getGravity());
                 peds[0]->setPosition(result.HitPos + glm::vec3(0, 0, 5.f));
             }
-        }
+        }*/
         
-    }
+    
 }
 
 void GameWorld::createPedestrian()
@@ -809,10 +800,10 @@ bool GameWorld::detectInWater(glm::vec3 Position)
 void GameWorld::addVehicleToWorld(glm::vec3 position, glm::quat rot, float mass, YftLoader* model)
 {
     //CVehicle* vehicle = GlobalPool::GetInstance()->CVehiclePool.create(position, rot, mass, model, physicsSystem.getPhysicsWorld());
-    CVehicle* vehicle = new CVehicle(position, rot, mass, model, physicsSystem.getPhysicsWorld());
-    physicsSystem.addVehicle(vehicle);
+    //CVehicle* vehicle = new CVehicle(position, rot, mass, model, physicsSystem.getPhysicsWorld());
+    //physicsSystem.addVehicle(vehicle);
 
-    vehicles.push_back(vehicle);
+    //vehicles.push_back(vehicle);
 }
 
 void GameWorld::removeVehicleFromWorld(CVehicle* vehicle)

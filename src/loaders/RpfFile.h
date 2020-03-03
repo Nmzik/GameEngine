@@ -2,7 +2,9 @@
 #include <memory>
 #include <string>
 #include <vector>
+
 #include "RpfEntry.h"
+
 #include "../utils/fileHandle.h"
 
 class RpfFile

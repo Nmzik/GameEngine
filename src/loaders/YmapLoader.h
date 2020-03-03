@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+
 #include "FileType.h"
 
 struct CMloInstanceDef  // 160 bytes, Key:2151576752
