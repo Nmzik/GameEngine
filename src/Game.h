@@ -1,5 +1,5 @@
 #pragma once
-#define GLM_FORCE_LEFT_HANDED
+//#define GLM_FORCE_LEFT_HANDED
 
 #include <chrono>
 #include <memory>
