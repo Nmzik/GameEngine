@@ -32,19 +32,17 @@ if(WIN32)
 
 	list (APPEND SOURCES ${WIN_SOURCES})
 
-	if(USE_VULKAN)
 		file(GLOB Vulkan
 		vulkan/*.h
 		vulkan/*.cpp
 		)
 		list (APPEND SOURCES ${Vulkan})
-	else()
+
 		file(GLOB OpenGL
 		OpenGL/*.h
 		OpenGL/*.cpp
 		)
 		list (APPEND SOURCES ${OpenGL})
-	endif()
 endif()
 
 if(CMAKE_SYSTEM_NAME STREQUAL iOS)

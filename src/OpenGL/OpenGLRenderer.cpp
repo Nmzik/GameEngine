@@ -374,6 +374,8 @@ void OpenGLRenderer::removeVertexBuffer(VertexBufferHandle handle)
 {
     glBindBuffer(GL_VERTEX_ARRAY, 0);
     glDeleteBuffers(1, &vertexBuffers[handle.id]);
+
+	//REMOVE VAO?
 }
 
 void OpenGLRenderer::removeIndexbuffer(IndexBufferHandle handle)
@@ -390,10 +392,11 @@ void OpenGLRenderer::removeTexture(TextureHandle handle)
 
 void OpenGLRenderer::updateGlobalSceneBuffer(glm::mat4& Projection, glm::mat4& View)
 {
+	sceneData.projection = Projection;
+	sceneData.view = View;
+
     GL_CHECK(glBindBuffer(GL_UNIFORM_BUFFER, uboGlobal));
 
-    sceneData.projection = Projection;
-    sceneData.view = View;
     GL_CHECK(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4) * 2, &sceneData));
 
     GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, 0));

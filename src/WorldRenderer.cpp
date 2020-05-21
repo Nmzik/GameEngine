@@ -10,6 +10,7 @@
 #ifdef WIN32
 #include "vulkan/VulkanRenderer.h"
 #include "windows/Win32Window.h"
+#include "OpenGL\OpenGLRenderer.h"
 #else
 #include "metal/MetalRenderer.h"
 #endif
@@ -17,9 +18,13 @@
 WorldRenderer::WorldRenderer(NativeWindow* window)
 {
 #ifdef WIN32
-    renderer = std::make_unique<VulkanRenderer>(window);
+#ifdef VULKAN_API
+	renderer = std::make_unique<VulkanRenderer>(window);
 #else
-    renderer = std::make_unique<MetalRenderer>();
+	renderer = std::make_unique<OpenGLRenderer>(window);
+#endif
+#else
+	renderer = std::make_unique<MetalRenderer>();
 #endif
 }
 
@@ -34,7 +39,7 @@ void WorldRenderer::postLoad()
 
 void WorldRenderer::renderSky(GameWorld* world)
 {
-    if (world->skydome && world->skydomeYTD)
+    /*if (world->skydome && world->skydomeYTD)
     {
         YdrLoader* skydome = world->skydome->ydrFiles.begin()->second;
         Geometry& geom = world->skydome->ydrFiles.begin()->second->models[0].geometries[0];
@@ -47,7 +52,7 @@ void WorldRenderer::renderSky(GameWorld* world)
         renderer->updatePerModelData(pos);
 
         renderer->renderSky(geom);
-    }
+    }*/
 }
 
 void WorldRenderer::renderDrawable(YdrLoader* drawable)

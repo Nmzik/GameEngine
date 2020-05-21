@@ -5,7 +5,7 @@ Win32Window::Win32Window()
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
         printf("Unable to initialize SDL");
 
-#if VULKAN_API
+#ifdef VULKAN_API
     window = SDL_CreateWindow("GameEngine", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                               1280, 720, SDL_WINDOW_VULKAN | SDL_WINDOW_SHOWN);
 #else
@@ -33,7 +33,7 @@ Win32Window::~Win32Window()
 
 void Win32Window::initializeContext()
 {
-#if VULKAN_API
+#ifdef VULKAN_API
 
 #else
     context = SDL_GL_CreateContext(window);

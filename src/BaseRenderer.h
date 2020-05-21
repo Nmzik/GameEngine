@@ -264,6 +264,11 @@ static VertexLayout PBBNCTTT_Attrib = {
     60,
     4};
 
+struct GlobalSceneData {
+	glm::mat4 projection;
+	glm::mat4 view;
+};
+
 #define gpuBufferSize 18000
 
 class BaseRenderer
