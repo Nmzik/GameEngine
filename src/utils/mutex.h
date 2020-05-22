@@ -1,12 +1,12 @@
 #pragma once
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(__ANDROID__)
 #include <pthread.h>
 #else
 #include <Windows.h>
 #endif
 class Mutex
 {
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(__ANDROID__)
     pthread_mutex_t mutex_lock;
 #else
     CRITICAL_SECTION mutex_lock;
@@ -16,7 +16,7 @@ class Mutex
 public:
     Mutex()
     {
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(__ANDROID__)
         pthread_mutex_init(&mutex_lock, NULL);
 #else
         InitializeCriticalSection(&mutex_lock);
@@ -25,7 +25,7 @@ public:
 
     ~Mutex()
     {
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(__ANDROID__)
         pthread_mutex_destroy(&mutex_lock);
 #else
         DeleteCriticalSection(&mutex_lock);
@@ -34,7 +34,7 @@ public:
 
     void lock()
     {
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(__ANDROID__)
         pthread_mutex_lock(&mutex_lock);
 #else
         EnterCriticalSection(&mutex_lock);
@@ -43,7 +43,7 @@ public:
 
     void unlock()
     {
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(__ANDROID__)
         pthread_mutex_unlock(&mutex_lock);
 #else
         LeaveCriticalSection(&mutex_lock);
@@ -70,7 +70,7 @@ public:
 
 class Condition_variable
 {
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(__ANDROID__)
     pthread_cond_t cv;
 #else
     CONDITION_VARIABLE cv;
@@ -78,7 +78,7 @@ class Condition_variable
 public:
     Condition_variable()
     {
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(__ANDROID__)
         pthread_cond_init(&cv, NULL);
 #else
         InitializeConditionVariable(&cv);
@@ -87,7 +87,7 @@ public:
 
     ~Condition_variable()
     {
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(__ANDROID__)
         pthread_cond_destroy(&cv);
 #else
         //
@@ -96,7 +96,7 @@ public:
 
     void wait(Mutex* lock)
     {
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(__ANDROID__)
         pthread_cond_wait(&cv, &lock->mutex_lock);
 #else
         SleepConditionVariableCS(&cv, &lock->mutex_lock, INFINITE);
@@ -105,7 +105,7 @@ public:
 
     void notify()
     {
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(__ANDROID__)
         pthread_cond_signal(&cv);
 #else
         WakeConditionVariable(&cv);

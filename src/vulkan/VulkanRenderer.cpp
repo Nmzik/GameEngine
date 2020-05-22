@@ -1,11 +1,16 @@
 #include "VulkanRenderer.h"
 
+#include <vulkan/vulkan.h>
+
 #include <fstream>
 
 #include "../CBuilding.h"
 #include "../Camera.h"
 #include "../Model.h"
+
+#ifdef WIN32
 #include "../windows/Win32Window.h"
+#endif
 
 #define VMA_IMPLEMENTATION
 #include "vk_mem_alloc.h"
@@ -156,15 +161,18 @@ VulkanRenderer::~VulkanRenderer()
 
 std::vector<const char*> VulkanRenderer::getRequiredExtensions()
 {
+    uint32_t extensionCount;
+#ifdef WIN32
     Win32Window* window = (Win32Window*)nativeWindow;
 
-    uint32_t extensionCount;
     SDL_Vulkan_GetInstanceExtensions(window->getSDLWindow(), &extensionCount, NULL);
+#endif
 
     std::vector<const char*> extensions;
     extensions.resize(extensionCount);
+#ifdef WIN32
     SDL_Vulkan_GetInstanceExtensions(window->getSDLWindow(), &extensionCount, extensions.data());
-
+#endif
     return extensions;
 }
 
@@ -263,8 +271,10 @@ void VulkanRenderer::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreat
 
 void VulkanRenderer::createSurface()
 {
+#ifdef WIN32
     Win32Window* window = (Win32Window*)nativeWindow;
     SDL_Vulkan_CreateSurface(window->getSDLWindow(), instance, &surface);
+#endif
 }
 
 //

@@ -8,16 +8,22 @@
 #include "loaders/YtdLoader.h"
 
 #ifdef WIN32
-#include "vulkan/VulkanRenderer.h"
-#include "windows/Win32Window.h"
-#include "OpenGL\OpenGLRenderer.h"
+#ifdef VULKAN_API
+	#include "vulkan/VulkanRenderer.h"
 #else
-#include "metal/MetalRenderer.h"
+	#include "OpenGL\OpenGLRenderer.h"
+#include "windows/Win32Window.h"
+#endif
+#elif __ANDROID__
+	#define VULKAN_API
+	#include "vulkan/VulkanRenderer.h"
+#else
+	#include "metal/MetalRenderer.h"
 #endif
 
 WorldRenderer::WorldRenderer(NativeWindow* window)
 {
-#ifdef WIN32
+#if defined(WIN32) || defined(__ANDROID__)
 #ifdef VULKAN_API
 	renderer = std::make_unique<VulkanRenderer>(window);
 #else

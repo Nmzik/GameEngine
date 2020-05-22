@@ -1,5 +1,5 @@
 #pragma once
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(__ANDROID__)
 #include <pthread.h>
 #else
 #include <Windows.h>
@@ -7,7 +7,7 @@
 
 class Thread
 {
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(__ANDROID__)
     pthread_t thread_id;
 #else
     HANDLE thread_id;
@@ -19,7 +19,7 @@ public:
 
     Thread(void* (*start_routine)(void*), void* arg)
     {
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(__ANDROID__)
         pthread_create(&thread_id, NULL, start_routine, arg);
 #else
         thread_id = CreateThread(0, 0, (LPTHREAD_START_ROUTINE)start_routine, arg, 0, 0);
@@ -28,14 +28,16 @@ public:
 
     ~Thread()
     {
-#ifndef __APPLE__
+#if defined(__APPLE__) || defined(__ANDROID__)
+
+#else
         CloseHandle(thread_id);
 #endif
     }
 
     void join()
     {
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(__ANDROID__)
         pthread_join(thread_id, NULL);
 #else
         WaitForSingleObject(thread_id, INFINITE);

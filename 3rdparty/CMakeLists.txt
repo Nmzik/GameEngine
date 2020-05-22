@@ -24,6 +24,7 @@ set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(BUILD_BULLET3 OFF CACHE BOOL "" FORCE)
 
 add_subdirectory(bullet)
+target_include_directories(BulletDynamics INTERFACE bullet/src)
 
 add_subdirectory(zlib)
 target_include_directories(zlib INTERFACE zlib)
@@ -35,16 +36,23 @@ set(BUILD_TESTS OFF CACHE BOOL "" FORCE)
 
 add_subdirectory(pugixml)
 
-add_compile_definitions(ECB=1)
-add_compile_definitions(AES256=1)
+if (CMAKE_VERSION GREATER_EQUAL 3.12.0)
+  add_compile_definitions(ECB=1)
+  add_compile_definitions(AES256=1)
+else()
+  add_definitions(-DECB=1)
+  add_definitions(-DAES256=1)
+endif()
 
 add_subdirectory(tiny-AES-c)
 target_include_directories(tiny-aes INTERFACE tiny-AES-c)
 
 file(GLOB astcSources
-    "astc/*.cpp"
+  "astc/*.cpp"
 )
 
 add_library(astc ${astcSources})
 
 target_include_directories(astc PUBLIC astc)
+
+add_subdirectory(glm)

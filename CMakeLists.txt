@@ -1,5 +1,6 @@
-#for iOS!!!
-cmake_minimum_required(VERSION 3.14)
+#for iOS minimum 3.14
+#for Android 3.10
+cmake_minimum_required(VERSION 3.10)
 
 project(MyGameEngine)
 
@@ -13,7 +14,7 @@ if(MSVC)
 	add_definitions(-DUNICODE)
 	add_definitions(-DNOMINMAX)
 	add_definitions (/D "_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS")
-	
+
 	message(STATUS "  Adding WIN32_LEAN_AND_MEAN to compiler defines")
 	add_definitions( -DWIN32_LEAN_AND_MEAN )
 
@@ -23,7 +24,7 @@ if(MSVC)
 		/permissive- #Standards conformance
 		/MP #Build with Multiple Processes
 	)
-	
+
 	set(CMAKE_C_FLAGS_DEBUG "-DDEBUG=1 /MTd /Od")
 	set(CMAKE_C_FLAGS_RELEASE "/MT")
 	set(CMAKE_CXX_FLAGS_DEBUG "-DDEBUG=1 /Zi /MTd /Od")
@@ -31,9 +32,9 @@ if(MSVC)
 
 	# /GS- - No stack buffer overflow checks
 	add_compile_options("$<$<CONFIG:Release>:/GS->")
-	
+
 	set(CMAKE_EXE_LINKER_FLAGS_DEBUG   "/DEBUG /MANIFEST:NO" CACHE STRING "" FORCE)
-    set(CMAKE_EXE_LINKER_FLAGS_RELEASE "/DEBUG /MANIFEST:NO /INCREMENTAL:NO /OPT:REF,ICF" CACHE STRING "" FORCE)
+	set(CMAKE_EXE_LINKER_FLAGS_RELEASE "/DEBUG /MANIFEST:NO /INCREMENTAL:NO /OPT:REF,ICF" CACHE STRING "" FORCE)
 endif()
 
 add_subdirectory(3rdparty)

@@ -3,9 +3,13 @@
 #include <set>
 #include <stack>
 
+#ifdef __ANDROID__
+#include <vulkan/vulkan.h>
+#else
 #include <SDL.h>
 #include <SDL_vulkan.h>
 #include <vulkan.h>
+#endif
 
 #include "..//NativeWindow.h"
 #include "../BaseRenderer.h"

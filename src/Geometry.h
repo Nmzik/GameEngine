@@ -3,11 +3,11 @@
 
 #include "Texture.h"
 
-enum Hash : uint32_t
+/*enum Hash : uint32_t
 {
     DiffuseSampler = 4059966321,
     PlateBgSampler = 1342317448,
-};
+};*/
 
 enum VertexType : uint32_t
 {
