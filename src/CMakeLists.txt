@@ -38,6 +38,14 @@ if(WIN32 OR ANDROID)
 	list (APPEND SOURCES ${Vulkan})
 endif()
 
+if(ANDROID)
+	file(GLOB ANDROID_SOURCES
+		android/*.h
+		android/*.cpp
+	)
+	list (APPEND SOURCES ${ANDROID_SOURCES})
+endif()
+
 if(WIN32)
 	file(GLOB WIN_SOURCES
 		windows/*.h

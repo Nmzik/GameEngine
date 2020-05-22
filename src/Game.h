@@ -52,6 +52,11 @@ public:
 
     void changeLocation();
 
+	NativeWindow* getNativeWindow() const 
+	{
+		return window.get();
+	}
+
     InputManager* getInput() const
     {
         return input.get();

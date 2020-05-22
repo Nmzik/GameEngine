@@ -5,6 +5,7 @@
 
 #ifdef __ANDROID__
 #include <vulkan/vulkan.h>
+#include <vulkan/vulkan_android.h>
 #else
 #include <SDL.h>
 #include <SDL_vulkan.h>
@@ -118,9 +119,14 @@ class VulkanRenderer : public BaseRenderer
 	VkDeviceMemory uboModelMemory;
 
 	VkSampler textureSampler;
-public:
+
+	std::string shadersPath;
+
+    public:
     VulkanRenderer(NativeWindow* window);
     ~VulkanRenderer();
+
+    void initialize();
 
     std::vector<const char*> getRequiredExtensions();
 
@@ -203,4 +209,8 @@ public:
     void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
     uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
     virtual void presentFrame() override;
+
+	void setShadersPath(std::string& path) {
+		shadersPath = path;
+	}
 };

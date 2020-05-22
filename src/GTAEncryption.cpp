@@ -35,6 +35,8 @@ void GTAEncryption::loadKeys(std::string keyPath)
 #if TARGET_OS_IPHONE
     std::string Path = keyPath + "assets/compressed.dat";
     const char* path = Path.c_str();
+#elif __ANDROID__
+    const char* path = keyPath.c_str();
 #else
     const char* path = "assets/compressed.dat";
 #endif

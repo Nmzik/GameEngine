@@ -26,6 +26,10 @@ WorldRenderer::WorldRenderer(NativeWindow* window)
 #if defined(WIN32) || defined(__ANDROID__)
 #ifdef VULKAN_API
 	renderer = std::make_unique<VulkanRenderer>(window);
+#ifdef WIN32
+	VulkanRenderer* vulkanRenderer = (VulkanRenderer*)renderer.get();
+	vulkanRenderer->initialize();
+#endif
 #else
 	renderer = std::make_unique<OpenGLRenderer>(window);
 #endif

@@ -16,6 +16,10 @@
 #include "windows/Win32Window.h"
 #endif
 
+#ifdef __ANDROID__
+#include "android/AndroidWindow.h"
+#endif
+
 #include "GameWorld.h"
 #include "InputActions.h"
 #include "InputManager.h"
@@ -38,6 +42,9 @@ Game::Game(const char* Path, const char* keysPath)
     gameWorld = std::make_unique<GameWorld>(resourceManager.get());
 #ifdef WIN32
     window = std::make_unique<Win32Window>();
+#endif
+#ifdef __ANDROID__
+    window = std::make_unique<AndroidWindow>();
 #endif
     rendering_system = std::make_unique<WorldRenderer>(window.get());
     input = std::make_unique<InputManager>();
