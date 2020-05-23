@@ -449,19 +449,18 @@ public:
 class FileType
 {
 protected:
-    bool loaded = false;
+    bool m_loaded = false;
+    uint32_t m_refCount = 0;
 
 public:
-    uint32_t refCount = 0;
-
     bool isLoaded() const
     {
-        return loaded;
+        return m_loaded;
     }
 
     void setLoaded()
     {
-        loaded = true;
+        m_loaded = true;
     }
 
     FileType()
@@ -476,5 +475,20 @@ public:
     }
     virtual void finalize(BaseRenderer* renderer, memstream& file)
     {
+    }
+
+    void incRef()
+    {
+        m_refCount++;
+    }
+
+    void decRef()
+    {
+        m_refCount--;
+    }
+
+    uint32_t refCount() const
+    {
+        return m_refCount;
     }
 };

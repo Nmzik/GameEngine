@@ -384,21 +384,21 @@ void GameWorld::unloadEntity(CBuilding& object)
             case ASSET_TYPE_DRAWABLE:
                 if (object.ydr)
                 {
-                    object.ydr->refCount--;
+                    object.ydr->decRef();
                     object.ydr = nullptr;
                 }
                 break;
             case ASSET_TYPE_DRAWABLEDICTIONARY:
                 if (object.ydd)
                 {
-                    object.ydd->refCount--;
+                    object.ydd->decRef();
                     object.ydd = nullptr;
                 }
                 break;
             case ASSET_TYPE_FRAGMENT:
                 if (object.yft)
                 {
-                    object.yft->refCount--;
+                    object.yft->decRef();
                     object.yft = nullptr;
                 }
                 break;
@@ -409,7 +409,7 @@ void GameWorld::unloadEntity(CBuilding& object)
     }
     if (object.ytd)
     {
-        object.ytd->refCount--;
+        object.ytd->decRef();
         object.ytd = nullptr;
     }
 
@@ -440,7 +440,7 @@ void GameWorld::getVisibleYmaps(glm::vec3& playerPos)
 
     if (glm::distance2(streamingPos, glm::vec2(playerPos)) > streamingDistanceReload * streamingDistanceReload)
     {
-        printf("NEW NODE\n");
+        //printf("NEW NODE\n");
         streamingPos = glm::vec2(playerPos);
         {
             static std::vector<MapDataStoreNode> nodes;
@@ -450,7 +450,7 @@ void GameWorld::getVisibleYmaps(glm::vec3& playerPos)
 
             for (auto& ymap : curYmaps)
             {
-                ymap->refCount--;
+                ymap->decRef();
             }
             curYmaps.clear();
 
@@ -468,7 +468,7 @@ void GameWorld::getVisibleYmaps(glm::vec3& playerPos)
 
             for (auto& ybn : curYbns)
             {
-                ybn->refCount--;
+                ybn->decRef();
             }
             curYbns.clear();
 
@@ -485,7 +485,7 @@ void GameWorld::getVisibleYmaps(glm::vec3& playerPos)
 
         for (auto& ybn : curYbns)
         {
-            ybn->refCount--;
+            ybn->decRef();
         }
 
         curYbns.clear();

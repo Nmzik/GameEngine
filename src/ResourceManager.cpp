@@ -96,14 +96,14 @@ YmapLoader* ResourceManager::getYmap(uint32_t hash)
     auto it = ymapLoader.find(hash);
     if (it != ymapLoader.end())
     {
-        it->second->refCount++;
+        it->second->incRef();
         return it->second;
     }
     else
     {
         YmapLoader* loader = GlobalPool::GetInstance()->ymapPool.create();
         addToWaitingList(GlobalPool::GetInstance()->resourcesPool.create(ymap, hash, loader));
-        loader->refCount++;
+        loader->incRef();
         ymapLoader.insert({hash, loader});
 
         return loader;
@@ -115,14 +115,14 @@ YdrLoader* ResourceManager::getYdr(uint32_t hash)
     auto iter = ydrLoader.find(hash);
     if (iter != ydrLoader.end())
     {
-        iter->second->refCount++;
+        iter->second->incRef();
         return iter->second;
     }
     else
     {
         YdrLoader* loader = GlobalPool::GetInstance()->ydrPool.create();
         addToWaitingList(GlobalPool::GetInstance()->resourcesPool.create(ydr, hash, loader));
-        loader->refCount++;
+        loader->incRef();
         ydrLoader.insert({hash, loader});
 
         return loader;
@@ -134,7 +134,7 @@ YtdLoader* ResourceManager::getYtd(uint32_t hash)
     auto iter = ytdLoader.find(hash);
     if (iter != ytdLoader.end())
     {
-        iter->second->refCount++;
+        iter->second->incRef();
         return iter->second;
     }
     else
@@ -149,7 +149,7 @@ YtdLoader* ResourceManager::getYtd(uint32_t hash)
         
         YtdLoader* loader = GlobalPool::GetInstance()->ytdPool.create();
         addToWaitingList(GlobalPool::GetInstance()->resourcesPool.create(ytd, hash, loader));
-        loader->refCount++;
+        loader->incRef();
         ytdLoader.insert({hash, loader});
 
         return loader;
@@ -161,14 +161,14 @@ YddLoader* ResourceManager::getYdd(uint32_t hash)
     auto iter = yddLoader.find(hash);
     if (iter != yddLoader.end())
     {
-        iter->second->refCount++;
+        iter->second->incRef();
         return iter->second;
     }
     else
     {
         YddLoader* loader = GlobalPool::GetInstance()->yddPool.create();
         addToWaitingList(GlobalPool::GetInstance()->resourcesPool.create(ydd, hash, loader));
-        loader->refCount++;
+        loader->incRef();
         yddLoader.insert({hash, loader});
 
         return loader;
@@ -180,14 +180,14 @@ YftLoader* ResourceManager::getYft(uint32_t hash)
     auto iter = yftLoader.find(hash);
     if (iter != yftLoader.end())
     {
-        iter->second->refCount++;
+        iter->second->incRef();
         return iter->second;
     }
     else
     {
         YftLoader* loader = GlobalPool::GetInstance()->yftPool.create();
         addToWaitingList(GlobalPool::GetInstance()->resourcesPool.create(yft, hash, loader));
-        loader->refCount++;
+        loader->incRef();
         yftLoader.insert({hash, loader});
 
         return loader;
@@ -199,14 +199,14 @@ YbnLoader* ResourceManager::getYbn(uint32_t hash)
     auto iter = ybnLoader.find(hash);
     if (iter != ybnLoader.end())
     {
-        iter->second->refCount++;
+        iter->second->incRef();
         return iter->second;
     }
     else
     {
         YbnLoader* loader = GlobalPool::GetInstance()->ybnPool.create();
         addToWaitingList(GlobalPool::GetInstance()->resourcesPool.create(ybn, hash, loader));
-        loader->refCount++;
+        loader->incRef();
         ybnLoader.insert({hash, loader});
         return loader;
     }
@@ -217,14 +217,14 @@ YscLoader* ResourceManager::getYsc(uint32_t hash)
     auto iter = yscLoader.find(hash);
     if (iter != yscLoader.end())
     {
-        iter->second->refCount++;
+        iter->second->incRef();
         return iter->second;
     }
     else
     {
         YscLoader* loader = new YscLoader();
         addToWaitingList(GlobalPool::GetInstance()->resourcesPool.create(ysc, hash, loader));
-        loader->refCount++;
+        loader->incRef();
         yscLoader.insert({hash, loader});
         return loader;
     }
@@ -402,7 +402,7 @@ void ResourceManager::updateResourceCache(GameWorld* world)
     // REMOVE objects WHEN WE ARE IN ANOTHER CELL????  RUN GARBAGE COLLECTOR WHEN IN ANOTHER CEL
     for (auto it = ybnLoader.begin(); it != ybnLoader.end();)
     {
-        if ((it->second)->refCount == 0 && (it->second)->isLoaded())
+        if ((it->second)->refCount() == 0 && (it->second)->isLoaded())
         {
             if ((it->second)->getRigidBody())
                 world->getPhysicsSystem()->removeRigidBody((it->second)->getRigidBody());
@@ -417,7 +417,7 @@ void ResourceManager::updateResourceCache(GameWorld* world)
 
     for (auto it = ymapLoader.begin(); it != ymapLoader.end();)
     {
-        if ((it->second)->refCount == 0 && (it->second)->isLoaded())
+        if ((it->second)->refCount() == 0 && (it->second)->isLoaded())
         {
             for (auto& entity : (it->second)->entities)
             {
@@ -436,7 +436,7 @@ void ResourceManager::updateResourceCache(GameWorld* world)
     //printf("YDR SIZE %lu\n", ydrLoader.size());
     for (auto it = ydrLoader.begin(); it != ydrLoader.end();)
     {
-        if ((it->second)->refCount == 0 && (it->second)->isLoaded())
+        if ((it->second)->refCount() == 0 && (it->second)->isLoaded())
         {
             GlobalPool::GetInstance()->ydrPool.remove(it->second);
             it = ydrLoader.erase(it);
@@ -450,7 +450,7 @@ void ResourceManager::updateResourceCache(GameWorld* world)
     //printf("YDD SIZE %lu\n", yddLoader.size());
     for (auto it = yddLoader.begin(); it != yddLoader.end();)
     {
-        if ((it->second)->refCount == 0 && (it->second)->isLoaded())
+        if ((it->second)->refCount() == 0 && (it->second)->isLoaded())
         {
             GlobalPool::GetInstance()->yddPool.remove(it->second);
             it = yddLoader.erase(it);
@@ -463,7 +463,7 @@ void ResourceManager::updateResourceCache(GameWorld* world)
 
     for (auto it = yftLoader.begin(); it != yftLoader.end();)
     {
-        if ((it->second)->refCount == 0 && (it->second)->isLoaded())
+        if ((it->second)->refCount() == 0 && (it->second)->isLoaded())
         {
             GlobalPool::GetInstance()->yftPool.remove(it->second);
             it = yftLoader.erase(it);
@@ -476,14 +476,14 @@ void ResourceManager::updateResourceCache(GameWorld* world)
     //printf("YTD SIZE %lu\n", ytdLoader.size());
     for (auto it = ytdLoader.begin(); it != ytdLoader.end();)
     {
-        if ((it->second)->refCount == 0 && (it->second)->isLoaded())
+        if ((it->second)->refCount() == 0 && (it->second)->isLoaded())
         {
             /*YtdLoader* dependency = it->second->dependency;
             
             while (dependency) {
                 if (dependency->refCount > 0)
                     dependency->refCount = dependency->refCount - 2;
-                if (dependency->refCount == 0)
+                if (dependency->refCount() == 0)
                     dependency = dependency->dependency;
                 else
                     dependency = nullptr;
