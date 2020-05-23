@@ -234,22 +234,15 @@ void Game::tick(float delta_time)
 
         changeLocation();
     }
+
     if (getInput()->isKeyTriggered(Actions::button_player2))
-    {
-        getWorld()->currentPlayerID = 1;
+		getWorld()->currentPlayerID = 1;
 
-        //changePlayer();
-    }
     if (getInput()->isKeyTriggered(Actions::button_player3))
-    {
-        getWorld()->currentPlayerID = 2;
+		getWorld()->currentPlayerID = 2;
 
-        //changePlayer();
-    }
     if (getInput()->isKeyTriggered(Actions::button_ShowCollision))
-    {
         getRenderer()->renderDebugWorld = !getRenderer()->renderDebugWorld;
-    }
 
     CPed* player = getWorld()->getCurrentPlayer();
 
@@ -271,8 +264,6 @@ void Game::tick(float delta_time)
     {
         if (player->getCurrentVehicle())
         {
-            //	in Vehicle
-            //printf("EXITING\n");
             player->setPosition(player->getCurrentVehicle()->getPosition());
 
             player->exitVehicle();
@@ -280,7 +271,6 @@ void Game::tick(float delta_time)
         }
         else
         {
-            //printf("ENTERING\n");
             player->enterVehicle(getWorld()->findNearestVehicle());
             if (player->getCurrentVehicle())
             {
@@ -289,7 +279,7 @@ void Game::tick(float delta_time)
         }
     }
 
-    float speed = getInput()->isKeyPressed(Actions::button_LSHIFT) ? 80.0f : 50.0f;
+    float speed = getInput()->isKeyPressed(Actions::button_LSHIFT) ? 80.0f : 10.0f;
 
     glm::vec3 movement{};
     movement.x = (float)getInput()->isKeyPressed(Actions::button_Forward) - getInput()->isKeyPressed(Actions::button_Backward);
@@ -302,12 +292,12 @@ void Game::tick(float delta_time)
         glm::vec3 camPos = camera->getPosition();
         if (getInput()->isKeyPressed(Actions::button_CameraUp))
         {
-            camPos.z += 5;
+            camPos.z += 2;
         }
 
         if (getInput()->isKeyPressed(Actions::button_CameraDown))
         {
-            camPos.z -= 5;
+            camPos.z -= 2;
         }
 
         camera->setPosition(camPos + movement);

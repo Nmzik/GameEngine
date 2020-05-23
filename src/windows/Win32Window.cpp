@@ -24,7 +24,24 @@ Win32Window::Win32Window()
     if (!window) /* Die if creation failed */
         printf("Unable to create window");
 
-	state = SDL_GetKeyboardState(NULL);
+    state = SDL_GetKeyboardState(NULL);
+    //
+    keyMapping.emplace_back(SDL_SCANCODE_ESCAPE, Actions::button_ESCAPE);
+    keyMapping.emplace_back(SDL_SCANCODE_E, Actions::button_E);
+    keyMapping.emplace_back(SDL_SCANCODE_B, Actions::button_player1);
+    keyMapping.emplace_back(SDL_SCANCODE_N, Actions::button_player2);
+    keyMapping.emplace_back(SDL_SCANCODE_M, Actions::button_player3);
+    keyMapping.emplace_back(SDL_SCANCODE_I, Actions::button_ShowCollision);
+    keyMapping.emplace_back(SDL_SCANCODE_V, Actions::button_CameraMode);
+    keyMapping.emplace_back(SDL_SCANCODE_F, Actions::button_EnterExitVehicle);
+    keyMapping.emplace_back(SDL_SCANCODE_W, Actions::button_Forward);
+    keyMapping.emplace_back(SDL_SCANCODE_A, Actions::button_TurnLeft);
+    keyMapping.emplace_back(SDL_SCANCODE_D, Actions::button_TurnRight);
+    keyMapping.emplace_back(SDL_SCANCODE_S, Actions::button_Backward);
+    keyMapping.emplace_back(SDL_SCANCODE_Q, Actions::button_CameraUp);
+    keyMapping.emplace_back(SDL_SCANCODE_Z, Actions::button_CameraDown);
+    keyMapping.emplace_back(SDL_SCANCODE_LSHIFT, Actions::button_LSHIFT);
+    keyMapping.emplace_back(SDL_SCANCODE_SPACE, Actions::button_SPACE);
 }
 
 Win32Window::~Win32Window()
@@ -52,10 +69,10 @@ void Win32Window::processEvents()
     processMouseEvents(x, y);
 
     SDL_PumpEvents();
-	processButtonEvent(SDL_SCANCODE_W, state[SDL_SCANCODE_W] ? true : false);
-    processButtonEvent(SDL_SCANCODE_S, state[SDL_SCANCODE_S] ? true : false);
-	processButtonEvent(SDL_SCANCODE_A, state[SDL_SCANCODE_A] ? true : false);
-    processButtonEvent(SDL_SCANCODE_D, state[SDL_SCANCODE_D] ? true : false);
+    for (auto& key : keyMapping)
+    {
+        processButtonEvent(key.second, (bool)state[key.first]);
+    }
 }
 
 void Win32Window::swapBuffers()

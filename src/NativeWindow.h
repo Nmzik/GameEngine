@@ -16,7 +16,7 @@ public:
         inputManager = input;
     }
 
-    void processButtonEvent(uint32_t key, bool isDown)
+    void processButtonEvent(Actions key, bool isDown)
     {
         inputManager->processButton(key, isDown);
     }

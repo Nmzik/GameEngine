@@ -12,7 +12,7 @@ class Win32Window : public NativeWindow
     SDL_GLContext context;
 #endif
     const Uint8* state;
-
+    std::vector<std::pair<uint32_t, Actions>> keyMapping;
 public:
     Win32Window();
     ~Win32Window();

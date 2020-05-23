@@ -11,13 +11,12 @@ class InputManager
     uint8_t currentInput[ActionsKeySize];
     uint8_t previousInput[ActionsKeySize];
     glm::i32vec2 mouseMovement;
-    std::vector<std::pair<uint32_t, Actions>> keyMapping;
 
 public:
     InputManager();
     ~InputManager();
 
-    void processButton(uint32_t key, bool isDown);
+    void processButton(Actions key, bool isDown);
     void update();
 
     bool isKeyTriggered(Actions iKeyCode) const;
