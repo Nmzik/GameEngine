@@ -9,8 +9,8 @@
 #ifdef WIN32
 #include "../windows/Win32Window.h"
 #else
-#include <android/log.h>
 #include "../android/AndroidWindow.h"
+#include <android/log.h>
 #endif
 
 #define VMA_IMPLEMENTATION
@@ -153,7 +153,7 @@ void VulkanRenderer::initialize()
     createCommandBuffers();
     createSyncObjects();
 
-	createStagingBuffer();
+    createStagingBuffer();
 
     createTextureSampler();
     createDefaultTexture();
@@ -161,8 +161,8 @@ void VulkanRenderer::initialize()
     createDescriptorPool();
     createDescriptorSets();
     createDescriptorTextureSets();
-    
-	defaultDescriptorSet = createTextureDescriptorSet(defaultImageView);
+
+    defaultDescriptorSet = createTextureDescriptorSet(defaultImageView);
 }
 
 std::vector<const char*> VulkanRenderer::getRequiredExtensions()
@@ -281,8 +281,16 @@ void VulkanRenderer::createInstance()
     createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
     createInfo.ppEnabledExtensionNames = extensions.data();
 
-    createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
-    createInfo.ppEnabledLayerNames = validationLayers.data();
+    if (enableValidationLayers)
+    {
+        createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+        createInfo.ppEnabledLayerNames = validationLayers.data();
+    }
+    else
+    {
+        createInfo.enabledLayerCount = 0;
+        createInfo.ppEnabledLayerNames = nullptr;
+    }
 
     if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS)
     {
@@ -312,16 +320,17 @@ VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMes
     }
 }
 
-void VulkanRenderer::setupDebugMessenger() {
-	if (!enableValidationLayers) return;
+void VulkanRenderer::setupDebugMessenger()
+{
+    if (!enableValidationLayers) return;
 
-	VkDebugUtilsMessengerCreateInfoEXT createInfo;
-	populateDebugMessengerCreateInfo(createInfo);
+    VkDebugUtilsMessengerCreateInfoEXT createInfo;
+    populateDebugMessengerCreateInfo(createInfo);
 
-	if (CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &debugMessenger) != VK_SUCCESS)
-        {
-		throw std::runtime_error("failed to set up debug messenger!");
-	}
+    if (CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &debugMessenger) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to set up debug messenger!");
+    }
 }
 
 void VulkanRenderer::createSurface()
@@ -554,7 +563,7 @@ void copyDataToBuffer(VmaAllocation allocation, uint32_t size, const void* point
 
 void VulkanRenderer::copyToStagingBuffer(uint32_t size, const uint8_t* pointer)
 {
-    copyDataToBuffer(stagingBufferMemory, size, pointer);	
+    copyDataToBuffer(stagingBufferMemory, size, pointer);
 }
 
 VkImageView VulkanRenderer::createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags)
@@ -1381,7 +1390,7 @@ VkDescriptorSet VulkanRenderer::createTextureDescriptorSet(VkImageView imageView
     allocInfo.descriptorSetCount = 1;
     allocInfo.pSetLayouts = layouts.data();
 
-	VkDescriptorSet descriptorSet;
+    VkDescriptorSet descriptorSet;
 
     if (vkAllocateDescriptorSets(device, &allocInfo, &descriptorSet) != VK_SUCCESS)
     {
@@ -1405,7 +1414,7 @@ VkDescriptorSet VulkanRenderer::createTextureDescriptorSet(VkImageView imageView
 
     vkUpdateDescriptorSets(device, descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
 
-	return descriptorSet;
+    return descriptorSet;
 }
 
 void VulkanRenderer::createStagingBuffer()
@@ -1556,7 +1565,7 @@ VertexBufferHandle VulkanRenderer::createVertexBuffer(uint32_t size, const uint8
     createBuffer(size, VMA_MEMORY_USAGE_CPU_ONLY, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, &vertexBufferMemory);
     //copyBuffer(stagingBuffer, vertexBuffer, size);
 
-	copyDataToBuffer(vertexBufferMemory, size, pointer);
+    copyDataToBuffer(vertexBufferMemory, size, pointer);
 
     VertexBufferHandle handle;
 
@@ -1582,9 +1591,9 @@ IndexBufferHandle VulkanRenderer::createIndexBuffer(uint32_t size, const uint8_t
     VmaAllocation indexBufferMemory;
 
     createBuffer(size, VMA_MEMORY_USAGE_CPU_ONLY, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, &indexBufferMemory);
-   // copyBuffer(stagingBuffer, indexBuffer, size);
+    // copyBuffer(stagingBuffer, indexBuffer, size);
 
-	copyDataToBuffer(indexBufferMemory, size, pointer);
+    copyDataToBuffer(indexBufferMemory, size, pointer);
 
     IndexBufferHandle handle;
 
@@ -1713,8 +1722,8 @@ void VulkanRenderer::removeVertexBuffer(VertexBufferHandle handle)
 
         vkWaitForFences(device, 1, &inFlightFences[curFrame], VK_TRUE, UINT64_MAX);
 
-		waitCompleted = true;
-	}
+        waitCompleted = true;
+    }
 
     vmaDestroyBuffer(myAllocator, vertexBuffers[handle.id], vertexBuffersMemory[handle.id]);
 
@@ -1739,12 +1748,12 @@ void VulkanRenderer::removeIndexbuffer(IndexBufferHandle handle)
 
 void VulkanRenderer::removeTexture(TextureHandle handle)
 {
-    /*vkDestroyImage(device, textures[handle.id], nullptr);
-	vkDestroyImageView(device, texturesViews[handle.id], nullptr);
-	vkFreeMemory(device, texturesMemory[handle.id], nullptr);
-	vkFreeDescriptorSets(device, texturesDescriptorPool, 1, &texturesSet[handle.id]);
+    vmaDestroyImage(myAllocator, textures[handle.id], texturesMemory[handle.id]);
+    vkDestroyImageView(device, texturesViews[handle.id], nullptr);
+    vkDestroyImage(device, textures[handle.id], nullptr);
+    vkFreeDescriptorSets(device, texturesDescriptorPool, 1, &texturesSet[handle.id]);
 
-	texturesIDs.push(handle.id);*/
+    texturesIDs.push(handle.id);
 }
 
 void VulkanRenderer::updateGlobalSceneBuffer(glm::mat4& Projection, glm::mat4& View)
@@ -1752,7 +1761,7 @@ void VulkanRenderer::updateGlobalSceneBuffer(glm::mat4& Projection, glm::mat4& V
     sceneData.projection = Projection;
     sceneData.view = View;
 
-	copyDataToBuffer(uboGlobalBuffersMemory[imageIndex], sizeof(GlobalSceneData), &sceneData);
+    copyDataToBuffer(uboGlobalBuffersMemory[imageIndex], sizeof(GlobalSceneData), &sceneData);
 }
 
 void VulkanRenderer::updatePerModelData(glm::mat4& mat)
