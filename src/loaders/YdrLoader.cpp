@@ -41,7 +41,7 @@ void YdrLoader::loadDrawable(rmcDrawable* drawable, bool isYft, BaseRenderer* _r
     {
         if (*drawable->SkeletonPointer->BonesPointer && *drawable->SkeletonPointer->ParentIndicesPointer)
         {
-            //int maxcnt = std::min(drawable->SkeletonPointer->BonesCount, drawable->SkeletonPointer->in)        
+            //int maxcnt = std::min(drawable->SkeletonPointer->BonesCount, drawable->SkeletonPointer->in)
         }
     }
 
@@ -164,10 +164,10 @@ void YdrLoader::loadDrawable(rmcDrawable* drawable, bool isYft, BaseRenderer* _r
                 }
             }
 
-            TextureHandle texHandle = renderer->getTextureManager()->getTexture(diffuseHash);
+            TextureHandle texHandle = renderer->getTextureManager()->getTextureHandle(diffuseHash);
             uint32_t vertexLayoutHandle = renderer->getLayoutHandle((VertexType)geom->VertexBufferPointer->InfoPointer->Flags);
 
-            Geometry geometry(vertexHandle, indexHandle, vertexLayoutHandle, geom->IndexBufferPointer->IndicesCount, texHandle);
+            Geometry geometry(vertexHandle, indexHandle, vertexLayoutHandle, geom->IndexBufferPointer->IndicesCount, texHandle, diffuseHash);
             models[i].geometries.push_back(geometry);
         }
     }
@@ -189,6 +189,12 @@ YdrLoader::~YdrLoader()
             {
                 renderer->removeVertexBuffer(geom.getVertexBufferHandle());
                 renderer->removeIndexbuffer(geom.getIndexBufferHandle());
+                uint32_t textureHash = geom.getDiffuseHash();
+                renderer->getTextureManager()->removeTextureHandle(textureHash);
+                if (textureHash != 0 && geom.getTextureHandle().id != 0 && renderer->getTextureManager()->getRefCount(textureHash) == 0)
+                {
+                    renderer->removeTexture(geom.getTextureHandle());
+				}
             }
         }
     }

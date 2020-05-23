@@ -1,5 +1,7 @@
 #include "TextureManager.h"
 
+#include <cassert>
+
 int TextureManager::getRefCount(uint32_t hash)
 {
     auto iter = textureHandles.find(hash);
@@ -13,39 +15,45 @@ int TextureManager::getRefCount(uint32_t hash)
     }
 }
 
-TextureHandle TextureManager::getTexture(uint32_t hash)
-{
-    auto iter = textureHandles.find(hash);
-    if (iter != textureHandles.end())
-    {
-        return iter->second.handle;
-    }
-    else
-    {
-        //printf("Texture with hash %u hasnt been found\n", hash);
-        return TextureHandle{0};
-    }
-}
-
-void TextureManager::addTexture(uint32_t hash, TextureHandle handle)
+TextureHandle TextureManager::getTextureHandle(uint32_t hash)
 {
     auto iter = textureHandles.find(hash);
     if (iter != textureHandles.end())
     {
         iter->second.refCount++;
+        return iter->second.handle;
         //printf("Texture with hash %u has already been added\n", hash);
     }
     else
     {
-        textureHandles.insert({hash, TextureHandleRef{handle, 1}});
+        textureHandles.insert({hash, TextureHandleRef{TextureHandle{0}, 1}});
+        return TextureHandle{0};
     }
 }
 
-void TextureManager::removeTexture(uint32_t hash)
+void TextureManager::addTextureHandle(uint32_t hash, TextureHandle handle, bool replaceFake)
+{
+    if (replaceFake)
+    {
+        auto iter = textureHandles.find(hash);
+        if (iter != textureHandles.end())
+        {
+            iter->second.handle = handle;
+        }
+        else
+        {
+            assert(false);
+        }
+	} else
+		textureHandles.insert({hash, TextureHandleRef{handle, 1}});
+}
+
+void TextureManager::removeTextureHandle(uint32_t hash)
 {
     auto iter = textureHandles.find(hash);
     if (iter != textureHandles.end())
     {
+        assert(iter->second.refCount > 0);
         iter->second.refCount--;
         if (iter->second.refCount == 0)
         {
@@ -55,6 +63,7 @@ void TextureManager::removeTexture(uint32_t hash)
     }
     else
     {
+        assert(false);
         printf("Attempting to remove already deleted texture, Abort\n");
     }
 }

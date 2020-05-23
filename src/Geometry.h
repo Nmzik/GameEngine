@@ -91,12 +91,13 @@ class Geometry
     VertexBufferHandle vertexBufferHandle;
     IndexBufferHandle indexBufferHandle;
     TextureHandle textureHandle;
+    uint32_t diffuseHash;  //remove this shit
     uint32_t indexCount;
     uint32_t vertexLayoutHandle;
 
 public:
     //Geometry(const uint8_t* meshData, grmGeometry* drawGeom, uint16_t _materialID, uint32_t Shader);
-    Geometry(VertexBufferHandle vert_handle, IndexBufferHandle index_handle, uint32_t layoutHandle, uint32_t countIndices, TextureHandle tex_handle);
+    Geometry(VertexBufferHandle vert_handle, IndexBufferHandle index_handle, uint32_t layoutHandle, uint32_t countIndices, TextureHandle tex_handle, uint32_t textureHash);
     ~Geometry();
 
     VertexBufferHandle getVertexBufferHandle() const
@@ -127,5 +128,10 @@ public:
     uint32_t getVertexLayoutHandle() const
     {
         return vertexLayoutHandle;
+    }
+
+    uint32_t getDiffuseHash() const
+    {
+        return diffuseHash;
     }
 };

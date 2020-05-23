@@ -1748,12 +1748,20 @@ void VulkanRenderer::removeIndexbuffer(IndexBufferHandle handle)
 
 void VulkanRenderer::removeTexture(TextureHandle handle)
 {
-    //vmaDestroyImage(myAllocator, textures[handle.id], texturesMemory[handle.id]);
-    //vkDestroyImageView(device, texturesViews[handle.id], nullptr);
-    //vkDestroyImage(device, textures[handle.id], nullptr);
-    //vkFreeDescriptorSets(device, texturesDescriptorPool, 1, &texturesSet[handle.id]);
+    if (!waitCompleted)
+    {
+        int curFrame = currentFrame == 0 ? 1 : 0;
 
-    //texturesIDs.push(handle.id);
+        vkWaitForFences(device, 1, &inFlightFences[curFrame], VK_TRUE, UINT64_MAX);
+
+        waitCompleted = true;
+    }
+
+    vmaDestroyImage(myAllocator, textures[handle.id], texturesMemory[handle.id]);
+    vkDestroyImageView(device, texturesViews[handle.id], nullptr);
+    vkFreeDescriptorSets(device, texturesDescriptorPool, 1, &texturesSet[handle.id]);
+
+    texturesIDs.push(handle.id);
 }
 
 void VulkanRenderer::updateGlobalSceneBuffer(glm::mat4& Projection, glm::mat4& View)
