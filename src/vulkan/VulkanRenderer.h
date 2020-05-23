@@ -66,6 +66,8 @@ class VulkanRenderer : public BaseRenderer
     VkPhysicalDevice physicalDevice;
     VkDevice device;
 
+	VkDebugUtilsMessengerEXT debugMessenger;
+
     VkQueue graphicsQueue;
     VkQueue presentQueue;
 
@@ -78,7 +80,7 @@ class VulkanRenderer : public BaseRenderer
     std::vector<VkFramebuffer> swapChainFramebuffers;
 
 	VkImage depthImage;
-	VkDeviceMemory depthImageMemory;
+    VmaAllocation depthImageMemory;
 	VkImageView depthImageView;
 
     VkRenderPass renderPass;
@@ -102,7 +104,7 @@ class VulkanRenderer : public BaseRenderer
 	VkDescriptorSet defaultDescriptorSet;
 
     VkBuffer stagingBuffer;
-    VkDeviceMemory stagingBufferMemory;
+	VmaAllocation stagingBufferMemory;
 
 	VkDescriptorPool uboDescriptorPool;
 	VkDescriptorPool texturesDescriptorPool;
@@ -113,7 +115,7 @@ class VulkanRenderer : public BaseRenderer
 	VkDescriptorSetLayout descriptorTexturesLayout;
 
 	std::vector<VkBuffer> uboGlobalsBuffers;
-	std::vector<VkDeviceMemory>	uboGlobalBuffersMemory;
+	std::vector<VmaAllocation>	uboGlobalBuffersMemory;
 
 	VkBuffer uboModel;
 	VkDeviceMemory uboModelMemory;
@@ -143,16 +145,15 @@ class VulkanRenderer : public BaseRenderer
     bool checkDeviceExtensionSupport(VkPhysicalDevice device);
     QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
     void createSwapChain();
-	VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
+    void copyToStagingBuffer(uint32_t size, const uint8_t* pointer);
+    VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
     void createImageViews();
-	void createLocalImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage & image, VkDeviceMemory & imageMemory);
-	void createGPUImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VmaAllocation* imageMemory);
+    void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VmaAllocation* imageMemory);
 	VkCommandBuffer beginSingleTimeCommands();
 	void endSingleTimeCommands(VkCommandBuffer commandBuffer);
 	void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
 	void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
 	void createDefaultTexture();
-	void createLocalTexture(int width, int height, const uint8_t * pixels, uint64_t size, VkFormat textureFormat, VkImage & image, VkDeviceMemory & imageMemory, VkImageView & imageView);
 	void createGPUTexture(int width, int height, const uint8_t * pixels, uint64_t size, VkFormat textureFormat, VkImage & image, VmaAllocation* allocation, VkImageView & imageView);
     VkShaderModule createShaderModule(const std::vector<char>& code);
 	VkPipeline createGraphicsPipeline(VertexLayout& vertexLayout);
@@ -183,8 +184,7 @@ class VulkanRenderer : public BaseRenderer
 
 	void createDescriptorSets();
 	void createDescriptorTextureSets();
-
-	void createDefaultTextureDescriptorSet();
+	VkDescriptorSet createTextureDescriptorSet(VkImageView imageView);
 
     virtual TextureHandle createTexture(const uint8_t* pointer, int width, int height, int levels, TextureFormat format) override;
     virtual VertexBufferHandle createVertexBuffer(uint32_t size, const uint8_t* pointer) override;
@@ -203,10 +203,7 @@ class VulkanRenderer : public BaseRenderer
      void endFrame();*/
     virtual void beginFrame() override;
     void createStagingBuffer();
-	void copyToStagingBuffer(uint32_t size, const uint8_t* pointer);
-	void createGPUBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VmaAllocation* allocation);
-	void createLocalBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
-    void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
+	void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
     uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
     virtual void presentFrame() override;
 
