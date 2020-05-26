@@ -73,8 +73,11 @@ void CPed::takeDamage(float dmg)
 void CPed::physicsTick()
 {
     body->getWorldTransform().getOpenGLMatrix(&modelMatrix[0][0]);
-    body->setLinearVelocity(btVector3(movementDirection.x, movementDirection.y, body->getLinearVelocity().z()));
+    btScalar zValue = needsReset ? 0 : body->getLinearVelocity().z();
+    body->setLinearVelocity(btVector3(movementDirection.x, movementDirection.y, zValue));
     position = glm::vec3(body->getWorldTransform().getOrigin().x(), body->getWorldTransform().getOrigin().y(), body->getWorldTransform().getOrigin().z());
+
+	needsReset = false;
 }
 
 void CPed::exitVehicle()

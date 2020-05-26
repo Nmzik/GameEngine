@@ -30,6 +30,7 @@ class CPed : public CEntity
     glm::vec3 playerDirection;
     CVehicle* vehicle;
     bool on_ground = false;
+    bool needsReset = false;
     glm::vec3 movementDirection;
 
 public:
@@ -56,6 +57,11 @@ public:
     {
         movementDirection = pos;
     }
+
+	void setNeedsReset()
+	{
+		needsReset = true;
+	}
 
     void setPosition(glm::vec3 pos);
 

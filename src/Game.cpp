@@ -340,8 +340,8 @@ void Game::tick(float delta_time)
                 if (result.HasHit)
                 {
                     auto& ws = result.HitPos;
-                    player->setPosition(glm::vec3(ws.x, ws.y, ws.z + 10.0f));
-                    player->getPhysCharacter()->clearForces();
+                    player->setPosition(glm::vec3(ws.x, ws.y, ws.z + 5.0f));
+                    player->setNeedsReset();
                 }
             }
             /*bool inWater = false;
