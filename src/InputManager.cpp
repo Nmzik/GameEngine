@@ -10,7 +10,7 @@ InputManager::InputManager()
     memset(&currentInput[0], 0, ActionsKeySize);
     memset(&previousInput[0], 0, ActionsKeySize);
 #if (WIN32)  //IF SDL
-#elif
+#else
     /*keyMapping.emplace_back(53, Actions::button_ESCAPE);
     keyMapping.emplace_back(14, Actions::button_E);
     keyMapping.emplace_back(11, Actions::button_player1);

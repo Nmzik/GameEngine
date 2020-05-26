@@ -1557,15 +1557,17 @@ VertexBufferHandle VulkanRenderer::createVertexBuffer(uint32_t size, const uint8
 {
     assert(size < StagingBufferSize);
 
-    //copyToStagingBuffer(size, pointer);
-
     VkBuffer vertexBuffer;
     VmaAllocation vertexBufferMemory;
 
+#ifdef WIN32
+    createBuffer(size, VMA_MEMORY_USAGE_GPU_ONLY, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, &vertexBufferMemory);
+    copyToStagingBuffer(size, pointer);
+    copyBuffer(stagingBuffer, vertexBuffer, size);
+#else
     createBuffer(size, VMA_MEMORY_USAGE_CPU_ONLY, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, &vertexBufferMemory);
-    //copyBuffer(stagingBuffer, vertexBuffer, size);
-
-    copyDataToBuffer(vertexBufferMemory, size, pointer);
+	copyDataToBuffer(vertexBufferMemory, size, pointer);
+#endif
 
     VertexBufferHandle handle;
 
@@ -1585,15 +1587,17 @@ IndexBufferHandle VulkanRenderer::createIndexBuffer(uint32_t size, const uint8_t
 {
     assert(size < StagingBufferSize);
 
-    //copyToStagingBuffer(size, pointer);
-
     VkBuffer indexBuffer;
     VmaAllocation indexBufferMemory;
 
+#ifdef WIN32
+    createBuffer(size, VMA_MEMORY_USAGE_GPU_ONLY, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, &indexBufferMemory);
+    copyToStagingBuffer(size, pointer);
+    copyBuffer(stagingBuffer, indexBuffer, size);
+#else
     createBuffer(size, VMA_MEMORY_USAGE_CPU_ONLY, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, &indexBufferMemory);
-    // copyBuffer(stagingBuffer, indexBuffer, size);
-
     copyDataToBuffer(indexBufferMemory, size, pointer);
+#endif
 
     IndexBufferHandle handle;
 
