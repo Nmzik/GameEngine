@@ -78,40 +78,11 @@ vertex VertexOut vertexDefault(const VertexInDefault vertex_array   [[stage_in]]
     
     vertexOut.position = uniforms.projMatrix * uniforms.ViewMatrix * uniforms.modelMatrix * float4(vertex_array.position, 1);
     vertexOut.fragmentPosition = (uniforms.modelMatrix * float4(vertex_array.position, 1.0)).xyz;
-    //vertexOut.normal = (uniforms.ViewMatrix * uniforms.modelMatrix * float4(vertex_array.normal, 0.0)).xyz;
     vertexOut.normal = vertex_array.normal;
     vertexOut.texCoord = vertex_array.texCoord;
     
     return vertexOut;
 }
-
-/*fragment float4 basic_fragment(VertexOut out [[stage_in]],
-                              texture2d<float> tex2d [[texture(0)]],
-                              sampler sampler2d [[sampler(0)]]) {
-    float4 texSample = float4(tex2d.sample(sampler2d, out.texCoord));
-    
-    float ambientIntensity = 0.5;
-    float3 lightColor = {1.0, 1.0, 1.0};
-    float3 direction = {0.0, 0.0, 1.0};
-    float diffuseIntensity = 1;
-    
-    float4 ambientColor = float4(lightColor * ambientIntensity, 1.0);
-    
-    float3 norm = normalize(out.normal);
-    float diffuseFactor = max(0.0, dot(norm, direction));
-    float4 diffuseColor = float4(lightColor * diffuseIntensity * diffuseFactor, 1.0);
-    
-    float shininess = 10;
-    float specularIntensity = 2;
-    float3 eye = normalize(out.fragmentPosition);
-    float3 reflection = reflect(direction, out.normal);
-    float specularFactor = pow(max(0.0, dot(reflection, eye)), shininess);
-    float4 specularColor = float4(lightColor * specularIntensity * specularFactor, 1.0);
-    //texSample.a = de1.0;
-    //discard_fragment();
-    //return texSample;
-    return texSample * (ambientColor + diffuseColor + specularColor);
-}*/
 
 fragment half4 fragmentDefault(VertexOut out [[stage_in]],
                                texture2d<float> tex2d [[texture(0)]],
@@ -121,24 +92,23 @@ fragment half4 fragmentDefault(VertexOut out [[stage_in]],
     if (texSample.a <= 0.5)
         discard_fragment();
     
-    half ambientIntensity = 0.5;
+    half ambientIntensity = 0.1;
     half3 lightColor = {1.0, 1.0, 1.0};
-    float3 direction = {0.0, 0.0, 1.0};
+    float3 lightDir = float3(0.0, 0.0, 1.0);
     half diffuseIntensity = 1;
     
     half4 ambientColor = half4(lightColor * ambientIntensity, 1.0);
     
     float3 norm = normalize(out.normal);
-    half diffuseFactor = max(0.0, dot(norm, direction));
+    half diffuseFactor = max(0.0, dot(norm, lightDir));
     half4 diffuseColor = half4(lightColor * diffuseIntensity * diffuseFactor, 1.0);
     
-    float shininess = 10;
-    float specularIntensity = 2;
-    float3 eye = normalize(out.fragmentPosition);
-    float3 reflection = reflect(direction, out.normal);
-    float specularFactor = pow(max(0.0, dot(reflection, eye)), shininess);
-    half4 specularColor = half4(lightColor * specularIntensity * specularFactor, 1.0);
-    return texSample * (ambientColor + diffuseColor + specularColor);
+    half4 result = texSample * (ambientColor + diffuseColor);
+    
+    //Gamma correction
+    //result.rgb = pow(result.rgb, half3(1.0/2.2));
+    
+    return result;
 }
 
 struct VertexInSky {

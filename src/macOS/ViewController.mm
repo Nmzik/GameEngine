@@ -86,13 +86,13 @@
 
 - (void) flagsChanged:(NSEvent *) event {
     if ([event modifierFlags] & NSEventModifierFlagShift) {
-        game->getInput()->processButton(event.keyCode, true);
+       // game->getInput()->processButton(event.keyCode, true);
     }
 }
 
 -(void)keyUp:(NSEvent *)event
 {
-    game->getInput()->processButton(event.keyCode, false);
+    //game->getInput()->processButton(event.keyCode, false);
 }
 
 - (BOOL)acceptsFirstResponder {
