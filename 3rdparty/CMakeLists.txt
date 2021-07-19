@@ -56,3 +56,5 @@ add_library(astc ${astcSources})
 target_include_directories(astc PUBLIC astc)
 
 add_subdirectory(glm)
+
+add_subdirectory(SPIRV-Cross)
