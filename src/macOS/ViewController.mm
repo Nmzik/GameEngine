@@ -81,7 +81,7 @@
 
 - (void)keyDown:(NSEvent *)event
 {
-    game->getInput()->processButton(event.keyCode, true);
+    //game->getInput()->processButton(event.keyCode, true);
 }
 
 - (void) flagsChanged:(NSEvent *) event {

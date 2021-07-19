@@ -41,7 +41,7 @@ int main(int argc, char** argv)
 {
     if (argc != 3)
     {
-        fprintf(stderr, "arguments: SPIRV Binary, output path");
+        fprintf(stderr, "Usage: %s SOURCE OUTPUT", argv[0]);
         return -1;
     }
 

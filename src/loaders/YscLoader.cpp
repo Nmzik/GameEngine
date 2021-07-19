@@ -1,4 +1,5 @@
 #include "YscLoader.h"
+#include <iterator>
 
 #define SYSTEM_BASE_PTR(NAME) NAME = NAME & ~0x50000000;
 
