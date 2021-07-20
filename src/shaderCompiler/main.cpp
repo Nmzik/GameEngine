@@ -47,14 +47,14 @@ int main(int argc, char** argv)
 
     std::vector<uint32_t> spirv_binary = read_spirv_file(argv[1]);
 
-    spirv_cross::CompilerMSL msl(std::move(spirv_binary));
+    /*spirv_cross::CompilerMSL msl(std::move(spirv_binary));
 
     spirv_cross::CompilerMSL::Options options;
     options.set_msl_version(2, 1);
     options.platform = spirv_cross::CompilerMSL::Options::Platform::iOS;
-    std::string source = msl.compile();
+    std::string source = msl.compile();*/
 
-    /*spirv_cross::CompilerGLSL glsl(std::move(spirv_binary));
+    spirv_cross::CompilerGLSL glsl(std::move(spirv_binary));
 
     // The SPIR-V is now parsed, and we can perform reflection on it.
     spirv_cross::ShaderResources resources = glsl.get_shader_resources();
@@ -75,12 +75,13 @@ int main(int argc, char** argv)
 
     // Set some options.
     spirv_cross::CompilerGLSL::Options options;
-    options.version = 430;
+    //options.version = 430;
+    options.vulkan_semantics = true;
     options.es = false;
     glsl.set_common_options(options);
 
     // Compile to GLSL, ready to give to GL driver.
-    std::string source = glsl.compile();*/
+    std::string source = glsl.compile();
     write_file(source, argv[2]);
 
     return 0;
