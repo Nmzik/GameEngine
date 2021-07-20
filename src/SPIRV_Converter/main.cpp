@@ -72,6 +72,7 @@ int main(int argc, char** argv)
         options.set_msl_version(2, 1);
         options.platform = spirv_cross::CompilerMSL::Options::Platform::iOS;
         msl.set_msl_options(options);
+
         source = msl.compile();
     }
     else

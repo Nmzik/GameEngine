@@ -1,3 +1,7 @@
+Texture2D diffuseMap : register(t1);
+
+SamplerState sampleWrap : register(s0);
+
 cbuffer WorldData : register(b0)
 {
     float4x4 projection;
@@ -35,4 +39,11 @@ PSInput VSMain(
     result.uv = uv;
 
     return result;
+}
+
+float4 PSMain(PSInput input) : SV_TARGET
+{
+    float4 diffuseColor = diffuseMap.Sample(sampleWrap, input.uv);
+
+    return diffuseColor;
 }
